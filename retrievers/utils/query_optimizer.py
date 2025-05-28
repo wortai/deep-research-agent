@@ -4,6 +4,7 @@ from langchain.prompts import PromptTemplate
 from langchain.schema import HumanMessage
 from typing import List
 import re
+from dotenv import load_dotenv, find_dotenv
 
 class QueryVariationGenerator:
     def __init__(self, api_key: str = None):
@@ -225,37 +226,35 @@ def main():
     """
     Example usage of QueryVariationGenerator
     """
-    # Initialize with API key (replace with your actual key)
-    # You can also set GOOGLE_API_KEY environment variable instead
-    try:
-        generator = QueryVariationGenerator(api_key="AIzaSyAguOE8t4H1YON7WjH0HXj6Q-DRKRj49Pk")  # Will use env variable
-        
-        # Example 1: Basic query variations
-        base_query = "large language models"
-        variations = generator.generate_query_variations(base_query, num_variations=7)
-        
-        print(f"Base Query: '{base_query}'")
-        print(f"\nGenerated {len(variations)} variations:")
-        for i, variation in enumerate(variations, 1):
-            print(f"{i}. {variation}")
-        
-        print("\n" + "="*50 + "\n")
-        
-        # Example 2: Query with context
-        contextual_variations = generator.generate_with_context(
-            base_query="neural networks",
-            context="healthcare applications",
-            num_variations=5
-        )
-        
-        print("Contextual Variations (Neural Networks in Healthcare):")
-        for i, variation in enumerate(contextual_variations, 1):
-            print(f"{i}. {variation}")
-            
-    except ValueError as e:
-        print(f"Error: {e}")
-        print("Please set your Google API key as environment variable GOOGLE_API_KEY")
-        print("Or pass it directly to QueryVariationGenerator(api_key='your_key')")
+    # Load environment variables
+    env_file = find_dotenv()  # Automatically searches upward
+    if env_file:
+        load_dotenv(env_file)
+    
+    # Initialize generator without passing api_key - it will use the environment variable
+    generator = QueryVariationGenerator()
+    
+    # Example 1: Basic query variations
+    base_query = "large language models"
+    variations = generator.generate_query_variations(base_query, num_variations=7)
+    
+    print(f"Base Query: '{base_query}'")
+    print(f"\nGenerated {len(variations)} variations:")
+    for i, variation in enumerate(variations, 1):
+        print(f"{i}. {variation}")
+    
+    print("\n" + "="*50 + "\n")
+    
+    # Example 2: Query with context
+    contextual_variations = generator.generate_with_context(
+        base_query="neural networks",
+        context="healthcare applications",
+        num_variations=5
+    )
+    
+    print("Contextual Variations (Neural Networks in Healthcare):")
+    for i, variation in enumerate(contextual_variations, 1):
+        print(f"{i}. {variation}")
 
 
 if __name__ == "__main__":
