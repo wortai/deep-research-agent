@@ -1,4 +1,5 @@
 # Custom Ignores
+.DS_Store
 /papers
 _research
 
