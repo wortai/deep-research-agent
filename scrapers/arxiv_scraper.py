@@ -3,6 +3,10 @@ from datetime import datetime
 from langchain_community.retrievers import ArxivRetriever
 from langchain_community.document_loaders import ArxivLoader
 
+# Imports for GROBID based method
+import os, re, tempfile, requests
+from bs4 import BeautifulSoup
+
 class ArxivScraper:
     '''
     This class takes a dict of urls and creates a report returns it and saves it to a file.
@@ -21,6 +25,11 @@ class ArxivScraper:
     '''
 
     def __init__(self, urls, load_max_docs=1, scrape_method='abstract', report_name="scrape_results.txt"):
+        # GROBID Config
+        self.GROBID_URL      = "http://localhost:8070/api/processFulltextDocument"
+        self.MAX_EQUATIONS   = 50                       # cap to keep prompt lengths sane
+        self.DISPLAY_WRAP    = True                     # wrap LaTeX in $$ … $$
+
         self.urls = urls
         self.load_max_docs = load_max_docs
         self.scrape_method = scrape_method
@@ -48,12 +57,87 @@ class ArxivScraper:
         image = []
 
         return context, image, docs[0].metadata["Title"]
+
+    def _scrape_full_text_grobid(self, link):
+        """
+        Args
+        ----
+        link : str
+            e.g. "https://arxiv.org/abs/2106.01345"
+
+        Returns
+        -------
+        context : str     # prose + “Key Equations” block
+        image   : list    # kept empty for API compatibility
+        title   : str
+        """
+        # -------- 1)  main text & metadata via LangChain -----------------
+        query   = link.split("/")[-1]                 # 2106.01345
+        doc     = ArxivLoader(query=query, load_max_docs=1).load()[0]
+        title   = doc.metadata["Title"]
+        pdf_url = doc.metadata.get("pdf_url", f"https://arxiv.org/pdf/{query}.pdf")
+
+        # -------- 2)  download PDF ---------------------------------------
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+            pdf_path = tmp.name
+            tmp.write(requests.get(pdf_url, timeout=30).content)
+
+        # -------- 3)  send PDF to GROBID ---------------------------------
+        with open(pdf_path, "rb") as fh:
+            files = {"input": (os.path.basename(pdf_path), fh, "application/pdf")}
+            # `processFulltextDocument` returns TEI-XML
+            resp  = requests.post(self.GROBID_URL, files=files, timeout=120)
+        os.remove(pdf_path)
+        resp.raise_for_status()
+        tei = resp.text                                    # TEI-XML string
+
+        # -------- 4)  pull out formulas (<formula> tags) -----------------
+        soup = BeautifulSoup(tei, "lxml-xml")
+
+        formulas = []
+        for node in soup.find_all("formula"):
+            latex = None
+
+            # preferred: <tex-math> child gives raw LaTeX
+            tex = node.find("tex-math")
+            if tex and tex.string:
+                latex = tex.string.strip()
+            else:                                         # fallback to text
+                latex = re.sub(r"\s+", " ", node.get_text()).strip()
+
+            if latex:
+                if self.DISPLAY_WRAP and not latex.startswith("$$"):
+                    latex = f"$$ {latex} $$"
+                formulas.append(latex)
+
+            if len(formulas) >= self.MAX_EQUATIONS:
+                break
+
+        # deduplicate while preserving order
+        seen = set(); equations = []
+        for eq in formulas:
+            if eq not in seen:
+                equations.append(eq)
+                seen.add(eq)
+
+        math_block = ("\n\nKey Equations:\n" + "\n".join(equations)) if equations else ""
+
+        context = (
+            f"Published: {doc.metadata['Published']}; "
+            f"Author: {doc.metadata['Authors']}; "
+            f"Content: {doc.page_content}{math_block}"
+        )
+
+        image = []                             # unchanged API
+        return context, image, title
     
     def _set_scrape_method(self):
         if self.scrape_method == 'abstract':
             scrape_method = self._scrape_abstract
         elif self.scrape_method == 'full_text':
             scrape_method = self._scrape_full_text
+        elif self.scrape_method == 'full_text_grobid':
+            scrape_method = self._scrape_full_text_grobid
         else:
             raise ValueError(f"Invalid scrape method: {self.scrape_method}")
         
@@ -179,6 +263,6 @@ if __name__ == "__main__":
     'Low Rank Adaptation of Large Language Models': ['http://arxiv.org/pdf/2405.10616v2', 'http://arxiv.org/pdf/2502.13568v1', 'http://arxiv.org/pdf/2312.03732v1', 'http://arxiv.org/pdf/2504.05343v2', 'http://arxiv.org/pdf/2402.10462v1'], 
     }
 
-    scraper = ArxivScraper(urls, scrape_method='full_text', report_name="scrape_results.txt")
+    scraper = ArxivScraper(urls, scrape_method='full_text_grobid', report_name="scrape_results.txt")
     scraper.run()
 

@@ -1,5 +1,5 @@
 ArXiv Research Report
-Generated on: 2025-05-28 23:05:54
+Generated on: 2025-05-29 00:31:47
 Total Queries: 1
 Total Papers: 5
 ============================================================
@@ -2192,6 +2192,26 @@ Bolaco (5 × 4)
 Figure 6: Language modeling capabilities at different compression ratios.
 
 
+Key Equations:
+$$ W = U ΣV T , A = V T r , B = U r Σ r , where A ∈ R r×d 1 , B ∈ R d 2 ×r , Σ r is the top-r largest singular values, U r and V r are the corresponding singular vectors. If r < d 1 d 2 /(d 1 + d 2 ) $$
+$$ B,A ||W X -BAX|| F s.t. rank(BA) = r. $$
+$$ Cov(Y ) = U ΣU T Y -E[Y ] = U r U T r (W X -E[Y ]),(2) $$
+$$ Cov(Y ) ∈ R d 2 ×n , E[Y ] ∈ R d 2 $$
+$$ B = U r ∈ R d 2 ×r , A = U T r W ∈ R r×d $$
+$$ Cov S (Y ) = 1 n -1 n i=1 (y i -ȳ) T (y i -ȳ), (3) $$
+$$ Cov P (Y ) = 1 m m k=1 Cov S (Y k ) (4) $$
+$$ min λ∈V H(λ) = E (x,y)∼D h(f (x; θ, λ), y) s.t.Σλ ≤ ρ,(5) $$
+$$ 1 search steps {λ 1 , • • • , λ t-1 } and their evaluation H t-1 = [H(λ 1 ), • • • , H(λ t-1 )], $$
+$$ µ(λ) = k(K + η 2 I) -1 H t-1 σ 2 (λ) = k(λ, λ) -k T (K + η 2 I) -1 k,(6) $$
+$$ k(•, •) is a kernel function, k = (k(λ, λ i )) i∈[t-1] , K = (k(λ i , λ j )) i,j∈[t-1] , $$
+$$ α(λ) = E H(λ) max 0, H ′ -H(λ) λ t = argmax λ α(λ),(7) $$
+$$ H ′ = min i∈[t-1] H(λ i ) $$
+$$ r i = (1 -λ i )d 1 d 2 /(d 1 + d 2 ). $$
+$$ L(θ, λ) = D KL (f (x; θ)||f (x; θ, λ)). (8) $$
+$$ Y = (BA + Λ b B r ′ Λ d A r ′ )X,(9) $$
+$$ B r ′ ∈ R d 2 ×r ′ and A r ′ ∈ R r ′ ×d $$
+$$ //D0$YEFKDW //D0$YEFKDW //D0$Y )/$3 %RODFR UHXVH UHXVH%2 $$
+
 Image: []
 
 Link: http://arxiv.org/pdf/2405.10616v2
@@ -3040,6 +3060,42 @@ the approximation error.
 6
 
 
+Key Equations:
+$$ f (x 1 , • • • , x r ) = s k=1 λ k • g (1) k (x 1 ) • • • g (r) k (x r ) + O(ϵ) (1) $$
+$$ (i) k (x i )} is the factor function for the r- dimensional variable x = {x 1 , • • • , x r } at each dimension i ∈ {1, • • • , r} $$
+$$ M = s k=1 λ k M (1) k ⊗ • • • ⊗ M (r) k + O(ϵ) (2) $$
+$$ M (i) k is of dimension m (i) k,1 × m (i) k,2 and r i=1 m (i) k,1 = m 1 , r i=1 m (i) k,2 = m 2 for all k = 1, 2, • • • , s. $$
+$$ U ∈ R u 1 ×u 2 , V ∈ R v 1 ×v 2 , their Kronecker product, denoted as U ⊗V ∈ R (u 1 v 1 )×(u 2 v 2 ) , takes the format, U ⊗ V =      U 1,1 U U 1,2 V • • • U 1,u 2 V U 2,1 U U 2,2 V • • • U 2,u 2 V . . . . . . . . . . . . U u 1 ,1 U U u 1 ,2 V • • • U u 1 ,u 2 V      $$
+$$ γ = s k=1 λ 2 k 1/2 ∥M ∥ F (3) $$
+$$ γµ∥M ∥ F ≤ ϵ (4) $$
+$$ W = W + ∆W ,(5) $$
+$$ ∆W ≈ s k=1 λ k W (1) k ⊗ • • • ⊗ W (r) k(6) $$
+$$ ∆W ≈ AB (7) for W ′ = W + α∆W ,(8) $$
+$$ A ≈ s A k=1 λ A k A (1) k ⊗ A (2) k (9) B ≈ s B k=1 λ B k B (1) k ⊗ B (2) k ,(10) $$
+$$ A (i) k ∈ R a (i) k,1 ×a (i) k,2 for i = {1, 2} and B (j) k ∈ R b (j) k,1 ×b (j) k,2 for j = {1, 2}, where, a (1) k,1 × a (2) k,1 = w 1 , a (1) k,2 × a (2) k,2 = r b (1) k,1 × b (2) k,1 = r, b (1) k,2 × b (2) k,2 = w 2 , (11 $$
+$$ ) $$
+$$ k,2 = b (1) k,1 = r (1) and a (2) k,2 = b (2) k,1 = r (2) such that r (1) × r (2) = r. $$
+$$ ∆W ≈ s k=1 A (1) k ⊗ A (2) k × s k=1 B (1) k ⊗ B (2) k (12) for W ′ = W + α∆W ≈ W + α s k=1 A (1) k ⊗ A (2) k × s k=1 B (1) k ⊗ B (2) k . (13 $$
+$$ A (1) k ∈ R 32×4 , A (2) k ∈ R 24×4 , B (1) k ∈ R 32×4 , B(2) $$
+$$ (1) k ∈ R 32×2 , A (2) k ∈ R 24×2 , B (1) k ∈ R 32×2 , B(2) $$
+$$ A = s k=1 λ k A (1) k ⊗ • • • ⊗ A (r) k + O(ϵ), (15) $$
+$$ (i) k ∈ R m i ×n i , where r i=1 m i = m, r $$
+$$ 1 , • • • , u r ∈ R m and v 1 , • • • , v r ∈ R n such that, A = r k=1 u k v ⊤ k .(16) $$
+$$ u k = u (1) k ⊗ • • • ⊗ u (r) k ,(17) $$
+$$ v k = v (1) k ⊗ • • • ⊗ v (r) k ,(18) (19) $$
+$$ (i) k ∈ R m i , v(i) $$
+$$ u k v ⊤ k = ⊗ r i=1 u (i) k ⊗ r i=1 v (i) k ⊤ = ⊗ r i=1 u (i) k ⊗ r i=1 v (i) k ⊤ = r i=1 u (i) k v (i) k ⊤ .(20) $$
+$$ u (1) ⊗ u (2) ⊗ u (3) v (1) ⊗ v (2) ⊗ v (3) , $$
+$$ U ⊗ u (3) V ⊗ v (3) = (U V ) ⊗ u (3) v (3) $$
+$$ U V = u (1) ⊗ u (2) v (1) ⊗ v (2) = u (1) v (1) ⊗ u (2) v (2) .(21) $$
+$$ u (1) ⊗ u (2) ⊗ u (3) v (1) ⊗ v (2) ⊗ v (3) = u (1) v (1) ⊗ u (2) v (2) ⊗ u (3) v (3) . (22 $$
+$$ ⊗ 3 i=1 u (i) ⊗ 3 i=1 v (i) = 3 i=1 u (i) v ( $$
+$$ A (i) k ≜ u (i) k v (i) k ⊤ ∈ R m i ×n i ,(24) $$
+$$ u k v ⊤ k = A (1) k ⊗ • • • ⊗ A (r) k . (25 $$
+$$ u k v ⊤ k = λ k A (1) k ⊗ • • • ⊗ A (r) k .(26) $$
+$$ A = u k v ⊤ k = r k=1 λ k A (1) k ⊗ • • • ⊗ A (r) k ,(27) $$
+$$ A = s k=1 λ k A (1) k ⊗ • • • ⊗ A (r) k + O(ϵ),(28) $$
+
 Image: []
 
 Link: http://arxiv.org/pdf/2502.13568v1
@@ -3759,6 +3815,23 @@ ranks in rsLoRA, where the for both moments, the increase in magnitute over trai
 12
 
 
+Key Equations:
+$$ x out = W x in + b,(1) $$
+$$ x out = (W + γ r BA)x in + b.(2) $$
+$$ γ r = α √ r(4) $$
+$$ γ r ∈ Θ r ( 1 √ r ). $$
+$$ γ r ∈ Θ r ( 1 √ r ), $$
+$$ v n = ∇ f (xn) L(f (x n )): ∇ Bn L = γ r v n x T n A T n , ∇ An L = γ r B T n v n x T n .(6) $$
+$$ B n = (-ηγ r n-1 k=0 v k x T k + O r (γ 2 r ))A T 0 A n = A 0 (1 + O r (γ 2 r )).(7) $$
+$$ γ r B n A n = -γ 2 r η n-1 k=0 v k x T k A T 0 A 0 + O r (γ 3 r )A T 0 A 0(8) $$
+$$ E A0 (A T 0 A 0 ) = rσ A I dxd , $$
+$$ E A0 (γ r B n A n ) = -γ 2 r rσ A η n-1 k=0 v k x T k + O r (γ 3 r r).(9) $$
+$$ ∇ xn L(γ r B n A n x n ) = -γ 2 r rσ A η n-1 k=0 x k v T k v n + O r (γ 3 r r) ∈ Θ r (γ 2 r r).(10) $$
+$$ E x,A0 ((γ r B n A n x n ) m ) = (-γ 2 r rσ A η) m n-1 k=0 v m k E x ((x T k x n ) m ) + O r ((γ 3 r r) m ) ∈ Θ r ((γ 2 r r) m ).(11) $$
+$$ 0 $$
+$$ γ r = 1 r 2 . (13 $$
+$$ ) $$
+
 Image: []
 
 Link: http://arxiv.org/pdf/2312.03732v1
@@ -4136,22 +4209,37 @@ and a(t)
 p . They update until t reaches the maximum
 inner steps Tin or the inner stopping criterion is
 met:
-b(t)
+
+
+
+b(t)
 p a(t)
 p
-
+
+
+
 F −
-b(t−∆Tin)
+
+
+
+b(t−∆Tin)
 p
 a(t−∆Tin)
 p
-
+
+
+
 F
-b(t−∆Tin)
+
+
+
+b(t−∆Tin)
 p
 a(t−∆Tin)
 p
-
+
+
+
 F
 < εin
 (5)
@@ -5733,22 +5821,37 @@ p .
 if MOD(t, ∆Tin) = 0 then
 8
 inner_converged = True, if
-b(t)
+
+
+
+b(t)
 p a(t)
 p
-
+
+
+
 F −
-b(t−∆Tin)
+
+
+
+b(t−∆Tin)
 p
 a(t−∆Tin)
 p
-
+
+
+
 F
-b(t−∆Tin)
+
+
+
+b(t−∆Tin)
 p
 a(t−∆Tin)
 p
-
+
+
+
 F
 < εin. // CHECK
 9
@@ -6025,6 +6128,23 @@ AROMA
 Table 9: Hyperparameter setup for RoBERTa-base on GLUE
 16
 
+
+Key Equations:
+$$ W = W 0 + α r ∆W , ∆W = BA (1) $$
+$$ ∆W = P ΛQ, s.t. P T P = QQ T = I r(2) $$
+$$ L = r p=1 b p a p (3 $$
+$$ ) $$
+$$ ∆W = b 1 a 1 + b 2 a 2 + • • • + b p-1 a p-1 + b p a p = B p-1 b p A p-1 a p(4) $$
+$$ b 1 a 1 , b 2 a 2 , • • • , b p-1 a p- $$
+$$ (t) p a (t) p F -b (t-∆T in ) p a (t-∆T in ) p F b (t-∆T in ) p a (t-∆T in ) p F < ε in (5) $$
+$$ ∥(W 0 + αB p A p ) -(W 0 + αB p-1 A p-1 )∥ F ∥W 0 + αB p-1 A p-1 ∥ F = ∥αb p a p ∥ F ∥W 0 + αB p-1 A p-1 ∥ F < ε out (6) $$
+$$ (t) p a (t) $$
+$$ Complexity O((m + n)r) O((m + n)r) O((m + n)p) $$
+$$ O((m + n)r) O((m + n)r) O((m + n)p) Overall Complexity O((m + n)rT ) O( r i + r f 2 (m + n)T ) O (m + n)T 1+P 2 $$
+$$ σ 1 ≥ σ 2 ≥ • • • ≥ σ K ≥ 0(7) $$
+$$ K = min {m, n}. Given p k = σ k K k=1 |σ k | $$
+$$ erank = exp {H(p 1 , p 2 , • • • , p K )}(8) $$
+$$ H(p 1 , p 2 , • • • , p K ) = - K k=1 p k log p k (9) $$
 
 Image: []
 
@@ -6856,6 +6976,11 @@ market for $2 each so she makes 9*2=«9*2=18»18
 dollars a day. Janet makes 18 dollars a day at the
 farmers’ market.
 
+
+Key Equations:
+$$ h = W DDequant-N F 4 0 x BF 16 + α b W BF 16 up↓b W BF 16 dw↓b x BF 16 (1) $$
+$$ W DDequant-N F 4 0 = W N F 4 0 c F P 8 2 /c F P 32 1 (2) $$
+$$ W BF 16 dw↓b ← W BF 16 dw↓b -η∇ W BF 16 dw↓b L DY ↓b W BF 16 up↓b ← W up↓b -η∇ W BF 16 up↓b L DY ↓b (3) $$
 
 Image: []
 
