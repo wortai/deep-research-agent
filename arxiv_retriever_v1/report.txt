@@ -1,0 +1,6 @@
+
+SUMMARY
+============================================================
+Total papers processed: 15
+Successful extractions: 15
+Failed extractions: 0
