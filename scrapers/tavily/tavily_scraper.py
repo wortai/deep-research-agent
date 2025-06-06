@@ -14,7 +14,7 @@ class Tavily:
     #   only required to provide query :  temp = Tavily(query: required )
     def __init__(
         self,
-        query: str,
+        query: str,  # <--- required 
         queries :list[str] = None , # Default to None, good practice
         depth: bool = False, # advance or basic 
         topic: str = "general", # general for broader , news for more accurate and finance for more finace related
@@ -35,7 +35,7 @@ class Tavily:
 
     def get_api_key(self):
         try:
-            return os.environ["TAVILY_API_KEY"]
+            return os.environ.get("TAVILY_API_KEY")
         except KeyError:
             logging.error("Tavily API key not found.") # Improved error message
             raise Exception("Tavily API key not found. Please set the TAVILY_API_KEY environment variable.")
@@ -129,3 +129,5 @@ class Tavily:
                     "results": response_item.get("results", []) 
                 })
         return structured_responses
+
+
