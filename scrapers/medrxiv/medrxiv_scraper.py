@@ -226,9 +226,17 @@ class AsyncMedRxivScraper:
 def main():
     # Example subjects with paper counts (like your ArXiv scraper format)
     subjects = {
-        'Recent Medical Research': ['paper1', 'paper2'],  # Gets 2 recent papers
-        'COVID Studies': ['paper1'],                      # Gets 1 recent paper  
-        'Clinical Trials': ['paper1', 'paper2', 'paper3'] # Gets 3 recent papers
+        "CRISPR gene editing": [
+            "http://medrxiv.org/cgi/content/short/2025.06.05.25329036v1?rss=1",
+            "http://medrxiv.org/cgi/content/short/2025.06.04.25328999v1?rss=1",
+            "http://medrxiv.org/cgi/content/short/2025.06.05.25329058v1?rss=1"
+        ],
+        "machine learning drug discovery": [
+            "http://medrxiv.org/cgi/content/short/2025.06.04.25329015v1?rss=1"
+        ],
+        "COVID-19 vaccine efficacy": [
+            "http://medrxiv.org/cgi/content/short/2025.06.05.25329097v1?rss=1"
+    ]
     }
     
     # Initialize and run scraper
