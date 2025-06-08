@@ -11,7 +11,7 @@ from urllib.parse import quote
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLoggger(__name__)
+logger = logging.getLogger(__name__)
 
 @dataclass
 class RetrievalResult:
