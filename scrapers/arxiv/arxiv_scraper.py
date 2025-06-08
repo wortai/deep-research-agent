@@ -194,16 +194,16 @@ class AsyncArxivScraper:
         }
         
         # Save JSON
-        with open(self.output, 'w') as f:
-            json.dump(output, f, indent=2)
+        # with open(self.output, 'w') as f:
+        #     json.dump(output, f, indent=2)
         
         # Save markdown files
-        md_dir = Path("arxiv_markdown")
-        md_dir.mkdir(exist_ok=True)
-        for p in self.papers:
-            if not p.error:
-                safe_title = re.sub(r'[^\w\s-]', '', p.title)[:30]
-                (md_dir / f"{p.arxiv_id}_{safe_title}.md").write_text(p.to_markdown())
+        # md_dir = Path("arxiv_markdown")
+        # md_dir.mkdir(exist_ok=True)
+        # for p in self.papers:
+        #     if not p.error:
+        #         safe_title = re.sub(r'[^\w\s-]', '', p.title)[:30]
+        #         (md_dir / f"{p.arxiv_id}_{safe_title}.md").write_text(p.to_markdown())
         
         logger.info(f"Complete! Success: {self.stats['success']}/{self.stats['total']}, Time: {output['metadata']['elapsed_seconds']:.1f}s")
         self.executor.shutdown(wait=False)
