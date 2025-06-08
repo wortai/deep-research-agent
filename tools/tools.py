@@ -14,11 +14,11 @@ from datetime import datetime
 import os
 
 # Scrapers and Retrievers Modules Import
-from retrievers.arxiv.arxiv_retriever import ArxivRetriever
-from scrapers.arxiv.arxiv_scraper import AsyncArxivScraper
-from retrievers.research_rssharvest.research_rssharvest_retriever import RSSPreprintRetriever
-from scrapers.medrxiv.medrxiv_scraper import AsyncMedRxivScraper
-from scrapers.biorxiv.biorxiv_scraper import AsyncBioRxivScraper
+from retrievers.arxiv import ArxivRetriever
+from scrapers.arxiv import AsyncArxivScraper
+from retrievers.research_rssharvest import RSSPreprintRetriever
+from scrapers.medrxiv import AsyncMedRxivScraper
+from scrapers.biorxiv import AsyncBioRxivScraper
 
 
 # Arxiv Tool: Input = List of Queries, Output = Returns papers in JSON format
