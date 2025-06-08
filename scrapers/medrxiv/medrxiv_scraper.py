@@ -5,8 +5,9 @@ Simple MedRxiv Scraper - Subject-based with Full Text
 Usage: asyncio.run(scraper.run())
 
 Output: 
-- JSON file with metadata and paper content (medrxiv_papers.json)
-- Markdown files for each paper (medrxiv_markdown/)
+- JSON output with metadata and paper content
+- JSON file with metadata and paper content (medrxiv_papers.json) -commented-out
+- Markdown file for each paper (medrxiv_markdown/) -commented-out
 """
 
 import re, json, asyncio, aiohttp, fitz, logging, time
@@ -206,16 +207,16 @@ class AsyncMedRxivScraper:
         }
         
         # Save JSON
-        with open(self.output, 'w', encoding='utf-8') as f:
-            json.dump(output, f, indent=2, ensure_ascii=False)
+        # with open(self.output, 'w', encoding='utf-8') as f:
+        #     json.dump(output, f, indent=2, ensure_ascii=False)
         
         # Save markdown files
-        md_dir = Path("medrxiv_markdown")
-        md_dir.mkdir(exist_ok=True)
-        for p in self.papers:
-            if not p.error:
-                safe_title = re.sub(r'[^\w\s-]', '', p.title)[:30]
-                (md_dir / f"{p.doi.replace('/', '_')}_{safe_title}.md").write_text(p.to_markdown())
+        # md_dir = Path("medrxiv_markdown")
+        # md_dir.mkdir(exist_ok=True)
+        # for p in self.papers:
+        #     if not p.error:
+        #         safe_title = re.sub(r'[^\w\s-]', '', p.title)[:30]
+        #         (md_dir / f"{p.doi.replace('/', '_')}_{safe_title}.md").write_text(p.to_markdown())
         
         logger.info(f"Complete! Success: {self.stats['success']}/{len(self.papers)}, "
                    f"Time: {output['metadata']['elapsed_seconds']:.1f}s")
