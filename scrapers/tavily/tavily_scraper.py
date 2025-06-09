@@ -9,8 +9,39 @@ load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# This class provides an interface to interact with the Tavily Search API for various search and content extraction tasks.
+#
+# How to use this class:
+# 1. Ensure you have a TAVILY_API_KEY environment variable set.
+# 2. Create an instance of the Tavily class, passing in desired parameters.
+# 3. Call the appropriate asynchronous method for your search or extraction needs.
+#
+# Example (assuming you are in an async function):
+#   # For a basic search
+#   tavily_basic = Tavily(query="latest news on AI", depth=False, max_result=2)
+#   basic_results = await tavily_basic.resolve_query()
+#
+#   # For an advanced search with multiple queries
+#   queries_list = ["current price of gold", "weather in New York City"]
+#   tavily_multi_query = Tavily(queries=queries_list, depth=True, max_result=1)
+#   multi_query_results = await tavily_multi_query.multiple_advance_queries()
+#
+#   # For extracting content from a URL
+#   tavily_extract = Tavily() # query is optional if only using extract_content
+#   extracted_data = await tavily_extract.extract_content("https://example.com/article")
+#
 class Tavily:
 
+    # Initializes the Tavily client with search parameters.
+    #
+    # Params:
+    #   query (str, optional): The main search query. Defaults to None.
+    #   queries (List[str], optional): A list of queries for batch operations. Defaults to None.
+    #   depth (bool, optional): If True, uses "advanced" search depth; otherwise, "basic". Defaults to False.
+    #   topic (str, optional): The topic for the search. Defaults to "general".
+    #   max_result (int, optional): The maximum number of search results to return. Defaults to 5.
+    #   include_images (bool, optional): If True, includes images in advanced search results. Defaults to False.
+    #   include_raw_content (bool, optional): If True, includes raw content in advanced search results. Defaults to False.
     def __init__(
         self,
         query: str = None,
@@ -33,6 +64,7 @@ class Tavily:
         self.async_tavily_client = AsyncTavilyClient(api_key=self.get_api_key())
         self.semaphore = asyncio.Semaphore(5) # Initialize semaphore for 5 concurrent tasks
 
+    # Retrieves the Tavily API key from environment variables.
     def get_api_key(self):
         try:
             api_key = os.environ.get("TAVILY_API_KEY")
@@ -43,6 +75,7 @@ class Tavily:
             logging.error(f"Configuration error: {e}")
             raise
 
+    # Performs a basic search and returns a list of dictionaries with URLs and content snippets.
     async def basic_search(self) -> List[Dict[str, str]]:
         if not self.query:
             logging.error("Query is required for basic_search.")
@@ -66,6 +99,7 @@ class Tavily:
             logging.error(f"Error in basic search for query '{self.query}': {str(e)}")
             return []
 
+    # Performs an advanced search and returns a tuple containing lists of images and search results.
     async def advance_search(self) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
         if not self.query:
             logging.error("Query is required for advance_search.")
@@ -88,12 +122,14 @@ class Tavily:
             logging.error(f"Error Occurred in advance_search for query '{self.query}': {e}")
             return [], []
 
+    # Resolves the query based on the specified search depth, performing either a basic or advanced search.
     async def resolve_query(self) -> Any:
         if self.depth == "advanced":
             return await self.advance_search()
         else:
             return await self.basic_search()
 
+    # Performs multiple advanced queries concurrently and returns their results.
     async def multiple_advance_queries(self) -> List[Dict[str, Any]]:
         if not self.queries:
             logging.warning("No queries provided to multiple_advance_queries. Returning empty list.")
@@ -118,6 +154,7 @@ class Tavily:
         tasks = [_single_query_task(query_item) for query_item in self.queries]
         return await asyncio.gather(*tasks)
 
+    # Extracts content from a single URL.
     async def extract_content(self, url: str) -> Dict[str, str]:
         async with self.semaphore:
             try:
@@ -147,8 +184,7 @@ class Tavily:
                 return {"url": url, "content": None, "error": f"Unexpected error: {str(e)}"}
 
 
-
-
+    # Extracts content from multiple URLs concurrently.
     async def multiple_extract_content(self, urls: List[str]) -> List[Dict[str, Any]]:
         if not urls:
             logging.warning("No URLs provided to multiple_extract_content. Returning empty list.")
@@ -213,20 +249,20 @@ async def main():
 
 
     # Test 5: Multiple URL Content Extraction (needs valid URLs)
-    logging.info("\n--- Test Case 5: Multiple URL Content Extraction ---")
-    # Replace these with actual URLs for testing
-    sample_urls = [
-        "https://www.reddit.com/r/Piracy/comments/155vjyr/how_do_i_pirate_articles_on_medium/",
-        "https://abcnews.go.com/Politics/day-after-blistering-exchange-trump-calls-elon-musk/story?id=122567621",
-        "https://myanimelist.net/character/174185/Jin-Woo_Sung"
-    ]
-    tavily_multi_extract = Tavily(query="dummy") # query is not used here, but needed for init
-    multi_extracted_contents = await tavily_multi_extract.multiple_extract_content(sample_urls)
-    for item in multi_extracted_contents:
-        if item.get("content"):
-            logging.info(f"Extracted from {item.get('url')[:50] if item.get('url') else 'N/A'}...: {item.get('content')[:150]}...")
-        else:
-            logging.info(f"Failed to extract from {item.get('url') if item.get('url') else 'N/A'}: {item.get('error', 'No content and no error specified')}")
+    # logging.info("\n--- Test Case 5: Multiple URL Content Extraction ---")
+    # # Replace these with actual URLs for testing
+    # sample_urls = [
+    #     "https://www.reddit.com/r/Piracy/comments/155vjyr/how_do_i_pirate_articles_on_medium/",
+    #     "https://abcnews.go.com/Politics/day-after-blistering-exchange-trump-calls-elon-musk/story?id=122567621",
+    #     "https://myanimelist.net/character/174185/Jin-Woo_Sung"
+    # ]
+    # tavily_multi_extract = Tavily(query="dummy") # query is not used here, but needed for init
+    # multi_extracted_contents = await tavily_multi_extract.multiple_extract_content(sample_urls)
+    # for item in multi_extracted_contents:
+    #     if item.get("content"):
+    #         logging.info(f"Extracted from {item.get('url')[:50] if item.get('url') else 'N/A'}...: {item.get('content')[:150]}...")
+    #     else:
+    #         logging.info(f"Failed to extract from {item.get('url') if item.get('url') else 'N/A'}: {item.get('error', 'No content and no error specified')}")
 
 if __name__ == "__main__":
     asyncio.run(main())

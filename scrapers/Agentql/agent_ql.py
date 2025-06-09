@@ -15,17 +15,49 @@ os.environ.get("AGENTQL_API_KEY")
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# AgentQLScraper class
+# This class provides a utility for scraping web data using AgentQL's browser and extraction tools.
+# It supports both 'prompt' and 'query' based extraction.
+#
+
+
+# How to use this class:
+# async def main():
+#     # Example using prompt
+#     async with AgentQLScraper(url="https://www.example.com", prompt="Extract the main heading and all paragraphs.") as scraper:
+#         data = await scraper.extract_data()
+#         print(data)
+#
+#     # Example using query (ensure 'query' is a valid JSON string or structure as expected by AgentQL)
+#     # For instance, a simple query might look like: '{"title": "h1", "description": "p"}'
+#     async with AgentQLScraper(url="https://www.example.com", query='{"title": "h1", "description": "p"}') as scraper:
+#         data = await scraper.extract_data()
+#         print(data)
+#
+# if __name__ == "__main__":
+#     import asyncio
+#     asyncio.run(main())
 class AgentQLScraper:
+    # Initializes the AgentQLScraper with a URL and either a prompt or a query.
     def __init__(self, url: str, prompt: Optional[str] = None, query: Optional[str] = None):
         if not (prompt or query) or (prompt and query):
             raise ValueError("You must provide either 'prompt' or 'query', but not both.")
-        self.url = url
-        self.prompt = prompt
-        self.query = query
+        self.url = url  # - url (str): The URL of the webpage to scrape.
+        self.prompt = prompt  # - prompt (Optional[str]): A natural language prompt describing the data to extract.
+        self.query = query # - query (Optional[str]): A structured query (e.g., JSON string) defining the data to extract.
         self.browser: Optional[PlaywrightBrowser] = None
         self.navigate_tool: Optional[NavigateTool] = None
         self.extract_tool: Optional[ExtractWebDataBrowserTool] = None
+        
+        # ! IMP - #   Note: Exactly one of 'prompt' or 'query' must be provided.
+        
+    
 
+
+
+#
+
+    # Retrieves the AgentQL API key from environment variables.
     @staticmethod
     def _get_api_key() -> str:
         api_key = os.environ.get("AGENTQL_API_KEY")
@@ -33,6 +65,7 @@ class AgentQLScraper:
             raise ValueError("AGENTQL_API_KEY environment variable is required.")
         return api_key
 
+    # Asynchronously initializes the Playwright browser and AgentQL tools (NavigateTool, ExtractWebDataBrowserTool).
     async def __aenter__(self) -> 'AgentQLScraper':
         try:
             self._get_api_key() # Ensures API key is present
@@ -45,11 +78,14 @@ class AgentQLScraper:
                 await self.browser.close()
             raise
 
+    # Asynchronously closes the Playwright browser when exiting the async context.
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if self.browser:
             await self.browser.close()
             self.browser = None
 
+    # Navigates to the specified URL and extracts data using the provided prompt or query.
+    # Returns the extracted data as a dictionary.
     async def extract_data(self) -> Dict[str, Any]:
         if not self.browser or not self.navigate_tool or not self.extract_tool:
             raise ValueError("Browser and tools are not initialized. Use 'async with'.")
