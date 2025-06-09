@@ -189,7 +189,7 @@ def test_arxiv_tool():
     print("Testing ArXiv Search Tool...")
     
     # Test with a simple query
-    result = arxiv_search_tool.invoke({
+    result = arxiv_tool.invoke({
         "queries": ["low rank adaptation in large language models", "attention mechanism of transformers"],
         "papers_per_query": 2
     })
