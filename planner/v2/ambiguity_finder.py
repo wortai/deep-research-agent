@@ -135,6 +135,7 @@ def analyze_query_ambiguities(
         Complete ambiguity analysis with clarifying questions
     """
     
+    
     if not enhanced_query or not enhanced_query.strip():
         raise ValueError("Enhanced query cannot be empty")
     
