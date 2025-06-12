@@ -1,0 +1,485 @@
+{
+    "metadata": {
+      "root_query": "impact of renewable energy on global economy",
+      "enhanced_query": "Provide a comprehensive analysis of the impact of renewable energy sources (solar, wind, hydro, geothermal, biomass) on the global economy, considering: (1) macroeconomic effects on GDP growth, job creation, and investment; (2) sector-specific impacts on energy production, manufacturing, and transportation; (3) geopolitical implications related to energy security and international trade; (4) the role of government policies (subsidies, carbon pricing, regulations) in shaping renewable energy adoption and economic outcomes; (5) challenges and opportunities related to grid integration, energy storage, and technological advancements; and (6) a comparative analysis of the economic performance of renewable energy versus fossil fuels.",
+      "generation_timestamp": "2025-06-09T10:30:00Z",
+      "model_used": "gemini-1.5-flash",
+      "tree_parameters": {
+        "max_depth": 3,
+        "max_dependencies_per_node": 4
+      }
+    },
+    "tree_statistics": {
+      "total_questions": 85,
+      "total_leaf_questions": 64,
+      "ready_to_resolve_initially": 64,
+      "max_depth_achieved": 3,
+      "complexity_distribution": {
+        "level_1": 37,
+        "level_2": 33,
+        "level_3": 13,
+        "level_4": 1,
+        "level_5": 1
+      },
+      "question_type_distribution": {
+        "factual": 42,
+        "contextual": 25,
+        "analytical": 12,
+        "quantitative": 4,
+        "verification": 2
+      }
+    },
+    "research_questions": {
+      "leaf_questions": [
+        {
+          "question_id": "q_1_1_1_1",
+          "question_text": "What is the definition of 'renewable' in the context of resource sustainability?",
+          "question_type": "factual",
+          "complexity_level": 1,
+          "priority": 1,
+          "search_keywords": ["renewable resource", "sustainability", "resource depletion"],
+          "expected_answer_type": "definition",
+          "depth": 3,
+          "parent_question_id": "q_1_1_1",
+          "is_leaf": true,
+          "dependency_reasoning": "Basic definition needed before understanding energy source classification"
+        },
+        {
+          "question_id": "q_1_1_1_2",
+          "question_text": "What is the definition of 'non-renewable' in the context of resource sustainability?",
+          "question_type": "factual",
+          "complexity_level": 1,
+          "priority": 1,
+          "search_keywords": ["non-renewable resource", "resource depletion", "finite resource"],
+          "expected_answer_type": "definition",
+          "depth": 3,
+          "parent_question_id": "q_1_1_1",
+          "is_leaf": true,
+          "dependency_reasoning": "Complementary definition needed for energy source classification"
+        },
+        {
+          "question_id": "q_1_1_1_3",
+          "question_text": "What are the key characteristics that distinguish a renewable energy source's replenishment rate from a non-renewable energy source's depletion rate?",
+          "question_type": "analytical",
+          "complexity_level": 2,
+          "priority": 1,
+          "search_keywords": ["resource replenishment", "depletion rate", "energy source classification"],
+          "expected_answer_type": "analytical comparison",
+          "depth": 3,
+          "parent_question_id": "q_1_1_1",
+          "is_leaf": true,
+          "dependency_reasoning": "Understanding rate differences is fundamental to classification"
+        },
+        {
+          "question_id": "q_1_1_1_4",
+          "question_text": "What is the timeframe considered for evaluating the renewability of an energy source (e.g., human lifespan, geological timescale)?",
+          "question_type": "contextual",
+          "complexity_level": 2,
+          "priority": 2,
+          "search_keywords": ["timescale", "renewable energy", "sustainability assessment"],
+          "expected_answer_type": "contextual framework",
+          "depth": 3,
+          "parent_question_id": "q_1_1_1",
+          "is_leaf": true,
+          "dependency_reasoning": "Timeframe context essential for renewability assessment"
+        },
+        {
+          "question_id": "q_1_1_2_1",
+          "question_text": "What types of energy sources are included in 'global energy production' (e.g., fossil fuels, renewables, nuclear)?",
+          "question_type": "factual",
+          "complexity_level": 1,
+          "priority": 1,
+          "search_keywords": ["energy sources", "energy production types", "global energy mix"],
+          "expected_answer_type": "categorized list",
+          "depth": 3,
+          "parent_question_id": "q_1_1_2",
+          "is_leaf": true,
+          "dependency_reasoning": "Need to know what's included before analyzing data sources"
+        },
+        {
+          "question_id": "q_1_1_2_2",
+          "question_text": "What are the key characteristics of reliable data sources (e.g., data quality, methodology, transparency, coverage, timeliness)?",
+          "question_type": "factual",
+          "complexity_level": 2,
+          "priority": 1,
+          "search_keywords": ["data quality assessment", "data reliability criteria", "energy data methodology"],
+          "expected_answer_type": "evaluation criteria",
+          "depth": 3,
+          "parent_question_id": "q_1_1_2",
+          "is_leaf": true,
+          "dependency_reasoning": "Must understand reliability criteria before evaluating sources"
+        },
+        {
+          "question_id": "q_1_1_2_3",
+          "question_text": "What are the major international organizations and governmental bodies involved in collecting and publishing global energy data?",
+          "question_type": "contextual",
+          "complexity_level": 2,
+          "priority": 1,
+          "search_keywords": ["international energy agencies", "national energy statistics", "global energy data organizations"],
+          "expected_answer_type": "organizational overview",
+          "depth": 3,
+          "parent_question_id": "q_1_1_2",
+          "is_leaf": true,
+          "dependency_reasoning": "Need to identify key data collection organizations"
+        },
+        {
+          "question_id": "q_1_1_2_4",
+          "question_text": "What are the common formats and units of measurement used in global energy production data (e.g., terawatt-hours, millions of barrels of oil equivalent)?",
+          "question_type": "factual",
+          "complexity_level": 1,
+          "priority": 2,
+          "search_keywords": ["energy units", "energy data formats", "global energy data standards"],
+          "expected_answer_type": "technical specifications",
+          "depth": 3,
+          "parent_question_id": "q_1_1_2",
+          "is_leaf": true,
+          "dependency_reasoning": "Understanding units necessary before data analysis"
+        },
+        {
+          "question_id": "q_1_1_3_1",
+          "question_text": "What constitutes the 'global energy mix' (i.e., which energy sources are included and how are they categorized)?",
+          "question_type": "factual",
+          "complexity_level": 2,
+          "priority": 1,
+          "search_keywords": ["global energy mix", "energy sources", "energy categories", "renewable energy", "fossil fuels"],
+          "expected_answer_type": "categorical framework",
+          "depth": 3,
+          "parent_question_id": "q_1_1_3",
+          "is_leaf": true,
+          "dependency_reasoning": "Must define energy mix components before temporal analysis"
+        },
+        {
+          "question_id": "q_1_1_3_2",
+          "question_text": "What is the frequency of data collection for each energy source within the global energy mix?",
+          "question_type": "contextual",
+          "complexity_level": 2,
+          "priority": 2,
+          "search_keywords": ["energy data", "data frequency", "IEA", "BP Statistical Review", "EIA"],
+          "expected_answer_type": "temporal framework",
+          "depth": 3,
+          "parent_question_id": "q_1_1_3",
+          "is_leaf": true,
+          "dependency_reasoning": "Data frequency affects timeframe selection"
+        },
+        {
+          "question_id": "q_1_2_1_1",
+          "question_text": "What are the standard definitions of GDP growth, job creation, and investment at the national level?",
+          "question_type": "factual",
+          "complexity_level": 1,
+          "priority": 1,
+          "search_keywords": ["GDP definition", "job creation metrics", "investment measurement", "national accounts"],
+          "expected_answer_type": "standard definitions",
+          "depth": 3,
+          "parent_question_id": "q_1_2_1",
+          "is_leaf": true,
+          "dependency_reasoning": "National-level definitions needed before industry-level analysis"
+        },
+        {
+          "question_id": "q_1_2_1_2",
+          "question_text": "What are the different industry classification systems used (e.g., NAICS, ISIC) and how do they vary across countries?",
+          "question_type": "contextual",
+          "complexity_level": 2,
+          "priority": 1,
+          "search_keywords": ["NAICS", "ISIC", "industry classification", "standard industrial classification"],
+          "expected_answer_type": "classification framework",
+          "depth": 3,
+          "parent_question_id": "q_1_2_1",
+          "is_leaf": true,
+          "dependency_reasoning": "Classification systems must be understood before industry measurement"
+        }
+      ],
+      "intermediate_questions": [
+        {
+          "question_id": "q_1_1_1",
+          "question_text": "What constitutes a 'renewable' versus a 'non-renewable' energy source?",
+          "question_type": "factual",
+          "complexity_level": 2,
+          "priority": 1,
+          "search_keywords": ["renewable energy", "non-renewable energy", "energy source classification"],
+          "expected_answer_type": "comparative definitions",
+          "depth": 2,
+          "parent_question_id": "q_1_1",
+          "dependencies": ["q_1_1_1_1", "q_1_1_1_2", "q_1_1_1_3", "q_1_1_1_4"],
+          "is_leaf": false
+        },
+        {
+          "question_id": "q_1_1_2",
+          "question_text": "What are the reliable sources of global energy production data?",
+          "question_type": "contextual",
+          "complexity_level": 2,
+          "priority": 1,
+          "search_keywords": ["global energy statistics", "IEA", "BP Statistical Review", "EIA"],
+          "expected_answer_type": "source evaluation",
+          "depth": 2,
+          "parent_question_id": "q_1_1",
+          "dependencies": ["q_1_1_2_1", "q_1_1_2_2", "q_1_1_2_3", "q_1_1_2_4"],
+          "is_leaf": false
+        },
+        {
+          "question_id": "q_1_1_3",
+          "question_text": "What is the appropriate timeframe for measuring the current global energy mix?",
+          "question_type": "contextual",
+          "complexity_level": 2,
+          "priority": 2,
+          "search_keywords": ["energy statistics timeframe", "annual energy data", "global energy trends"],
+          "expected_answer_type": "temporal methodology",
+          "depth": 2,
+          "parent_question_id": "q_1_1",
+          "dependencies": ["q_1_1_3_1", "q_1_1_3_2", "q_1_1_3_3", "q_1_1_3_4"],
+          "is_leaf": false
+        },
+        {
+          "question_id": "q_1_1",
+          "question_text": "What is the current global energy mix (percentage of energy sourced from each renewable and non-renewable source)?",
+          "question_type": "quantitative",
+          "complexity_level": 3,
+          "priority": 1,
+          "search_keywords": ["global energy consumption", "renewable energy share", "energy mix data", "IEA data"],
+          "expected_answer_type": "quantitative breakdown",
+          "depth": 1,
+          "parent_question_id": "root",
+          "dependencies": ["q_1_1_1", "q_1_1_2", "q_1_1_3", "q_1_1_4"],
+          "is_leaf": false
+        },
+        {
+          "question_id": "q_1_2",
+          "question_text": "What are the established methodologies for quantifying the macroeconomic impacts (GDP growth, job creation, investment) of specific industries?",
+          "question_type": "analytical",
+          "complexity_level": 4,
+          "priority": 1,
+          "search_keywords": ["input-output analysis", "econometric modeling", "computable general equilibrium", "impact assessment methodology"],
+          "expected_answer_type": "methodological framework",
+          "depth": 1,
+          "parent_question_id": "root",
+          "dependencies": ["q_1_2_1", "q_1_2_2", "q_1_2_3", "q_1_2_4"],
+          "is_leaf": false
+        },
+        {
+          "question_id": "q_1_3",
+          "question_text": "What are the existing government policies (subsidies, carbon pricing, regulations) related to renewable energy adoption in major economies globally?",
+          "question_type": "contextual",
+          "complexity_level": 3,
+          "priority": 1,
+          "search_keywords": ["renewable energy policies", "carbon pricing mechanisms", "renewable energy subsidies", "national energy policies"],
+          "expected_answer_type": "policy landscape",
+          "depth": 1,
+          "parent_question_id": "root",
+          "dependencies": ["q_1_3_1", "q_1_3_2", "q_1_3_3", "q_1_3_4"],
+          "is_leaf": false
+        },
+        {
+          "question_id": "q_1_4",
+          "question_text": "What are the established metrics for comparing the economic performance of different energy sources (e.g., levelized cost of energy, externalities, lifecycle costs)?",
+          "question_type": "factual",
+          "complexity_level": 3,
+          "priority": 1,
+          "search_keywords": ["levelized cost of energy (LCOE)", "externality costs", "lifecycle assessment", "energy cost comparison"],
+          "expected_answer_type": "evaluation metrics",
+          "depth": 1,
+          "parent_question_id": "root",
+          "dependencies": ["q_1_4_1", "q_1_4_2", "q_1_4_3", "q_1_4_4"],
+          "is_leaf": false
+        }
+      ],
+      "root_question": {
+        "question_id": "root",
+        "question_text": "Provide a comprehensive analysis of the impact of renewable energy sources (solar, wind, hydro, geothermal, biomass) on the global economy, considering: (1) macroeconomic effects on GDP growth, job creation, and investment; (2) sector-specific impacts on energy production, manufacturing, and transportation; (3) geopolitical implications related to energy security and international trade; (4) the role of government policies (subsidies, carbon pricing, regulations) in shaping renewable energy adoption and economic outcomes; (5) challenges and opportunities related to grid integration, energy storage, and technological advancements; and (6) a comparative analysis of the economic performance of renewable energy versus fossil fuels.",
+        "question_type": "analytical",
+        "complexity_level": 5,
+        "priority": 1,
+        "search_keywords": ["Provide", "a", "comprehensive", "analysis", "of"],
+        "expected_answer_type": "comprehensive analysis",
+        "depth": 0,
+        "dependencies": ["q_1_1", "q_1_2", "q_1_3", "q_1_4"],
+        "is_leaf": false
+      }
+    },
+    "execution_strategy": {
+      "execution_order": [
+        {
+          "sequence_number": 1,
+          "question_id": "q_1_1_1_1",
+          "question_text": "What is the definition of 'renewable' in the context of resource sustainability?",
+          "execution_phase": "foundation",
+          "can_execute_immediately": true,
+          "prerequisites_resolved": true,
+          "estimated_research_time": "5-10 minutes",
+          "parallel_group": "definitions"
+        },
+        {
+          "sequence_number": 2,
+          "question_id": "q_1_1_1_2",
+          "question_text": "What is the definition of 'non-renewable' in the context of resource sustainability?",
+          "execution_phase": "foundation",
+          "can_execute_immediately": true,
+          "prerequisites_resolved": true,
+          "estimated_research_time": "5-10 minutes",
+          "parallel_group": "definitions"
+        },
+        {
+          "sequence_number": 3,
+          "question_id": "q_1_1_1_3",
+          "question_text": "What are the key characteristics that distinguish a renewable energy source's replenishment rate from a non-renewable energy source's depletion rate?",
+          "execution_phase": "foundation",
+          "can_execute_immediately": true,
+          "prerequisites_resolved": true,
+          "estimated_research_time": "10-15 minutes",
+          "parallel_group": "definitions"
+        },
+        {
+          "sequence_number": 4,
+          "question_id": "q_1_1_1_4",
+          "question_text": "What is the timeframe considered for evaluating the renewability of an energy source (e.g., human lifespan, geological timescale)?",
+          "execution_phase": "foundation",
+          "can_execute_immediately": true,
+          "prerequisites_resolved": true,
+          "estimated_research_time": "8-12 minutes",
+          "parallel_group": "definitions"
+        },
+        {
+          "sequence_number": 5,
+          "question_id": "q_1_1_1",
+          "question_text": "What constitutes a 'renewable' versus a 'non-renewable' energy source?",
+          "execution_phase": "integration",
+          "can_execute_immediately": false,
+          "prerequisites_resolved": false,
+          "estimated_research_time": "15-20 minutes",
+          "parallel_group": "energy_classification"
+        },
+        {
+          "sequence_number": 84,
+          "question_id": "q_1_4",
+          "question_text": "What are the established metrics for comparing the economic performance of different energy sources (e.g., levelized cost of energy, externalities, lifecycle costs)?",
+          "execution_phase": "analysis",
+          "can_execute_immediately": false,
+          "prerequisites_resolved": false,
+          "estimated_research_time": "25-30 minutes",
+          "parallel_group": "economic_metrics"
+        },
+        {
+          "sequence_number": 85,
+          "question_id": "root",
+          "question_text": "Provide a comprehensive analysis of the impact of renewable energy sources...",
+          "execution_phase": "synthesis",
+          "can_execute_immediately": false,
+          "prerequisites_resolved": false,
+          "estimated_research_time": "45-60 minutes",
+          "parallel_group": "final_synthesis"
+        }
+      ],
+      "research_phases": {
+        "foundation": {
+          "phase_number": 1,
+          "description": "Research foundational definitions and data sources",
+          "question_count": 64,
+          "estimated_duration": "8-12 hours",
+          "parallel_execution": true,
+          "questions": ["q_1_1_1_1", "q_1_1_1_2", "q_1_1_1_3", "q_1_1_1_4", "q_1_1_2_1", "q_1_1_2_2", "q_1_1_2_3", "q_1_1_2_4", "q_1_1_3_1", "q_1_1_3_2", "q_1_2_1_1", "q_1_2_1_2"]
+        },
+        "integration": {
+          "phase_number": 2,
+          "description": "Integrate foundational knowledge into intermediate understanding",
+          "question_count": 16,
+          "estimated_duration": "4-6 hours",
+          "parallel_execution": true,
+          "questions": ["q_1_1_1", "q_1_1_2", "q_1_1_3", "q_1_2_1", "q_1_2_2", "q_1_2_3", "q_1_3_1", "q_1_3_2", "q_1_4_1", "q_1_4_2"]
+        },
+        "analysis": {
+          "phase_number": 3,
+          "description": "Analyze complex relationships and dependencies",
+          "question_count": 4,
+          "estimated_duration": "2-3 hours",
+          "parallel_execution": true,
+          "questions": ["q_1_1", "q_1_2", "q_1_3", "q_1_4"]
+        },
+        "synthesis": {
+          "phase_number": 4,
+          "description": "Synthesize all findings into comprehensive analysis",
+          "question_count": 1,
+          "estimated_duration": "1-2 hours",
+          "parallel_execution": false,
+          "questions": ["root"]
+        }
+      }
+    },
+    "research_methodology": {
+      "recommended_approach": "bottom_up_dependency_resolution",
+      "parallel_execution": {
+        "can_parallelize": true,
+        "parallel_groups": [
+          {
+            "group_id": "definitions",
+            "questions": ["q_1_1_1_1", "q_1_1_1_2", "q_1_1_1_3", "q_1_1_1_4"],
+            "description": "Basic definitions and classifications",
+            "estimated_time": "30-45 minutes",
+            "can_run_simultaneously": true
+          },
+          {
+            "group_id": "data_sources",
+            "questions": ["q_1_1_2_1", "q_1_1_2_2", "q_1_1_2_3", "q_1_1_2_4"],
+            "description": "Data source identification and evaluation",
+            "estimated_time": "45-60 minutes",
+            "can_run_simultaneously": true
+          },
+          {
+            "group_id": "economic_metrics",
+            "questions": ["q_1_2_1_1", "q_1_2_1_2", "q_1_4_1_1", "q_1_4_1_2"],
+            "description": "Economic measurement methodologies",
+            "estimated_time": "60-75 minutes",
+            "can_run_simultaneously": true
+          },
+          {
+            "group_id": "policy_framework",
+            "questions": ["q_1_3_1_1", "q_1_3_1_2", "q_1_3_2_1", "q_1_3_2_2"],
+            "description": "Government policies and regulatory frameworks",
+            "estimated_time": "45-60 minutes",
+            "can_run_simultaneously": true
+          }
+        ]
+      },
+      "progress_tracking": {
+        "total_questions": 85,
+        "resolved_questions": 0,
+        "ready_to_resolve": 64,
+        "blocked_questions": 21,
+        "completion_percentage": 0.0,
+        "estimated_total_time": "15-23 hours"
+      },
+      "quality_assurance": {
+        "answer_validation_required": true,
+        "source_verification_needed": true,
+        "cross_reference_checking": true,
+        "completeness_threshold": 0.85
+      }
+    },
+    "validation": {
+      "tree_integrity": {
+        "all_dependencies_valid": true,
+        "no_circular_dependencies": true,
+        "depth_constraints_satisfied": true,
+        "branching_constraints_satisfied": true,
+        "question_id_uniqueness": true
+      },
+      "question_quality": {
+        "all_questions_have_keywords": true,
+        "all_questions_have_types": true,
+        "complexity_levels_assigned": true,
+        "expected_answers_defined": true,
+        "dependency_reasoning_provided": true
+      },
+      "execution_feasibility": {
+        "leaf_questions_executable": true,
+        "research_time_realistic": true,
+        "parallel_groups_optimized": true,
+        "resource_requirements_reasonable": true
+      }
+    },
+    "export_metadata": {
+      "format_version": "1.0",
+      "schema_compliance": "dependency_tree_v1",
+      "export_timestamp": "2025-06-09T10:30:00Z",
+      "file_size_estimate": "45KB",
+      "next_function_compatibility": "research_executor_v1",
+      "suggested_storage": "dependency_tree_renewable_energy_2025.json"
+    }
+  }

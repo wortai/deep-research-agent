@@ -264,5 +264,5 @@ async def main():
     #     else:
     #         logging.info(f"Failed to extract from {item.get('url') if item.get('url') else 'N/A'}: {item.get('error', 'No content and no error specified')}")
 
-if __name__ == "__main__":
-    asyncio.run(main())
+    if __name__ == "__main__":
+        asyncio.run(main())
