@@ -32,10 +32,13 @@ greenlet==3.2.2
 grpcio==1.71.0
 grpcio-status==1.71.0
 h11==0.16.0
+h2==4.2.0
+hpack==4.1.0
 html5lib==1.1
 httpcore==1.0.9
 httpx==0.28.1
 httpx-sse==0.4.0
+hyperframe==6.1.0
 idna==3.10
 iniconfig==2.1.0
 jiter==0.10.0
@@ -43,10 +46,12 @@ jsonpatch==1.33
 jsonpointer==3.0.0
 langchain==0.3.25
 langchain-community==0.3.24
-langchain-core==0.3.61
+langchain-core==0.3.65
 langchain-google-genai==2.1.4
+langchain-openai==0.3.22
+langchain-qdrant==0.2.0
 langchain-text-splitters==0.3.8
-langsmith==0.3.42
+langsmith==0.3.45
 lxml==5.4.0
 markdown-it-py==3.0.0
 marshmallow==3.26.1
@@ -60,6 +65,7 @@ orjson==3.10.18
 packaging==24.2
 playwright==1.52.0
 pluggy==1.6.0
+portalocker==2.10.1
 propcache==0.3.1
 proto-plus==1.26.1
 protobuf==5.29.4
@@ -78,6 +84,7 @@ python-dotenv==1.1.0
 pytube==15.0.0
 pytz==2025.2
 PyYAML==6.0.2
+qdrant-client==1.14.2
 regex==2024.11.6
 requests==2.32.3
 requests-toolbelt==1.0.0
