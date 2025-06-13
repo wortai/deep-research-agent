@@ -150,21 +150,41 @@ class UniversalLoader:
 # #     if GITHUB_TOKEN is None:
 # #         logging.warning("GIT_HUB_TOKEN environment variable not set. GitHubLoader might have limited access or be rate-limited.")
 
-#     universal_scraper = UniversalLoader()
+    universal_scraper = UniversalLoader(github_access_token=GITHUB_TOKEN)
 
-#     # --- Test Cases ---
-#     test_suite = [
-      
-#         {
-#             "url": "https://lilianweng.github.io/posts/2023-06-23-agent/",
-#             "params": {"requests_per_second": 1}
-#         },
-
-#         {
-#             "url": "https://thissitedefinitelyshouldnotexist12345xyz.com",
-#             "params": {} # WebBaseLoader will try and fail
-#         }
-#     ]
+    # --- Test Cases ---
+    test_suite = [
+        # {
+        #     "url": "https://www.youtube.com/watch?v=yD2JaAnMMo0", # Example: Lex Fridman
+        #     "params": {"language": ["en"], "translation": "en"}
+        # },
+        # {
+        #     "url": "https://www.youtube.com/watch?v= माफी", # Example: 3Blue1Brown (Hindi title, check transcript)
+        #     "params": {"language": ["hi", "en"], "translation": "en", "add_video_info": True}
+        # },
+        # {
+        #     "url": "https://github.com/langchain-ai/langchain", # Base repo URL
+        #     "params": {
+        #         "branch": "master",
+        #         "file_filter": lambda file_path: file_path.endswith((".md", ".ipynb")) and "docs/extras/" in file_path,
+        #     }
+        # },
+        # {
+        #     "url": "https://github.com/madhvantyagi/Mahfuzz_project",
+        #     "params": {
+        #         "branch": "main", # Assuming 'main' branch exists
+        #         "file_filter": lambda file_path: file_path.endswith((".html")),
+        #     }
+        # },
+        {
+            "url": "https://lilianweng.github.io/posts/2023-06-23-agent/",
+            "params": {"requests_per_second": 1}
+        },
+        # {
+        #     "url": "https://thissitedefinitelyshouldnotexist12345xyz.com",
+        #     "params": {} # WebBaseLoader will try and fail
+        # }
+    ]
 
 #     for item in test_suite:
 #         print(f"\n--- Testing  {item['url']} ---")

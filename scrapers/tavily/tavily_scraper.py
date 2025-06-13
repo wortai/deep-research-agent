@@ -227,12 +227,12 @@ class Tavily:
 
     # # Test 2: Advanced Search with Images
     # logging.info("\n--- Test Case 2: Advanced Search with Images ---")
-    # tavily_advanced = Tavily(query="Mars Rover images", depth=True, max_result=1, include_images=True)
+    # tavily_advanced = Tavily(query="latest news on AI", depth=True, max_result=1, include_images=True)
     # images, results = await tavily_advanced.resolve_query()
-    # print(f"Images here {images}")
-    # print("------------------------")
-    # print()
-    # print(f"results here {results}")
+    # print(images, results)
+    # logging.info(f"Advanced Search Results (First URL): {results[0].get('url') if results else 'N/A'}")
+    # if images:
+    #     logging.info(f"First Image URL: {images[0].get('src')}")
 
 
     # Test 3: Multiple Advanced Queries
@@ -250,34 +250,20 @@ class Tavily:
     #             logging.info("  No results found or an error occurred.")
 
     # Test 4: Single URL Content Extraction (needs a valid URL)
-    # sample_url = "https://towardsdatascience.com/advanced-techniques-for-fine-tuning-transformers-82e4e61e16e/"
-    # tavily_extract = Tavily(query="dummy") # query is not used here, but needed for init for client setup
-
-    # # --- CRUCIAL CHANGES FOR YOUR TEST CALL ---
-    # data = await tavily_extract.extract_content(
-    #     url=sample_url, # Now uses 'urls' parameter, can be a string or list
-    #     extract_depth="basic", # This parameter is back and is "basic" or "advanced"
-    #     format="text",         # This parameter is back and is "text" or "markdown"
-    #     include_images=True   # Corrected name: 'include_images'
-    # )
-    # # --- END OF CRUCIAL CHANGES ---
-    # print(data)
-    
-    # Since extract_content now returns a LIST of results, even for single URL,
-    # you need to access the first element if you only provided one URL.
-    # if data: # Check if the list is not empty
-    #     first_result = data[0]
-    #     print(f"URL: {first_result.get('url')}")
-    #     print(f"Content: {first_result.get('content')}")
-    #     if first_result.get('error'):
-    #         print(f"Error: {first_result.get('error')}")
-    # else:
-    #     logging.info(f"No data extracted for {sample_url}")
-    # else:
-    #     logging.info(f"Failed to extract content from {extracted_content.get('url') if extracted_content.get('url') else sample_url}: {extracted_content.get('error', 'No content and no error specified')}")
+    logging.info("\n--- Test Case 4: Single URL Content Extraction ---")
+    # You'll need to replace this with an actual URL that Tavily can extract.
+    # A good example would be a news article URL.
+    sample_url = " https://www.goldavenue.com/en/gold-price/usd"
+    tavily_extract = Tavily(query="dummy") # query is not used here, but needed for init for client setup
+    data = await tavily_extract.extract_content(sample_url)
+    if data:
+       print(data.get('url'))
+       print(data.get('content'))
+    else:
+        logging.info(f"Failed to extract content from {extracted_content.get('url') if extracted_content.get('url') else sample_url}: {extracted_content.get('error', 'No content and no error specified')}")
 
 
-    # Test 5: Multiple URL Content Extraction (needs valid URLs)
+    # # Test 5: Multiple URL Content Extraction (needs valid URLs)
     # logging.info("\n--- Test Case 5: Multiple URL Content Extraction ---")
     # # Replace these with actual URLs for testing
     # sample_urls = [
