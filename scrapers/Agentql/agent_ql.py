@@ -111,3 +111,13 @@ class AgentQLScraper:
         except Exception as e:
             logger.error(f"Error during extraction for {self.url}: {e}")
             raise
+
+async def main():
+    # Example using prompt
+    async with AgentQLScraper(url="https://www.goldavenue.com/en/gold-price/usd", prompt="Get me the current price of Gold.") as scraper:
+        data = await scraper.extract_data()
+        print(data)
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
