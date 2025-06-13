@@ -9,31 +9,11 @@ load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# This class provides an interface to interact with the Tavily Search API for various search and content extraction tasks.
-#
-# How to use this class:
-# 1. Ensure you have a TAVILY_API_KEY environment variable set.
-# 2. Create an instance of the Tavily class, passing in desired parameters.
-# 3. Call the appropriate asynchronous method for your search or extraction needs.
-#
-# Example (assuming you are in an async function):
-#   # For a basic search
-#   tavily_basic = Tavily(query="latest news on AI", depth=False, max_result=2)
-#   basic_results = await tavily_basic.resolve_query()
-#
-#   # For an advanced search with multiple queries
-#   queries_list = ["current price of gold", "weather in New York City"]
-#   tavily_multi_query = Tavily(queries=queries_list, depth=True, max_result=1)
-#   multi_query_results = await tavily_multi_query.multiple_advance_queries()
-#
-#   # For extracting content from a URL
-#   tavily_extract = Tavily() # query is optional if only using extract_content
-#   extracted_data = await tavily_extract.extract_content("https://example.com/article")
 #
 class Tavily:
 
     # Initializes the Tavily client with search parameters.
-    #
+
     # Params:
     #   query (str, optional): The main search query. Defaults to None.
     #   queries (List[str], optional): A list of queries for batch operations. Defaults to None.
@@ -76,6 +56,7 @@ class Tavily:
             raise
 
     # Performs a basic search and returns a list of dictionaries with URLs and content snippets.
+    # return the url of webpage and content 
     async def basic_search(self) -> List[Dict[str, str]]:
         if not self.query:
             logging.error("Query is required for basic_search.")
@@ -100,6 +81,8 @@ class Tavily:
             return []
 
     # Performs an advanced search and returns a tuple containing lists of images and search results.
+    # return images and results
+    #results --> title, url , content , score, rawcontent (if mentioned in the instance of class )
     async def advance_search(self) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
         if not self.query:
             logging.error("Query is required for advance_search.")
@@ -116,8 +99,10 @@ class Tavily:
 
             images = response.get("images", [])
             results = response.get("results", [])
+            
 
-            return images, results
+
+            return [images, results]
         except Exception as e:
             logging.error(f"Error Occurred in advance_search for query '{self.query}': {e}")
             return [], []
@@ -130,12 +115,16 @@ class Tavily:
             return await self.basic_search()
 
     # Performs multiple advanced queries concurrently and returns their results.
+    # it takes a list of queries --> [q1, q2 , q3 ...qn]
+    # returns array of query responses for ex each q1-->[query , results , images]
+    # each results --> title , url , content , score , raw_content ( if defined )
     async def multiple_advance_queries(self) -> List[Dict[str, Any]]:
         if not self.queries:
             logging.warning("No queries provided to multiple_advance_queries. Returning empty list.")
             return []
 
         async def _single_query_task(query_item: str) -> Dict[str, Any]:
+            
             async with self.semaphore:
                 try:
                     response = await self.async_tavily_client.search(
@@ -146,19 +135,27 @@ class Tavily:
                         include_images=self.include_images,
                         include_raw_content=self.include_raw_content,
                     )
-                    return {"query": response.get("query"), "results": response.get("results", [])}
+                    
+                    return {"query": response.get("query"), "results": response.get("results", []) , "images" : response.get("images",[]) }
                 except Exception as e:
                     logging.error(f"Error for query '{query_item}': {e}")
                     return {"query": query_item, "results": [], "error": str(e)}
 
         tasks = [_single_query_task(query_item) for query_item in self.queries]
-        return await asyncio.gather(*tasks)
+        
+        return await asyncio.gather(*tasks) 
 
     # Extracts content from a single URL.
-    async def extract_content(self, url: str) -> Dict[str, str]:
+ # each response will look like this -->  url , content -- of webpage text or markdown , images : list 
+    async def extract_content(self, url: str  , extract_depth:str="basic" ,format :str ="text" , include_images:bool = False) -> Dict[str, str]:
         async with self.semaphore:
             try:
-                extracted_data = await self.async_tavily_client.extract(url, extract_depth="advanced", format="markdown")
+                extracted_data = await self.async_tavily_client.extract(
+                    urls=url,
+                    extract_depth=extract_depth,
+                    format=format,
+                    include_images=include_images
+                )
 
                 # Handle API-level errors first (e.g., rate limits, invalid URL)
                 if extracted_data and "detail" in extracted_data:
@@ -168,15 +165,16 @@ class Tavily:
 
            
                 # Extract content from the first result
-                first_result = extracted_data["results"][0]
-                extracted_url = first_result.get("url")
-                content_text = first_result.get("raw_content")
+                results = extracted_data["results"][0]
+                extracted_url = results.get("url")
+                content_text = results.get("raw_content")
+                images = results.get("images")
 
                 # Fallback to 'content' if 'raw_content' is not present
                 if content_text is None:
                     content_text = "No content find Skip this url data"
 
-                return {"url": extracted_url , "content": content_text}
+                return {"url": extracted_url , "content": content_text , "images":images}
 
             except Exception as e:
                 # Catch any other unexpected exceptions like  network issues, invalid JSON response from client library etc.
@@ -184,33 +182,46 @@ class Tavily:
                 return {"url": url, "content": None, "error": f"Unexpected error: {str(e)}"}
 
 
-    # Extracts content from multiple URLs concurrently.
-    async def multiple_extract_content(self, urls: List[str]) -> List[Dict[str, Any]]:
-        if not urls:
-            logging.warning("No URLs provided to multiple_extract_content. Returning empty list.")
-            return []
-
-        tasks = [self.extract_content(url) for url in urls]
-        responses = await asyncio.gather(*tasks)
-
-        # Filter out successful extractions and log errors for failed ones
-        structured_responses = []
-        for res in responses:
-            if res.get("content") is not None:
-                structured_responses.append({"url": res["url"], "content": res["content"]})
-            else:
-                logging.error(f"Failed to extract content for URL: {res.get('url')} - Error: {res.get('error', 'Unknown error')}")
-        return structured_responses
 
 
 
-async def main():
+    # each response will look like this -->  url , content -- of webpage text or markdown , images : list 
+    # there will be array of responses [r1, r2 , r3 ,r4 ]
+    #depend on how many urls provided and got resolved 
+    async def multiple_extract_content(self, urls: List[str] , include_images :bool = False , extract_depth:str="basic" ) -> List[Dict[str, Any]]:
+        try :
+            if not urls:
+                logging.warning("No URLs provided to multiple_extract_content. Returning empty list.")
+                return []
+
+            tasks = [self.extract_content(url , include_images=include_images , extract_depth=extract_depth) for url in urls]
+            responses = await asyncio.gather(*tasks)
+
+            # Filter out successful extractions and log errors for failed ones
+            structured_responses = []
+            for res in responses:
+                if res.get("content") is not None:
+                    structured_responses.append({"url": res["url"], "content": res["content"] , "images": res["images"]})
+                else:
+                    logging.error(f"Failed to extract content for URL: {res.get('url')} - Error: {res.get('error', 'Unknown error')}")
+            return structured_responses
+        except Exception as e:
+            logging.error(f"Error occured inside multiple_extract method {e}")
+            return {"error" : e}
+
+
+
+
+
+# async def main():
+    
     # Test Cases
 
-    # # Test 1: Basic Search
+    # Test 1: Basic Search
     # logging.info("\n--- Test Case 1: Basic Search ---")
     # tavily_basic = Tavily(query="latest news on AI", depth=False, max_result=2)
     # basic_results = await tavily_basic.resolve_query()
+    # print(basic_results)
     # for res in basic_results:
     #     logging.info(f"URL: {res.get('url')}, Content snippet: {res.get('content')[:100] if res.get('content') else 'N/A'}...")
 
@@ -218,32 +229,50 @@ async def main():
     # logging.info("\n--- Test Case 2: Advanced Search with Images ---")
     # tavily_advanced = Tavily(query="Mars Rover images", depth=True, max_result=1, include_images=True)
     # images, results = await tavily_advanced.resolve_query()
-    # logging.info(f"Advanced Search Results (First URL): {results[0].get('url') if results else 'N/A'}")
-    # if images:
-    #     logging.info(f"First Image URL: {images[0].get('src')}")
+    # print(f"Images here {images}")
+    # print("------------------------")
+    # print()
+    # print(f"results here {results}")
 
-    # # Test 3: Multiple Advanced Queries
+
+    # Test 3: Multiple Advanced Queries
     # logging.info("\n--- Test Case 3: Multiple Advanced Queries ---")
     # queries_list = ["current price of gold", "weather in New York City", "upcoming tech conferences 2025"]
     # tavily_multi_query = Tavily(queries=queries_list, depth=True, max_result=1)
     # multi_query_results = await tavily_multi_query.multiple_advance_queries()
     # for res in multi_query_results:
-    #     logging.info(f"Query: {res.get('query')}")
-    #     if res.get("results"):
-    #         logging.info(f"  First result URL: {res['results'][0].get('url')}")
-    #     else:
-    #         logging.info("  No results found or an error occurred.")
+    #     if "results" in res:
+        
+    #         logging.info(f"Query: {res.get('query')}")
+    #         if res.get("results"):
+    #             logging.info(f"  First result URL: {res['results'][0].get('url')}")
+    #         else:
+    #             logging.info("  No results found or an error occurred.")
 
     # Test 4: Single URL Content Extraction (needs a valid URL)
-    # logging.info("\n--- Test Case 4: Single URL Content Extraction ---")
-    # # You'll need to replace this with an actual URL that Tavily can extract.
-    # # A good example would be a news article URL.
     # sample_url = "https://towardsdatascience.com/advanced-techniques-for-fine-tuning-transformers-82e4e61e16e/"
     # tavily_extract = Tavily(query="dummy") # query is not used here, but needed for init for client setup
-    # data = await tavily_extract.extract_content(sample_url)
-    # if data:
-    #    print(data.get('url'))
-    #    print(data.get('content'))
+
+    # # --- CRUCIAL CHANGES FOR YOUR TEST CALL ---
+    # data = await tavily_extract.extract_content(
+    #     url=sample_url, # Now uses 'urls' parameter, can be a string or list
+    #     extract_depth="basic", # This parameter is back and is "basic" or "advanced"
+    #     format="text",         # This parameter is back and is "text" or "markdown"
+    #     include_images=True   # Corrected name: 'include_images'
+    # )
+    # # --- END OF CRUCIAL CHANGES ---
+    # print(data)
+    
+    # Since extract_content now returns a LIST of results, even for single URL,
+    # you need to access the first element if you only provided one URL.
+    # if data: # Check if the list is not empty
+    #     first_result = data[0]
+    #     print(f"URL: {first_result.get('url')}")
+    #     print(f"Content: {first_result.get('content')}")
+    #     if first_result.get('error'):
+    #         print(f"Error: {first_result.get('error')}")
+    # else:
+    #     logging.info(f"No data extracted for {sample_url}")
     # else:
     #     logging.info(f"Failed to extract content from {extracted_content.get('url') if extracted_content.get('url') else sample_url}: {extracted_content.get('error', 'No content and no error specified')}")
 
@@ -264,5 +293,11 @@ async def main():
     #     else:
     #         logging.info(f"Failed to extract from {item.get('url') if item.get('url') else 'N/A'}: {item.get('error', 'No content and no error specified')}")
 
-    if __name__ == "__main__":
-        asyncio.run(main())
+
+
+
+
+
+# if __name__== "__main__":
+        
+#         asyncio.run(main())
