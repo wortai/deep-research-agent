@@ -16,15 +16,9 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Configure basic logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-# UniversalLoader class handles loading documents from various sources (YouTube, GitHub, Web).
-# It takes an optional github_access_token for GitHub authentication.
-# How to use:
-# universal_loader = UniversalLoader(github_access_token="YOUR_GITHUB_TOKEN")
-# docs = universal_loader.load_data("https://www.youtube.com/watch?v=yD2JaAnMMo0", {"language": ["en"]})
+
 # docs = universal_loader.load_data("https://github.com/owner/repo", {"branch": "main", "file_filter": lambda f: f.endswith(".py")})
 # docs = universal_loader.load_data("https://example.com/page")
 
@@ -40,11 +34,6 @@ class UniversalLoader:
     def __init__(self, github_access_token: Optional[str] = None):
         self.github_access_token = github_access_token
 
-    # Checks if the given URL is a YouTube video URL.
-    # Args:
-    #   url (str): The URL to check.
-    # Returns:
-    #   bool: True if the URL is a YouTube URL, False otherwise.
     def _is_youtube_url(self, url: str) -> bool:
         youtube_regex = (
             r'(https?://)?(www\.)?'
@@ -52,11 +41,7 @@ class UniversalLoader:
             r'(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
         return bool(re.match(youtube_regex, url))
 
-    # Checks if the given URL is a GitHub repository or file URL.
-    # Args:
-    #   url (str): The URL to check.
-    # Returns:
-    #   bool: True if the URL is a GitHub URL, False otherwise.
+
     def _is_github_url(self, url: str) -> bool:
         github_regex = r'(https?://)?(www\.)?github\.com/([^/]+)/([^/]+)(/.*)?'
         return bool(re.match(github_regex, url))
@@ -78,8 +63,7 @@ class UniversalLoader:
 
 
 
-    # Determines and returns the appropriate LangChain document loader based on the URL type.
-    # Note: YouTube loading is currently in development and might not function as expected.
+
     # For GitHub URLs, if 'branch' is not specified, it defaults to 'master'.
     # If 'file_filter' is not specified, all files in the repository will be loaded, which can be inefficient.
     # Args:
@@ -90,6 +74,7 @@ class UniversalLoader:
     # Raises:
     #   ValueError: If a GitHub URL cannot be parsed.
     #   Exception: For other errors during loader creation.
+    # by defualt other than github and youtube url go for web-based URL
     def get_loader(self, url: str, loader_specific_kwargs: Optional[Dict[str, Any]] = None) -> Any:
         if loader_specific_kwargs is None:
             loader_specific_kwargs = {}
@@ -140,79 +125,55 @@ class UniversalLoader:
 
 
 
-    # Loads data from the specified URL using the determined loader.
-    # Args:
-    #   url (str): The URL from which to load data.
-    #   loader_specific_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for the loader.
-    # Returns:
-    #   List[Document]: A list of loaded LangChain Document objects.
-    # Raises:
-    #   Exception: If data loading fails.
+    #   Exception: If data loading fails. return error and url 
+    # returning metadata --> source - url , title , description , page_content :content of the page 
     def load_data(self, url: str, loader_specific_kwargs: Optional[Dict[str, Any]] = None) -> List[Document]:
         if loader_specific_kwargs is None:
             loader_specific_kwargs = {}
 
         try:
             loader = self.get_loader(url, loader_specific_kwargs)
-            logging.info(f"Loading data from {url} with {type(loader).__name__}...")
             documents = loader.load()
-            logging.info(f"Successfully loaded {len(documents)} document(s) from {url}.")
-            return documents
+            documents = documents[0]
+            # print({"metadata":documents.metadata , "content" :documents.page_content})
+            return {"metadata":documents.metadata , "content" :documents.page_content}
         except Exception as e:
             logging.error(f"Failed to load data from {url}: {e}")
-            raise
+            return {"error":e}
 
 
-if __name__ == "__main__":
-    # --- Configuration ---
-    GITHUB_TOKEN = os.environ.get("GIT_HUB_TOKEN")
+# if __name__ == "__main__":
+# #     # --- Configuration ---
+# #     GITHUB_TOKEN = os.environ.get("GIT_HUB_TOKEN")
 
-    if GITHUB_TOKEN is None:
-        logging.warning("GIT_HUB_TOKEN environment variable not set. GitHubLoader might have limited access or be rate-limited.")
+# #     if GITHUB_TOKEN is None:
+# #         logging.warning("GIT_HUB_TOKEN environment variable not set. GitHubLoader might have limited access or be rate-limited.")
 
-    universal_scraper = UniversalLoader(github_access_token=GITHUB_TOKEN)
+#     universal_scraper = UniversalLoader()
 
-    # --- Test Cases ---
-    test_suite = [
-        {
-            "url": "https://www.youtube.com/watch?v=yD2JaAnMMo0", # Example: Lex Fridman
-            "params": {"language": ["en"], "translation": "en"}
-        },
-        # {
-        #     "url": "https://www.youtube.com/watch?v= माफी", # Example: 3Blue1Brown (Hindi title, check transcript)
-        #     "params": {"language": ["hi", "en"], "translation": "en", "add_video_info": True}
-        # },
-        # {
-        #     "url": "https://github.com/langchain-ai/langchain", # Base repo URL
-        #     "params": {
-        #         "branch": "master",
-        #         "file_filter": lambda file_path: file_path.endswith((".md", ".ipynb")) and "docs/extras/" in file_path,
-        #     }
-        # },
-        # {
-        #     "url": "https://github.com/madhvantyagi/Mahfuzz_project",
-        #     "params": {
-        #         "branch": "main", # Assuming 'main' branch exists
-        #         "file_filter": lambda file_path: file_path.endswith((".html")),
-        #     }
-        # },
-        # {
-        #     "url": "https://lilianweng.github.io/posts/2023-06-23-agent/",
-        #     "params": {"requests_per_second": 1}
-        # },
-        # {
-        #     "url": "https://thissitedefinitelyshouldnotexist12345xyz.com",
-        #     "params": {} # WebBaseLoader will try and fail
-        # }
-    ]
+#     # --- Test Cases ---
+#     test_suite = [
+      
+#         {
+#             "url": "https://lilianweng.github.io/posts/2023-06-23-agent/",
+#             "params": {"requests_per_second": 1}
+#         },
 
-    for item in test_suite:
-        print(f"\n--- Testing  {item['url']} ---")
-        try:
-            docs = universal_scraper.load_data(item['url'], item['params'])
-            print(f"Content loaded: {len(docs)} document(s).")
-            if docs:
-                print(f"First document content snippet: {docs[0].page_content[:1000]}...")
-        except Exception as e:
-            print(f"An error occurred during test for {item['url']}: {e}")
-        print("-" * 40)
+#         {
+#             "url": "https://thissitedefinitelyshouldnotexist12345xyz.com",
+#             "params": {} # WebBaseLoader will try and fail
+#         }
+#     ]
+
+#     for item in test_suite:
+#         print(f"\n--- Testing  {item['url']} ---")
+#         try:
+#             doc  = universal_scraper.load_data(item['url'], item['params'])
+            
+#             if doc.get("content"):
+#                 print(doc.get("content"))
+#                 print("-----------------------")
+#                 print(doc.get("metadata"))
+#         except Exception as e:
+#             print(f"An error occurred during test for {item['url']}: {e}")
+#         print("-" * 40)
