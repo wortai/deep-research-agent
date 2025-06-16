@@ -32,6 +32,7 @@ class WebSearch:
         Returns:
             List[Dict[str, Any]]: Extracted data from the URLs.
         """
+
         extracted_data = []
         for url in urls:
             try:
@@ -43,6 +44,7 @@ class WebSearch:
                 logging.error(f"Browser search failed for {url}: {e}")
         return extracted_data
 
+
     async def search_with_tavily(self, urls: List[str]) -> List[Dict[str, Any]]:
         """
         Scrapes data using Tavily for unresolved URLs.
@@ -51,6 +53,7 @@ class WebSearch:
         Returns:
             List[Dict[str, Any]]: Extracted data from the URLs.
         """
+
         extracted_data = []
         try:
             # Assuming 'multiple_extract_content' is an async method returning a list of results.
@@ -118,36 +121,46 @@ class WebSearch:
 
             urls  =  await self.get_serpapi_results()
             
-            # for i ,  url in enumerate(urls):
-            #     print(i)
-            #     print(url)
-            #     print(f"SerpaAPI retrived URLS ")
+
             print("--------------------------------------------------")
             # Step 2: Scrape data using browser
             browser_results = await self.search_with_browser(urls)
-            for i, data in enumerate(browser_results):
-                print(f"{i}: {data['url']}")
-                print('--------------------------')
-                print(data["content"][:100])
+            # for i, data in enumerate(browser_results):
+            #     print(f"{i}: {data['url']}")
+            #     print('--------------------------')
+            #     print(data["content"][:100])
           
           
             # # print(f"browser_results {browser_results}")
             # print("--------------------------------------------------")
             # # Step 3: Scrape unresolved URLs using Tavily
-            # unresolved_urls = [url for url in urls if url not in self.completed_urls]
-            # tavily_results = await self.search_with_tavily(unresolved_urls)
-            # print(f" tavily data urls {tavily_results}")
-            # print("--------------------------------------------------")
-            # # Step 4: Scrape remaining unresolved URLs using AgentQL
-            # remaining_urls = [url for url in unresolved_urls if url not in self.completed_urls]
-            # agentql_results = await self.search_with_agentql(remaining_urls)
-            # print(f"agent_ql reults {agentql_results}")
-            print("--------------------------------------------------")
-            # Combine all results
-            # self.results.extend(browser_results)
+            unresolved_urls = [url for url in urls if url not in self.completed_urls]
+            tavily_results = await self.search_with_tavily(unresolved_urls)
 
-            # self.results.extend(tavily_results)
-            # self.results.extend(agentql_results)
+
+
+            print(f" tavily data urls {tavily_results}")
+            print("--------------------------------------------------")
+
+
+
+            # # Step 4: Scrape remaining unresolved URLs using AgentQL
+            remaining_urls = [url for url in unresolved_urls if url not in self.completed_urls]
+            agentql_results = await self.search_with_agentql(remaining_urls)
+            print(f"agent_ql reults {agentql_results}")
+            print("--------------------------------------------------")
+
+
+
+
+            # Combine all results
+            self.results.extend(browser_results)
+            self.results.extend(tavily_results)
+            self.results.extend(agentql_results)
+
+
+
+
 
             # Only include results with non-error content
             final_results = [{"url": res["url"], "content": res["content"]}
@@ -164,9 +177,10 @@ if __name__ == "__main__":
     async def main():
 
         web_search = WebSearch(query="latest AI advancements", max_results=5)
-        results = await web_search.initiate_research()
+        results = await web_search.initiate_research() # results is an array contains [{} , {} ,{}]-->{}each obj contains url , content 
+
         # for result in results:
         #     print(f"URL: {result['url']}")
         #     print(f"Content: {result['content'][:100]}...\n")
 
-    asyncio.run(main())
+    asyncio.run(main())  

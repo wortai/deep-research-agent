@@ -75,6 +75,7 @@ class UniversalLoader:
     #   ValueError: If a GitHub URL cannot be parsed.
     #   Exception: For other errors during loader creation.
     # by defualt other than github and youtube url go for web-based URL
+
     def get_loader(self, url: str, loader_specific_kwargs: Optional[Dict[str, Any]] = None) -> Any:
         if loader_specific_kwargs is None:
             loader_specific_kwargs = {}
@@ -173,7 +174,7 @@ class UniversalLoader:
 #             if doc.get("content"):
 #                 print(doc.get("content"))
 #                 print("-----------------------")
-#                 print(doc.get("metadata"))
+#                 # print(doc.get("metadata"))
 #         except Exception as e:
 #             print(f"An error occurred during test for {item['url']}: {e}")
 #         print("-" * 40)
