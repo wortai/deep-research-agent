@@ -41,14 +41,20 @@ class SerpApiClient:
             logging.error("SERP API key not found.") # Improved error message
             raise Exception("SERP API key not found. Please set the SERP API KEY environment variable.")
 
-
     def _build_google_params(self, **kwargs) -> dict:
-        params = {}
+        # Check required parameter 'q'
         if "q" not in kwargs:
             raise ValueError("For Google Search, 'q' (query) parameter is required.")
-        params["q"] = kwargs["q"]
-        if "location" in kwargs:
-            params["location"] = kwargs["location"]
+        
+        # Initialize params with the query value
+        params = {"q": kwargs["q"]}
+        
+        # List of optional parameters to include if provided
+        optional_keys = ["location", "start", "num", "hl", "gl"]
+        for key in optional_keys:
+            if key in kwargs:
+                params[key] = kwargs[key]
+        
         return params
 
     def _build_youtube_params(self, **kwargs) -> dict:
@@ -166,3 +172,17 @@ class SerpApiClient:
                 if "link" in market:
                     extracted_urls.append(market["link"])
         return extracted_urls
+    
+
+
+# if __name__ == "__main__":
+#     client = SerpApiClient()
+#     try:
+#         # Replace "your-search-term" with an actual query and adjust "start" as needed.
+#         results = client.search("google", q="your-search-term", start=5)
+#         urls = client.get_clean_urls(results)
+#         print("Extracted URLs:")
+#         for url in urls:
+#             print(url)
+#     except Exception as e:
+#         print(f"An error occurred: {e}")
