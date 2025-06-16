@@ -250,17 +250,17 @@ class Tavily:
     #             logging.info("  No results found or an error occurred.")
 
     # Test 4: Single URL Content Extraction (needs a valid URL)
-    logging.info("\n--- Test Case 4: Single URL Content Extraction ---")
+    # logging.info("\n--- Test Case 4: Single URL Content Extraction ---")
     # You'll need to replace this with an actual URL that Tavily can extract.
     # A good example would be a news article URL.
-    sample_url = " https://www.goldavenue.com/en/gold-price/usd"
-    tavily_extract = Tavily(query="dummy") # query is not used here, but needed for init for client setup
-    data = await tavily_extract.extract_content(sample_url)
-    if data:
-       print(data.get('url'))
-       print(data.get('content'))
-    else:
-        logging.info(f"Failed to extract content from {extracted_content.get('url') if extracted_content.get('url') else sample_url}: {extracted_content.get('error', 'No content and no error specified')}")
+    # sample_url = " https://www.goldavenue.com/en/gold-price/usd"
+    # tavily_extract = Tavily(query="dummy") # query is not used here, but needed for init for client setup
+    # data = await tavily_extract.extract_content(sample_url)
+    # if data:
+    #    print(data.get('url'))
+    #    print(data.get('content'))
+    # else:
+    #     logging.info(f"Failed to extract content from {extracted_content.get('url') if extracted_content.get('url') else sample_url}: {extracted_content.get('error', 'No content and no error specified')}")
 
 
     # # Test 5: Multiple URL Content Extraction (needs valid URLs)

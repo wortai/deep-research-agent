@@ -150,7 +150,7 @@ class UniversalLoader:
 # #     if GITHUB_TOKEN is None:
 # #         logging.warning("GIT_HUB_TOKEN environment variable not set. GitHubLoader might have limited access or be rate-limited.")
 
-    universal_scraper = UniversalLoader(github_access_token=GITHUB_TOKEN)
+    # universal_scraper = UniversalLoader(github_access_token=GITHUB_TOKEN)
 
     # --- Test Cases ---
     test_suite = [
@@ -176,10 +176,10 @@ class UniversalLoader:
         #         "file_filter": lambda file_path: file_path.endswith((".html")),
         #     }
         # },
-        {
-            "url": "https://lilianweng.github.io/posts/2023-06-23-agent/",
-            "params": {"requests_per_second": 1}
-        },
+        # {
+        #     "url": "https://lilianweng.github.io/posts/2023-06-23-agent/",
+        #     "params": {"requests_per_second": 1}
+        # },
         # {
         #     "url": "https://thissitedefinitelyshouldnotexist12345xyz.com",
         #     "params": {} # WebBaseLoader will try and fail
