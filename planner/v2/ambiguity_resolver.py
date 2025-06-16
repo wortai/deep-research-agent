@@ -141,6 +141,7 @@ def _extract_query_from_response(response_text: str, fallback: str) -> str:
 # Example usage for seamless integration
 if __name__ == "__main__":
     from planner.v2.load_model import load_gemini_model
+<<<<<<< HEAD
     # Demo: Seamless integration flow
     try:
         model = load_gemini_model()
@@ -321,7 +322,12 @@ def _extract_query_from_response(response_text: str, fallback: str) -> str:
 # Example usage for seamless integration
 if __name__ == "__main__":
     from planner.v2.load_model import load_gemini_model
+=======
+<<<<<<< HEAD
+>>>>>>> 23e7f85 (git resolution)
     
+=======
+>>>>>>> a82f94f (1st draft for planner agent with CoT)
     # Demo: Seamless integration flow
     try:
         model = load_gemini_model()

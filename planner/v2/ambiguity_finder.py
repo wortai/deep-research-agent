@@ -135,6 +135,7 @@ def analyze_query_ambiguities(
         Complete ambiguity analysis with clarifying questions
     """
     
+<<<<<<< HEAD
     if not enhanced_query or not enhanced_query.strip():
         raise ValueError("Enhanced query cannot be empty")
     
@@ -520,7 +521,12 @@ def analyze_query_ambiguities(
         Complete ambiguity analysis with clarifying questions
     """
     
+=======
+<<<<<<< HEAD
+>>>>>>> 23e7f85 (git resolution)
     
+=======
+>>>>>>> a82f94f (1st draft for planner agent with CoT)
     if not enhanced_query or not enhanced_query.strip():
         raise ValueError("Enhanced query cannot be empty")
     
