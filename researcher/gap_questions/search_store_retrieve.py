@@ -45,7 +45,7 @@ async def run_research_workflow(query: str, max_web_results: int = 5 , search_qu
     # --- Step 2: Initialize Vector Store and Load Data ---
     # logger.info("Initializing Qdrant vector store and loading data...")
     # Use a specific collection name for web documents
-    qdrant_service = QdrantService(collection_name="Testing")
+    qdrant_service = QdrantService(collection_name="Testing2")
 
     # # Initialize VectorStoreManager with the Qdrant vector store instance
     vector_store_manager = VectorStoreManager(vector_store=qdrant_service.vector_store)
