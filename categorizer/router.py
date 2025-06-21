@@ -11,7 +11,7 @@ for p in sys.path:
 Categorizes research queries using LangChain and Pydantic for intelligent routing
 """
 from typing import Dict, List, Optional, Any
-# ...existing code...
+
 
 
 
@@ -78,25 +78,8 @@ class ResearchRouter:
         user_messages: List[str] = None,
         planner_prompt: str = "",
     ) -> Dict[str, Any]:
-        """
-        Categorizes the combined user messages and planner prompt using the LLM.
 
-        This is the core method. It takes the user's input and the generated
-        planner prompt, combines them into a single string, and sends this
-        content to the configured LLM chain. The chain uses the detailed prompt
-        and Pydantic to get a structured categorization response.
-
-        Args:
-            user_messages: List of user messages.
-            planner_prompt: The generated planner prompt string.
-
-        Returns:
-            A dictionary containing the category, confidence score, reasoning,
-            and a timestamp.
-
-        Raises:
-            Exception: If the LLM call or parsing fails.
-        """
+        
         # Combine content for the LLM
         content_parts = []
         if planner_prompt:
@@ -108,10 +91,6 @@ class ResearchRouter:
 
         # Handle empty content case
         if not combined_content.strip():
-            # Decide how to handle empty input when only using LLM.
-            # Option 1: Raise an error (as LLM won't have content)
-            # Option 2: Return a default 'GENERAL' with low confidence
-            # Option 2 is chosen here for robustness, but could be changed to raise.
             return {
                 "category": ResearchCategory.GENERAL.value,
                 "confidence_score": 0.1, # Lower confidence for empty input
