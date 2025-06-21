@@ -2,7 +2,8 @@
 .DS_Store
 /papers
 _research
-
+.archive/
+/gap_generator_logs
 
 ##### Standard Ignores #####
 
