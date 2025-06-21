@@ -243,5 +243,5 @@ def test_medrxiv_biorxiv_tool():
 
 
 if __name__ == "__main__":
-    # test_arxiv_tool()
-    # test_medrxiv_biorxiv_tool()
+    test_arxiv_tool()
+    test_medrxiv_biorxiv_tool()
