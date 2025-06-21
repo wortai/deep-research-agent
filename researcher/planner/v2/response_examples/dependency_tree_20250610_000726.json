@@ -1,0 +1,214 @@
+{
+  "root_query": "Analyze the US stock market's performance over the last year, focusing on macroeconomic factors (US interest rates, inflation, and economic growth), microeconomic factors (company performance, earnings reports, and industry trends), and investor sentiment (market psychology, news events, and social media trends).  Include a detailed analysis of NVIDIA's stock price decline during the last year, specifying the dates, percentage drop, identified causes, subsequent market reactions, and recovery (if any).  Compare this decline to other US stock market declines of similar percentage drops within the last year, referencing expert commentary and financial news sources.",
+  "max_depth": 2,
+  "max_dependencies_per_node": 2,
+  "progress": {
+    "total_questions": 7,
+    "resolved_questions": 0,
+    "progress_percentage": 0.0,
+    "ready_to_resolve": 4,
+    "remaining_questions": 7
+  },
+  "tree": {
+    "node_id": "root",
+    "question": {
+      "question_id": "root",
+      "question_text": "Analyze the US stock market's performance over the last year, focusing on macroeconomic factors (US interest rates, inflation, and economic growth), microeconomic factors (company performance, earnings reports, and industry trends), and investor sentiment (market psychology, news events, and social media trends).  Include a detailed analysis of NVIDIA's stock price decline during the last year, specifying the dates, percentage drop, identified causes, subsequent market reactions, and recovery (if any).  Compare this decline to other US stock market declines of similar percentage drops within the last year, referencing expert commentary and financial news sources.",
+      "question_type": "analytical",
+      "complexity_level": 5,
+      "priority": 1,
+      "search_keywords": [
+        "Analyze",
+        "the",
+        "US",
+        "stock",
+        "market's"
+      ],
+      "expected_answer_type": "comprehensive analysis",
+      "is_prerequisite": false,
+      "metadata": {}
+    },
+    "depth": 0,
+    "is_resolved": false,
+    "dependencies_count": 2,
+    "dependencies": [
+      {
+        "node_id": "q_1",
+        "question": {
+          "question_id": "q_1",
+          "question_text": "What are the precise definitions of 'economic growth', 'inflation', and 'investor sentiment' as they are used in financial market analysis, and what are the standard metrics used to measure each?",
+          "question_type": "factual",
+          "complexity_level": 1,
+          "priority": 1,
+          "search_keywords": [
+            "economic growth definition",
+            "inflation metrics",
+            "investor sentiment index",
+            "financial market analysis"
+          ],
+          "expected_answer_type": "definitions and metrics",
+          "is_prerequisite": true,
+          "metadata": {
+            "reasoning": "Without clear definitions and measurable metrics for these key macroeconomic and microeconomic factors, a meaningful analysis of the US stock market's performance is impossible.  These definitions provide the foundation for data collection and interpretation."
+          }
+        },
+        "depth": 1,
+        "is_resolved": false,
+        "dependencies_count": 2,
+        "dependencies": [
+          {
+            "node_id": "q_3",
+            "question": {
+              "question_id": "q_3",
+              "question_text": "What are the different schools of thought and approaches to defining and measuring economic growth, focusing on those prevalent in financial market analysis?",
+              "question_type": "contextual",
+              "complexity_level": 1,
+              "priority": 1,
+              "search_keywords": [
+                "economic growth measurement",
+                "GDP",
+                "GNP",
+                "real GDP",
+                "nominal GDP",
+                "financial market analysis",
+                "economic growth models"
+              ],
+              "expected_answer_type": "overview of different approaches and their relevance to financial markets",
+              "is_prerequisite": true,
+              "metadata": {
+                "reasoning": "Understanding the various perspectives on defining and measuring economic growth is crucial before specifying a single 'precise definition' used in financial market analysis.  The main question assumes a single standard, which is unlikely."
+              }
+            },
+            "depth": 2,
+            "is_resolved": false,
+            "dependencies_count": 0,
+            "dependencies": []
+          },
+          {
+            "node_id": "q_4",
+            "question": {
+              "question_id": "q_4",
+              "question_text": "What are the commonly used metrics for measuring inflation and investor sentiment in financial market analysis, and what are their inherent limitations and biases?",
+              "question_type": "factual",
+              "complexity_level": 1,
+              "priority": 2,
+              "search_keywords": [
+                "inflation metrics",
+                "CPI",
+                "PPI",
+                "inflation indices",
+                "investor sentiment indices",
+                "VIX",
+                "consumer confidence index",
+                "survey data limitations",
+                "market sentiment indicators"
+              ],
+              "expected_answer_type": "List of metrics with descriptions and limitations",
+              "is_prerequisite": true,
+              "metadata": {
+                "reasoning": "The main question asks for 'standard metrics'.  This dependency question identifies the candidate metrics and their limitations, allowing for a more informed selection of 'standard' metrics in the final answer. It addresses the measurement aspects directly, which are essential to answering the main question."
+              }
+            },
+            "depth": 2,
+            "is_resolved": false,
+            "dependencies_count": 0,
+            "dependencies": []
+          }
+        ]
+      },
+      {
+        "node_id": "q_2",
+        "question": {
+          "question_id": "q_2",
+          "question_text": "What were the dates and percentage drops of other significant US stock market declines (at least three) within the last year, exceeding a specified percentage threshold (e.g., 10%), and what were the primary cited causes for each decline according to major financial news sources and expert analysis?",
+          "question_type": "quantitative",
+          "complexity_level": 2,
+          "priority": 2,
+          "search_keywords": [
+            "US stock market decline 2023",
+            "stock market correction",
+            "market crash causes",
+            "financial news analysis"
+          ],
+          "expected_answer_type": "list of declines with dates, percentages, and causes",
+          "is_prerequisite": true,
+          "metadata": {
+            "reasoning": "This establishes a comparative baseline for the NVIDIA stock decline.  Without this context, it's impossible to assess whether NVIDIA's performance was anomalous or typical within the broader market trends of the last year. The specified percentage threshold ensures a relevant comparison."
+          }
+        },
+        "depth": 1,
+        "is_resolved": false,
+        "dependencies_count": 2,
+        "dependencies": [
+          {
+            "node_id": "q_5",
+            "question": {
+              "question_id": "q_5",
+              "question_text": "What constitutes a \"significant US stock market decline\" in terms of a specific index (e.g., S&P 500, Dow Jones Industrial Average) and its corresponding percentage drop?",
+              "question_type": "factual",
+              "complexity_level": 1,
+              "priority": 1,
+              "search_keywords": [
+                "stock market index",
+                "percentage drop",
+                "market decline definition",
+                "S&P 500",
+                "Dow Jones"
+              ],
+              "expected_answer_type": "definition and index specification",
+              "is_prerequisite": true,
+              "metadata": {
+                "reasoning": "This clarifies the scope of the main question by defining what constitutes a 'significant decline' and which market index to use for data collection, ensuring consistent and comparable results."
+              }
+            },
+            "depth": 2,
+            "is_resolved": false,
+            "dependencies_count": 0,
+            "dependencies": []
+          },
+          {
+            "node_id": "q_6",
+            "question": {
+              "question_id": "q_6",
+              "question_text": "What are the reliable sources of data on daily US stock market index values and associated financial news reporting from major financial news outlets and expert analysis for the last year?",
+              "question_type": "contextual",
+              "complexity_level": 1,
+              "priority": 2,
+              "search_keywords": [
+                "financial data sources",
+                "stock market data API",
+                "reliable financial news",
+                "expert financial analysis",
+                "data providers"
+              ],
+              "expected_answer_type": "list of data sources and news outlets",
+              "is_prerequisite": true,
+              "metadata": {
+                "reasoning": "Identifying reliable data sources is crucial for obtaining accurate dates and percentage drops, as well as credible information on the causes of market declines.  This ensures the validity and reliability of the data used to answer the main question."
+              }
+            },
+            "depth": 2,
+            "is_resolved": false,
+            "dependencies_count": 0,
+            "dependencies": []
+          }
+        ]
+      }
+    ]
+  },
+  "leaf_questions": [
+    "What are the different schools of thought and approaches to defining and measuring economic growth, focusing on those prevalent in financial market analysis?",
+    "What are the commonly used metrics for measuring inflation and investor sentiment in financial market analysis, and what are their inherent limitations and biases?",
+    "What constitutes a \"significant US stock market decline\" in terms of a specific index (e.g., S&P 500, Dow Jones Industrial Average) and its corresponding percentage drop?",
+    "What are the reliable sources of data on daily US stock market index values and associated financial news reporting from major financial news outlets and expert analysis for the last year?"
+  ],
+  "execution_order": [
+    "What are the different schools of thought and approaches to defining and measuring economic growth, focusing on those prevalent in financial market analysis?",
+    "What are the commonly used metrics for measuring inflation and investor sentiment in financial market analysis, and what are their inherent limitations and biases?",
+    "What are the precise definitions of 'economic growth', 'inflation', and 'investor sentiment' as they are used in financial market analysis, and what are the standard metrics used to measure each?",
+    "What constitutes a \"significant US stock market decline\" in terms of a specific index (e.g., S&P 500, Dow Jones Industrial Average) and its corresponding percentage drop?",
+    "What are the reliable sources of data on daily US stock market index values and associated financial news reporting from major financial news outlets and expert analysis for the last year?",
+    "What were the dates and percentage drops of other significant US stock market declines (at least three) within the last year, exceeding a specified percentage threshold (e.g., 10%), and what were the primary cited causes for each decline according to major financial news sources and expert analysis?",
+    "Analyze the US stock market's performance over the last year, focusing on macroeconomic factors (US interest rates, inflation, and economic growth), microeconomic factors (company performance, earnings reports, and industry trends), and investor sentiment (market psychology, news events, and social media trends).  Include a detailed analysis of NVIDIA's stock price decline during the last year, specifying the dates, percentage drop, identified causes, subsequent market reactions, and recovery (if any).  Compare this decline to other US stock market declines of similar percentage drops within the last year, referencing expert commentary and financial news sources."
+  ]
+}

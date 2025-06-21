@@ -1,0 +1,24 @@
+# filepath: /Users/choclate/deep-research-agent/pyproject.toml
+[project]
+name = "deep-research-agent"
+version = "0.1.0"
+description = "AI Research Agent"
+requires-python = ">=3.8"
+dependencies = [
+    "langchain-google-genai",
+    "langchain-core",
+    "pydantic",
+    "python-dotenv",
+    # Add any other dependencies from your requirements.txt here
+    # e.g., "requests", "beautifulsoup4", etc.
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."] # Look for packages in the current directory (project root)
+include = ["Prompts", "categorizer", "state"] # Explicitly include your packages/modules
+# Make sure 'categorizer' is lowercase here to match your directory name
+# Include 'state' if state.py is also a top-level module you need to import
