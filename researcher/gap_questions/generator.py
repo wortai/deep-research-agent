@@ -25,7 +25,7 @@ from langgraph.graph import StateGraph, END, START
 from langgraph.checkpoint.memory import MemorySaver
 
 # Your vector store system
-from gap_questions.search_store_retrieve import run_research_workflow
+from gap_questions import run_research_workflow
 
 # Load environment variables
 load_dotenv()
@@ -1098,7 +1098,7 @@ def main():
     try:
         # Initialize
         llm_client = GeminiLLMClient()
-        user_query = "What are the latest advancements in large language models?"
+        user_query = "What are the best Ai companies that have good funding in 2025 and what they doing ?"
         
         generator = GapQuestionGenerator(
             llm_client=llm_client,
