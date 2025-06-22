@@ -1,150 +1,231 @@
-# Deep Research Agent Architecture
+# 🔍 Deep Research Agent - Architecture Documentation
 
-This document provides an overview of the architecture for the Deep Research Agent project. It includes diagrams illustrating the main components, their interactions, and the flow of data.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://python.org)
+[![Status](https://img.shields.io/badge/status-active-green.svg)]()
 
-## 🔍 Detailed Architecture Diagram
 
-This diagram shows the primary components of the system and their connections, including the entry points, core modules, planning layer, research workflows, and supporting tools. File paths are included for reference.
+## 🏗️ System Architecture
 
-```mermaid
-graph TB
-    %% Entry Points
-    USER[👤 User Query] --> ROUTER[🎯 Research Router<br/>categorizer/router.py]
-    
-    %% Core Categorization
-    ROUTER --> PROMPT[📝 Prompt Club<br/>Prompts/prompt.py]
-    ROUTER --> CATEGORIES[📊 Categories<br/>categorizer/categories.py]
-    
-    %% Planning Layer
-    ROUTER --> PLANNER_V2[🧠 Planner v2<br/>planner/v2/]
-    PLANNER_V2 --> PLAN_TREE[🌳 Plan Tree<br/>plan_tree.py]
-    PLANNER_V2 --> QUERY_ENHANCER[⚡ Query Enhancer<br/>query_enhancer.py]
-    PLANNER_V2 --> AMBIGUITY[❓ Ambiguity Resolver<br/>ambiguity_resolver.py]
-    
-    %% Main Research Workflows
-    ROUTER --> WEB_SEARCH[🌐 Web Search<br/>web_search.py]
-    ROUTER --> SEARCH_STORE[🔄 Search Store Retrieve<br/>_search_store_retrieve_.py]
-    ROUTER --> GAP_GEN[🎯 Gap Question Generator<br/>gap_questions/generator.py]
-    
-    %% Web Search Components
-    WEB_SEARCH --> SERPAPI[🔍 SerpAPI<br/>retrievers/serpapi/]
-    WEB_SEARCH --> BROWSER[🌐 Universal Loader<br/>scrapers/browser/]
-    WEB_SEARCH --> TAVILY[📡 Tavily Scraper<br/>scrapers/tavily/]
-    WEB_SEARCH --> AGENTQL[🤖 AgentQL<br/>scrapers/agentql/]
-    
-    %% Academic Research Tools
-    ROUTER --> TOOLS[🛠️ Research Tools<br/>tools/tools.py]
-    TOOLS --> ARXIV_RET[📚 ArXiv Retriever<br/>retrievers/arxiv/]
-    TOOLS --> RSS_RET[📰 RSS Retriever<br/>retrievers/research_rssharvest/]
-    ARXIV_RET --> ARXIV_SCRAPER[📄 ArXiv Scraper<br/>scrapers/arxiv/]
-    RSS_RET --> MEDRXIV_SCRAPER[🧬 MedRxiv Scraper<br/>scrapers/medrxiv/]
-    RSS_RET --> BIORXIV_SCRAPER[🔬 BioRxiv Scraper<br/>scrapers/biorxiv/]
-    
-    %% Vector Store System
-    SEARCH_STORE --> VECTOR_MGR[🗄️ Vector Store Manager<br/>vectore_store/vector_store.py]
-    VECTOR_MGR --> QDRANT[💾 Qdrant Service<br/>vectore_store/qdrant_db.py]
-    
-    %% YouTube Processing
-    BROWSER --> YOUTUBE[📺 YouTube Transcriber<br/>browser/youtube_transcriber.py]
-    
-    %% Graph RAG (Advanced)
-    GAP_GEN --> GRAPH_RAG[🕸️ Graph RAG<br/>graph_rag/graphiti_graph.py]
-    
-    %% Data Flow
-    WEB_SEARCH --> DATA_FLOW[📊 Scraped Data]
-    TOOLS --> DATA_FLOW
-    DATA_FLOW --> VECTOR_MGR
-    VECTOR_MGR --> SEARCH_RESULTS[🎯 Search Results]
-    SEARCH_RESULTS --> GAP_GEN
-    
-    %% Output Generation
-    GAP_GEN --> LOGS[📋 Execution Logs<br/>gap_generator_logs/]
-    LOGS --> REPORTS[📊 Reports & Visualizations]
-    
-    %% Styling
-    classDef entry fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef core fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef scraper fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
-    classDef storage fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    classDef output fill:#fce4ec,stroke:#880e4f,stroke-width:2px
-    
-    class USER,ROUTER entry
-    class PLANNER_V2,PLAN_TREE,WEB_SEARCH,SEARCH_STORE,GAP_GEN core
-    class SERPAPI,BROWSER,TAVILY,AGENTQL,ARXIV_SCRAPER,MEDRXIV_SCRAPER,BIORXIV_SCRAPER scraper
-    class VECTOR_MGR,QDRANT storage
-    class LOGS,REPORTS output
-```
+![Deep Research Agent Workflow](researcher/workflow.png)
 
-## 📊 Simplified Data Flow Diagram
+*The complete system workflow showing all components and their interactions*
 
-This diagram provides a high-level view of the main data flow through the system, from the initial user query to the final report generation.
+### 🔄 Core Components
+
+| Component | Description | Location |
+|-----------|-------------|----------|
+| **Research Router** | Query categorization and routing | `categorizer/router.py` |
+| **Planner v2** | Advanced research planning with dependency trees | `planner/v2/` |
+| **Web Search Engine** | Multi-source web scraping and retrieval | `web_search.py` |
+| **Academic Tools** | ArXiv, MedRxiv, BioRxiv integration | `tools/tools.py` |
+| **Vector Store** | Qdrant-based similarity search | `vectore_store/` |
+| **Gap Generator** | Intelligent follow-up question generation | `gap_questions/` |
+
+---
+
+## 🚀 Search Modes
+
+### 🌐 WebSearch Mode
+**Quick web-based research for immediate answers**
+
+- Uses SerpAPI for search results
+- Multiple scraper integration (Tavily, AgentQL, Browser)
+- Fast response time
+- Ideal for: Current events, quick facts, general queries
+
+### 🔬 DeepSearch Mode
+**Comprehensive research combining multiple sources**
+
+- Web search + Academic sources
+- Vector store integration for context
+- Enhanced query processing
+- Ideal for: Research projects, detailed analysis, academic work
+
+### ⚡ ExtremeSearch Mode
+**Full-pipeline research with advanced AI techniques**
+
+- Complete dependency-driven research
+- Graph RAG integration
+- Ambiguity resolution
+- Gap question generation
+- Ideal for: Complex research, thesis work, comprehensive reports
+
+---
+
+## 📊 Data Flow Architecture
 
 ```mermaid
-flowchart LR
-    A[👤 User Query] --> B[🎯 Router]
-    B --> C[🌐 Web Search]
-    B --> D[📚 Academic Tools]
-    B --> E[🧠 Gap Generator]
+flowchart TD
+    A[👤 User Query] --> B[🎯 Research Router]
+    B --> C{Query Category}
     
-    C --> F[📊 Data Collection]
-    D --> F
+    C -->|Web| D[🌐 Web Search]
+    C -->|Academic| E[📚 Academic Tools]
+    C -->|Complex| F[🧠 Planner v2]
     
-    F --> G[🗄️ Vector Store]
-    G --> H[🔍 Similarity Search]
-    H --> E
+    D --> G[🔍 Multi-Source Scraping]
+    E --> H[📄 Paper Retrieval]
+    F --> I[🌳 Plan Tree Generation]
     
-    E --> I[📋 Final Report]
+    G --> J[📊 Data Processing]
+    H --> J
+    I --> K[🎯 Gap Analysis]
     
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style I fill:#fce4ec
+    J --> L[🗄️ Vector Store]
+    L --> M[🔍 Similarity Search]
+    M --> K
+    
+    K --> N[📋 Final Report]
+    
+    style A fill:#e1f5fe,stroke:#01579b,stroke-width:3px
+    style N fill:#fce4ec,stroke:#880e4f,stroke-width:3px
+    style B fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
 ```
 
-## 🏗️ Component Hierarchy
+---
 
-This diagram illustrates the structural breakdown of the project into major components and their sub-modules, showing the containment relationships.
+## 🏗️ Component Structure
 
-```mermaid
-graph TD
-    ROOT[Deep Research Agent]
-    
-    ROOT --> CAT[Categorizer]
-    ROOT --> RES[Researcher]
-    ROOT --> PROM[Prompts]
-    
-    CAT --> ROUTER[router.py]
-    CAT --> CATEGORIES[categories.py]
-    
-    RES --> SCRAPERS[Scrapers]
-    RES --> RETRIEVERS[Retrievers]
-    RES --> TOOLS[Tools]
-    RES --> VECTOR[Vector Store]
-    RES --> PLANNER[Planner]
-    RES --> GAP[Gap Questions]
-    
-    SCRAPERS --> ARXIV_S[ArXiv]
-    SCRAPERS --> BROWSER_S[Browser]
-    SCRAPERS --> TAVILY_S[Tavily]
-    SCRAPERS --> AGENTQL_S[AgentQL]
-    SCRAPERS --> MEDRXIV_S[MedRxiv]
-    SCRAPERS --> BIORXIV_S[BioRxiv]
-    
-    RETRIEVERS --> ARXIV_R[ArXiv]
-    RETRIEVERS --> SERPAPI_R[SerpAPI]
-    RETRIEVERS --> RSS_R[RSS Harvest]
-    
-    VECTOR --> QDRANT_V[Qdrant DB]
-    VECTOR --> MANAGER_V[Vector Manager]
-    
-    PLANNER --> V1[v1]
-    PLANNER --> V2[v2]
-    
-    V2 --> PLAN_TREE[Plan Tree]
-    V2 --> QUERY_ENH[Query Enhancer]
-    V2 --> AMBIGUITY[Ambiguity Resolver]
-    
-    style ROOT fill:#ff9999
-    style CAT fill:#99ccff
-    style RES fill:#99ff99
-    style PROM fill:#ffcc99
+### 📁 Project Organization
+
 ```
+deep-research-agent/
+├── 📊 categorizer/           # Query routing and categorization
+│   ├── router.py            # Main routing logic
+│   └── categories.py        # Category definitions
+├── 🔬 Researcher/           # Core research components
+│   ├── scrapers/           # Data collection modules
+│   │   ├── browser/        # Web browser automation
+│   │   ├── tavily/         # Tavily API integration
+│   │   ├── agentql/        # AgentQL scraping
+│   │   ├── arxiv/          # ArXiv paper scraping
+│   │   ├── medrxiv/        # MedRxiv integration
+│   │   └── biorxiv/        # BioRxiv integration
+│   ├── retrievers/         # Search and retrieval
+│   │   ├── serpapi/        # Google Search API
+│   │   ├── arxiv/          # ArXiv API
+│   │   └── research_rssharvest/ # RSS feed processing
+│   ├── vectore_store/      # Vector database
+│   │   ├── vector_store.py # Vector operations
+│   │   └── qdrant_db.py    # Qdrant integration
+│   ├── planner/            # Research planning
+│   │   ├── v1/             # Legacy planner
+│   │   └── v2/             # Advanced planner
+│   │       ├── plan_tree.py        # Dependency trees
+│   │       ├── query_enhancer.py   # Query optimization
+│   │       └── ambiguity_resolver.py # Ambiguity handling
+│   ├── gap_questions/      # Gap analysis
+│   │   └── generator.py    # Question generation
+│   ├── graph_rag/          # Graph RAG implementation
+│   └── tools/              # Research utilities
+└── 📝 Prompts/             # LLM prompt management
+```
+
+---
+
+## 🔧 Technical Implementation
+
+### 🧠 Planning System
+
+The **Planner v2** system creates intelligent research strategies:
+
+- **Plan Tree**: Builds dependency-driven question hierarchies
+- **Query Enhancer**: Optimizes search queries for better results
+- **Ambiguity Resolver**: Clarifies unclear or ambiguous queries
+- **Dependency Management**: Ensures logical research flow
+
+### 🗄️ Vector Store Integration
+
+**Qdrant-powered similarity search**:
+
+```python
+# Example vector store workflow
+scraped_data → vector_embedding → qdrant_storage → similarity_search → relevant_context
+```
+
+### 🎯 Gap Question Generation
+
+Advanced AI system that:
+- Identifies knowledge gaps in research
+- Generates intelligent follow-up questions
+- Uses LangGraph for orchestration
+- Provides comprehensive logging and visualization
+
+---
+
+## 🚦 Getting Started
+
+### Prerequisites
+
+- Python 3.8+
+- Qdrant database
+- API keys for external services (SerpAPI, etc.)
+
+### Quick Start
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-repo/deep-research-agent.git
+   cd deep-research-agent
+   ```
+
+2. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Configure environment**
+   ```bash
+   # Set up your API keys and configuration
+   cp .env.example .env
+   ```
+
+4. **Run a simple search**
+   ```python
+   from researcher.web_search import WebSearch
+   
+   # Quick web search
+   results = WebSearch().search("AI research trends 2024")
+   ```
+
+---
+
+## 📈 Performance & Scalability
+
+| Mode | Response Time | Sources | Accuracy | Use Case |
+|------|---------------|---------|----------|----------|
+| WebSearch | ~30 seconds | 5-10 | Good | Quick queries |
+| DeepSearch | ~2-5 minutes | 15-25 | High | Research projects |
+| ExtremeSearch | ~5-15 minutes | 25+ | Excellent | Comprehensive analysis |
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+### Development Setup
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🔗 Links
+
+
+- [Issues](https://github.com/your-repo/deep-research-agent/issues)
+
+---
+
+*Built By WORT TEAM*

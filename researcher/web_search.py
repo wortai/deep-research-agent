@@ -137,6 +137,7 @@ class WebSearch:
             arxiv_results = await ResearchSearch.arxiv(queries=self.arxiv_reserach_paper_queries, papers_per_query=self.arxiv_max_results)
 
             if arxiv_results and arxiv_results.get("status") == "success" and arxiv_results.get("data"):
+
                 return arxiv_results["data"]
             else:
                 # Log specific error if status is not success or data is missing
@@ -189,43 +190,31 @@ class WebSearch:
         """
         try:
             # Step 1: Retrieve URLs using SerpApi
-            # Add the following method within the WebSearch class
-
-
-            # Then, replace the $SELECTION_PLACEHOLDER$ code inside initiate_research with:
-
             urls  =  await self.get_serpapi_results()
             
 
             print("--------------------------------------------------")
             # Step 2: Scrape data using browser
             browser_results = await self.search_with_browser(urls)
-            # for i, data in enumerate(browser_results):
-            #     print(f"{i}: {data['url']}")
-            #     print('--------------------------')
-            #     print(data["content"][:100])
+      
           
-          
-            # # print(f"browser_results {browser_results}")
-            # print("--------------------------------------------------")
+
+            print("--------------------------------------------------")
             # # Step 3: Scrape unresolved URLs using Tavily
             unresolved_urls = [url for url in urls if url not in self.completed_urls]
             tavily_results = await self.search_with_tavily(unresolved_urls)
-
-
-
-            print(f" tavily data urls {tavily_results}")
             print("--------------------------------------------------")
 
 
 
             # # Step 4: Scrape remaining unresolved URLs using AgentQL
             remaining_urls = [url for url in unresolved_urls if url not in self.completed_urls]
-            agentql_results = await self.search_with_agentql(remaining_urls)
-            print(f"agent_ql reults {agentql_results}")
+            agentql_results = await self.search_with_agentql(remaining_urls)       
             print("--------------------------------------------------")
 
-
+            # Step 5: using research papers if mentioned 
+            if len(self.arxiv_research_paper_queries) > 0 and len(self.arxiv_max_results) > 0:
+                
 
 
             # Combine all results
