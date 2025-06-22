@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,7 +11,7 @@
             background: #f5f5f5;
         }
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
             padding: 20px;
@@ -27,7 +28,7 @@
             margin: 20px 0;
         }
         .description {
-            background: #e8f5e9;
+            background: #e3f2fd;
             padding: 15px;
             border-radius: 5px;
             margin: 20px 0;
@@ -36,12 +37,19 @@
 </head>
 <body>
     <div class="container">
-        <h1>📊 Deep Research Agent - Data Flow</h1>
+        <h1>🔍 Deep Research Agent - Data Flow</h1>
         <div class="description">
-            <p><strong>Simplified Data Flow:</strong> This shows the high-level data movement through the system.</p>
-            <p>User queries are routed to different research components, data is collected and stored in a vector database, then processed to generate comprehensive reports.</p>
+            <p><strong>Deep Research Agent Architecture:</strong> This diagram shows how all components interact in the research system.</p>
+            <ul>
+                <li>🎯 <strong>Blue nodes:</strong> Entry points and routing</li>
+                <li>🧠 <strong>Purple nodes:</strong> Core processing components</li>
+                <li>🌐 <strong>Green nodes:</strong> Data scrapers and retrievers</li>
+                <li>🗄️ <strong>Orange nodes:</strong> Storage systems</li>
+                <li>📊 <strong>Pink nodes:</strong> Output and reporting</li>
+            </ul>
         </div>
         <div class="mermaid">
+
 flowchart LR
     A[👤 User Query] --> B[🎯 Router]
     B --> C[🌐 Web Search]
@@ -62,6 +70,7 @@ flowchart LR
     style I fill:#fce4ec,stroke:#880e4f,stroke-width:3px
     style F fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
     style G fill:#fff3e0,stroke:#e65100,stroke-width:2px
+
         </div>
     </div>
     <script>
