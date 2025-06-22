@@ -7,7 +7,7 @@ from typing import List
 load_dotenv()
 
 # Import the classes from your files
-from web_search import WebSearch
+from researcher.web_search.web_search import WebSearch
 from vectore_store import QdrantService
 from vectore_store import VectorStoreManager
 

@@ -6,11 +6,11 @@ import json
 from datetime import datetime
 import os
 
-from retrievers.serpapi import SerpApiClient
-from scrapers.agentql import AgentQLScraper
-from scrapers.browser import UniversalLoader
-from scrapers.tavily import Tavily          
-from scrapers.arxiv import ResearchSearch
+from researcher.retrievers.serpapi import SerpApiClient
+from researcher.scrapers.agentql import AgentQLScraper
+from researcher.scrapers.browser import UniversalLoader
+from researcher.scrapers.tavily import Tavily          
+from researcher.scrapers.arxiv import ResearchSearch
 
 
 
@@ -130,11 +130,11 @@ class WebSearch:
             List[Dict[str, Any]]: List of research paper details.
         """
         try:
-            if not hasattr(self, 'reserach_paper_queries') or not hasattr(self, 'arxiv_max_results'):
-                 logging.error("Arxiv search parameters (reserach_paper_queries, arxiv_max_results) are not set.")
+            if not self.arxiv_research_paper_queries or self.arxiv_max_results <= 0:
+                 logging.error("Arxiv search parameters (arxiv_research_paper_queries, arxiv_max_results) are not set.")
                  return []
 
-            arxiv_results = await ResearchSearch.arxiv(queries=self.arxiv_reserach_paper_queries, papers_per_query=self.arxiv_max_results)
+            arxiv_results = await ResearchSearch.arxiv(queries=self.arxiv_research_paper_queries, papers_per_query=self.arxiv_max_results)
 
             if arxiv_results and arxiv_results.get("status") == "success" and arxiv_results.get("data"):
 
@@ -212,23 +212,30 @@ class WebSearch:
             agentql_results = await self.search_with_agentql(remaining_urls)       
             print("--------------------------------------------------")
 
-            # Step 5: using research papers if mentioned 
-            if len(self.arxiv_research_paper_queries) > 0 and len(self.arxiv_max_results) > 0:
-                
-
-
-            # Combine all results
+            # Step 5: Combine all results
             self.results.extend(browser_results)
             self.results.extend(tavily_results)
             self.results.extend(agentql_results)
 
+            # Step 6: Add research papers if mentioned 
+            if len(self.arxiv_research_paper_queries) > 0 and self.arxiv_max_results > 0:
+                
+
+
+                arxiv_results = await self.search_with_arxiv()
+                self.results.extend(arxiv_results)
+            
+            if len(self.medbio_research_paper_queries) > 0 and self.medbio_max_results > 0:
+                medbio_results = await self.search_with_medrxiv_biorxiv()
+                self.results.extend(medbio_results)
 
 
 
 
-            # Only include results with non-error content
-            final_results = [{"url": res["url"], "content": res["content"]}
-                             for res in self.results if res.get("content")]
+
+                # Only include results with non-error content
+            final_results = [{"url": res.get("url", ""), "content": res["content"]}
+                            for res in self.results if res.get("content")]
             return final_results
 
         except Exception as e:
@@ -244,8 +251,7 @@ if __name__ == "__main__":
             print(f"URL: {result['url']}")
             print(f"Content: {result['content'][:100]}...\n")
 
-        ResearchSearch.test_arxiv_tool()
-        ResearchSearch.test_medrxiv_biorxiv_tool()
+        print("✅ WebSearch completed successfully!")
         
     # Run the test main
     import asyncio
