@@ -7,9 +7,9 @@ from typing import List
 load_dotenv()
 
 # Import the classes from your files
-from web_search import WebSearch
-from vectore_store import QdrantService
-from vectore_store import VectorStoreManager
+from researcher.web_search.web_search import WebSearch
+from researcher.vector_store import QdrantService
+from researcher.vector_store import VectorStoreManager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
