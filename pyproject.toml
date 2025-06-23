@@ -1,24 +1,44 @@
-# filepath: /Users/choclate/deep-research-agent/pyproject.toml
 [project]
 name = "deep-research-agent"
 version = "0.1.0"
 description = "AI Research Agent"
 requires-python = ">=3.8"
 dependencies = [
-    "langchain-google-genai",
-    "langchain-core",
-    "pydantic",
-    "python-dotenv",
-    # Add any other dependencies from your requirements.txt here
-    # e.g., "requests", "beautifulsoup4", etc.
+    "agentql==1.11.1",
+    "aiofiles==23.2.1",
+    "aiohttp==3.12.0",
+    "arxiv==2.2.0",
+    "beautifulsoup4==4.13.4",
+    "google_search_results==2.4.2",
+    "graphiti-core==0.11.6",
+    "langchain==0.3.25",
+    "langchain-agentql==1.0.1",
+    "langchain-community==0.3.24",
+    "langchain-core==0.3.65",
+    "langchain-google-genai==2.1.4",
+    "langchain-qdrant==0.2.0",
+    "langchain-text-splitters==0.3.8",
+    "langgraph==0.4.8",
+    "openai==1.84.0",
+    "playwright==1.52.0",
+    "pydantic==2.11.5",
+    "pydantic-settings==2.9.1",
+    "python-dotenv==1.1.0",
+    "pytube==15.0.0",
+    "PyMuPDF==1.26.0",
+    "qdrant-client==1.14.2",
+    "requests==2.32.3",
+    "tavily-python==0.7.3",
+    "youtube-transcript-api==1.0.3",
 ]
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["."] # Look for packages in the current directory (project root)
-include = ["Prompts", "categorizer", "state"] # Explicitly include your packages/modules
-# Make sure 'categorizer' is lowercase here to match your directory name
-# Include 'state' if state.py is also a top-level module you need to import
+where = ["."]
+include = ["researcher*", "gap_questions*", "vectore_store*", "prompts*", "categorizer*", "planner*", "scrapers*", "retrievers*", "graph_rag*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.py", "*.md", "*.json", "*.html", "*.txt"]
