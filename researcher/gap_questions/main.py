@@ -31,11 +31,14 @@ def main(user_query: str = None, max_iterations: int = 3, confidence_threshold: 
         # Initialize
         llm_client = GeminiLLMClient()
         
+        print("\n--- Example: Terminal logging ON, File logging OFF ---")
         generator = GapQuestionGenerator(
             llm_client=llm_client,
             user_query=user_query,
             max_iterations=max_iterations,
-            confidence_threshold=confidence_threshold
+            confidence_threshold=confidence_threshold,
+            file_logging=False,           # enables/disables file log creation
+            terminal_logging=False         # enables/disables terminal/console logging
         )
         
         print(f"Session: {generator.session_id}")
@@ -49,11 +52,8 @@ def main(user_query: str = None, max_iterations: int = 3, confidence_threshold: 
         for key, value in results.items():
             print(f"  • {key}: {value}")
         
-        print(f"\n📋 Output Files:")
-        print(f"  • Detailed JSON: {generator.monitor.output_dir}/{generator.session_id}_detailed_log.json")
-        print(f"  • Markdown Report: {generator.monitor.output_dir}/{generator.session_id}_detailed_report.md")
-        print(f"  • URLs & Content: {generator.monitor.output_dir}/{generator.session_id}_urls_content.json")
-        print(f"  • Vector Results: {generator.monitor.output_dir}/{generator.session_id}_vector_results.json")
+        print("\n📋 Output Files:")
+        print("  • (No files created, file logging is OFF)")
         
         # Display sample data
         print("\n📌 Sample Data from Processing:")
@@ -70,15 +70,7 @@ def main(user_query: str = None, max_iterations: int = 3, confidence_threshold: 
             for insight in query_data.insights_extracted[:2]:
                 print(f"  - {insight[:100]}...")
         
-        # Generate visualization
-        print("\n📊 Generating visualization report...")
-        viz_file = create_visualization_report(generator.session_id)
-        if viz_file:
-            print(f"Open {viz_file} in your browser to view interactive charts")
-        
-        # Analyze logs
-        print("\n🔍 Analyzing execution data...")
-        analyze_logs(generator.session_id)
+        print("\n--- Example complete. To enable file logging, set file_logging=True. ---\n")
         
         return generator
         

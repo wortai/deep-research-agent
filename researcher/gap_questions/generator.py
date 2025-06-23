@@ -20,8 +20,6 @@ from .models import (
 from .monitoring import ExecutionMonitor
 from .llm_client import GeminiLLMClient
 
-# IMPORTANT: Import your search_store_retrieve module here
-# Make sure search_store_retrieve.py is in the same directory as this file
 from .search_store_retrieve import run_research_workflow
 
 
@@ -33,7 +31,9 @@ class GapQuestionGenerator:
         llm_client,
         user_query: str,
         max_iterations: int = 3,
-        confidence_threshold: float = 0.85
+        confidence_threshold: float = 0.85,
+        file_logging: bool = True,
+        terminal_logging: bool = False
     ):
         # Core components
         self.user_query = user_query
@@ -69,7 +69,7 @@ class GapQuestionGenerator:
         # Setup logging and monitoring
         self.logger = logging.getLogger(self.__class__.__name__)
         self.session_id = f"gap_gen_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        self.monitor = ExecutionMonitor(self.session_id)
+        self.monitor = ExecutionMonitor(self.session_id, file_logging=file_logging, terminal_logging=terminal_logging)
         
         # Initialize LLM client with monitor
         self.llm_client = GeminiLLMClient(monitor=self.monitor) if isinstance(llm_client, str) else llm_client
