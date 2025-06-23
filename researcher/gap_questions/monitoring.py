@@ -14,17 +14,19 @@ from .models import ProcessingStep, DetailedQueryData
 class ExecutionMonitor:
     """Comprehensive monitoring and logging system"""
     
-    def __init__(self, session_id: str, output_dir: str = "gap_generator_logs"):
+    def __init__(self, session_id: str, output_dir: str = "gap_generator_logs", file_logging: bool = True, terminal_logging: bool = False):
         self.session_id = session_id
         self.output_dir = output_dir
+        self.file_logging = file_logging
+        self.terminal_logging = terminal_logging
         self.steps: List[ProcessingStep] = []
         self.start_time = datetime.now()
         self.detailed_queries: List[DetailedQueryData] = []
         self.all_urls_accessed: set = set()
         self.all_vector_queries: List[str] = []
         self.llm_interactions: List[Dict[str, Any]] = []
-        
-        os.makedirs(output_dir, exist_ok=True)
+        if self.file_logging:
+            os.makedirs(output_dir, exist_ok=True)
         
     def log_step(self, step_name: str, status: str, details: Dict, error_message: str = None):
         """Log a processing step"""
@@ -36,6 +38,8 @@ class ExecutionMonitor:
             error_message=error_message
         )
         self.steps.append(step)
+        if self.terminal_logging:
+            print(f"[MONITOR] Step: {step_name} | Status: {status} | Details: {details}" + (f" | Error: {error_message}" if error_message else ""))
         
     def complete_step(self, step_name: str, start_time: datetime, details: Dict = None):
         """Mark a step as completed with duration"""
@@ -46,6 +50,8 @@ class ExecutionMonitor:
                 step.duration_ms = duration_ms
                 if details:
                     step.details.update(details)
+                if self.terminal_logging:
+                    print(f"[MONITOR] Step: {step_name} | Status: completed | Duration: {duration_ms}ms | Details: {step.details}")
                 break
     
     def log_query_data(self, query_data: DetailedQueryData):
@@ -67,12 +73,18 @@ class ExecutionMonitor:
     
     def export_logs(self, execution_results: Dict):
         """Export all logs to files"""
+        if not self.file_logging:
+            if self.terminal_logging:
+                print("[MONITOR] File logging is disabled. No logs will be written to disk.")
+            return
         self._export_json(execution_results)
         self._export_markdown(execution_results)
         self._export_detailed_data()
     
     def _export_json(self, execution_results: Dict):
         """Export comprehensive JSON log"""
+        if not self.file_logging:
+            return
         log_data = {
             "session_id": self.session_id,
             "execution_start": self.start_time.isoformat(),
@@ -92,6 +104,8 @@ class ExecutionMonitor:
     
     def _export_markdown(self, execution_results: Dict):
         """Export human-readable markdown report"""
+        if not self.file_logging:
+            return
         md_content = f"""# Gap Question Generator Detailed Report
 
 ## Session: {self.session_id}
@@ -158,6 +172,8 @@ class ExecutionMonitor:
     
     def _export_detailed_data(self):
         """Export detailed data to separate files"""
+        if not self.file_logging:
+            return
         # Export URLs with their content
         urls_file = os.path.join(self.output_dir, f"{self.session_id}_urls_content.json")
         urls_data = {}
