@@ -2,9 +2,8 @@ import google.generativeai as genai
 import json
 import time
 import os
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Any
 from dataclasses import dataclass
-from abc import ABC, abstractmethod
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
