@@ -214,7 +214,12 @@ class WebSearch:
 
             # Step 5: using research papers if mentioned 
             if len(self.arxiv_research_paper_queries) > 0 and len(self.arxiv_max_results) > 0:
+                arxiv_results = await self.search_with_arxiv()
+                self.results.extend(arxiv_results)
                 
+            if len(self.medbio_research_paper_queries) > 0 and len(self.medbio_max_results) > 0:
+                medbio_results = await self.search_with_medrxiv_biorxiv()
+                self.results.extend(medbio_results)
 
 
             # Combine all results
@@ -249,4 +254,5 @@ if __name__ == "__main__":
         
     # Run the test main
     import asyncio
+    asyncio.run(main())  
     asyncio.run(main())  

@@ -14,7 +14,9 @@ cffi==1.17.1
 charset-normalizer==3.4.2
 click==8.2.1
 colorama==0.4.6
+curl_cffi==0.11.4
 dataclasses-json==0.6.7
+-e git+https://github.com/wortai/deep-research-agent.git@957f235fdb1385a273204d0476677d9bbee964db#egg=deep_research_agent
 defusedxml==0.7.1
 diskcache==5.6.3
 distro==1.9.0
@@ -23,6 +25,7 @@ fake-http-header==0.3.5
 feedparser==6.0.11
 filelock==3.18.0
 filetype==1.2.0
+frozendict==2.4.6
 frozenlist==1.6.0
 fsspec==2025.5.1
 git-filter-repo==2.47.0
@@ -69,6 +72,7 @@ markdown-it-py==3.0.0
 marshmallow==3.26.1
 mdurl==0.1.2
 multidict==6.4.4
+multitasking==0.0.11
 mypy_extensions==1.1.0
 neo4j==5.28.1
 numpy==2.2.6
@@ -76,6 +80,9 @@ openai==1.84.0
 orjson==3.10.18
 ormsgpack==1.10.0
 packaging==24.2
+pandas==2.3.0
+peewee==3.18.1
+platformdirs==4.3.8
 playwright==1.52.0
 pluggy==1.6.0
 portalocker==2.10.1
@@ -99,6 +106,7 @@ pytest-benchmark==5.1.0
 pytest-codspeed==3.2.0
 pytest-recording==0.13.4
 pytest-socket==0.7.0
+python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
 pytube==15.0.0
 pytz==2025.2
@@ -128,11 +136,14 @@ typer==0.16.0
 typing-inspect==0.9.0
 typing-inspection==0.4.1
 typing_extensions==4.13.2
+tzdata==2025.2
 urllib3==2.4.0
 vcrpy==7.0.0
 webencodings==0.5.1
+websockets==15.0.1
 wrapt==1.17.2
 xxhash==3.5.0
 yarl==1.20.0
-youtube-transcript-api==1.0.3
+yfinance==0.2.63
+youtube-transcript-api==1.1.0
 zstandard==0.23.0
