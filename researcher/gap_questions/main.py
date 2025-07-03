@@ -41,38 +41,38 @@ def main(user_query: str = None, max_iterations: int = 3, confidence_threshold: 
             terminal_logging=False         # enables/disables terminal/console logging
         )
         
-        print(f"Session: {generator.session_id}")
-        print(f"Query: {user_query}")
-        print("-" * 40)
+        # print(f"Session: {generator.session_id}")
+        # print(f"Query: {user_query}")
+        # print("-" * 40)
         
         # Run complete workflow
-        results = generator.run()
+        # results = generator.run()
         
-        print("\n📊 Results Summary:")
-        for key, value in results.items():
-            print(f"  • {key}: {value}")
+        # print("\n📊 Results Summary:")
+        # for key, value in results.items():
+        #     print(f"  • {key}: {value}")
         
-        print("\n📋 Output Files:")
-        print("  • (No files created, file logging is OFF)")
+        # print("\n📋 Output Files:")
+        # print("  • (No files created, file logging is OFF)")
         
         # Display sample data
-        print("\n📌 Sample Data from Processing:")
-        if generator.monitor.detailed_queries:
-            query_data = generator.monitor.detailed_queries[0]
-            print(f"\nFirst Gap Query: {query_data.gap_query}")
-            print(f"Vector Queries Generated: {len(query_data.vector_queries)}")
-            for vq in query_data.vector_queries[:2]:
-                print(f"  - {vq}")
-            print(f"URLs Accessed: {len(query_data.urls_accessed)}")
-            for url in query_data.urls_accessed[:2]:
-                print(f"  - {url}")
-            print(f"Insights Extracted: {len(query_data.insights_extracted)}")
-            for insight in query_data.insights_extracted[:2]:
-                print(f"  - {insight[:100]}...")
+        # print("\n📌 Sample Data from Processing:")
+        # if generator.monitor.detailed_queries:
+        #     query_data = generator.monitor.detailed_queries[0]
+        #     print(f"\nFirst Gap Query: {query_data.gap_query}")
+        #     print(f"Vector Queries Generated: {len(query_data.vector_queries)}")
+        #     for vq in query_data.vector_queries[:2]:
+        #         print(f"  - {vq}")
+        #     print(f"URLs Accessed: {len(query_data.urls_accessed)}")
+        #     for url in query_data.urls_accessed[:2]:
+        #         print(f"  - {url}")
+        #     print(f"Insights Extracted: {len(query_data.insights_extracted)}")
+        #     for insight in query_data.insights_extracted[:2]:
+        #         print(f"  - {insight[:100]}...")
         
-        print("\n--- Example complete. To enable file logging, set file_logging=True. ---\n")
+        # print("\n--- Example complete. To enable file logging, set file_logging=True. ---\n")
         
-        return generator
+        return generator.run()
         
     except Exception as e:
         print(f"❌ Error: {e}")

@@ -65,53 +65,64 @@ class CompanyFinancialData:
 
         return output.strip() # Remove trailing newline if any
 
-    def _fetch_income_statement(self) -> pd.DataFrame:
+    def _fetch_income_statement(self) -> str:
         """
-        Fetches the income statement.
+        Fetches the income statement and returns it as a formatted string.
 
         Returns:
-            A pandas DataFrame containing the income statement, or an empty DataFrame if data is not available.
+            A string containing the income statement data, or a message indicating no data is available.
         """
         try:
             financials = self._ticker.financials
             if financials.empty:
-                 print(f"No income statement data found for {self.ticker_symbol}.")
-            return financials
+                 return f"No income statement data found for {self.ticker_symbol}."
+            else:
+                # Format the DataFrame to string with a header similar to the example
+                header = f"--- Financials (Income Statement) for {self.ticker_symbol} ---\n"
+                return header + financials.to_string()
         except Exception as e:
             print(f"Error fetching income statement for {self.ticker_symbol}: {e}")
-            return pd.DataFrame()
+            return f"Error fetching income statement for {self.ticker_symbol}: {e}"
 
-    def _fetch_balance_sheet(self) -> pd.DataFrame:
+
+    def _fetch_balance_sheet(self) -> str:
         """
-        Fetches the balance sheet.
+        Fetches the balance sheet and returns it as a formatted string.
 
         Returns:
-            A pandas DataFrame containing the balance sheet, or an empty DataFrame if data is not available.
+            A string containing the balance sheet data, or a message indicating no data is available.
         """
         try:
             balance_sheet = self._ticker.balance_sheet
             if balance_sheet.empty:
-                 print(f"No balance sheet data found for {self.ticker_symbol}.")
-            return balance_sheet
+                    return f"No balance sheet data found for {self.ticker_symbol}."
+            else:
+                # Format the DataFrame to string with a header similar to the example
+                header = f"--- Balance Sheet for {self.ticker_symbol} ---\n"
+                return header + balance_sheet.to_string()
         except Exception as e:
             print(f"Error fetching balance sheet for {self.ticker_symbol}: {e}")
-            return pd.DataFrame()
+            return f"Error fetching balance sheet for {self.ticker_symbol}: {e}"
 
-    def _fetch_cashflow(self) -> pd.DataFrame:
+
+    def _fetch_cashflow(self) -> str:
         """
-        Fetches the cash flow statement.
+        Fetches the cash flow statement and returns it as a formatted string.
 
         Returns:
-            A pandas DataFrame containing the cash flow statement, or an empty DataFrame if data is not available.
+            A string containing the cash flow statement data, or a message indicating no data is available.
         """
         try:
             cashflow = self._ticker.cashflow
             if cashflow.empty:
-                 print(f"No cash flow data found for {self.ticker_symbol}.")
-            return cashflow
+                 return f"No cash flow data found for {self.ticker_symbol}."
+            else:
+                # Format the DataFrame to string with a header similar to the example
+                header = f"--- Cash Flow for {self.ticker_symbol} ---\n"
+                return header + cashflow.to_string()
         except Exception as e:
             print(f"Error fetching cash flow for {self.ticker_symbol}: {e}")
-            return pd.DataFrame()
+            return f"Error fetching cash flow for {self.ticker_symbol}: {e}"
 
     def get_financials(self) -> str:
         """

@@ -155,7 +155,7 @@ class Tavily:
                     extract_depth=extract_depth,
                     format=format,
                     include_images=include_images
-                )
+                ) 
 
                 # Handle API-level errors first (e.g., rate limits, invalid URL)
                 if extracted_data and "detail" in extracted_data:
@@ -213,13 +213,13 @@ class Tavily:
 
 
 
-# async def main():
+async def main():
     
     # Test Cases
 
     # Test 1: Basic Search
     # logging.info("\n--- Test Case 1: Basic Search ---")
-    # tavily_basic = Tavily(query="latest news on AI", depth=False, max_result=2)
+    tavily_basic = Tavily(query="latest news on AI", depth=False, max_result=2)
     # basic_results = await tavily_basic.resolve_query()
     # print(basic_results)
     # for res in basic_results:
@@ -250,17 +250,18 @@ class Tavily:
     #             logging.info("  No results found or an error occurred.")
 
     # Test 4: Single URL Content Extraction (needs a valid URL)
-    # logging.info("\n--- Test Case 4: Single URL Content Extraction ---")
+    logging.info("\n--- Test Case 4: Single URL Content Extraction ---")
     # You'll need to replace this with an actual URL that Tavily can extract.
     # A good example would be a news article URL.
-    # sample_url = " https://www.goldavenue.com/en/gold-price/usd"
-    # tavily_extract = Tavily(query="dummy") # query is not used here, but needed for init for client setup
-    # data = await tavily_extract.extract_content(sample_url)
-    # if data:
-    #    print(data.get('url'))
-    #    print(data.get('content'))
-    # else:
-    #     logging.info(f"Failed to extract content from {extracted_content.get('url') if extracted_content.get('url') else sample_url}: {extracted_content.get('error', 'No content and no error specified')}")
+    sample_url = " https://www.bloomberg.com/news/articles/2025-06-21/andreessen-horowitz-backs-ai-startup-with-slogan-cheat-at-everything?srnd=phx-technology&embedded-checkout=true"
+    tavily_extract = Tavily(query="dummy") # query is not used here, but needed for init for client setup
+    data = await tavily_extract.extract_content(sample_url)
+    print(data)
+    if data:
+       print(data.get('url'))
+       print(data.get('content'))
+    else:
+        logging.info(f"Failed to extract content from {extracted_content.get('url') if extracted_content.get('url') else sample_url}: {extracted_content.get('error', 'No content and no error specified')}")
 
 
     # # Test 5: Multiple URL Content Extraction (needs valid URLs)
@@ -284,6 +285,6 @@ class Tavily:
 
 
 
-# if __name__== "__main__":
+if __name__== "__main__":
         
-#         asyncio.run(main())
+        asyncio.run(main())
