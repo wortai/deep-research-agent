@@ -50,9 +50,7 @@ class WebSearch:
         Args:
             urls (List[str]): List of URLs to scrape.
         Returns:
-            List[Dict[str, Any]]: Extracted data from the URLs.
-        """
-
+            List[Dict[str, Any]]: Extracted data from the U """
         extracted_data = []
         for url in urls:
             try:
