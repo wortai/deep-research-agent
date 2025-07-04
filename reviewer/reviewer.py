@@ -6,11 +6,9 @@ import os
 from typing import List, Dict, Any
 from dotenv import load_dotenv
 
-# Import LLM client from gap_questions
 from researcher.gap_questions.llm_client import GeminiLLMClient
-
+import logging
 load_dotenv()
-
 
 class Reviewer:
     """
@@ -19,118 +17,118 @@ class Reviewer:
     """
     
     def __init__(self):
-        """Initialize the Reviewer with LLM client."""
+        """Initialize the Reviewer with LLM client using llm_client.py file Nishant made 
+        --In future we need global LLM choosing file and So on prompting LLM file  --
+        """
         try:
             self.llm_client = GeminiLLMClient()
         except Exception as e:
             raise Exception(f"Failed to initialize LLM client: {e}")
     
+
+
+
     def review_research(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Review the research findings and provide feedback.
-        
-        Args:
-            state: ResearchReviewData state containing processed_findings
             
-        Returns:
-            Updated state with review_feedback
-        """
-        try:
-            # Get processed findings from state
-            processed_findings = state.get("processed_findings", [])
-            topic = state.get("topic", "")
-            
-            if not processed_findings:
-                state["review_feedback"].append("No research findings to review")
-                return state
-            
-            # Create research summary for review
-            research_summary = self._create_research_summary(processed_findings)
-            
-            # Create review prompt
-            prompt = f"""
-You are a research quality reviewer. Analyze the research findings and determine if they adequately answer the research question.
+            try:
+                # Get processed findings from state
+                processed_findings = state.get("processed_findings", [])
+                topic = state.get("topic", "")
+                # Get previous review feedback
+                previous_review_feedback = state.get("review_feedback", [])
 
-RESEARCH TOPIC: {topic}
+                if not processed_findings:
+                    state["review_feedback"].append("Disapproved: No processed findings to review.")
+                    return state
 
-CURRENT FINDINGS:
-{research_summary}
+                # Get the last feedback if it exists
+                last_feedback = previous_review_feedback[-1] if previous_review_feedback else "None"
 
-EVALUATION CRITERIA:
-1. Completeness: Does the research fully address the topic?
-2. Depth: Are the insights substantive and detailed?
-3. Coverage: Are important aspects missing?
+                # Create one Big string Research we conducted,  for review
+                research_summary = self._create_research_summary(processed_findings)
 
-INSTRUCTIONS:
-- If research is comprehensive and complete, respond with: "APPROVED"
-- If research needs improvement, provide specific feedback on what's missing
-- Be specific about gaps or areas needing deeper investigation
+                # Create review prompt
+                prompt = f"""
+    You are a research quality reviewer. Analyze the research findings and determine if they adequately answer the research question.
 
-Your response:"""
+    RESEARCH TOPIC: {topic}
 
-            response = self.llm_client.generate(prompt, context="research_review")
-            
-            # Process response
-            if "APPROVED" in response.upper():
-                feedback = ""  # No feedback needed
-            else:
-                feedback = response.strip()
-            
-            # Update state
-            state["review_feedback"].append(feedback)
-            
-            return state
-            
-        except Exception as e:
-            error_msg = f"Review failed: {str(e)}"
-            state["review_feedback"].append(error_msg)
-            return state
+    PREVIOUS FEEDBACK:
+    {last_feedback}
+
+    CURRENT FINDINGS:
+    {research_summary}
+
+    EVALUATION CRITERIA:
+    1. Completeness: Does the research fully address the topic?
+    2. Depth: Are the insights substantive and detailed?
+    3. Coverage: Are important aspects missing?
+    4. Responsiveness: Have previous feedback points been addressed?
+
+    INSTRUCTIONS:
+    - If research is comprehensive and complete, and previous feedback is addressed, respond with: "APPROVED"
+    - If research needs improvement, provide specific feedback on what's missing or what needs further investigation, referencing previous feedback if applicable.
+    - Be specific about gaps or areas needing deeper investigation.
+
+    Your response:"""
+
+                response = self.llm_client.generate(prompt, context="research_review")
+
     
+                if "APPROVED" in response.upper():
+                    feedback = "APPROVED"  
+                else:
+                    feedback = response.strip()
+                return {"review_feedback": [feedback]}
+
+
+            except Exception as e:
+                logging.error("Review failed", exc_info=True)
+                raise RuntimeError("Review failed. Please check logs for details.") from e
+
+
+
+
+
     def _create_research_summary(self, processed_findings: List[Dict]) -> str:
         """
-        Create a summary of research findings for review.
-        
-        Args:
-            processed_findings: List of processed findings from state
-            
-        Returns:
-            Formatted research summary string
+        Generates a formatted summary string from a list of processed research findings.
+        Each finding includes the original query and its associated insights, presented in a numbered list.
+        The summary is structured for easy review, with clear separation between findings.
+
         """
         summary_parts = []
-        
         for i, finding in enumerate(processed_findings, 1):
             query = finding.get("query", "Unknown query")
             insights = finding.get("insights", [])
-            
             summary_parts.append(f"\nFinding {i}: {query}")
             summary_parts.append(f"Insights ({len(insights)}):")
-            
-            for j, insight in enumerate(insights[:3], 1):  # Show max 3 insights
+            for j, insight in enumerate(insights, 1):
                 summary_parts.append(f"  {j}. {insight}")
-            
-            if len(insights) > 3:
-                summary_parts.append(f"  ... and {len(insights) - 3} more insights")
-            
             summary_parts.append("-" * 40)
-        
         return "\n".join(summary_parts)
     
-    def run(self, state: Dict[str, Any]) -> Dict[str, Any]:
+
+
+    def run(self, state: Dict[str, Any]):
         """
-        Main method to run the reviewer process - for LangGraph node.
-        
-        Args:
-            state: ResearchReviewData state
-            
-        Returns:
-            Updated state with review feedback
+        Entry point for LangGraph node. Processes the state and returns the updated state.
+        In LangGraph, each node function should return the (possibly updated) state dictionary.
         """
         return self.review_research(state)
 
 
+
+
+
+
+
+
+
+
 # Example usage for testing
 if __name__ == "__main__":
-    from states.state import ResearchReviewData
+
     
     # Test state
     test_state = {
@@ -139,8 +137,14 @@ if __name__ == "__main__":
         "raw_research_results": [],
         "processed_findings": [
             {
-                "query": "Latest AI breakthroughs",
-                "insights": ["GPT-4 breakthrough", "Computer vision improvements"]
+                "query": "What are the latest breakthroughs in artificial intelligence as of 2024?",
+                "insights": [
+                    "OpenAI released GPT-4, a large multimodal model capable of processing both text and images, demonstrating significant improvements in reasoning and contextual understanding.",
+                    "Major progress in computer vision includes self-supervised learning techniques, enabling models to learn from unlabeled data and outperform previous benchmarks on image classification and object detection.",
+                    "Reinforcement learning has been successfully applied to robotics, allowing robots to learn complex tasks in simulation and transfer those skills to real-world environments.",
+                    "AI safety research has advanced, with new methods for interpretability and alignment, helping ensure that AI systems behave as intended and can be audited for fairness and bias.",
+                    "Multimodal AI systems, which integrate text, vision, and audio, are now capable of generating coherent content across different media and understanding context in a more human-like manner."
+                ]
             }
         ],
         "review_feedback": [],

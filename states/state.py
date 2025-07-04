@@ -1,19 +1,23 @@
 from typing import List, Dict, Any, Optional, TypedDict
 from pydantic import BaseModel, Field
+import operator
+from typing import List, Dict, Any, TypedDict, Annotated
 
 
 
 
 # We will use this for our subgraph   (Researcher-->Reveiwer --> Reviewer)
 class ResearchReviewData(TypedDict):
-    """Intermediate state data for the research and review process."""
+    """
+    Intermediate state data for the research and review process.
+    `review_feedback` is annotated to aggregate feedback from multiple review steps.
+    """
     topic: str
     task_description: str
-    raw_research_results: List[str] 
-    processed_findings: List[Dict[str, Any]] 
-    review_feedback: List[str] 
+    raw_research_results: List[str]
+    processed_findings: List[Dict[str, Any]]
+    review_feedback: Annotated[List[str], operator.add]
     Proposed_Research: str
-   
 
 class ReportSection(BaseModel):
     """Represents a single section of a structured report."""

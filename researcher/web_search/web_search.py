@@ -6,11 +6,11 @@ import json
 from datetime import datetime
 import os
 
-from retrievers.serpapi import SerpApiClient
-from scrapers.agentql import AgentQLScraper
-from scrapers.browser import UniversalLoader
-from scrapers.tavily import Tavily          
-from scrapers.arxiv import ResearchSearch
+from ..retrievers.serpapi import SerpApiClient
+from ..scrapers.agentql import AgentQLScraper
+from ..scrapers.browser import UniversalLoader
+from ..scrapers.tavily import Tavily
+from ..scrapers.arxiv import ResearchSearch
 
 
 

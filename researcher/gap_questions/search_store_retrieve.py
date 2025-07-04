@@ -6,10 +6,12 @@ from typing import List
 # Load environment variables from .env file
 load_dotenv()
 
+# ...existing code...
 # Import the classes from your files
-from web_search import WebSearch
-from vectore_store import QdrantService
-from vectore_store import VectorStoreManager
+from ..web_search import WebSearch # Corrected import
+from ..vectore_store import QdrantService # Assuming vectore_store is also in researcher
+from ..vectore_store import VectorStoreManager # Assuming vectore_store is also in researcher
+# ...existing code...
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

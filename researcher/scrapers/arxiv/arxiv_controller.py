@@ -1,10 +1,10 @@
 
 # Scrapers and Retrievers Modules Import
-from retrievers.arxiv import ArxivRetriever
-from scrapers.arxiv import AsyncArxivScraper
-from retrievers.research_rssharvest import RSSPreprintRetriever
-from scrapers.medrxiv import AsyncMedRxivScraper
-from scrapers.biorxiv import AsyncBioRxivScraper
+from ...retrievers.arxiv import ArxivRetriever
+from ..arxiv import AsyncArxivScraper
+from ...retrievers.research_rssharvest import RSSPreprintRetriever
+from ..medrxiv import AsyncMedRxivScraper
+from ..biorxiv import AsyncBioRxivScraper
 
 import traceback
 import asyncio
