@@ -143,16 +143,6 @@ class UniversalLoader:
             return {"error":e}
 
 
-<<<<<<< HEAD
-if __name__ == "__main__":
-#     # --- Configuration ---
-    GITHUB_TOKEN = os.environ.get("GIT_HUB_TOKEN")
-
-#     if GITHUB_TOKEN is None:
-#         logging.warning("GIT_HUB_TOKEN environment variable not set. GitHubLoader might have limited access or be rate-limited.")
-
-    universal_scraper = UniversalLoader(github_access_token=GITHUB_TOKEN)
-=======
 # if __name__ == "__main__":
 # #     # --- Configuration ---
 # #     GITHUB_TOKEN = os.environ.get("GIT_HUB_TOKEN")
@@ -161,7 +151,6 @@ if __name__ == "__main__":
 # #         logging.warning("GIT_HUB_TOKEN environment variable not set. GitHubLoader might have limited access or be rate-limited.")
 
     # universal_scraper = UniversalLoader(github_access_token=GITHUB_TOKEN)
->>>>>>> fc2dc94e4bd960d66c82226daf22f7f17ba62afa
 
     # --- Test Cases ---
     test_suite = [
@@ -190,27 +179,6 @@ if __name__ == "__main__":
         # {
         #     "url": "https://lilianweng.github.io/posts/2023-06-23-agent/",
         #     "params": {"requests_per_second": 1}
-<<<<<<< HEAD
-        # }
-        {
-            "url": "https://www.bloomberg.com/news/articles/2025-06-21/andreessen-horowitz-backs-ai-startup-with-slogan-cheat-at-everything?srnd=phx-technology&embedded-checkout=true",
-            "params": {} # WebBaseLoader will try and fail
-        }
-    ]
-
-    for item in test_suite:
-        print(f"\n--- Testing  {item['url']} ---")
-        try:
-            doc  = universal_scraper.load_data(item['url'], item['params'])
-            
-            if doc.get("content"):
-                print(doc.get("content"))
-                print("-----------------------")
-                # print(doc.get("metadata"))
-        except Exception as e:
-            print(f"An error occurred during test for {item['url']}: {e}")
-        print("-" * 40)
-=======
         # },
         # {
         #     "url": "https://thissitedefinitelyshouldnotexist12345xyz.com",
@@ -230,4 +198,3 @@ if __name__ == "__main__":
 #         except Exception as e:
 #             print(f"An error occurred during test for {item['url']}: {e}")
 #         print("-" * 40)
->>>>>>> fc2dc94e4bd960d66c82226daf22f7f17ba62afa
