@@ -175,14 +175,14 @@ class SerpApiClient:
     
 
 
-# if __name__ == "__main__":
-#     client = SerpApiClient()
-#     try:
-#         # Replace "your-search-term" with an actual query and adjust "start" as needed.
-#         results = client.search("google", q="your-search-term", start=5)
-#         urls = client.get_clean_urls(results)
-#         print("Extracted URLs:")
-#         for url in urls:
-#             print(url)
-#     except Exception as e:
-#         print(f"An error occurred: {e}")
+if __name__ == "__main__":
+    client = SerpApiClient()
+    try:
+        # Replace "your-search-term" with an actual query and adjust "start" as needed.
+        results = client.search("google", q="Top Selling Men's Shirts in Delhi", start=5)
+        urls = client.get_clean_urls(results)
+        print("Extracted URLs:")
+        for url in urls:
+            print(url)
+    except Exception as e:
+        print(f"An error occurred: {e}")
