@@ -17,7 +17,7 @@ click==8.2.1
 colorama==0.4.6
 curl_cffi==0.11.4
 dataclasses-json==0.6.7
--e git+https://github.com/wortai/deep-research-agent.git@cea1766168bbd52dd7bf6eadc3f9f54168fd46c9#egg=deep_research_agent
+-e git+https://github.com/wortai/deep-research-agent.git@183058a2547209e4e93476e95fcc28c60f48a708#egg=deep_research_agent
 defusedxml==0.7.1
 diskcache==5.6.3
 distro==1.9.0

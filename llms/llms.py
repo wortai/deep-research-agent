@@ -39,6 +39,9 @@ from langchain_mistralai import ChatMistralAI
 from langchain_community.chat_models import ChatPerplexity
 from langchain_anthropic import ChatAnthropic  
 
+# To install these libraries, run the following commands:
+
+
 
 class LlmsHouse:
     """
@@ -174,14 +177,14 @@ if __name__ == "__main__":
     
     # Example usage - Company-specific models
     # openai_model = llm_house.openai_model("gpt-4o")
-    google_model = llm_house.google_model("gemini-2.0-flash-001")
+    # google_model = llm_house.google_model("gemini-2.0-flash-001")
     # anthropic_model = llm_house.anthropic_model("claude-3-5-sonnet-20241022")
     # deepseek_model = llm_house.deepseek_model("deepseek-coder")
     
     # Example usage - Task-specific models (hardcoded best)
     # coding_model = llm_house.coding_model()  # Uses Claude 3.5 Sonnet
     # math_model = llm_house.math_model()      # Uses Gemini 2.5 Pro
-    msg = google_model.invoke("What is the meaning of life?")
-    print(msg)
+    # msg = google_model.invoke("What is the meaning of life?")
+    # print(msg)
 
     print("LlmsHouse initialized successfully!")
