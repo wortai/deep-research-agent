@@ -8,10 +8,13 @@ from typing import Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage
 
+from .monitoring import ExecutionMonitor
+
+
 class GeminiLLMClient:
     """Gemini LLM client with smart model selection and logging"""
     
-    def __init__(self, api_key: str = None, monitor=None):
+    def __init__(self, api_key: str = None, monitor: ExecutionMonitor = None):
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         self.monitor = monitor
         
@@ -46,17 +49,10 @@ class GeminiLLMClient:
         else:
             return self.generation_model
     
-    def generate(self, prompt: str, context: str = "general", model_type: Optional[str] = None) -> str:
-        """Generate response with logging. Optionally specify model_type: 'thinking', 'analysis', or 'generation'."""
+    def generate(self, prompt: str, context: str = "general") -> str:
+        """Generate response with logging"""
         try:
-            if model_type == "thinking":
-                model = self.thinking_model
-            elif model_type == "analysis":
-                model = self.analysis_model
-            elif model_type == "generation":
-                model = self.generation_model
-            else:
-                model = self._select_model(prompt)
+            model = self._select_model(prompt)
             response = model.invoke([HumanMessage(content=prompt)])
             result = response.content
             

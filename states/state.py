@@ -4,20 +4,19 @@ import operator
 from typing import List, Dict, Any, TypedDict, Annotated
 
 
-
-
 # We will use this for our subgraph   (Researcher-->Reveiwer --> Reviewer)
 class ResearchReviewData(TypedDict):
     """
-    Intermediate state data for the research and review process.
+    `GapQueryGenerator generates data for this state: Each Plan Query has its own instance of this state`
+    Intermediate state data for the research and review process
     `review_feedback` is annotated to aggregate feedback from multiple review steps.
     """
-    topic: str
-    task_description: str
-    raw_research_results: List[str]
-    processed_findings: List[Dict[str, Any]]
+    plan_query: str
+    raw_research_results: List[str] # Data from vector store (retrieved based on vector search queries) (MD format)
+    processed_findings: List[Dict[str, Any]] # Dict { "gap_question": "curated_answer" }
     review_feedback: Annotated[List[str], operator.add]
-    Proposed_Research: str
+    PROPOSED_CONTENT: str
+
 
 class ReportSection(BaseModel):
     """Represents a single section of a structured report."""
@@ -29,9 +28,6 @@ class ReportSection(BaseModel):
         default_factory=list,
         description="Optional list of nested sub-sections."
     )
-
-
-
 
 
 # --- Global Graph State ---
