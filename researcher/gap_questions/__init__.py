@@ -1,29 +1,40 @@
 """
-Gap Question Generator Package
+Gap Question Generator Module
+
+A modular system for generating and resolving gap queries through 
+web research and vector store operations.
 """
 
-from .generator import GapQuestionGenerator
+from .main import GapQuestionGenerator
 from .models import (
-    StopCondition,
-    ProcessingStep,
+    GapQuery,
+    QnAResult,
     CompletionCheckResult,
-    DetailedQueryData,
-    OrchestratorState
+    ExecutionResults,
+    StopCondition
 )
-from .monitoring import ExecutionMonitor
+from .vector_queries import VectorQueryGenerator
+from .research import ResearchManager
+from .answer_generator import AnswerGenerator
+from .completeness_checker import CompletenessChecker
 from .llm_client import GeminiLLMClient
-from .utils import analyze_logs, create_visualization_report
+from .monitoring import ExecutionMonitor, DetailedQueryData
 
 __version__ = "1.0.0"
+__author__ = "Gap Question Generator Team"
+
 __all__ = [
     "GapQuestionGenerator",
-    "ExecutionMonitor",
-    "GeminiLLMClient",
-    "analyze_logs",
-    "create_visualization_report",
-    "StopCondition",
-    "ProcessingStep",
+    "GapQuery",
+    "QnAResult", 
     "CompletionCheckResult",
-    "DetailedQueryData",
-    "OrchestratorState"
+    "ExecutionResults",
+    "StopCondition",
+    "VectorQueryGenerator",
+    "ResearchManager", 
+    "AnswerGenerator",
+    "CompletenessChecker",
+    "GeminiLLMClient",
+    "ExecutionMonitor",
+    "DetailedQueryData"
 ]

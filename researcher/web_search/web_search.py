@@ -6,11 +6,19 @@ import json
 from datetime import datetime
 import os
 
+<<<<<<< HEAD
 from ..retrievers.serpapi import SerpApiClient
 from ..scrapers.agentql import AgentQLScraper
 from ..scrapers.browser import UniversalLoader
 from ..scrapers.tavily import Tavily
 from ..scrapers.arxiv import ResearchSearch
+=======
+from researcher.retrievers.serpapi import SerpApiClient
+from researcher.scrapers.agentql import AgentQLScraper
+from researcher.scrapers.browser import UniversalLoader
+from researcher.scrapers.tavily import Tavily          
+from researcher.scrapers.arxiv import ResearchSearch
+>>>>>>> 6fab7b3 (mid-work push)
 
 
 

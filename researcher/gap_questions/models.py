@@ -1,56 +1,58 @@
 """
-Data models for the Gap Question Generator system.
+Data models for Gap Question Generator
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from typing import List, Dict, Optional
 from enum import Enum
-from typing import List, Dict, Optional, Any
 
 
 class StopCondition(Enum):
-    """Reasons for stopping the generation process"""
     MAX_ITERATIONS_REACHED = "max_iterations_reached"
     CONFIDENCE_THRESHOLD_MET = "confidence_threshold_met"
+    MAX_DEPTH_REACHED = "max_depth_reached"
     QUEUE_EMPTY = "queue_empty"
 
 
 @dataclass
-class ProcessingStep:
-    """Tracks individual processing steps"""
-    step_name: str
-    timestamp: str
-    status: str
-    details: Dict
-    duration_ms: Optional[int] = None
-    error_message: Optional[str] = None
+class GapQuery:
+    """Single gap query with tracking information"""
+    query: str
+    level: int
+    parent_query: str
+    answer: Optional[str] = None
+    confidence_score: Optional[float] = None
+    sources: List[str] = field(default_factory=list)
+    created_at: Optional[str] = None
+
+
+@dataclass
+class QnAResult:
+    """Question and Answer result"""
+    gap_query: str
+    answer: str
+    confidence_score: float
+    sources: List[str]
+    level: int
+    parent_query: str
 
 
 @dataclass
 class CompletionCheckResult:
-    """Results from checking query completeness"""
+    """Result of completeness check"""
     is_complete: bool
     confidence_score: float
-    missing_aspects: List[str]
-    completeness_percentage: float
+    new_gap_queries: List[str]
+    reasoning: str
+    parent_limit_reached: bool = False  # New field to track parent limit
 
 
 @dataclass
-class DetailedQueryData:
-    """Comprehensive data for each query processed"""
-    gap_query: str
-    vector_queries: List[str] = field(default_factory=list)
-    llm_prompt: str = ""
-    llm_response: str = ""
-    urls_accessed: List[str] = field(default_factory=list)
-    content_from_urls: List[Dict[str, str]] = field(default_factory=list)
-    vector_search_results: List[Dict[str, str]] = field(default_factory=list)
-    insights_extracted: List[str] = field(default_factory=list)
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
-
-
-class OrchestratorState(dict):
-    """State for LangGraph orchestration"""
-    current_iteration: int
-    should_continue: bool
-    stop_condition: Optional[StopCondition]
+class ExecutionResults:
+    """Final execution results"""
+    gap_queries_with_answers: List[Dict]
+    total_queries_processed: int
+    max_level_reached: int
+    final_confidence: float
+    stop_condition: StopCondition
+    execution_time: float
