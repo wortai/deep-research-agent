@@ -54,8 +54,8 @@ class SerpApiClient:
         for key in optional_keys:
             if key in kwargs:
                 params[key] = kwargs[key]
-        
         return params
+
 
     def _build_youtube_params(self, **kwargs) -> dict:
         params = {}
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     client = SerpApiClient()
     try:
         # Replace "your-search-term" with an actual query and adjust "start" as needed.
-        results = client.search("google", q="Top Selling Men's Shirts in Delhi", start=5)
+        results = client.search("google", q="Top Selling Men's Shirts in Delhi", start=1)
         urls = client.get_clean_urls(results)
         print("Extracted URLs:")
         for url in urls:

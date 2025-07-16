@@ -10,7 +10,7 @@ from researcher.retrievers.serpapi import SerpApiClient
 from researcher.scrapers.agentql import AgentQLScraper
 from researcher.scrapers.browser import UniversalLoader
 from researcher.scrapers.tavily import Tavily          
-from researcher.scrapers.arxiv import ResearchSearch
+# from researcher.scrapers.arxiv import ResearchSearch
 
 
 
@@ -107,7 +107,7 @@ class WebSearch:
     
     async def get_serpapi_results(self) -> list:
         serpapi_results_combined = []
-        start = max(0, self.max_results - 10)
+        start = 0
         # Loop to accumulate results until we have at least max_results or no more results are returned.
         while len(serpapi_results_combined) < self.max_results:
             page_results = await asyncio.to_thread(self.serpapi_client.search, engine="google", q=self.query, start=start)
@@ -115,66 +115,68 @@ class WebSearch:
                 break
             urls = await asyncio.to_thread(self.serpapi_client.get_clean_urls, page_results)
             serpapi_results_combined.extend(urls)
-            start += len(urls)
-        return serpapi_results_combined
+            start += 1
+        
+        # print(serpapi_results_combined)
+        return serpapi_results_combined[:self.max_results]
 
 
 
 
-    async def search_with_arxiv(self) -> List[Dict[str, Any]]:
-        """
-        Searches for research papers on Arxiv.
-        Returns:
-            List[Dict[str, Any]]: List of research paper details.
-        """
-        try:
-            if not hasattr(self, 'reserach_paper_queries') or not hasattr(self, 'arxiv_max_results'):
-                 logging.error("Arxiv search parameters (reserach_paper_queries, arxiv_max_results) are not set.")
-                 return []
+    # async def search_with_arxiv(self) -> List[Dict[str, Any]]:
+    #     """
+    #     Searches for research papers on Arxiv.
+    #     Returns:
+    #         List[Dict[str, Any]]: List of research paper details.
+    #     """
+    #     try:
+    #         if not hasattr(self, 'reserach_paper_queries') or not hasattr(self, 'arxiv_max_results'):
+    #              logging.error("Arxiv search parameters (reserach_paper_queries, arxiv_max_results) are not set.")
+    #              return []
 
-            arxiv_results = await ResearchSearch.arxiv(queries=self.arxiv_reserach_paper_queries, papers_per_query=self.arxiv_max_results)
+    #         arxiv_results = await ResearchSearch.arxiv(queries=self.arxiv_reserach_paper_queries, papers_per_query=self.arxiv_max_results)
 
-            if arxiv_results and arxiv_results.get("status") == "success" and arxiv_results.get("data"):
+    #         if arxiv_results and arxiv_results.get("status") == "success" and arxiv_results.get("data"):
 
-                return arxiv_results["data"]
-            else:
-                # Log specific error if status is not success or data is missing
-                status = arxiv_results.get('status', 'Unknown status') if arxiv_results else 'No results returned'
-                logging.error(f"Arxiv search failed or returned no data. Status: {status}")
-                return []
-        except Exception as e:
-            logging.error(f"An unexpected error occurred during Arxiv search: {e}")
-            return []
-
-
+    #             return arxiv_results["data"]
+    #         else:
+    #             # Log specific error if status is not success or data is missing
+    #             status = arxiv_results.get('status', 'Unknown status') if arxiv_results else 'No results returned'
+    #             logging.error(f"Arxiv search failed or returned no data. Status: {status}")
+    #             return []
+    #     except Exception as e:
+    #         logging.error(f"An unexpected error occurred during Arxiv search: {e}")
+    #         return []
 
 
-    async def search_with_medrxiv_biorxiv(self) -> List[Dict[str, Any]]:
-        """
-        Searches for research papers on MedRxiv and BioRxiv.
-        Returns:
-            List[Dict[str, Any]]: List of research paper details.
-        """
-        try:
-            # Check if the required parameters are set
-            if not self.medbio_research_paper_queries or self.medbio_max_results <= 0:
-                 logging.info("MedRxiv/BioRxiv search parameters (medbio_research_paper_queries, medbio_max_results) are not set or max_results is zero. Skipping search.")
-                 return []
 
-            # Call the research tool
-            medbioxiv_results = await ResearchSearch.medrxiv_biorxiv(
-                queries=self.medbio_research_paper_queries,
-                papers_per_query=self.medbio_max_results
-            )
 
-            return medbioxiv_results['data']
+    # async def search_with_medrxiv_biorxiv(self) -> List[Dict[str, Any]]:
+    #     """
+    #     Searches for research papers on MedRxiv and BioRxiv.
+    #     Returns:
+    #         List[Dict[str, Any]]: List of research paper details.
+    #     """
+    #     try:
+    #         # Check if the required parameters are set
+    #         if not self.medbio_research_paper_queries or self.medbio_max_results <= 0:
+    #              logging.info("MedRxiv/BioRxiv search parameters (medbio_research_paper_queries, medbio_max_results) are not set or max_results is zero. Skipping search.")
+    #              return []
+
+    #         # Call the research tool
+    #         medbioxiv_results = await ResearchSearch.medrxiv_biorxiv(
+    #             queries=self.medbio_research_paper_queries,
+    #             papers_per_query=self.medbio_max_results
+    #         )
+
+    #         return medbioxiv_results['data']
             
 
 
-        except Exception as e:
-            # Catch any unexpected exceptions during the process
-            logging.error(f"An unexpected error occurred during MedRxiv/BioRxiv search: {e}")
-            return []
+    #     except Exception as e:
+    #         # Catch any unexpected exceptions during the process
+    #         logging.error(f"An unexpected error occurred during MedRxiv/BioRxiv search: {e}")
+    #         return []
 
 
     async def initiate_research(self) -> List[Dict[str, Any]]:
@@ -189,7 +191,8 @@ class WebSearch:
         try:
             # Step 1: Retrieve URLs using SerpApi
             urls  =  await self.get_serpapi_results()
-            
+            for url in urls: 
+                print(url)
 
             print("--------------------------------------------------")
             # Step 2: Scrape data using browser
@@ -211,13 +214,13 @@ class WebSearch:
             print("--------------------------------------------------")
 
             # Step 5: using research papers if mentioned 
-            if len(self.arxiv_research_paper_queries) > 0 and len(self.arxiv_max_results) > 0:
-                arxiv_results = await self.search_with_arxiv()
-                self.results.extend(arxiv_results)
+            # if len(self.arxiv_research_paper_queries) > 0 and len(self.arxiv_max_results) > 0:
+            #     arxiv_results = await self.search_with_arxiv()
+            #     self.results.extend(arxiv_results)
                 
-            if len(self.medbio_research_paper_queries) > 0 and len(self.medbio_max_results) > 0:
-                medbio_results = await self.search_with_medrxiv_biorxiv()
-                self.results.extend(medbio_results)
+            # if len(self.medbio_research_paper_queries) > 0 and len(self.medbio_max_results) > 0:
+            #     medbio_results = await self.search_with_medrxiv_biorxiv()
+            #     self.results.extend(medbio_results)
 
 
             # Combine all results
@@ -240,17 +243,15 @@ class WebSearch:
 # Example usage:
 if __name__ == "__main__":
     async def main():
-        web_search = WebSearch(query="latest AI advancements", max_results=5)
+        web_search = WebSearch(query="latest AI advancements", max_results=2)
         results = await web_search.initiate_research() # results is an array contains [{} , {} ,{}]-->{}each obj contains url , content 
 
         for result in results:
             print(f"URL: {result['url']}")
             print(f"Content: {result['content'][:100]}...\n")
 
-        ResearchSearch.test_arxiv_tool()
-        ResearchSearch.test_medrxiv_biorxiv_tool()
         
     # Run the test main
     import asyncio
     asyncio.run(main())  
-    asyncio.run(main())  
+ 

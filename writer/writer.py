@@ -103,7 +103,36 @@ class Writer:
                             ... so on if have more chapters 
                             ]
                             ""
+                           "Appendices" : <This part will contain the appendices section of the report>
+                           "Conclusion" : <This part will contain the conclusion section of the report>
+                          
+                    }}
+                    
+                    -----------------------------------------------------------------
+                """   
         
+        report_outline = await self.google_model.ainvoke(outline_prompt)
+        return report_outline
+   
+          
+                   
+           
+    
+    async def generate_conclusion_report(self , state: AgentState):
+                    }}
+                    
+                    -----------------------------------------------------------------
+                """   
+        
+        report_outline = await self.google_model.ainvoke(outline_prompt)
+        return report_outline
+   
+          
+                   
+           
+    
+    async def generate_conclusion_report(self , state: AgentState):
+
                         ]
                     }}
                     
@@ -157,7 +186,7 @@ class Writer:
 
 
     
-    def run(self, state: AgentState):
+    async def run(self, state: AgentState):
 
         return
         
