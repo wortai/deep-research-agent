@@ -243,15 +243,13 @@ class WebSearch:
 # Example usage:
 if __name__ == "__main__":
     async def main():
-        web_search = WebSearch(query="latest AI advancements", max_results=2)
+        web_search = WebSearch(query="latest AI advancements", max_results=1)
         results = await web_search.initiate_research() # results is an array contains [{} , {} ,{}]-->{}each obj contains url , content 
 
         for result in results:
             print(f"URL: {result['url']}")
             print(f"Content: {result['content'][:100]}...\n")
-
         
     # Run the test main
     import asyncio
-    asyncio.run(main())  
- 
+    asyncio.run(main())

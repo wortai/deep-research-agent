@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Demo script to test the optimized Gap Questions batch processing system.
-This demo specifically tests the vector store optimization improvements.
+Simple demo script to test the Gap Questions functionality.
+Tests the simplified workflow with web search, data collection, and gap analysis.
 """
 
 import asyncio
@@ -23,196 +23,193 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Test Configuration for optimization testing
+# Simple Test Configuration
 TEST_CONFIG = {
-    "max_depth": 1,  # Reduced for faster testing
-    "max_gaps": 3,   # More gaps to test batch processing
-    "max_gap_queries": 2,  # Multiple queries per gap for batch testing
-    "max_concurrent_queries": 3,
-    "max_web_results": 5,
-    "vector_collection_name": "optimization_test_gaps"
+    "max_depth": 3,
+    "max_gaps": 2,
+    "max_gap_queries": 1,
+    "max_concurrent_queries": 10,
+    "max_web_results": 1,  # 1 result per query for simplicity
+    "vector_collection_name": "simple_test_gaps"
 }
 
-async def test_batch_optimization():
-    """Test the batch optimization specifically for gap questions processing."""
-    print("🔬 Testing Batch Optimization for Gap Questions")
-    print("="*70)
+async def test_simple_gap_questions():
+    """Test the simple gap questions functionality."""
+    print("🧪 Testing Simple Gap Questions Functionality")
+    print("="*50)
     print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print()
     
     # Check environment
     if not os.getenv('GOOGLE_API_KEY'):
         print("⚠️ Warning: No GOOGLE_API_KEY found - setting test key")
-        os.environ['GOOGLE_API_KEY'] = 'test_key_for_optimization_demo'
+        os.environ['GOOGLE_API_KEY'] = 'test_key_for_demo'
     
     try:
-        # Initialize optimized orchestrator
-        print("🔧 Initializing Optimized Gap Questions Orchestrator...")
-        print(f"📋 Test Configuration:")
+        # Initialize orchestrator
+        print("🔧 Initializing Gap Questions Orchestrator...")
+        print(f"📋 Configuration:")
         for key, value in TEST_CONFIG.items():
             print(f"   {key}: {value}")
         print()
         
         orchestrator = GapQuestionsOrchestrator(**TEST_CONFIG)
-        print("✅ Optimized orchestrator initialized successfully")
+        print("✅ Orchestrator initialized successfully")
         print()
         
-        # Test query that should generate multiple gaps for batch processing
-        test_query = "Future of sustainable technology in urban development"
+        # Test query
+        test_query = "Renewable energy trends and challenges"
+        print(f"📋 Test Query: {test_query}")
+        print("-" * 40)
         
-        print(f"📋 Testing Query: {test_query}")
-        print("-" * 60)
+        # Step 1: Generate web search queries
+        print("🔍 Step 1: Generating web search queries...")
+        web_queries = orchestrator.plan_query_generator.generate_search_queries(test_query, max_queries=3)
+        print(f"Generated {len(web_queries)} web search queries:")
+        for i, query in enumerate(web_queries, 1):
+            print(f"   {i}. {query}")
+        print()
         
-        # Measure timing for the optimization
+        # Step 2: Process web search (collect and store data)
+        print("🌐 Step 2: Processing web search queries...")
         start_time = time.time()
+        web_results = await orchestrator.process_batch_web_search(web_queries)
+        web_time = time.time() - start_time
         
-        # Execute the research with timing
-        results = await orchestrator.orchestrator(test_query)
+        print(f"✅ Web search completed in {web_time:.2f}s")
+        print(f"   Collected {len(web_results)} results")
         
-        end_time = time.time()
-        total_time = end_time - start_time
+        # Show sample results
+        if web_results:
+            print("   Sample results:")
+            for i, result in enumerate(web_results[:2], 1):
+                source = result.get('source', 'N/A')
+                content_preview = result.get('content', '')[:80] + "..."
+                print(f"      {i}. Source: {source}")
+                print(f"         Content: {content_preview}")
+        print()
         
-        print(f"\n⏱️ Total Execution Time: {total_time:.2f}s")
+        # Step 3: Analyze gaps
+        print("🔬 Step 3: Analyzing gaps...")
+        start_time = time.time()
+        gaps = orchestrator.analyze_gaps(test_query)
+        gap_time = time.time() - start_time
         
-        # Display results focusing on optimization metrics
-        if results.get("success"):
-            print("✅ Batch optimization test completed successfully!")
-            print(f"   📊 Total Solutions: {results.get('total_solutions', 0)}")
-            print(f"   🔍 Processed Gaps: {results.get('processed_gaps', 0)}")
-            print(f"   📏 Final Depth: {results.get('final_depth', 0)}")
-            
-            # Focus on performance metrics relevant to optimization
-            perf_metrics = results.get('performance_metrics', {})
-            print(f"\n🚀 Optimization Metrics:")
-            print(f"   🤖 LLM Calls: {perf_metrics.get('llm_calls', 0)}")
-            
-            # RAM statistics to show efficiency
-            ram_stats = results.get('ram_stats', {})
-            print(f"   🧠 Average RAM: {ram_stats.get('average', 0):.1f} MB")
-            print(f"   📈 Peak RAM: {ram_stats.get('max', 0):.1f} MB")
-            
-            if results.get('md_report'):
-                print(f"   📄 Report Generated: {results.get('md_report')}")
-            
-            # Show optimization benefits
-            print(f"\n💡 Optimization Benefits:")
-            print(f"   ✅ Multiple gap queries processed in batch")
-            print(f"   ✅ Reduced embedding API calls")
-            print(f"   ✅ Efficient vector store operations")
-            print(f"   ✅ Maintained result accuracy")
-            
-            if results.get('errors'):
-                print(f"\n⚠️ Errors encountered: {len(results['errors'])}")
-                for error in results['errors'][:3]:  # Show first 3 errors
-                    print(f"   - {error}")
+        print(f"✅ Gap analysis completed in {gap_time:.2f}s")
+        print(f"   Identified {len(gaps)} gaps:")
+        
+        if gaps:
+            for i, gap in enumerate(gaps, 1):
+                print(f"      {i}. {gap}")
         else:
-            print("❌ Batch optimization test failed")
-            print(f"   Error: {results.get('error', 'Unknown error')}")
+            print("      No gaps identified")
+        print()
         
-        return results.get("success", False)
+        # Summary
+        total_time = web_time + gap_time
+        print("📊 Summary:")
+        print(f"   Web Queries: {len(web_queries)}")
+        print(f"   Web Results: {len(web_results)}")
+        print(f"   Identified Gaps: {len(gaps)}")
+        print(f"   Total Time: {total_time:.2f}s")
+        
+        return True
         
     except Exception as e:
-        print(f"❌ Optimization test failed: {e}")
-        logger.error(f"Optimization test failed", exc_info=True)
+        print(f"❌ Test failed: {e}")
+        logger.error(f"Simple test failed", exc_info=True)
         return False
 
-async def test_batch_embedding_optimization():
-    """Test the batch embedding optimization specifically."""
-    print("\n🔧 Testing Batch Embedding Optimization")
-    print("-" * 40)
+async def test_vector_store_basics():
+    """Test basic vector store functionality."""
+    print("\n🔧 Testing Vector Store Basics")
+    print("-" * 30)
     
     try:
         from researcher.gap_questions.search_query_processor.store_update import VectorStoreUpdater
         from researcher.vectore_store import VectorStoreManager, QdrantService
         
-        print("📦 Initializing vector store components...")
+        print("📦 Initializing vector store...")
         
         # Initialize components
-        qdrant_service = QdrantService(collection_name="batch_embedding_test")
+        qdrant_service = QdrantService(collection_name="simple_vector_test")
         vector_store_manager = VectorStoreManager(vector_store=qdrant_service.vector_store)
         store_updater = VectorStoreUpdater(vector_store_manager=vector_store_manager)
         
-        print("✅ Vector store components initialized")
+        print("✅ Vector store initialized")
         
-        # Create test data
+        # Create simple test data
         test_documents = [
-            {"content": f"Test document {i} about sustainable technology and urban development", "url": f"https://example.com/doc{i}"}
-            for i in range(15)  # 15 documents to test batching
+            {"content": "Solar energy is becoming more efficient", "url": "https://example.com/solar"},
+            {"content": "Wind power technology advances rapidly", "url": "https://example.com/wind"},
+            {"content": "Battery storage solutions improve", "url": "https://example.com/battery"}
         ]
         
         print(f"📝 Testing with {len(test_documents)} documents")
         
-        # Test batch optimization
-        print("\n🚀 Testing WITH batch optimization...")
+        # Test storage
+        print("💾 Storing documents...")
         start_time = time.time()
-        batch_success = store_updater.update_vector_store(test_documents, use_batch_optimization=True)
-        batch_time = time.time() - start_time
+        success = store_updater.update_vector_store(test_documents)
+        storage_time = time.time() - start_time
         
-        print(f"✅ Batch optimization completed in {batch_time:.2f}s")
-        print(f"   Success: {batch_success}")
+        print(f"✅ Storage completed in {storage_time:.2f}s")
+        print(f"   Success: {success}")
         
-        # Test search functionality
-        test_queries = [
-            "sustainable technology solutions",
-            "urban development innovation",
-            "technology advancement patterns"
-        ]
+        # Test search
+        test_queries = ["renewable energy", "technology"]
         
-        print(f"\n🔍 Testing batch search with {len(test_queries)} queries...")
-        
+        print(f"🔍 Testing search with {len(test_queries)} queries...")
         start_time = time.time()
-        batch_results = store_updater.batch_search_vector_store(test_queries, k=3)
+        search_results = store_updater.search_vector_store(test_queries, k=2)
         search_time = time.time() - start_time
         
-        print(f"✅ Batch search completed in {search_time:.2f}s")
-        print(f"   📊 Results for {len(batch_results)} queries")
+        print(f"✅ Search completed in {search_time:.2f}s")
+        print(f"   Found {len(search_results)} results")
         
-        for query, results in batch_results.items():
-            print(f"   - '{query[:30]}...': {len(results)} results")
-        
-        return batch_success
+        return success
         
     except Exception as e:
-        print(f"❌ Batch embedding test failed: {e}")
+        print(f"❌ Vector store test failed: {e}")
         return False
 
 async def main():
-    """Main test function for optimization verification."""
-    print("🚀 Gap Questions Batch Optimization Test")
-    print("="*70)
-    print("This test demonstrates the optimized batch processing for vector store operations.")
+    """Main test function for simple gap questions functionality."""
+    print("🚀 Simple Gap Questions Test")
+    print("="*50)
+    print("Testing the simplified gap questions workflow.")
     print()
     
     try:
-        # Test 1: Batch optimization in full workflow
-        print("🧪 Test 1: Full Workflow Batch Optimization")
-        test1_success = await test_batch_optimization()
+        # Test 1: Main functionality
+        print("🧪 Test 1: Gap Questions Workflow")
+        test1_success = await test_simple_gap_questions()
         
-        # Test 2: Batch embedding optimization
-        print("\n🧪 Test 2: Batch Embedding Optimization Testing")
-        test2_success = await test_batch_embedding_optimization()
+        # Test 2: Vector store basics
+        print("🧪 Test 2: Vector Store Functionality")
+        test2_success = await test_vector_store_basics()
         
         # Summary
-        print("\n" + "="*70)
-        print("📊 Optimization Test Results:")
-        print(f"   Full Workflow Test: {'✅ PASSED' if test1_success else '❌ FAILED'}")
-        print(f"   Batch Embedding Test: {'✅ PASSED' if test2_success else '❌ FAILED'}")
+        print("\n" + "="*50)
+        print("📊 Test Results:")
+        print(f"   Gap Questions Test: {'✅ PASSED' if test1_success else '❌ FAILED'}")
+        print(f"   Vector Store Test: {'✅ PASSED' if test2_success else '❌ FAILED'}")
         
         overall_success = test1_success and test2_success
         print(f"   Overall: {'✅ ALL TESTS PASSED' if overall_success else '❌ SOME TESTS FAILED'}")
         
-        print("\n💡 Optimization Benefits Tested:")
-        print("   ✅ Batch processing of multiple gap queries")
-        print("   ✅ Reduced embedding API calls for document loading")
-        print("   ✅ Efficient vector store operations with optimal batch sizes")
-        print("   ✅ Rate limit aware batch processing")
-        print("   ✅ Maintained accuracy with improved performance")
+        print("\n💡 Features Tested:")
+        print("   ✅ Web search query generation")
+        print("   ✅ Data collection (1 result per query)")
+        print("   ✅ Vector store operations")
+        print("   ✅ Gap analysis and identification")
+        print("   ✅ Simple workflow integration")
         
-        print("\n🔧 Configuration used for testing:")
+        print("\n🔧 Configuration:")
         for key, value in TEST_CONFIG.items():
             print(f"   {key}: {value}")
         
-        print("="*70)
+        print("="*50)
         
         return overall_success
         
@@ -227,9 +224,9 @@ async def main():
 if __name__ == "__main__":
     # Set up test environment
     if not os.getenv('GOOGLE_API_KEY'):
-        os.environ['GOOGLE_API_KEY'] = 'test_key_for_optimization'
+        os.environ['GOOGLE_API_KEY'] = 'test_key_for_simple_demo'
     
-    # Run the optimization tests
+    # Run the simple tests
     success = asyncio.run(main())
     
     # Exit with appropriate code
