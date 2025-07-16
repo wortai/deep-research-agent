@@ -27,13 +27,25 @@ class WebSearch:
             medbio_max_results:int = 0,
 
                       ):
+        
+        # Validate query input
+        if not query or not isinstance(query, str):
+            raise ValueError("Query must be a non-empty string")
+        
+        # Clean and validate query
+        self.query = query.strip()
+        if not self.query:
+            raise ValueError("Query cannot be empty or contain only whitespace")
+        
+        # Validate max_results
+        if max_results <= 0:
+            raise ValueError("max_results must be a positive integer")
    
-        self.query = query
         self.agentql_prompt = agentql_prompt if agentql_prompt else f"Extract all Important data from the page related to this query :{self.query}"
         self.max_results = max_results
         self.serpapi_client = SerpApiClient()
         self.universal_loader = UniversalLoader()
-        self.tavily_scraper = Tavily(query=query, max_result=max_results)
+        self.tavily_scraper = Tavily(query=self.query, max_result=max_results)
         self.completed_urls = []
         self.results = []
         self.arxiv_research_paper_queries = arxiv_research_paper_queries if arxiv_research_paper_queries else []
@@ -189,6 +201,12 @@ class WebSearch:
                                   Only resolved URLs with content are included.
         """
         try:
+            # Additional validation check
+            if not self.query or not self.query.strip():
+                logging.error("Cannot initiate research with empty query")
+                return []
+            
+            logging.info(f"Initiating research for query: '{self.query}'")
             # Step 1: Retrieve URLs using SerpApi
             urls  =  await self.get_serpapi_results()
             

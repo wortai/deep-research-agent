@@ -1,10 +1,14 @@
 # In src/vector_store_manager.py
 
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from langchain.docstore.document import Document
 from langchain.vectorstores.base import VectorStore
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+import logging
 from .qdrant_db import QdrantService
+
+logger = logging.getLogger(__name__)
 
 class VectorStoreManager:
    
@@ -12,13 +16,101 @@ class VectorStoreManager:
         # The vector_store instance passed here should already be initialized
         # with an embedding model.
         self.vector_store = vector_store
+        
+        # Extract embedding model for batch operations
+        self.embedding_model = getattr(vector_store, 'embedding', None)
+        if self.embedding_model is None:
+            logger.warning("No embedding model found in vector store - batch operations may not work")
 
     def load(self, documents: List[Dict[str, str]]):
-   
+        """Load documents using the original method."""
         langchain_documents = self._create_langchain_documents(documents)
         splitted_documents = self._split_documents(langchain_documents)
         self.vector_store.add_documents(splitted_documents)
         print("Documents have been successfully loaded and indexed.")
+    
+    def load_batch_optimized(self, documents: List[Dict[str, str]], batch_size: int = 100):
+        """Load documents with optimized batch embedding to minimize API calls."""
+        try:
+            if not documents:
+                logger.warning("No documents provided for batch loading")
+                return False
+            
+            logger.info(f"Starting batch optimized loading for {len(documents)} documents")
+            
+            # Step 1: Prepare all documents and split them
+            langchain_documents = self._create_langchain_documents(documents)
+            splitted_documents = self._split_documents(langchain_documents)
+            
+            if not splitted_documents:
+                logger.warning("No documents after splitting")
+                return False
+            
+            logger.info(f"Total document chunks after splitting: {len(splitted_documents)}")
+            
+            # Step 2: Process in batches to respect API rate limits
+            total_chunks = len(splitted_documents)
+            successfully_processed = 0
+            
+            for i in range(0, total_chunks, batch_size):
+                batch = splitted_documents[i:i+batch_size]
+                batch_num = i // batch_size + 1
+                total_batches = (total_chunks + batch_size - 1) // batch_size
+                
+                logger.info(f"Processing batch {batch_num}/{total_batches} ({len(batch)} chunks)")
+                
+                try:
+                    # Batch process this chunk
+                    success = self._process_document_batch(batch)
+                    if success:
+                        successfully_processed += len(batch)
+                        logger.info(f"Batch {batch_num} processed successfully")
+                    else:
+                        logger.error(f"Failed to process batch {batch_num}")
+                        
+                except Exception as e:
+                    logger.error(f"Error processing batch {batch_num}: {e}")
+                    continue
+            
+            logger.info(f"Batch loading completed: {successfully_processed}/{total_chunks} chunks processed")
+            print(f"Documents have been successfully loaded and indexed ({successfully_processed} chunks).")
+            
+            return successfully_processed > 0
+            
+        except Exception as e:
+            logger.error(f"Batch optimized loading failed: {e}")
+            return False
+    
+    def _process_document_batch(self, documents: List[Document]) -> bool:
+        """Process a batch of documents with optimized embedding."""
+        try:
+            if not self.embedding_model:
+                # Fallback to original method if no embedding model available
+                logger.warning("No embedding model available, using fallback method")
+                self.vector_store.add_documents(documents)
+                return True
+            
+            # Extract texts for batch embedding
+            texts = [doc.page_content for doc in documents]
+            
+            # Get embeddings in batch - single API call
+            logger.info(f"Generating embeddings for {len(texts)} texts in batch")
+            embeddings = self.embedding_model.embed_documents(texts)
+            
+            # Add documents with pre-computed embeddings
+            if hasattr(self.vector_store, 'add_texts'):
+                # Use add_texts with embeddings if available
+                metadatas = [doc.metadata for doc in documents]
+                self.vector_store.add_texts(texts, metadatas=metadatas, embeddings=embeddings)
+            else:
+                # Fallback to add_documents
+                self.vector_store.add_documents(documents)
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error in batch processing: {e}")
+            return False
 
     def _create_langchain_documents(self, data: List[Dict[str, str]]) -> List[Document]:
         # Converts a list of dictionaries into LangChain's Document format.
@@ -43,9 +135,53 @@ class VectorStoreManager:
         return text_splitter.split_documents(documents)
 
     def similarity_search(self, query: str, k: int = 4) -> List[Document]:
-
         results = self.vector_store.similarity_search(query=query, k=k)
         return results
+    
+    def batch_similarity_search(self, queries: List[str], k: int = 4) -> Dict[str, List[Document]]:
+        """
+        Perform batch similarity search for multiple queries.
+        This method can be optimized by vector stores that support batch embedding.
+        
+        Args:
+            queries: List of search queries
+            k: Number of results per query
+            
+        Returns:
+            Dictionary mapping queries to their search results
+        """
+        results = {}
+        
+        # Note: Some vector stores support batch embeddings internally
+        # For now, we process sequentially but the embedding model may batch internally
+        for query in queries:
+            results[query] = self.vector_store.similarity_search(query=query, k=k)
+        
+        return results
+    
+    def get_optimal_batch_size(self, total_documents: int, rate_limit_rpm: int = 500) -> int:
+        """
+        Calculate optimal batch size based on rate limits and document count.
+        
+        Args:
+            total_documents: Total number of documents to process
+            rate_limit_rpm: Rate limit in requests per minute
+            
+        Returns:
+            Optimal batch size to respect rate limits
+        """
+        # Conservative approach: use 80% of rate limit
+        safe_rpm = int(rate_limit_rpm * 0.8)
+        
+        # Calculate batch size to stay within rate limits
+        if total_documents <= safe_rpm:
+            return total_documents
+        
+        # For large document sets, use smaller batches
+        if total_documents > 1000:
+            return min(100, safe_rpm // 5)  # 5 API calls per minute max
+        else:
+            return min(50, safe_rpm // 10)  # 10 API calls per minute max
     
 
 if __name__ == "__main__":
