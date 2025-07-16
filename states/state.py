@@ -4,31 +4,24 @@ import operator
 from typing import List, Dict, Any, TypedDict, Annotated
 
 
+class ReportSection(BaseModel):
+    """Represents a single section of a structured report."""
+    section_heading: str = Field(description="Heading of the section.")
+    section_content: str = Field(description="The detailed content of the section, can be markdown.")
+    section_urls: Optional[List[str]] = Field(description="URLs of sources used in the section.")
 
 
-# We will use this for our subgraph   (Researcher-->Reveiwer --> Reviewer)
+# We will use this for our subgraph   (Researcher-->Reveiwer --> Researcher)
 class ResearchReviewData(TypedDict):
     """
     Intermediate state data for the research and review process.
     `review_feedback` is annotated to aggregate feedback from multiple review steps.
     """
-    topic: str
+    query : str
     task_description: str
-    raw_research_results: List[str]
-    processed_findings: List[Dict[str, Any]]
+    raw_research_results: List[tuple[str, str]]
+    # processed_findings: List[ReportSection]
     review_feedback: Annotated[List[str], operator.add]
-    Proposed_Research: str
-
-class ReportSection(BaseModel):
-    """Represents a single section of a structured report."""
-    title: str = Field(description="Title of the section.")
-    content: str = Field(description="The detailed content of the section, can be markdown.")
-    conclusion :str = Field(description="The conclusion of the section.")
-    sources: Optional[List[str]] = Field(description="Sources used in the section.")
-    sub_sections: Optional[List['ReportSection']] = Field(
-        default_factory=list,
-        description="Optional list of nested sub-sections."
-    )
 
 
 
@@ -38,10 +31,10 @@ class ReportSection(BaseModel):
 class AgentGraphState(BaseModel):
     """
     Global state for the research and report generation graph.
-
     Contains data related to the research/review process and the final report structure.
     This serves as the single state object passed between nodes in the LangGraph.
     """
     research_review: ResearchReviewData
     report_sections: List[ReportSection]
+    proposed_research: str
     final_report_text: Optional[str]
