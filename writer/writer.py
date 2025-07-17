@@ -215,7 +215,11 @@ class Writer:
     """
             introduction = await self.google_model.ainvoke(prompt_for_introduction)
             return introduction.content
+    
 
+
+
+         
     async def run(self, state: AgentState):
         introduction = await self.generate_report_introduction(state)
         sections = await self.report_section_report(state)
@@ -224,13 +228,12 @@ class Writer:
         conclusion = await self.generate_conclusion_report(state)
         
         report = {
-            "introduction": introduction,
-            "sections": sections,
-            "outline": outline,
-            "abstract": abstract,
-            "conclusion": conclusion
+            "report_introduction": introduction['introduction_content'],
+            "report_sections": sections,
+            "report_abstract": abstract['report_abstract'],
+            "report_conclusion": conclusion['report_conclusion'],
+            "report_outline ": outline
         }
         
         return report
-
 

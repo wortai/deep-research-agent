@@ -12,63 +12,84 @@ from states import ResearchReviewData , AgentGraphState
 async def generate_report_outline_prompt(langgraph_state: Dict[str, Any]) -> str:
     """ Generates prompt asking LLM to create an optimal prompt for report outline generation. """
 
-    topic = langgraph_state.get('topic', '')
-    task_description = langgraph_state.get('task_description', '')
-    raw_research_results = langgraph_state.get('raw_research_results', [])
-    processed_findings = langgraph_state.get('processed_findings', [])
-    review_feedback = langgraph_state.get('review_feedback', [])
-    proposed_research = langgraph_state.get('Proposed_Research', '')
+    report_sections = langgraph_state['report_sections']
+
+    sections=''
+    for section in report_sections:
+        sections +=f"""
+        -----------------------------------------------------------------------------    
+          Here's this section starts.
+            
+            {section}
+
+            Here's this section ends.
+        ------------------------------------------------------------------------------
+    """
 
 
     prompt = f"""You are an expert in prompt engineering and research report writing. Your task is to generate an optimal prompt that will be used to instruct an LLM to create a comprehensive report outline.
 
 AVAILABLE INFORMATION:
-- Topic: {topic}
-- Task Description: {task_description}
-- Raw Search Reulsts :{ raw_research_results}
-- Processed Findings these are based on Raw_Research_Results and processed by LLM after it: {processed_findings} analyzed findings
+- Available Sections: 
 
+    {sections}
+
+ AVAILABLE INFORMATION ENDS HERE.    
+-------------------------------------------
 
 PROMPT ENGINEERING REQUIREMENTS:
 Generate a highly effective prompt that will instruct an LLM to create a professional research report outline. The prompt should:
 
-1. Follow best prompting practices (clear instructions, specific requirements, structured format)
-2. Address the specific nature of this research topic and task
-3. Ensure the outline will be extremely professional and comprehensive
-4. Highlight the need for distinct sections without redundancy , atleast should have 7 minimum sections and should be well-structured and easy to follow
-5. Make sure you mention what gonna be the Each Section name and what we will discuss about in the sections.
-6. Include specific instructions for Each section purposes and descriptive content explanation that will be discussed in content 
-7. Very Important Ensure logical flow and hierarchy in the outline structure
-8. Address the available research data effectively
-9. Include requirements for executive summary, methodology, findings, and conclusion sections but these will be always there sections
-10. Emphasize proper academic/professional standards
+1. Follow best prompting practices (clear instructions, specific requirements, structured format).
+2. Address the specific nature of this research topic and task.
+3. Ensure the outline will be extremely professional and comprehensive.
+4. Highlight the need for distinct sections without redundancy , atleast should have 10 minimum sections and should be well-structured and easy to follow.
+5. Make sure you mention what going to  be the Each Section name and what we will discuss about in these sections , like important parts , other side information to focus on  .
+6. Your prompt should have details of which sections should be combined and be made one , what will be the order of these sections , Order is very Important as report sections should go deep in topic from top to bottom , like intial topics sections should come first and then sections based on previous or in depth analysis of other should be in bottom.
+7. Your prompt should contain the details about , what Should be the heading , title , content , and other relevant details of each section ,Include requirements for executive summary, methodology, findings, and conclusion sections etc but these will be always there sections ,should like based on section content and details.
+8. Include specific instructions for Each section purposes and descriptive content explanation that will be discussed in content .
+9. Very Important Ensure logical flow and hierarchy in the outline structure.
+10. Address the available research data effectively , talk about the important sections and how to address those sections in a prompt.
+
 
 The prompt you generate should be crafted to produce a high-quality, well-structured outline that will serve as the foundation for an excellent research report. Consider the specific characteristics of this research topic and the available data when crafting your prompt.
-
 Focus on creating a prompt that will result in an outline with clear section definitions, proper academic structure, and comprehensive coverage of the research topic without content overlap between sections.
+Generate an optimized prompt that leverages best practices in prompt engineering for this specific report outline generation task.
 
-Generate an optimized prompt that leverages best practices in prompt engineering for this specific report outline generation task."""
+"""
     model = LlmsHouse.google_model('gemini-2.5-flash')
     # 1.5 flash is the fastest mdoel but 2.5 flash is slower but better  in output
     response_prompt = await model.ainvoke(prompt) # Await the coroutine
     return response_prompt.content
 
 
-async def generate_section_prompt(section_data: ResearchReviewData) -> str:
+async def generate_section_prompt(langgraph_state: AgentGraphState) -> str:
     """Generates prompt asking LLM to create an optimal prompt for section writing."""
 
-    section_heading = section_data.get('section_heading', '')
-    section_content = section_data.get('section_content', '')
-    section_sources = section_data.get('section_urls', [])
+
+    report_sections = langgraph_state['report_sections']
+
+    sections=''
+    for section in report_sections:
+        sections +=f"""
+        -----------------------------------------------------------------------------    
+          Here's this section starts.
+            
+            {section}
+
+            Here's this section ends.
+        ------------------------------------------------------------------------------
+    """
 
 
 
     prompt = f"""You are an expert in prompt engineering and academic writing. Your task is to generate an optimal prompt that will be used to instruct an LLM to write a comprehensive section for a research report.
 
-SECTION INFORMATION AND RESEARCH CONTEXT :
-- Section Title: {section_heading}
-- Current Content: {section_content}...
-- Available Sources: {section_sources} sources
+RESEARCH INFORMATION:
+--------------
+Sections of the report  :
+ {sections}
+--------------
 
 
 PROMPT ENGINEERING REQUIREMENTS:
@@ -100,13 +121,26 @@ async def generate_report_conclusion_prompt(langgraph_state: AgentGraphState) ->
     """Generates prompt asking LLM to create an optimal prompt for conclusion writing."""
 
 
+    
     report_sections = langgraph_state['report_sections']
+
+    sections=''
+    for section in report_sections:
+        sections +=f"""
+        -----------------------------------------------------------------------------    
+          Here's this section starts.
+            
+            {section}
+
+            Here's this section ends.
+        ------------------------------------------------------------------------------
+    """
     prompt = f"""You are an expert in prompt engineering and research analysis. Your task is to generate an optimal prompt that will be used to instruct an LLM to write a comprehensive conclusion for a research report.
 
 RESEARCH INFORMATION:
 --------------
 Sections of the report  :
- {report_sections}
+ {sections}
 --------------
 
 
@@ -140,54 +174,6 @@ Generate an optimized prompt that leverages best practices in prompt engineering
 
 
 
-
-# for right now let's leave this method alone 
-async def generate_section_structure_prompt(section_data: ResearchReviewData) -> str:
-    """Generates prompt asking LLM to create an optimal prompt for section structure determination."""
-
-    section_title = section_data.get('title', '')
-    section_content = section_data.get('content', '')
-    section_sources = section_data.get('sources', [])
-    section_subsections = section_data.get('sub_sections', [])
-
-    topic = context_data.get('topic', '')
-
-
-    prompt = f"""You are an expert in prompt engineering and information architecture. Your task is to generate an optimal prompt that will be used to instruct an LLM to determine the best structure and format for presenting a specific section in a research report.
-
-SECTION INFORMATION:
-- Section Title: {section_title}
-- Content  : {section_content}
-- Has Sub-sections: {len(section_subsections) > 0}
-- Number of Sources: {section_sources}
-- Overall Topic: {topic}
-
-PROMPT ENGINEERING REQUIREMENTS:
-Generate a highly effective prompt that will instruct an LLM to analyze this section and recommend the optimal structure and presentation format. The prompt should:
-
-1. Apply sophisticated prompt engineering techniques for comprehensive analysis
-2. Address the specific characteristics of this section and its content type
-3. Include instructions for evaluating best suitable structural options as per the given Content
-4. Specify criteria for assessing readability and professional presentation
-5. Address the relationship between content type and optimal structure
-6. Include guidelines for considering reader comprehension and engagement
-7. Specify requirements for professional academic presentation standards
-8. Address the importance of information hierarchy and logical flow
-9. Include instructions for recommending specific formatting elements
-10. Ensure the recommendations maximize both clarity and professional appearance
-
-The prompt should be tailored to the specific nature of this section title and content type. Consider what structural approaches would be most effective for this particular type of information and how readers would best interact with this content.
-
-Focus on creating a prompt that will result in thoughtful analysis of structural options and clear recommendations for the most effective presentation format. The prompt should guide the LLM to consider both the content characteristics and the reader's needs.
-
-Consider the complexity of the information, the professional standards required, and the most effective ways to present this specific type of content in an academic/professional context.
-
-Generate an optimized prompt that leverages best practices in prompt engineering for this specific section structure analysis task."""
-
-    model = LlmsHouse.google_model('gemini-2.5-flash')
-    # 1.5 flash is the fastest mdoel but 2.5 flash is slower but better  in output
-    response_prompt = await model.ainvoke(prompt) # Await the coroutine
-    return response_prompt.content
 
 
 async def main():
