@@ -33,7 +33,7 @@ def generate_query_solution_list(
         # Search all queries using simplified search_only method
         if all_vector_queries:
             logger.info(f"Searching {len(all_vector_queries)} vector queries")
-            all_search_results = query_processor.search_only(all_vector_queries, k=3)
+            all_search_results = query_processor.search_only(all_vector_queries, k=5)  # Increased from 3 to 5
             
             # Group results by gap (simplified approach)
             for gap in gaps:
@@ -73,8 +73,8 @@ def _curate_gap_solution(gap: str, solutions: List[Dict[str, Any]]) -> str:
     
     # Combine solutions into a coherent response
     content_parts = []
-    for sol in solutions[:3]:  # Use top 3 solutions
+    for sol in solutions[:5]:  # Increased from 3 to 5 solutions
         if sol.get("content"):
-            content_parts.append(sol["content"][:200])
+            content_parts.append(sol["content"][:400])  # Increased from 200 to 400 chars per solution
     
     return " ".join(content_parts) if content_parts else f"Limited information available for: {gap}"

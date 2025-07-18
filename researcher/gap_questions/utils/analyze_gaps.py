@@ -4,7 +4,9 @@ from typing import List
 
 from ..llm_client import GeminiLLMClient
 from ..prompts import create_gap_analysis_prompt
+from ..query_generators.vector_search_query_generator import VectorSearchQueryGenerator
 from ...vectore_store import VectorStoreManager
+from .summarize_section_content import summarize_section_content
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +20,47 @@ def analyze_gaps(
 ) -> List[str]:
     """Analyze gaps in content to identify missing information."""
     try:
-        # Get content from vector store
-        vector_content = _get_vector_store_content(query, vector_store_manager)
+        # Initialize vector search query generator
+        vector_search_generator = VectorSearchQueryGenerator()
+        
+        # Generate optimized vector search queries for the plan query
+        search_queries = vector_search_generator.generate_vector_search_queries(
+            gap=query, max_queries=5 # Increased from 3 to 5 for more comprehensive search
+        )
+        
+        # Get content from vector store using optimized queries
+        if not search_queries:
+            # Fallback to direct query if no optimized queries generated
+            logger.warning("No optimized queries generated, falling back to direct search")
+            results = vector_store_manager.similarity_search(query, k=3)  # Increased from 10 to 15
+        else:
+            # Search using all generated queries and combine results
+            all_results = []
+            results_per_query = max(1, 15 // len(search_queries))  # Increased base from 10 to 15
+            
+            for search_query in search_queries:
+                query_results = vector_store_manager.similarity_search(search_query, k=results_per_query)
+                all_results.extend(query_results)
+            
+            # Remove duplicates and limit to 10 results
+            seen_content = set()
+            unique_results = []
+            for result in all_results:
+                if result.page_content not in seen_content:
+                    seen_content.add(result.page_content)
+                    unique_results.append(result)
+                    if len(unique_results) >= 15:
+                        break
+            
+            results = unique_results
+        
+        # Extract content from vector store results
+        vector_content = ""
+        for doc in results:
+            vector_content += doc.page_content[:400] + "\n\n"  # Use truncated content directly
+        
+        logger.info(f"Retrieved {len(results)} documents for gap analysis")
+        
         if not vector_content:
             return []
         
@@ -36,17 +77,6 @@ def analyze_gaps(
     except Exception as e:
         logger.error(f"Failed to analyze gaps: {e}")
         return []
-
-
-def _get_vector_store_content(query: str, vector_store_manager: VectorStoreManager, k: int = 10) -> str:
-    """Get content from vector store for gap analysis."""
-    try:
-        results = vector_store_manager.similarity_search(query, k=k)
-        content = "\n\n".join([doc.page_content[:500] for doc in results])
-        return content
-    except Exception as e:
-        logger.error(f"Failed to get vector store content: {e}")
-        return ""
 
 
 def _parse_gaps_response(response: str) -> List[str]:

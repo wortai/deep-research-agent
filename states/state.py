@@ -13,10 +13,10 @@ class ReportSection(TypedDict):
 
 class ResearchReviewData(TypedDict):
     query : str
-    task_description: str
-    raw_research_results: List[tuple[str, str]]
+    raw_research_results: List[tuple[str, str]] # (gap_query_data, url)
     review_feedback: Annotated[List[str], operator.add]
     section : ReportSection
+    report_sections: List[ReportSection]
 
 
 # --- Global Graph State ---

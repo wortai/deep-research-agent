@@ -13,7 +13,8 @@ from .query_generators.gap_search_query_generator import GapSearchQueryGenerator
 from .query_generators.vector_search_query_generator import VectorSearchQueryGenerator
 from .search_query_processor.query_processor import QueryProcessor
 from ..vectore_store import VectorStoreManager, QdrantService
-from .utils import analyze_gaps, process_batch_web_search, generate_query_solution_list, RAMMonitor
+from .utils import analyze_gaps, process_batch_web_search, generate_query_solution_list, RAMMonitor, generate_section_heading
+from states import ResearchReviewData
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,19 @@ class GapQuestionsOrchestrator:
         self.ram_monitor = RAMMonitor()
         self.performance_metrics = {"llm_calls": 0, "total_time": 0}
         
+        # Initialize class state variables (previously in workflow state)
+        self.current_level_gaps = []
+        self.next_level_gaps = []
+        self.processed_gaps = []
+        self.query_solutions = []
+        self.current_depth = 0
+        self.workflow_complete = False
+        self.errors = []
+        self.current_processing_query = None
+        self.current_web_queries = []
+        self.current_web_results = []
+        self.should_continue = True
+        
         # Initialize components
         self.llm_client = GeminiLLMClient()
         self.qdrant_service = QdrantService(collection_name=vector_collection_name)
@@ -53,14 +67,14 @@ class GapQuestionsOrchestrator:
         # Build workflow
         self.workflow = self.build_workflow()
     
-    def check_stop_conditions(self, state: dict) -> bool:
-        """Check if workflow should stop."""
-        return (state.get("current_depth", 0) >= self.max_depth or 
-                len(state.get("gap_queue", [])) == 0)
+    def check_stop_conditions(self) -> bool:
+        """Check if workflow should stop using level-based logic."""
+        has_gaps_to_process = (len(self.current_level_gaps) > 0 or len(self.next_level_gaps) > 0)
+        return (self.current_depth >= self.max_depth or not has_gaps_to_process)
 
     def build_workflow(self) -> CompiledStateGraph:
         """Build LangGraph workflow."""
-        workflow = StateGraph(dict)
+        workflow = StateGraph(ResearchReviewData)
         
         # Add nodes
         workflow.add_node("initialize", self._initialize_node)
@@ -86,6 +100,39 @@ class GapQuestionsOrchestrator:
         workflow.add_edge("finalize", END)
         
         return workflow.compile()
+    
+    def _get_research_data_for_gap(self, gap: str, raw_research_results: List[tuple]) -> List[Dict[str, Any]]:
+        """Extract research data relevant to a specific gap from raw_research_results."""
+        try:
+            # Convert raw_research_results tuples to dictionary format
+            research_data = []
+            for content, url in raw_research_results:
+                # Simple relevance check - if gap keywords appear in content
+                gap_keywords = gap.lower().split()[:3]  # Use first 3 words of gap
+                content_lower = content.lower()
+                
+                # Check if any gap keywords appear in content
+                if any(keyword in content_lower for keyword in gap_keywords if len(keyword) > 2):
+                    research_data.append({
+                        'content': content,
+                        'url': url
+                    })
+            
+            # If no specific matches, return some general data
+            if not research_data and raw_research_results:
+                # Take first few results as fallback
+                for content, url in raw_research_results[:3]:
+                    research_data.append({
+                        'content': content,
+                        'url': url
+                    })
+            
+            logger.info(f"Found {len(research_data)} relevant data sources for gap: {gap[:50]}...")
+            return research_data
+            
+        except Exception as e:
+            logger.error(f"Failed to get research data for gap: {e}")
+            return []
 
     async def orchestrator(self, plan_query: str) -> Dict[str, Any]:
         """Main orchestrator function that coordinates the gap analysis workflow."""
@@ -94,19 +141,30 @@ class GapQuestionsOrchestrator:
             start_time = time.time()
             self.ram_monitor.start_monitoring()
             
-            # Initialize state
-            initial_state = {
-                "plan_query": plan_query,
-                "gap_queue": deque(),
-                "processed_gaps": [],
-                "query_solutions": [],
-                "current_depth": 0,
-                "workflow_complete": False,
-                "errors": []
-            }
+            # Initialize state with ResearchReviewData structure
+            initial_state = ResearchReviewData(
+                query=plan_query,
+                raw_research_results=[],
+                review_feedback=[],
+                section={"section_heading": "", "section_content": "", "section_urls": []},
+                report_sections=[]
+            )
+            
+            # Reset class state variables
+            self.current_level_gaps = []
+            self.next_level_gaps = []
+            self.processed_gaps = []
+            self.query_solutions = []
+            self.current_depth = 0
+            self.workflow_complete = False
+            self.errors = []
+            self.current_processing_query = None
+            self.current_web_queries = []
+            self.current_web_results = []
+            self.should_continue = True
             
             # Execute workflow
-            final_state = await self.workflow.ainvoke(initial_state)
+            final_state = await self.workflow.ainvoke(initial_state, {"recursion_limit": 100})
             
             # Stop monitoring and calculate metrics
             self.ram_monitor.stop_monitoring()
@@ -120,11 +178,11 @@ class GapQuestionsOrchestrator:
             return {
                 "success": True,
                 "plan_query": plan_query,
-                "total_solutions": len(final_state.get("query_solutions", [])),
-                "processed_gaps": len(final_state.get("processed_gaps", [])),
-                "final_depth": final_state.get("current_depth", 0),
+                "total_solutions": len(self.query_solutions),
+                "processed_gaps": len(self.processed_gaps),
+                "final_depth": self.current_depth,
                 "md_report": md_file_path,
-                "errors": final_state.get("errors", []),
+                "errors": self.errors,
                 "performance_metrics": self.performance_metrics.copy(),
                 "ram_stats": ram_stats,
                 "total_execution_time": total_execution_time
@@ -143,103 +201,181 @@ class GapQuestionsOrchestrator:
             }
     
     # Helper methods for workflow nodes
-    def _initialize_node(self, state: dict) -> dict:
+    def _initialize_node(self, state: ResearchReviewData) -> ResearchReviewData:
         """Initialize workflow state."""
-        state.update({
-            "gap_queue": deque(),
-            "processed_gaps": [],
-            "query_solutions": [],
-            "current_depth": 0,
-            "workflow_complete": False,
-            "errors": []
-        })
+        # Class variables are already initialized in __init__
+        logger.info(f"Initializing workflow for query: {state['query'][:50]}...")
         return state
     
-    async def _generate_web_queries_node(self, state: dict) -> dict:
+    async def _generate_web_queries_node(self, state: ResearchReviewData) -> ResearchReviewData:
         """Generate web search queries."""
         try:
-            if state["current_depth"] == 0:
+            if self.current_depth == 0:
+                # At depth 0, process the initial plan query
                 queries = self.plan_query_generator.generate_search_queries(
-                    state["plan_query"], max_queries=3
+                    state["query"], max_queries=3
                 )
+                self.current_processing_query = state["query"]
+                logger.info(f"Generating web queries for plan query at depth 0")
             else:
+                # At depth > 0, process gaps from current level
                 queries = []
-                if state["gap_queue"]:
-                    gap = state["gap_queue"].popleft()
+                if self.current_level_gaps:
+                    gap = self.current_level_gaps.pop(0)  # Take first gap from current level
                     queries = self.gap_search_generator.generate_gap_search_queries(gap, max_queries=2)
-                    state["processed_gaps"].append(gap)
+                    self.current_processing_query = gap
+                    logger.info(f"Generating web queries for gap at depth {self.current_depth}: {gap[:50]}...")
             
-            state["current_web_queries"] = queries
+            self.current_web_queries = queries
             return state
         except Exception as e:
-            state["errors"].append(f"Failed to generate web queries: {e}")
+            self.errors.append(f"Failed to generate web queries: {e}")
             return state
     
-    async def _process_web_search_node(self, state: dict) -> dict:
+    async def _process_web_search_node(self, state: ResearchReviewData) -> ResearchReviewData:
         """Process web search queries."""
         try:
-            queries = state.get("current_web_queries", [])
-            results = await process_batch_web_search(queries, self.query_processor) if queries else []
-            state["current_web_results"] = results
+            results = await process_batch_web_search(self.current_web_queries, self.query_processor) if self.current_web_queries else []
+            self.current_web_results = results
+            
+            # Add results to raw_research_results in the format (gap_query_content, url)
+            for result in results:
+                content = result.get('content', '')
+                url = result.get('source', '') or result.get('url', '')
+                if content and url:
+                    state['raw_research_results'].append((content, url))
+            
             return state
         except Exception as e:
-            state["errors"].append(f"Failed to process web search: {e}")
+            self.errors.append(f"Failed to process web search: {e}")
             return state
     
-    def _analyze_gaps_node(self, state: dict) -> dict:
-        """Analyze gaps in current content."""
+    def _analyze_gaps_node(self, state: ResearchReviewData) -> ResearchReviewData:
+        """Analyze gaps in current content using level-based processing."""
         try:
+            # Get the query that was just processed
+            analysis_query = self.current_processing_query or state["query"]
+            
+            logger.info(f"Analyzing gaps at depth {self.current_depth} for query: {analysis_query[:50]}...")
+            
+            # Analyze gaps for the current query
             gaps = analyze_gaps(
-                query=state["plan_query"],
+                query=analysis_query,
                 llm_client=self.llm_client,
                 vector_store_manager=self.vector_store_manager,
                 performance_metrics=self.performance_metrics,
                 max_gaps=self.max_gaps
             )
+            
+            # Mark the current query as processed
+            if analysis_query not in self.processed_gaps:
+                self.processed_gaps.append(analysis_query)
+                logger.info(f"Marked query as processed: {analysis_query[:50]}...")
+            
+            # Add discovered gaps to next level (avoid duplicates)
             for gap in gaps:
-                if gap not in state["processed_gaps"] and gap not in state["gap_queue"]:
-                    state["gap_queue"].append(gap)
+                if (gap not in self.processed_gaps and 
+                    gap not in self.current_level_gaps and 
+                    gap not in self.next_level_gaps):
+                    self.next_level_gaps.append(gap)
+                    logger.info(f"Added gap to next level: {gap[:50]}...")
+            
+            # Check if current level is complete
+            if not self.current_level_gaps:
+                # Current level is complete, move to next level
+                if self.next_level_gaps:
+                    logger.info(f"Level {self.current_depth} complete. Moving to level {self.current_depth + 1} with {len(self.next_level_gaps)} gaps")
+                    self.current_level_gaps = self.next_level_gaps.copy()
+                    self.next_level_gaps = []
+                    self.current_depth += 1
+                else:
+                    logger.info(f"No more gaps to process. Workflow should stop.")
+            
             return state
         except Exception as e:
-            state["errors"].append(f"Failed to analyze gaps: {e}")
+            self.errors.append(f"Failed to analyze gaps: {e}")
             return state
     
-    def _check_stop_node(self, state: dict) -> dict:
-        """Check stop conditions."""
-        state["current_depth"] += 1
-        state["should_continue"] = not self.check_stop_conditions(state)
+    def _check_stop_node(self, state: ResearchReviewData) -> ResearchReviewData:
+        """Check stop conditions using level-based logic."""
+        # Check if we should continue based on:
+        # 1. Current depth hasn't exceeded max_depth
+        # 2. There are still gaps to process (either in current level or next level)
+        has_gaps_to_process = (len(self.current_level_gaps) > 0 or len(self.next_level_gaps) > 0)
+        
+        self.should_continue = (self.current_depth < self.max_depth and has_gaps_to_process)
+        
+        logger.info(f"Check stop: depth={self.current_depth}, max_depth={self.max_depth}, "
+                   f"current_level_gaps={len(self.current_level_gaps)}, "
+                   f"next_level_gaps={len(self.next_level_gaps)}, continue={self.should_continue}")
+        
         return state
     
-    def _generate_solutions_node(self, state: dict) -> dict:
-        """Generate solutions for processed gaps."""
+    def _generate_solutions_node(self, state: ResearchReviewData) -> ResearchReviewData:
+        """Generate solutions for processed gaps and create report sections."""
         try:
-            all_gaps = state["processed_gaps"] + list(state["gap_queue"])
-            state["query_solutions"] = generate_query_solution_list(
+            all_gaps = self.processed_gaps + self.current_level_gaps + self.next_level_gaps
+            self.query_solutions = generate_query_solution_list(
                 gaps=all_gaps,
                 vector_search_generator=self.vector_search_generator,
                 query_processor=self.query_processor,
                 max_gap_queries=self.max_gap_queries
             )
+            
+            # Create sections for each processed gap
+            sections = []
+            for gap in self.processed_gaps:
+                # Get relevant research data for this gap from raw_research_results
+                gap_research_data = self._get_research_data_for_gap(gap, state['raw_research_results'])
+                
+                if gap_research_data:
+                    # Generate section heading using LLM
+                    section_heading = generate_section_heading(
+                        gap_query=gap,
+                        llm_client=self.llm_client,
+                        performance_metrics=self.performance_metrics
+                    )
+                    
+                    # Use the research data content directly (already summarized during vector retrieval)
+                    section_content = "\n\n".join([data.get('content', '')[:400] for data in gap_research_data[:3]])
+                    
+                    # Extract URLs from research data
+                    section_urls = [data.get('url', '') for data in gap_research_data if data.get('url')]
+                    
+                    # Create section
+                    section = {
+                        "section_heading": section_heading,
+                        "section_content": section_content,
+                        "section_urls": section_urls
+                    }
+                    
+                    sections.append(section)
+                    logger.info(f"Created section: {section_heading} with {len(section_urls)} sources")
+            
+            # Update state with sections
+            state['report_sections'] = sections
+            logger.info(f"Generated {len(sections)} report sections")
+            
             return state
         except Exception as e:
-            state["errors"].append(f"Failed to generate solutions: {e}")
+            self.errors.append(f"Failed to generate solutions: {e}")
             return state
     
-    def _finalize_node(self, state: dict) -> dict:
+    def _finalize_node(self, state: ResearchReviewData) -> ResearchReviewData:
         """Finalize workflow."""
-        state["workflow_complete"] = True
+        self.workflow_complete = True
         return state
     
-    def _should_continue(self, state: dict) -> str:
+    def _should_continue(self, state: ResearchReviewData) -> str:
         """Conditional edge function."""
-        return "continue" if state.get("should_continue", False) else "stop"
+        return "continue" if self.should_continue else "stop"
     
     # Graph methods
-    def _generate_md_report(self, state: dict, ram_stats: Dict[str, float], total_execution_time: float) -> str:
+    def _generate_md_report(self, state: ResearchReviewData, ram_stats: Dict[str, float], total_execution_time: float) -> str:
         """Generate markdown report."""
         try:
-            plan_query = state.get("plan_query", "Unknown Query")
-            solutions = state.get("query_solutions", [])
+            plan_query = state["query"]
+            sections = state.get("report_sections", [])
             
             md_content = f"""# Gap Questions Research Report
 
@@ -247,9 +383,9 @@ class GapQuestionsOrchestrator:
 {plan_query}
 
 ## Research Summary
-- **Total Solutions**: {len(solutions)}
-- **Gaps Processed**: {len(state.get("processed_gaps", []))}
-- **Final Depth**: {state.get("current_depth", 0)}
+- **Total Sections**: {len(sections)}
+- **Gaps Processed**: {len(self.processed_gaps)}
+- **Final Depth**: {self.current_depth}
 - **Execution Time**: {total_execution_time:.2f}s
 
 ## Performance Metrics
@@ -258,22 +394,33 @@ class GapQuestionsOrchestrator:
 - **Peak RAM**: {ram_stats.get("max", 0):.1f} MB
 - **Max Web Results**: {self.max_web_results}
 
-## Gap Analysis & Solutions
+## Research Sections
 """
             
-            for i, solution in enumerate(solutions, 1):
-                md_content += f"""### Gap {i}: {solution.get('gap', 'Unknown Gap')}
-**Solution:** {solution.get('solution', 'No solution available')}
-**Sources**: {solution.get('source_count', 0)} documents
+            for i, section in enumerate(sections, 1):
+                section_heading = section.get('section_heading', f'Section {i}')
+                section_content = section.get('section_content', 'No content available')
+                section_urls = section.get('section_urls', [])
+                
+                md_content += f"""## {section_heading}
 
----
+{section_content}
+
+### Sources
 """
+                
+                if section_urls:
+                    for j, url in enumerate(section_urls, 1):
+                        md_content += f"{j}. [{url}]({url})\n"
+                else:
+                    md_content += "No sources available\n"
+                
+                md_content += "\n---\n\n"
             
             # Add errors if any
-            errors = state.get("errors", [])
-            if errors:
+            if self.errors:
                 md_content += f"\n## Errors\n"
-                for error in errors:
+                for error in self.errors:
                     md_content += f"- {error}\n"
             
             # Write to file
@@ -304,7 +451,7 @@ async def test_gap_questions_functionality():
         # Step 1: Initialize orchestrator
         print("\n📋 Step 1: Initializing Gap Questions Orchestrator")
         orchestrator = GapQuestionsOrchestrator(
-            max_depth=4,
+            max_depth=2,
             max_gaps=2,
             max_gap_queries=1,
             max_concurrent_queries=5,
@@ -314,7 +461,7 @@ async def test_gap_questions_functionality():
         print("✅ Orchestrator initialized successfully")
         
         # Step 2: Execute complete orchestration with a single call
-        plan_query = "Future trends in renewable energy technology and their impact on global energy markets"
+        plan_query = "Check what have been the most optimal techniques while fine-tuning a language model for chatbots"
         print(f"\n📋 Step 2: Executing Full Orchestration")
         print(f"Query: {plan_query}")
         print("\n🚀 Running complete gap analysis workflow...")
