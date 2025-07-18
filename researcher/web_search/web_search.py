@@ -243,7 +243,7 @@ class WebSearch:
 # Example usage:
 if __name__ == "__main__":
     async def main():
-        web_search = WebSearch(query="latest AI advancements", max_results=1)
+        web_search = WebSearch(query="latest AI advancements", max_results=2)
         results = await web_search.initiate_research() # results is an array contains [{} , {} ,{}]-->{}each obj contains url , content 
 
         for result in results:

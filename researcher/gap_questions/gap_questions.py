@@ -1,9 +1,6 @@
 import asyncio
 import logging
-import json
 import time
-import psutil
-import threading
 from typing import List, Dict, Any, Optional
 from collections import deque
 
@@ -11,61 +8,14 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.graph.state import CompiledStateGraph
 
 from .llm_client import GeminiLLMClient
-from .prompts import create_gap_analysis_prompt
 from .query_generators.plan_search_query_generator import PlanSearchQueryGenerator
 from .query_generators.gap_search_query_generator import GapSearchQueryGenerator
 from .query_generators.vector_search_query_generator import VectorSearchQueryGenerator
 from .search_query_processor.query_processor import QueryProcessor
 from ..vectore_store import VectorStoreManager, QdrantService
+from .utils import analyze_gaps, process_batch_web_search, generate_query_solution_list, RAMMonitor
 
 logger = logging.getLogger(__name__)
-
-class RAMMonitor:
-    """Simplified RAM monitoring."""
-    
-    def __init__(self):
-        self.process = psutil.Process()
-        self.ram_samples = []
-        self.monitoring = False
-        self.monitor_thread = None
-    
-    def start_monitoring(self):
-        """Start RAM monitoring."""
-        self.monitoring = True
-        self.ram_samples = []
-        self.monitor_thread = threading.Thread(target=self._monitor_ram)
-        self.monitor_thread.daemon = True
-        self.monitor_thread.start()
-    
-    def stop_monitoring(self):
-        """Stop RAM monitoring."""
-        self.monitoring = False
-        if self.monitor_thread:
-            self.monitor_thread.join(timeout=1)
-    
-    def _monitor_ram(self):
-        """Monitor RAM usage."""
-        while self.monitoring:
-            try:
-                memory_info = self.process.memory_info()
-                ram_mb = memory_info.rss / (1024 * 1024)
-                self.ram_samples.append(ram_mb)
-                time.sleep(0.5)
-            except Exception as e:
-                logger.error(f"RAM monitoring error: {e}")
-                break
-    
-    def get_ram_stats(self) -> Dict[str, float]:
-        """Get RAM statistics."""
-        if not self.ram_samples:
-            return {"average": 0, "max": 0, "current": 0}
-        
-        current_memory = self.process.memory_info().rss / (1024 * 1024)
-        return {
-            "average": sum(self.ram_samples) / len(self.ram_samples),
-            "max": max(self.ram_samples),
-            "current": current_memory
-        }
 
 class GapQuestionsOrchestrator:
     """Orchestration of GapQuestionGenerator: The heart of WORT Research!"""
@@ -103,101 +53,10 @@ class GapQuestionsOrchestrator:
         # Build workflow
         self.workflow = self.build_workflow()
     
-    def analyze_gaps(self, query: str) -> List[str]:
-        """Analyze gaps in content to identify missing information."""
-        try:
-            # Get content from vector store
-            vector_content = self._get_vector_store_content(query)
-            if not vector_content:
-                return []
-            
-            # Generate gaps using LLM
-            prompt = create_gap_analysis_prompt(query, vector_content)
-            response = self.llm_client.generate(prompt, context="gap_analysis", model_type="analysis")
-            self.performance_metrics["llm_calls"] += 1
-            
-            # Parse result
-            gaps = self._parse_gaps_response(response)[:self.max_gaps]
-            
-            return gaps
-            
-        except Exception as e:
-            logger.error(f"Failed to analyze gaps: {e}")
-            return []
-    
-    async def process_batch_web_search(self, queries: List[str]) -> List[Dict[str, Any]]:
-        """Process web search queries using the new simplified logic."""
-        try:
-            logger.info(f"Processing {len(queries)} web search queries in batch")
-            
-            # Use the new process_multiple_queries method
-            # This will collect 1 result per query by default and store all in vector DB in one shot
-            all_results = await self.query_processor.process_multiple_queries(queries)
-            
-            logger.info(f"Batch processing completed. Collected {len(all_results)} total results")
-            return all_results
-            
-        except Exception as e:
-            logger.error(f"Batch web search processing failed: {e}")
-            return []
-    
     def check_stop_conditions(self, state: dict) -> bool:
         """Check if workflow should stop."""
         return (state.get("current_depth", 0) >= self.max_depth or 
                 len(state.get("gap_queue", [])) == 0)
-    
-    def generate_query_solution_list(self, gaps: List[str]) -> List[Dict[str, Any]]:
-        """Generate solutions for identified gaps using simplified search."""
-        try:
-            final_solutions = []
-            
-            logger.info(f"Processing {len(gaps)} gaps")
-            
-            # Collect all vector queries
-            all_vector_queries = []
-            gap_to_queries = {}
-            
-            for gap in gaps:
-                vector_queries = self.vector_search_generator.generate_vector_search_queries(
-                    gap, max_queries=self.max_gap_queries
-                )
-                gap_to_queries[gap] = vector_queries
-                all_vector_queries.extend(vector_queries)
-            
-            # Search all queries using simplified search_only method
-            if all_vector_queries:
-                logger.info(f"Searching {len(all_vector_queries)} vector queries")
-                all_search_results = self.query_processor.search_only(all_vector_queries, k=3)
-                
-                # Group results by gap (simplified approach)
-                for gap in gaps:
-                    gap_queries = gap_to_queries.get(gap, [])
-                    
-                    # For simplicity, take a portion of results for each gap
-                    # This is a simple distribution - could be made more sophisticated
-                    results_per_gap = len(all_search_results) // len(gaps) if gaps else 0
-                    gap_start_idx = gaps.index(gap) * results_per_gap
-                    gap_end_idx = gap_start_idx + results_per_gap
-                    
-                    gap_solutions = all_search_results[gap_start_idx:gap_end_idx] if all_search_results else []
-                    
-                    # Create solution
-                    solution_data = {
-                        "gap": gap,
-                        "vector_queries": gap_queries,
-                        "solution": self._curate_gap_solution(gap, gap_solutions),
-                        "source_count": len(gap_solutions)
-                    }
-                    
-                    final_solutions.append(solution_data)
-            
-            logger.info(f"Processing completed for {len(gaps)} gaps")
-            
-            return final_solutions
-            
-        except Exception as e:
-            logger.error(f"Failed to generate query solution list: {e}")
-            return []
 
     def build_workflow(self) -> CompiledStateGraph:
         """Build LangGraph workflow."""
@@ -284,7 +143,6 @@ class GapQuestionsOrchestrator:
             }
     
     # Helper methods for workflow nodes
-    
     def _initialize_node(self, state: dict) -> dict:
         """Initialize workflow state."""
         state.update({
@@ -321,7 +179,7 @@ class GapQuestionsOrchestrator:
         """Process web search queries."""
         try:
             queries = state.get("current_web_queries", [])
-            results = await self.process_batch_web_search(queries) if queries else []
+            results = await process_batch_web_search(queries, self.query_processor) if queries else []
             state["current_web_results"] = results
             return state
         except Exception as e:
@@ -331,7 +189,13 @@ class GapQuestionsOrchestrator:
     def _analyze_gaps_node(self, state: dict) -> dict:
         """Analyze gaps in current content."""
         try:
-            gaps = self.analyze_gaps(state["plan_query"])
+            gaps = analyze_gaps(
+                query=state["plan_query"],
+                llm_client=self.llm_client,
+                vector_store_manager=self.vector_store_manager,
+                performance_metrics=self.performance_metrics,
+                max_gaps=self.max_gaps
+            )
             for gap in gaps:
                 if gap not in state["processed_gaps"] and gap not in state["gap_queue"]:
                     state["gap_queue"].append(gap)
@@ -350,7 +214,12 @@ class GapQuestionsOrchestrator:
         """Generate solutions for processed gaps."""
         try:
             all_gaps = state["processed_gaps"] + list(state["gap_queue"])
-            state["query_solutions"] = self.generate_query_solution_list(all_gaps)
+            state["query_solutions"] = generate_query_solution_list(
+                gaps=all_gaps,
+                vector_search_generator=self.vector_search_generator,
+                query_processor=self.query_processor,
+                max_gap_queries=self.max_gap_queries
+            )
             return state
         except Exception as e:
             state["errors"].append(f"Failed to generate solutions: {e}")
@@ -365,52 +234,7 @@ class GapQuestionsOrchestrator:
         """Conditional edge function."""
         return "continue" if state.get("should_continue", False) else "stop"
     
-    # Utility methods
-    
-    def _get_vector_store_content(self, query: str, k: int = 10) -> str:
-        """Get content from vector store for gap analysis."""
-        try:
-            results = self.vector_store_manager.similarity_search(query, k=k)
-            content = "\n\n".join([doc.page_content[:500] for doc in results])
-            return content
-        except Exception as e:
-            logger.error(f"Failed to get vector store content: {e}")
-            return ""
-    
-    def _parse_gaps_response(self, response: str) -> List[str]:
-        """Parse gaps from LLM response."""
-        try:
-            response_clean = response.strip()
-            start_idx = response_clean.find('[')
-            end_idx = response_clean.rfind(']') + 1
-            
-            if start_idx == -1 or end_idx == 0:
-                return []
-            
-            json_str = response_clean[start_idx:end_idx]
-            gaps = json.loads(json_str)
-            
-            if isinstance(gaps, list):
-                return [gap.strip() for gap in gaps if isinstance(gap, str) and gap.strip()]
-            return []
-            
-        except Exception as e:
-            logger.error(f"Failed to parse gaps response: {e}")
-            return []
-    
-    def _curate_gap_solution(self, gap: str, solutions: List[Dict[str, Any]]) -> str:
-        """Curate a solution for a specific gap."""
-        if not solutions:
-            return f"No information found to address: {gap}"
-        
-        # Combine solutions into a coherent response
-        content_parts = []
-        for sol in solutions[:3]:  # Use top 3 solutions
-            if sol.get("content"):
-                content_parts.append(sol["content"][:200])
-        
-        return " ".join(content_parts) if content_parts else f"Limited information available for: {gap}"
-    
+    # Graph methods
     def _generate_md_report(self, state: dict, ram_stats: Dict[str, float], total_execution_time: float) -> str:
         """Generate markdown report."""
         try:
@@ -463,33 +287,6 @@ class GapQuestionsOrchestrator:
             logger.error(f"Failed to generate MD report: {e}")
             return ""
     
-    def get_performance_summary(self) -> Dict[str, Any]:
-        """Get performance summary."""
-        return {
-            "performance_metrics": self.performance_metrics.copy(),
-            "ram_stats": self.ram_monitor.get_ram_stats(),
-            "configuration": {
-                "max_concurrent_queries": self.max_concurrent_queries,
-                "max_depth": self.max_depth,
-                "max_gaps": self.max_gaps,
-                "max_gap_queries": self.max_gap_queries,
-                "max_web_results": self.max_web_results
-            }
-        }
-    
-    def reset_metrics(self) -> None:
-        """Reset performance metrics."""
-        self.performance_metrics = {"llm_calls": 0, "total_time": 0}
-    
-    def log_performance_summary(self) -> None:
-        """Log performance summary."""
-        summary = self.get_performance_summary()
-        logger.info("=== PERFORMANCE SUMMARY ===")
-        logger.info(f"Total time: {summary['performance_metrics']['total_time']:.2f}s")
-        logger.info(f"LLM calls: {summary['performance_metrics']['llm_calls']}")
-        logger.info(f"Average RAM: {summary['ram_stats']['average']:.1f} MB")
-        logger.info("=== END SUMMARY ===")
-    
     def __del__(self):
         """Cleanup resources."""
         try:
@@ -499,69 +296,71 @@ class GapQuestionsOrchestrator:
             logger.error(f"Cleanup error: {e}")
 
 async def test_gap_questions_functionality():
-    """Test the core gap questions functionality step by step."""
-    print("🧪 Testing Gap Questions Core Functionality")
+    """Test the complete gap questions orchestration with real-world usage."""
+    print("🧪 Testing Gap Questions Full Orchestration")
     print("="*50)
     
     try:
         # Step 1: Initialize orchestrator
         print("\n📋 Step 1: Initializing Gap Questions Orchestrator")
         orchestrator = GapQuestionsOrchestrator(
-            max_depth=1,
+            max_depth=4,
             max_gaps=2,
             max_gap_queries=1,
-            max_concurrent_queries=3,
-            max_web_results=5,
+            max_concurrent_queries=5,
+            max_web_results=1,
             vector_collection_name="test_gap_functionality"
         )
         print("✅ Orchestrator initialized successfully")
         
-        # Step 2: Test plan query
-        plan_query = "Future trends in renewable energy technology"
-        print(f"\n📋 Step 2: Plan Query")
+        # Step 2: Execute complete orchestration with a single call
+        plan_query = "Future trends in renewable energy technology and their impact on global energy markets"
+        print(f"\n📋 Step 2: Executing Full Orchestration")
         print(f"Query: {plan_query}")
+        print("\n🚀 Running complete gap analysis workflow...")
         
-        # Step 3: Generate web search queries
-        print(f"\n📋 Step 3: Generating Web Search Queries")
-        web_search_queries = orchestrator.plan_query_generator.generate_search_queries(
-            plan_query, max_queries=3
-        )
-        print(f"Generated {len(web_search_queries)} web search queries:")
-        for i, query in enumerate(web_search_queries, 1):
-            print(f"   {i}. {query}")
+        # This single line executes the entire workflow
+        result = await orchestrator.orchestrator(plan_query)
         
-        # Step 4: Use search_query_processor to get data
-        print(f"\n📋 Step 4: Processing Web Search Queries")
-        all_results = await orchestrator.process_batch_web_search(web_search_queries)
-        print(f"✅ Collected {len(all_results)} results from web search")
+        # Step 3: Display results
+        print(f"\n📊 Results Summary:")
+        print(f"   Status: {'✅ Success' if result['success'] else '❌ Failed'}")
+        print(f"   Total Solutions: {result.get('total_solutions', 0)}")
+        print(f"   Processed Gaps: {result.get('processed_gaps', 0)}")
+        print(f"   Final Depth: {result.get('final_depth', 0)}")
+        print(f"   Execution Time: {result.get('total_execution_time', 0):.2f}s")
         
-        # Show some sample results
-        if all_results:
-            print("Sample results:")
-            for i, result in enumerate(all_results[:3], 1):
-                source = result.get('source', 'N/A')
-                content_preview = result.get('content', '')[:100] + "..."
-                print(f"   {i}. Source: {source}")
-                print(f"      Content: {content_preview}")
+        # Performance metrics
+        if 'performance_metrics' in result:
+            metrics = result['performance_metrics']
+            print(f"\n📈 Performance Metrics:")
+            print(f"   LLM Calls: {metrics.get('llm_calls', 0)}")
+            print(f"   Vector Searches: {metrics.get('vector_searches', 0)}")
+            print(f"   Web Searches: {metrics.get('web_searches', 0)}")
         
-        # Step 5: Analyze gaps
-        print(f"\n📋 Step 5: Analyzing Gaps")
-        gaps = orchestrator.analyze_gaps(plan_query)
-        print(f"✅ Identified {len(gaps)} gaps:")
+        # RAM statistics
+        if 'ram_stats' in result:
+            ram = result['ram_stats']
+            print(f"\n💾 RAM Usage:")
+            print(f"   Average: {ram.get('average', 0):.2f} MB")
+            print(f"   Peak: {ram.get('max', 0):.2f} MB")
+            print(f"   Current: {ram.get('current', 0):.2f} MB")
         
-        if gaps:
-            for i, gap in enumerate(gaps, 1):
-                print(f"   {i}. {gap}")
-        else:
-            print("   No gaps identified")
+        # Report file
+        if result.get('md_report'):
+            print(f"\n📄 Detailed Report: {result['md_report']}")
         
-        # Summary
-        print(f"\n✅ Test completed successfully!")
-        print(f"   Web Search Queries: {len(web_search_queries)}")
-        print(f"   Web Results: {len(all_results)}")
-        print(f"   Identified Gaps: {len(gaps)}")
+        # Errors (if any)
+        if result.get('errors'):
+            print(f"\n⚠️  Errors encountered:")
+            for error in result['errors']:
+                print(f"   - {error}")
         
-        return True
+        print(f"\n✅ Real-world orchestration test completed!")
+        print(f"   This demonstrates how to use the system with just one line:")
+        print(f"   result = await orchestrator.orchestrator('{plan_query}')")
+        
+        return result['success']
         
     except Exception as e:
         print(f"❌ Test failed: {e}")

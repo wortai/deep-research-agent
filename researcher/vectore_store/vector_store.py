@@ -18,7 +18,7 @@ class VectorStoreManager:
         self.vector_store = vector_store
         
         # Extract embedding model for batch operations
-        self.embedding_model = getattr(vector_store, 'embedding', None)
+        self.embedding_model = getattr(vector_store, 'embeddings', None)
         if self.embedding_model is None:
             logger.warning("No embedding model found in vector store - batch operations may not work")
 
@@ -255,8 +255,3 @@ if __name__ == "__main__":
         if '_collection_name' in doc.metadata:
             print(f"  Collection Name: {doc.metadata['_collection_name']}")
         # You can add more checks for other metadata keys if they might not always be present
-
-
-
-
-
