@@ -15,7 +15,6 @@ class ResearchReviewData(TypedDict):
     query : str
     raw_research_results: List[tuple[str, str]] # (gap_query_data, url)
     review_feedback: Annotated[List[str], operator.add]
-    section : ReportSection
     report_sections: List[ReportSection]
 
 

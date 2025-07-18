@@ -2,6 +2,7 @@ import logging
 from typing import List, Dict, Any
 
 from ..llm_client import GeminiLLMClient
+from ..prompts import create_section_content_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -26,28 +27,7 @@ def summarize_section_content(
         
         combined_content = "\n\n".join(content_parts)
         
-        prompt = f"""You are an expert research analyst. Create a comprehensive summary that addresses the research gap using the provided data sources.
-
-RESEARCH GAP TO ADDRESS:
-{gap_query}
-
-RESEARCH DATA:
-{combined_content}
-
-INSTRUCTIONS:
-1. Create a well-structured summary that directly addresses the research gap
-2. Synthesize information from multiple sources into a coherent narrative
-3. Include key findings, statistics, trends, and insights
-4. Write in a professional, academic tone
-5. Aim for 200-300 words
-6. Focus on answering or addressing the specific gap mentioned
-7. Structure with clear topic sentences and logical flow
-8. Include specific details and examples where available
-
-FORMAT:
-Write as a cohesive paragraph or series of paragraphs that could fit into a research report section.
-
-Generate the comprehensive summary:"""
+        prompt = create_section_content_prompt(gap_query, combined_content)
 
         response = llm_client.generate(prompt, context="section_content", model_type="analysis")
         performance_metrics["llm_calls"] += 1

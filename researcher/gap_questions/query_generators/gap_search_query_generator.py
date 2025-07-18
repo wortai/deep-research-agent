@@ -8,6 +8,7 @@ import logging
 import json
 from typing import List
 from ..llm_client import GeminiLLMClient
+from ..prompts import create_gap_search_query_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ class GapSearchQueryGenerator:
             logger.info(f"Generating gap search queries for: {gap[:50]}...")
             
             # Create prompt for gap search query generation
-            prompt = self._create_gap_search_prompt(gap, max_queries)
+            prompt = create_gap_search_query_prompt(gap, max_queries)
             
             # Generate queries using LLM
             response = self.llm_client.generate(prompt, context="gap_search_generation")
@@ -52,34 +53,6 @@ class GapSearchQueryGenerator:
             logger.error(f"Failed to generate gap search queries: {e}")
             return []
     
-    def _create_gap_search_prompt(self, gap: str, max_queries: int) -> str:
-        """Create prompt for gap search query generation."""
-        return f"""You are an expert research assistant. Your task is to generate effective web search queries that will help fill a specific gap in research knowledge.
-
-RESEARCH GAP:
-{gap}
-
-INSTRUCTIONS:
-1. Generate {max_queries} distinct web search queries that would help gather information to address this gap
-2. Make queries specific and actionable for web search engines
-3. Use different search strategies (keywords, questions, specific terms)
-4. Focus on finding recent, authoritative sources
-5. Include relevant technical terms and alternative phrasings
-
-REQUIREMENTS:
-- Each query should be 3-8 words long
-- Use quotation marks for exact phrases when beneficial
-- Include year-specific queries if temporal relevance is important
-- Prioritize queries that would return academic papers, reports, or expert analysis
-- Avoid overly broad or vague terms
-
-FORMAT YOUR RESPONSE AS A JSON LIST:
-["query1", "query2", "query3", ...]
-
-EXAMPLE INPUT: "Lack of data on electric vehicle adoption rates in rural areas"
-EXAMPLE OUTPUT: ["electric vehicle adoption rural areas 2024", "EV uptake rural vs urban statistics", "rural electric vehicle infrastructure challenges", "electric car sales rural markets data"]
-
-Generate the gap search queries now:"""
 
     def _parse_queries_response(self, response: str, max_queries: int) -> List[str]:
         """Parse LLM response to extract queries."""
