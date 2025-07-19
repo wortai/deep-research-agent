@@ -1,8 +1,11 @@
 import asyncio
 import logging
 import time
+import json
+import os
 from typing import List, Dict, Any, Optional
 from collections import deque
+from datetime import datetime
 
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.state import CompiledStateGraph
@@ -14,7 +17,7 @@ from .query_generators.vector_search_query_generator import VectorSearchQueryGen
 from .search_query_processor.query_processor import QueryProcessor
 from ..vectore_store import VectorStoreManager, QdrantService
 from .utils import analyze_gaps, process_batch_web_search
-from .prompts import create_sections_from_research_prompt
+from .prompts import create_sections_from_gaps_prompt
 from states import ResearchReviewData
 
 logger = logging.getLogger(__name__)
@@ -63,6 +66,12 @@ class GapQuestions:
         
         # Build workflow
         self.workflow = self.build_workflow()
+        
+        # Initialize state tracking for JSON export
+        self.state_snapshots = []
+        
+        # Create runtime folder for storing research results
+        self.runtime_folder = self._create_runtime_folder()
 
     def build_workflow(self) -> CompiledStateGraph:
         """Build LangGraph workflow."""
@@ -107,7 +116,7 @@ class GapQuestions:
         
         # Run the orchestrator
         return await orchestrator.orchestrator(query)
-    
+
     async def orchestrator(self, plan_query: str) -> Dict[str, Any]:
         """Main orchestrator function that coordinates the gap analysis workflow."""
         try:
@@ -130,16 +139,24 @@ class GapQuestions:
             total_execution_time = time.time() - start_time
             self.performance_metrics["total_time"] = total_execution_time
             
+            # Store raw research results to file
+            raw_results_file = self._store_raw_research_results(final_state)
+            
             # Generate report
             md_file_path = self._generate_md_report(final_state, total_execution_time)
+            
+            # Export state data to JSON for testing and analysis
+            json_file_path = self.export_state_data_to_json()
             
             return {
                 "success": True,
                 "plan_query": plan_query,
-                "total_sections": len(self.query_sections),
+                "total_sections": len(final_state.get("report_sections", [])),
                 "processed_gaps": len(self.processed_gaps),
                 "final_depth": self.current_depth,
                 "md_report": md_file_path,
+                "raw_results_file": raw_results_file,
+                "json_state_export": json_file_path,
                 "errors": self.errors,
                 "performance_metrics": self.performance_metrics.copy(),
                 "total_execution_time": total_execution_time
@@ -160,6 +177,8 @@ class GapQuestions:
     async def _process_web_search_node(self, state: ResearchReviewData) -> ResearchReviewData:
         """Generate web search queries and process them."""
         try:
+            # Capture state snapshot at start of node
+            self.capture_state_snapshot("process_web_search_start", state)
             # Generate web search queries
             if self.current_depth == 0:
                 # At depth 0, process the initial plan query
@@ -185,6 +204,9 @@ class GapQuestions:
             
             # Results processed but not stored in raw_research_results
             
+            # Capture state snapshot at end of node
+            self.capture_state_snapshot("process_web_search_end", state)
+            
             return state
         except Exception as e:
             self.errors.append(f"Failed to process web search: {e}")
@@ -193,6 +215,8 @@ class GapQuestions:
     def _analyze_gaps_node(self, state: ResearchReviewData) -> ResearchReviewData:
         """Analyze gaps in current content using level-based processing."""
         try:
+            # Capture state snapshot at start of node
+            self.capture_state_snapshot("analyze_gaps_start", state)
             # Get the query that was just processed
             analysis_query = self.current_processing_query or state["query"]
             
@@ -235,6 +259,9 @@ class GapQuestions:
                 else:
                     logger.info(f"No more gaps to process. Workflow should stop.")
             
+            # Capture state snapshot at end of node
+            self.capture_state_snapshot("analyze_gaps_end", state)
+            
             return state
         except Exception as e:
             self.errors.append(f"Failed to analyze gaps: {e}")
@@ -242,6 +269,9 @@ class GapQuestions:
     
     def _check_stop_node(self, state: ResearchReviewData) -> ResearchReviewData:
         """Check stop conditions using level-based logic."""
+        # Capture state snapshot at start of node
+        self.capture_state_snapshot("check_stop_start", state)
+        
         # Check if we should continue based on:
         # 1. Current depth hasn't exceeded max_depth
         # 2. There are still gaps to process (either in current level or next level)
@@ -253,6 +283,9 @@ class GapQuestions:
                    f"current_level_gaps={len(self.current_level_gaps)}, "
                    f"next_level_gaps={len(self.next_level_gaps)}, continue={self.should_continue}")
         
+        # Capture state snapshot at end of node
+        self.capture_state_snapshot("check_stop_end", state)
+        
         return state
     
     def _should_continue(self, state: ResearchReviewData) -> str:
@@ -260,17 +293,25 @@ class GapQuestions:
         return "continue" if self.should_continue else "stop"
     
     def _generate_sections_node(self, state: ResearchReviewData) -> ResearchReviewData:
-        """Generate sections from raw_research_results using LLM."""
+        """Generate sections from gaps and raw_research_results using LLM."""
         try:
+            # Capture state snapshot at start of node
+            self.capture_state_snapshot("generate_sections_start", state)
             raw_research_results = state.get('raw_research_results', [])
+            all_gaps = self.processed_gaps + self.current_level_gaps + self.next_level_gaps
             
             if not raw_research_results:
                 logger.info("No raw research results available for section generation")
                 state['report_sections'] = []
                 return state
             
-            # Use LLM to create sections from raw research results
-            prompt = create_sections_from_research_prompt(raw_research_results)
+            if not all_gaps:
+                logger.info("No gaps available for section generation")
+                state['report_sections'] = []
+                return state
+            
+            # Use LLM to create sections from gaps and research results
+            prompt = create_sections_from_gaps_prompt(all_gaps, raw_research_results)
             response = self.llm_client.generate(prompt, context="section_generation", model_type="analysis")
             self.performance_metrics["llm_calls"] += 1
             
@@ -279,7 +320,16 @@ class GapQuestions:
             
             # Update state with generated sections
             state['report_sections'] = sections
-            logger.info(f"Generated {len(sections)} sections from {len(raw_research_results)} research results")
+            logger.info(f"Generated {len(sections)} sections for {len(all_gaps)} gaps from {len(raw_research_results)} research results")
+            
+            # Debug logging
+            if sections:
+                logger.info(f"Section titles: {[s.get('section_heading', 'No title') for s in sections]}")
+            else:
+                logger.warning(f"No sections generated. LLM response was: {response[:500]}...")
+            
+            # Capture state snapshot at end of node
+            self.capture_state_snapshot("generate_sections_end", state)
             
             return state
         except Exception as e:
@@ -308,8 +358,10 @@ class GapQuestions:
                 # Validate and clean sections
                 cleaned_sections = []
                 for section in sections:
-                    if isinstance(section, dict) and all(key in section for key in ['section_heading', 'section_content', 'section_urls']):
+                    required_keys = ['gap_addressed', 'section_heading', 'section_content', 'section_urls']
+                    if isinstance(section, dict) and all(key in section for key in required_keys):
                         cleaned_section = {
+                            'gap_addressed': section['gap_addressed'].strip(),
                             'section_heading': section['section_heading'].strip(),
                             'section_content': section['section_content'].strip(),
                             'section_urls': section.get('section_urls', [])
@@ -328,12 +380,70 @@ class GapQuestions:
             logger.error(f"Error parsing sections response: {e}")
             return []
     
+    # Helper methods
+    def _create_runtime_folder(self) -> str:
+        """Create a runtime folder for storing research results."""
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            folder_name = f"gap_questions_run_{timestamp}"
+            os.makedirs(folder_name, exist_ok=True)
+            logger.info(f"Created runtime folder: {folder_name}")
+            return folder_name
+        except Exception as e:
+            logger.error(f"Failed to create runtime folder: {e}")
+            return "."  # Fall back to current directory
+    
+    def _store_raw_research_results(self, state: ResearchReviewData) -> str:
+        """Store raw research results to a file in the runtime folder."""
+        try:
+            raw_research_results = state.get('raw_research_results', [])
+            
+            if not raw_research_results:
+                logger.info("No raw research results to store")
+                return ""
+            
+            filename = os.path.join(self.runtime_folder, "raw_research_results.json")
+            
+            # Convert tuples to structured format for JSON serialization
+            structured_results = []
+            for i, (vector_query, document, urls) in enumerate(raw_research_results, 1):
+                structured_result = {
+                    "index": i,
+                    "vector_search_query": vector_query,
+                    "document_content": document,
+                    "source_urls": urls if urls else [],
+                    "timestamp": datetime.now().isoformat()
+                }
+                structured_results.append(structured_result)
+            
+            # Store to JSON file
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump({
+                    "metadata": {
+                        "total_results": len(structured_results),
+                        "created_at": datetime.now().isoformat(),
+                        "query": state.get("query", "")
+                    },
+                    "raw_research_results": structured_results
+                }, f, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Stored {len(structured_results)} raw research results to: {filename}")
+            return filename
+            
+        except Exception as e:
+            logger.error(f"Failed to store raw research results: {e}")
+            return ""
+    
     # Graph methods
     def _generate_md_report(self, state: ResearchReviewData, total_execution_time: float) -> str:
         """Generate markdown report."""
         try:
             plan_query = state["query"]
             sections = state.get("report_sections", [])
+            
+            logger.info(f"Generating MD report with {len(sections)} sections")
+            if not sections:
+                logger.warning("No sections found in state for MD report generation")
             
             md_content = f"""# Gap Questions Research Report
 
@@ -358,18 +468,29 @@ class GapQuestions:
                 section_content = section.get('section_content', 'No content available')
                 section_urls = section.get('section_urls', [])
                 
+                # Add section with inline citations preserved in content
                 md_content += f"""## {section_heading}
 
 {section_content}
 
-### Sources
+### Additional Sources
 """
                 
+                # Only add URLs that aren't already inline in the content
                 if section_urls:
-                    for j, url in enumerate(section_urls, 1):
-                        md_content += f"{j}. [{url}]({url})\n"
+                    unique_urls = []
+                    for url in section_urls:
+                        # Check if URL is already inline in the content
+                        if url not in section_content:
+                            unique_urls.append(url)
+                    
+                    if unique_urls:
+                        for j, url in enumerate(unique_urls, 1):
+                            md_content += f"{j}. [{url}]({url})\n"
+                    else:
+                        md_content += "All sources are cited inline above\n"
                 else:
-                    md_content += "No sources available\n"
+                    md_content += "No additional sources available\n"
                 
                 md_content += "\n---\n\n"
             
@@ -379,15 +500,140 @@ class GapQuestions:
                 for error in self.errors:
                     md_content += f"- {error}\n"
             
-            # Write to file
+            # Write to file in runtime folder
             filename = f"gap_questions_report_{hash(plan_query) % 10000}.md"
-            with open(filename, 'w', encoding='utf-8') as f:
+            filepath = os.path.join(self.runtime_folder, filename)
+            with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(md_content)
             
-            return filename
+            logger.info(f"Generated MD report: {filepath}")
+            return filepath
             
         except Exception as e:
             logger.error(f"Failed to generate MD report: {e}")
+            return ""
+    
+    def capture_state_snapshot(self, node_name: str, state: ResearchReviewData) -> None:
+        """Capture a snapshot of the current state and all important class variables."""
+        try:
+            snapshot = {
+                "timestamp": datetime.now().isoformat(),
+                "node_name": node_name,
+                "current_depth": self.current_depth,
+                "max_depth": self.max_depth,
+                "max_gaps": self.max_gaps,
+                "max_gap_queries": self.max_gap_queries,
+                "max_web_results": self.max_web_results,
+                
+                # Gap tracking
+                "current_level_gaps": self.current_level_gaps.copy(),
+                "next_level_gaps": self.next_level_gaps.copy(),
+                "processed_gaps": self.processed_gaps.copy(),
+                "processed_gaps_count": len(self.processed_gaps),
+                
+                # Query tracking
+                "current_processing_query": self.current_processing_query,
+                "current_web_queries": self.current_web_queries.copy() if self.current_web_queries else [],
+                "current_web_results_count": len(self.current_web_results) if self.current_web_results else 0,
+                
+                # Workflow state
+                "should_continue": self.should_continue,
+                "query_sections_count": len(self.query_sections),
+                
+                # Performance metrics
+                "performance_metrics": self.performance_metrics.copy(),
+                
+                # Errors
+                "errors": self.errors.copy(),
+                "errors_count": len(self.errors),
+                
+                # State data (from ResearchReviewData)
+                "state": {
+                    "query": state.get("query", ""),
+                    "raw_research_results_count": len(state.get("raw_research_results", [])),
+                    "review_feedback_count": len(state.get("review_feedback", [])),
+                    "report_sections_count": len(state.get("report_sections", [])),
+                    "section": state.get("section", {})
+                }
+            }
+            
+            self.state_snapshots.append(snapshot)
+            logger.info(f"Captured state snapshot for node: {node_name} at depth: {self.current_depth}")
+            
+        except Exception as e:
+            logger.error(f"Failed to capture state snapshot: {e}")
+    
+    def export_state_data_to_json(self, filename_prefix: str = "gap_questions_state") -> str:
+        """Export all state data and snapshots to a JSON file for testing and analysis."""
+        try:
+            # Generate timestamp for unique filename
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{filename_prefix}_{timestamp}.json"
+            filepath = os.path.join(self.runtime_folder, filename)
+            
+            # Compile comprehensive state data
+            state_data = {
+                "export_metadata": {
+                    "timestamp": datetime.now().isoformat(),
+                    "total_snapshots": len(self.state_snapshots),
+                    "export_filename": filename
+                },
+                
+                # Configuration
+                "configuration": {
+                    "max_depth": self.max_depth,
+                    "max_gaps": self.max_gaps,
+                    "max_gap_queries": self.max_gap_queries,
+                    "max_web_results": self.max_web_results
+                },
+                
+                # Final state of all important variables
+                "final_state": {
+                    "current_depth": self.current_depth,
+                    "current_level_gaps": self.current_level_gaps,
+                    "next_level_gaps": self.next_level_gaps,
+                    "processed_gaps": self.processed_gaps,
+                    "processed_gaps_count": len(self.processed_gaps),
+                    "query_sections": self.query_sections,
+                    "query_sections_count": len(self.query_sections),
+                    "current_processing_query": self.current_processing_query,
+                    "current_web_queries": self.current_web_queries,
+                    "current_web_results_count": len(self.current_web_results) if self.current_web_results else 0,
+                    "should_continue": self.should_continue,
+                    "errors": self.errors,
+                    "errors_count": len(self.errors),
+                    "performance_metrics": self.performance_metrics
+                },
+                
+                # All state snapshots (complete data flow)
+                "state_snapshots": self.state_snapshots,
+                
+                # Summary statistics
+                "summary": {
+                    "total_gaps_discovered": len(set(self.processed_gaps + self.current_level_gaps + self.next_level_gaps)),
+                    "total_errors": len(self.errors),
+                    "workflow_completed": not self.should_continue,
+                    "llm_calls_made": self.performance_metrics.get("llm_calls", 0),
+                    "vector_searches": self.performance_metrics.get("vector_searches", 0),
+                    "web_searches": self.performance_metrics.get("web_searches", 0)
+                }
+            }
+            
+            # Write to JSON file
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(state_data, f, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Exported state data to: {filepath}")
+            print(f"📊 State data exported to: {filepath}")
+            print(f"   - Total snapshots: {len(self.state_snapshots)}")
+            print(f"   - Final depth: {self.current_depth}")
+            print(f"   - Processed gaps: {len(self.processed_gaps)}")
+            print(f"   - Total errors: {len(self.errors)}")
+            
+            return filepath
+            
+        except Exception as e:
+            logger.error(f"Failed to export state data to JSON: {e}")
             return ""
         
 
@@ -406,10 +652,10 @@ async def test_gap_questions_functionality():
         # This single line initializes and executes the entire workflow
         result = await GapQuestions.run(
             query=plan_query,
-            max_depth=2,
+            max_depth=3,
             max_gaps=2,
             max_gap_queries=1,
-            max_web_results=1,
+            max_web_results=2,
             vector_collection_name="test_gap_functionality"
         )
         

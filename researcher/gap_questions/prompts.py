@@ -132,42 +132,6 @@ Generate ONLY the section heading, nothing else:"""
     
     return prompt
 
-def create_section_content_prompt(gap_query: str, combined_content: str) -> str:
-    """
-    Create prompt for generating comprehensive section content summaries.
-    
-    Args:
-        gap_query (str): The research gap query
-        combined_content (str): Combined research content from multiple sources
-        
-    Returns:
-        str: Formatted prompt for section content generation
-    """
-    prompt = f"""You are an expert research analyst. Create a comprehensive summary that addresses the research gap using the provided data sources.
-
-RESEARCH GAP TO ADDRESS:
-{gap_query}
-
-RESEARCH DATA:
-{combined_content}
-
-INSTRUCTIONS:
-1. Create a well-structured summary that directly addresses the research gap
-2. Synthesize information from multiple sources into a coherent narrative
-3. Include key findings, statistics, trends, and insights
-4. Write in a professional, academic tone
-5. Aim for 200-300 words
-6. Focus on answering or addressing the specific gap mentioned
-7. Structure with clear topic sentences and logical flow
-8. Include specific details and examples where available
-
-FORMAT:
-Write as a cohesive paragraph or series of paragraphs that could fit into a research report section.
-
-Generate the comprehensive summary:"""
-    
-    return prompt
-
 def create_gap_search_query_prompt(gap: str, max_queries: int) -> str:
     """
     Create prompt for generating web search queries to fill research gaps.
@@ -247,11 +211,12 @@ Generate the vector search queries now:"""
     
     return prompt
 
-def create_sections_from_research_prompt(raw_research_results: List[tuple]) -> str:
+def create_sections_from_gaps_prompt(gaps: List[str], raw_research_results: List[tuple]) -> str:
     """
-    Create prompt for generating sections from raw research results.
+    Create prompt for generating sections from gaps and their corresponding research results.
     
     Args:
+        gaps: List of gap queries
         raw_research_results: List of (vector_search_query, document_content, urls) tuples
         
     Returns:
@@ -270,41 +235,51 @@ URLs: {url_list}
     
     research_content = "\n".join(formatted_results)
     
-    prompt = f"""You are an expert research analyst. Your task is to analyze the provided research results and create well-structured sections for a research report.
+    # Format the gaps
+    gaps_list = "\n".join([f"{i}. {gap}" for i, gap in enumerate(gaps, 1)])
+    
+    prompt = f"""You are an expert research analyst. Your task is to create exactly {len(gaps)} sections for a research report, with each section addressing one specific gap using the available research results.
+
+GAPS TO ADDRESS:
+{gaps_list}
 
 RESEARCH RESULTS:
 {research_content}
 
 INSTRUCTIONS:
-1. Analyze all the research results and identify distinct topics/themes
-2. Create 3-5 sections that best organize the information
-3. Each section should have a clear, professional heading (3-8 words)
-4. Each section should contain comprehensive content (200-300 words) that synthesizes information from relevant research results
-5. Include source URLs for each section
-6. Focus on creating coherent, valuable sections rather than just summarizing individual results
-7. Ensure sections are distinct and don't overlap significantly
+1. Create EXACTLY {len(gaps)} sections - one for each gap listed above
+2. Each section should address a specific gap using relevant research results
+3. Transform each gap into a clear, professional section heading (like a title) that reflects the topic in a readable sentence format
+4. Each section should contain comprehensive content (1000-1500 words) that directly addresses the gap
+5. Include inline citations by placing relevant URLs immediately after sentences that reference specific information from those sources
+6. Match research results to gaps based on topic relevance and content overlap
+7. If a gap cannot be fully addressed, acknowledge the limitation but provide what information is available
 
 REQUIREMENTS:
-- Generate sections only if there is meaningful content to include
+- Generate exactly {len(gaps)} sections, no more, no less
 - Use professional, academic tone
 - Structure content with clear topic sentences and logical flow
 - Include specific details and examples where available
-- Organize information in a way that would be useful for a research report
+- Each section must directly address its corresponding gap
+- Add inline citations in the format: "Statement based on research (URL)" throughout the content
+- Place citations immediately after the sentence they support
 
-FORMAT YOUR RESPONSE AS A JSON ARRAY:
+FORMAT YOUR RESPONSE AS A JSON ARRAY WITH EXACTLY {len(gaps)} SECTIONS:
 [
   {{
-    "section_heading": "Professional Section Title",
-    "section_content": "Comprehensive content that synthesizes relevant research...",
+    "gap_addressed": "The original gap text being addressed",
+    "section_heading": "Professional Title Sentence Based on the Gap",
+    "section_content": "Comprehensive content that directly addresses the gap...",
     "section_urls": ["url1", "url2", "url3"]
   }},
-  {{
-    "section_heading": "Another Section Title",
-    "section_content": "More comprehensive content...",
-    "section_urls": ["url4", "url5"]
-  }}
+  ...
 ]
 
-Generate the sections now:"""
+EXAMPLE:
+If gap is: "Need more data on AI model training costs"
+Section heading should be: "AI Model Training Cost Analysis and Economics"
+Section content should include: "Training large language models requires significant computational resources, with costs ranging from $100,000 to several million dollars (https://example.com/ai-training-costs). OpenAI's GPT-3 training reportedly cost approximately $4.6 million in compute resources (https://example.com/gpt3-costs)."
+
+Generate exactly {len(gaps)} sections now:"""
     
     return prompt

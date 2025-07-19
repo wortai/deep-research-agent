@@ -37,7 +37,7 @@ def analyze_gaps(
         if not search_queries:
             # Fallback to direct query if no optimized queries generated
             logger.warning("No optimized queries generated, falling back to direct search")
-            results = vector_store_manager.similarity_search(query, k=3)  # Increased from 10 to 15
+            results = vector_store_manager.similarity_search(query, k=3)
         else:
             # Search using all generated queries and combine results
             all_results = []

@@ -120,9 +120,6 @@ class WebSearch:
         # print(serpapi_results_combined)
         return serpapi_results_combined[:self.max_results]
 
-
-
-
     # async def search_with_arxiv(self) -> List[Dict[str, Any]]:
     #     """
     #     Searches for research papers on Arxiv.

@@ -1,0 +1,2014 @@
+{
+  "export_metadata": {
+    "timestamp": "2025-07-18T20:00:21.171566",
+    "total_snapshots": 44,
+    "export_filename": "gap_questions_state_20250718_200021.json"
+  },
+  "configuration": {
+    "max_depth": 3,
+    "max_gaps": 2,
+    "max_gap_queries": 1,
+    "max_web_results": 2
+  },
+  "final_state": {
+    "current_depth": 3,
+    "current_level_gaps": [
+      "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+      "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+      "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+      "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts.",
+      "The available content mentions a new recall-oriented metric for evaluating answers with source citations, but lacks a clear definition and calculation method for this metric.  How is this 'Good/Bad/Correct' metric calculated, and how does it specifically relate to the 0-4 URLs cited?",
+      "While user satisfaction is mentioned as a measure of usefulness, the content provides no specific methodologies employed to measure user satisfaction in the context of the provided examples.  What specific methods (e.g., surveys, A/B testing, implicit feedback) were used to quantify user satisfaction and how were the results analyzed?",
+      "The provided content mentions several fine-tuning methods (like RLHF and PEFT) and evaluation strategies (human evaluation, LLM-eval), but lacks concrete comparative data showing how different fine-tuning techniques affect performance on these specific evaluation metrics.  Quantitative results comparing different fine-tuning methods across human evaluations and LLM-based evaluations are needed.",
+      "While the content briefly touches upon overconfidence issues with fine-tuned LLMs, it doesn't explore how different fine-tuning techniques specifically exacerbate or mitigate this problem.  Research investigating the calibration performance of various fine-tuning methods is missing."
+    ],
+    "next_level_gaps": [],
+    "processed_gaps": [
+      "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+      "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+      "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+      "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+      "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+      "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+      "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+    ],
+    "processed_gaps_count": 7,
+    "query_sections": [],
+    "query_sections_count": 0,
+    "current_processing_query": "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed.",
+    "current_web_queries": [
+      "fine-tuning LLM-eval human evaluation",
+      "LLM performance comparison fine-tuning methods 2023"
+    ],
+    "current_web_results_count": 2,
+    "should_continue": false,
+    "errors": [],
+    "errors_count": 0,
+    "performance_metrics": {
+      "llm_calls": 8,
+      "total_time": 244.1387870311737
+    }
+  },
+  "state_snapshots": [
+    {
+      "timestamp": "2025-07-18T19:56:17.059458",
+      "node_name": "process_web_search_start",
+      "current_depth": 0,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [],
+      "next_level_gaps": [],
+      "processed_gaps": [],
+      "processed_gaps_count": 0,
+      "current_processing_query": null,
+      "current_web_queries": [],
+      "current_web_results_count": 0,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 0,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 0,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:56:29.137700",
+      "node_name": "process_web_search_end",
+      "current_depth": 0,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [],
+      "next_level_gaps": [],
+      "processed_gaps": [],
+      "processed_gaps_count": 0,
+      "current_processing_query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+      "current_web_queries": [
+        "optimal chatbot fine-tuning techniques",
+        "language model chatbot fine-tuning 2023",
+        "best practices chatbot parameter tuning"
+      ],
+      "current_web_results_count": 3,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 0,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 0,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:56:29.144171",
+      "node_name": "analyze_gaps_start",
+      "current_depth": 0,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [],
+      "next_level_gaps": [],
+      "processed_gaps": [],
+      "processed_gaps_count": 0,
+      "current_processing_query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+      "current_web_queries": [
+        "optimal chatbot fine-tuning techniques",
+        "language model chatbot fine-tuning 2023",
+        "best practices chatbot parameter tuning"
+      ],
+      "current_web_results_count": 3,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 0,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 0,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:56:38.612658",
+      "node_name": "analyze_gaps_end",
+      "current_depth": 1,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots"
+      ],
+      "processed_gaps_count": 1,
+      "current_processing_query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+      "current_web_queries": [
+        "optimal chatbot fine-tuning techniques",
+        "language model chatbot fine-tuning 2023",
+        "best practices chatbot parameter tuning"
+      ],
+      "current_web_results_count": 3,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 1,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 5,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:56:38.617632",
+      "node_name": "check_stop_start",
+      "current_depth": 1,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots"
+      ],
+      "processed_gaps_count": 1,
+      "current_processing_query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+      "current_web_queries": [
+        "optimal chatbot fine-tuning techniques",
+        "language model chatbot fine-tuning 2023",
+        "best practices chatbot parameter tuning"
+      ],
+      "current_web_results_count": 3,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 1,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 5,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:56:38.617740",
+      "node_name": "check_stop_end",
+      "current_depth": 1,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots"
+      ],
+      "processed_gaps_count": 1,
+      "current_processing_query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+      "current_web_queries": [
+        "optimal chatbot fine-tuning techniques",
+        "language model chatbot fine-tuning 2023",
+        "best practices chatbot parameter tuning"
+      ],
+      "current_web_results_count": 3,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 1,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 5,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:56:38.620026",
+      "node_name": "process_web_search_start",
+      "current_depth": 1,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots"
+      ],
+      "processed_gaps_count": 1,
+      "current_processing_query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+      "current_web_queries": [
+        "optimal chatbot fine-tuning techniques",
+        "language model chatbot fine-tuning 2023",
+        "best practices chatbot parameter tuning"
+      ],
+      "current_web_results_count": 3,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 1,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 5,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:56:55.856904",
+      "node_name": "process_web_search_end",
+      "current_depth": 1,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots"
+      ],
+      "processed_gaps_count": 1,
+      "current_processing_query": "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+      "current_web_queries": [
+        "optimal LLM fine-tuning techniques 2023",
+        "parameter-efficient fine-tuning comparison"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 1,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 5,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:56:55.860401",
+      "node_name": "analyze_gaps_start",
+      "current_depth": 1,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots"
+      ],
+      "processed_gaps_count": 1,
+      "current_processing_query": "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+      "current_web_queries": [
+        "optimal LLM fine-tuning techniques 2023",
+        "parameter-efficient fine-tuning comparison"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 1,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 5,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:57:03.869467",
+      "node_name": "analyze_gaps_end",
+      "current_depth": 1,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "next_level_gaps": [
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms."
+      ],
+      "processed_gaps_count": 2,
+      "current_processing_query": "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+      "current_web_queries": [
+        "optimal LLM fine-tuning techniques 2023",
+        "parameter-efficient fine-tuning comparison"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 2,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 10,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:57:03.871640",
+      "node_name": "check_stop_start",
+      "current_depth": 1,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "next_level_gaps": [
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms."
+      ],
+      "processed_gaps_count": 2,
+      "current_processing_query": "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+      "current_web_queries": [
+        "optimal LLM fine-tuning techniques 2023",
+        "parameter-efficient fine-tuning comparison"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 2,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 10,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:57:03.871723",
+      "node_name": "check_stop_end",
+      "current_depth": 1,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "next_level_gaps": [
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms."
+      ],
+      "processed_gaps_count": 2,
+      "current_processing_query": "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+      "current_web_queries": [
+        "optimal LLM fine-tuning techniques 2023",
+        "parameter-efficient fine-tuning comparison"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 2,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 10,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:57:03.874336",
+      "node_name": "process_web_search_start",
+      "current_depth": 1,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "next_level_gaps": [
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms."
+      ],
+      "processed_gaps_count": 2,
+      "current_processing_query": "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+      "current_web_queries": [
+        "optimal LLM fine-tuning techniques 2023",
+        "parameter-efficient fine-tuning comparison"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 2,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 10,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:57:33.904032",
+      "node_name": "process_web_search_end",
+      "current_depth": 1,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [],
+      "next_level_gaps": [
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms."
+      ],
+      "processed_gaps_count": 2,
+      "current_processing_query": "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+      "current_web_queries": [
+        "chatbot fine-tuning evaluation benchmarks 2023",
+        "benchmarking chatbot fine-tuning methods"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 2,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 10,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:57:33.913150",
+      "node_name": "analyze_gaps_start",
+      "current_depth": 1,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [],
+      "next_level_gaps": [
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms."
+      ],
+      "processed_gaps_count": 2,
+      "current_processing_query": "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+      "current_web_queries": [
+        "chatbot fine-tuning evaluation benchmarks 2023",
+        "benchmarking chatbot fine-tuning methods"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 2,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 10,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:57:46.484475",
+      "node_name": "analyze_gaps_end",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "processed_gaps_count": 3,
+      "current_processing_query": "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+      "current_web_queries": [
+        "chatbot fine-tuning evaluation benchmarks 2023",
+        "benchmarking chatbot fine-tuning methods"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 3,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 15,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:57:46.488876",
+      "node_name": "check_stop_start",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "processed_gaps_count": 3,
+      "current_processing_query": "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+      "current_web_queries": [
+        "chatbot fine-tuning evaluation benchmarks 2023",
+        "benchmarking chatbot fine-tuning methods"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 3,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 15,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:57:46.489052",
+      "node_name": "check_stop_end",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "processed_gaps_count": 3,
+      "current_processing_query": "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+      "current_web_queries": [
+        "chatbot fine-tuning evaluation benchmarks 2023",
+        "benchmarking chatbot fine-tuning methods"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 3,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 15,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:57:46.492947",
+      "node_name": "process_web_search_start",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "processed_gaps_count": 3,
+      "current_processing_query": "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+      "current_web_queries": [
+        "chatbot fine-tuning evaluation benchmarks 2023",
+        "benchmarking chatbot fine-tuning methods"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 3,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 15,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:57:57.070175",
+      "node_name": "process_web_search_end",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "processed_gaps_count": 3,
+      "current_processing_query": "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+      "current_web_queries": [
+        "LoRA vs Adapter LLM fine-tuning",
+        "Parameter-efficient fine-tuning LLM benchmark 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 3,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 15,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:57:57.078596",
+      "node_name": "analyze_gaps_start",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice."
+      ],
+      "processed_gaps_count": 3,
+      "current_processing_query": "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+      "current_web_queries": [
+        "LoRA vs Adapter LLM fine-tuning",
+        "Parameter-efficient fine-tuning LLM benchmark 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 3,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 15,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:05.715755",
+      "node_name": "analyze_gaps_end",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks."
+      ],
+      "processed_gaps_count": 4,
+      "current_processing_query": "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+      "current_web_queries": [
+        "LoRA vs Adapter LLM fine-tuning",
+        "Parameter-efficient fine-tuning LLM benchmark 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 4,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 20,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:05.722632",
+      "node_name": "check_stop_start",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks."
+      ],
+      "processed_gaps_count": 4,
+      "current_processing_query": "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+      "current_web_queries": [
+        "LoRA vs Adapter LLM fine-tuning",
+        "Parameter-efficient fine-tuning LLM benchmark 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 4,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 20,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:05.722894",
+      "node_name": "check_stop_end",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks."
+      ],
+      "processed_gaps_count": 4,
+      "current_processing_query": "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+      "current_web_queries": [
+        "LoRA vs Adapter LLM fine-tuning",
+        "Parameter-efficient fine-tuning LLM benchmark 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 4,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 20,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:05.735831",
+      "node_name": "process_web_search_start",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks."
+      ],
+      "processed_gaps_count": 4,
+      "current_processing_query": "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+      "current_web_queries": [
+        "LoRA vs Adapter LLM fine-tuning",
+        "Parameter-efficient fine-tuning LLM benchmark 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 4,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 20,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:14.029729",
+      "node_name": "process_web_search_end",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks."
+      ],
+      "processed_gaps_count": 4,
+      "current_processing_query": "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+      "current_web_queries": [
+        "few-shot prompt engineering examples",
+        "chain-of-thought prompting techniques 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 4,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 20,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:14.034876",
+      "node_name": "analyze_gaps_start",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks."
+      ],
+      "processed_gaps_count": 4,
+      "current_processing_query": "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+      "current_web_queries": [
+        "few-shot prompt engineering examples",
+        "chain-of-thought prompting techniques 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 4,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 20,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:21.264614",
+      "node_name": "analyze_gaps_end",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting."
+      ],
+      "processed_gaps_count": 5,
+      "current_processing_query": "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+      "current_web_queries": [
+        "few-shot prompt engineering examples",
+        "chain-of-thought prompting techniques 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 5,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 25,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:21.267950",
+      "node_name": "check_stop_start",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting."
+      ],
+      "processed_gaps_count": 5,
+      "current_processing_query": "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+      "current_web_queries": [
+        "few-shot prompt engineering examples",
+        "chain-of-thought prompting techniques 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 5,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 25,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:21.268088",
+      "node_name": "check_stop_end",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting."
+      ],
+      "processed_gaps_count": 5,
+      "current_processing_query": "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+      "current_web_queries": [
+        "few-shot prompt engineering examples",
+        "chain-of-thought prompting techniques 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 5,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 25,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:21.271243",
+      "node_name": "process_web_search_start",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting."
+      ],
+      "processed_gaps_count": 5,
+      "current_processing_query": "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+      "current_web_queries": [
+        "few-shot prompt engineering examples",
+        "chain-of-thought prompting techniques 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 5,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 25,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:28.010022",
+      "node_name": "process_web_search_end",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting."
+      ],
+      "processed_gaps_count": 5,
+      "current_processing_query": "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+      "current_web_queries": [
+        "accuracy metrics\" information retrieval 2020-2024",
+        "user satisfaction metrics information systems evaluation"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 5,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 25,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:28.015061",
+      "node_name": "analyze_gaps_start",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts."
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting."
+      ],
+      "processed_gaps_count": 5,
+      "current_processing_query": "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+      "current_web_queries": [
+        "accuracy metrics\" information retrieval 2020-2024",
+        "user satisfaction metrics information systems evaluation"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 5,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 25,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:37.309979",
+      "node_name": "analyze_gaps_end",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts.",
+        "The available content mentions a new recall-oriented metric for evaluating answers with source citations, but lacks a clear definition and calculation method for this metric.  How is this 'Good/Bad/Correct' metric calculated, and how does it specifically relate to the 0-4 URLs cited?",
+        "While user satisfaction is mentioned as a measure of usefulness, the content provides no specific methodologies employed to measure user satisfaction in the context of the provided examples.  What specific methods (e.g., surveys, A/B testing, implicit feedback) were used to quantify user satisfaction and how were the results analyzed?"
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing."
+      ],
+      "processed_gaps_count": 6,
+      "current_processing_query": "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+      "current_web_queries": [
+        "accuracy metrics\" information retrieval 2020-2024",
+        "user satisfaction metrics information systems evaluation"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 6,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 30,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:37.313193",
+      "node_name": "check_stop_start",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts.",
+        "The available content mentions a new recall-oriented metric for evaluating answers with source citations, but lacks a clear definition and calculation method for this metric.  How is this 'Good/Bad/Correct' metric calculated, and how does it specifically relate to the 0-4 URLs cited?",
+        "While user satisfaction is mentioned as a measure of usefulness, the content provides no specific methodologies employed to measure user satisfaction in the context of the provided examples.  What specific methods (e.g., surveys, A/B testing, implicit feedback) were used to quantify user satisfaction and how were the results analyzed?"
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing."
+      ],
+      "processed_gaps_count": 6,
+      "current_processing_query": "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+      "current_web_queries": [
+        "accuracy metrics\" information retrieval 2020-2024",
+        "user satisfaction metrics information systems evaluation"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 6,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 30,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:37.313260",
+      "node_name": "check_stop_end",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts.",
+        "The available content mentions a new recall-oriented metric for evaluating answers with source citations, but lacks a clear definition and calculation method for this metric.  How is this 'Good/Bad/Correct' metric calculated, and how does it specifically relate to the 0-4 URLs cited?",
+        "While user satisfaction is mentioned as a measure of usefulness, the content provides no specific methodologies employed to measure user satisfaction in the context of the provided examples.  What specific methods (e.g., surveys, A/B testing, implicit feedback) were used to quantify user satisfaction and how were the results analyzed?"
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing."
+      ],
+      "processed_gaps_count": 6,
+      "current_processing_query": "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+      "current_web_queries": [
+        "accuracy metrics\" information retrieval 2020-2024",
+        "user satisfaction metrics information systems evaluation"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 6,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 30,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:37.314843",
+      "node_name": "process_web_search_start",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts.",
+        "The available content mentions a new recall-oriented metric for evaluating answers with source citations, but lacks a clear definition and calculation method for this metric.  How is this 'Good/Bad/Correct' metric calculated, and how does it specifically relate to the 0-4 URLs cited?",
+        "While user satisfaction is mentioned as a measure of usefulness, the content provides no specific methodologies employed to measure user satisfaction in the context of the provided examples.  What specific methods (e.g., surveys, A/B testing, implicit feedback) were used to quantify user satisfaction and how were the results analyzed?"
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing."
+      ],
+      "processed_gaps_count": 6,
+      "current_processing_query": "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+      "current_web_queries": [
+        "accuracy metrics\" information retrieval 2020-2024",
+        "user satisfaction metrics information systems evaluation"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 6,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 30,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:56.840206",
+      "node_name": "process_web_search_end",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts.",
+        "The available content mentions a new recall-oriented metric for evaluating answers with source citations, but lacks a clear definition and calculation method for this metric.  How is this 'Good/Bad/Correct' metric calculated, and how does it specifically relate to the 0-4 URLs cited?",
+        "While user satisfaction is mentioned as a measure of usefulness, the content provides no specific methodologies employed to measure user satisfaction in the context of the provided examples.  What specific methods (e.g., surveys, A/B testing, implicit feedback) were used to quantify user satisfaction and how were the results analyzed?"
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing."
+      ],
+      "processed_gaps_count": 6,
+      "current_processing_query": "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed.",
+      "current_web_queries": [
+        "fine-tuning LLM-eval human evaluation",
+        "LLM performance comparison fine-tuning methods 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 6,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 30,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:58:56.846292",
+      "node_name": "analyze_gaps_start",
+      "current_depth": 2,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [],
+      "next_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts.",
+        "The available content mentions a new recall-oriented metric for evaluating answers with source citations, but lacks a clear definition and calculation method for this metric.  How is this 'Good/Bad/Correct' metric calculated, and how does it specifically relate to the 0-4 URLs cited?",
+        "While user satisfaction is mentioned as a measure of usefulness, the content provides no specific methodologies employed to measure user satisfaction in the context of the provided examples.  What specific methods (e.g., surveys, A/B testing, implicit feedback) were used to quantify user satisfaction and how were the results analyzed?"
+      ],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing."
+      ],
+      "processed_gaps_count": 6,
+      "current_processing_query": "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed.",
+      "current_web_queries": [
+        "fine-tuning LLM-eval human evaluation",
+        "LLM performance comparison fine-tuning methods 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 6,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 30,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:59:06.133060",
+      "node_name": "analyze_gaps_end",
+      "current_depth": 3,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts.",
+        "The available content mentions a new recall-oriented metric for evaluating answers with source citations, but lacks a clear definition and calculation method for this metric.  How is this 'Good/Bad/Correct' metric calculated, and how does it specifically relate to the 0-4 URLs cited?",
+        "While user satisfaction is mentioned as a measure of usefulness, the content provides no specific methodologies employed to measure user satisfaction in the context of the provided examples.  What specific methods (e.g., surveys, A/B testing, implicit feedback) were used to quantify user satisfaction and how were the results analyzed?",
+        "The provided content mentions several fine-tuning methods (like RLHF and PEFT) and evaluation strategies (human evaluation, LLM-eval), but lacks concrete comparative data showing how different fine-tuning techniques affect performance on these specific evaluation metrics.  Quantitative results comparing different fine-tuning methods across human evaluations and LLM-based evaluations are needed.",
+        "While the content briefly touches upon overconfidence issues with fine-tuned LLMs, it doesn't explore how different fine-tuning techniques specifically exacerbate or mitigate this problem.  Research investigating the calibration performance of various fine-tuning methods is missing."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "processed_gaps_count": 7,
+      "current_processing_query": "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed.",
+      "current_web_queries": [
+        "fine-tuning LLM-eval human evaluation",
+        "LLM performance comparison fine-tuning methods 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 7,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 35,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:59:06.135318",
+      "node_name": "check_stop_start",
+      "current_depth": 3,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts.",
+        "The available content mentions a new recall-oriented metric for evaluating answers with source citations, but lacks a clear definition and calculation method for this metric.  How is this 'Good/Bad/Correct' metric calculated, and how does it specifically relate to the 0-4 URLs cited?",
+        "While user satisfaction is mentioned as a measure of usefulness, the content provides no specific methodologies employed to measure user satisfaction in the context of the provided examples.  What specific methods (e.g., surveys, A/B testing, implicit feedback) were used to quantify user satisfaction and how were the results analyzed?",
+        "The provided content mentions several fine-tuning methods (like RLHF and PEFT) and evaluation strategies (human evaluation, LLM-eval), but lacks concrete comparative data showing how different fine-tuning techniques affect performance on these specific evaluation metrics.  Quantitative results comparing different fine-tuning methods across human evaluations and LLM-based evaluations are needed.",
+        "While the content briefly touches upon overconfidence issues with fine-tuned LLMs, it doesn't explore how different fine-tuning techniques specifically exacerbate or mitigate this problem.  Research investigating the calibration performance of various fine-tuning methods is missing."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "processed_gaps_count": 7,
+      "current_processing_query": "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed.",
+      "current_web_queries": [
+        "fine-tuning LLM-eval human evaluation",
+        "LLM performance comparison fine-tuning methods 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": true,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 7,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 35,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:59:06.135460",
+      "node_name": "check_stop_end",
+      "current_depth": 3,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts.",
+        "The available content mentions a new recall-oriented metric for evaluating answers with source citations, but lacks a clear definition and calculation method for this metric.  How is this 'Good/Bad/Correct' metric calculated, and how does it specifically relate to the 0-4 URLs cited?",
+        "While user satisfaction is mentioned as a measure of usefulness, the content provides no specific methodologies employed to measure user satisfaction in the context of the provided examples.  What specific methods (e.g., surveys, A/B testing, implicit feedback) were used to quantify user satisfaction and how were the results analyzed?",
+        "The provided content mentions several fine-tuning methods (like RLHF and PEFT) and evaluation strategies (human evaluation, LLM-eval), but lacks concrete comparative data showing how different fine-tuning techniques affect performance on these specific evaluation metrics.  Quantitative results comparing different fine-tuning methods across human evaluations and LLM-based evaluations are needed.",
+        "While the content briefly touches upon overconfidence issues with fine-tuned LLMs, it doesn't explore how different fine-tuning techniques specifically exacerbate or mitigate this problem.  Research investigating the calibration performance of various fine-tuning methods is missing."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "processed_gaps_count": 7,
+      "current_processing_query": "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed.",
+      "current_web_queries": [
+        "fine-tuning LLM-eval human evaluation",
+        "LLM performance comparison fine-tuning methods 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": false,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 7,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 35,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T19:59:06.137880",
+      "node_name": "generate_sections_start",
+      "current_depth": 3,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts.",
+        "The available content mentions a new recall-oriented metric for evaluating answers with source citations, but lacks a clear definition and calculation method for this metric.  How is this 'Good/Bad/Correct' metric calculated, and how does it specifically relate to the 0-4 URLs cited?",
+        "While user satisfaction is mentioned as a measure of usefulness, the content provides no specific methodologies employed to measure user satisfaction in the context of the provided examples.  What specific methods (e.g., surveys, A/B testing, implicit feedback) were used to quantify user satisfaction and how were the results analyzed?",
+        "The provided content mentions several fine-tuning methods (like RLHF and PEFT) and evaluation strategies (human evaluation, LLM-eval), but lacks concrete comparative data showing how different fine-tuning techniques affect performance on these specific evaluation metrics.  Quantitative results comparing different fine-tuning methods across human evaluations and LLM-based evaluations are needed.",
+        "While the content briefly touches upon overconfidence issues with fine-tuned LLMs, it doesn't explore how different fine-tuning techniques specifically exacerbate or mitigate this problem.  Research investigating the calibration performance of various fine-tuning methods is missing."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "processed_gaps_count": 7,
+      "current_processing_query": "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed.",
+      "current_web_queries": [
+        "fine-tuning LLM-eval human evaluation",
+        "LLM performance comparison fine-tuning methods 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": false,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 7,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 35,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    },
+    {
+      "timestamp": "2025-07-18T20:00:21.155947",
+      "node_name": "generate_sections_end",
+      "current_depth": 3,
+      "max_depth": 3,
+      "max_gaps": 2,
+      "max_gap_queries": 1,
+      "max_web_results": 2,
+      "current_level_gaps": [
+        "The available content focuses heavily on LoRA, but lacks a comparative analysis of LoRA with other parameter-efficient fine-tuning methods like Adapters, Prefix-Tuning, or BitFit, including their performance trade-offs (speed, memory, accuracy) across diverse downstream tasks.",
+        "While the content mentions performance implications of LoRA, it lacks quantitative results and comparisons to full fine-tuning across specific tasks and datasets.  Concrete benchmarks and metrics (e.g., accuracy, F1-score, inference time) are needed to assess the effectiveness of different methods.",
+        "The available content mentions few-shot prompting and advanced prompting methods but lacks concrete examples of how to construct prompts for specific tasks like few-shot learning, including the format of demonstrations and the selection of examples.",
+        "While the content briefly touches upon chain-of-thought prompting as an 'advanced' technique, it provides no explanation of what this technique entails, how it works, or how to craft effective chain-of-thought prompts.",
+        "The available content mentions a new recall-oriented metric for evaluating answers with source citations, but lacks a clear definition and calculation method for this metric.  How is this 'Good/Bad/Correct' metric calculated, and how does it specifically relate to the 0-4 URLs cited?",
+        "While user satisfaction is mentioned as a measure of usefulness, the content provides no specific methodologies employed to measure user satisfaction in the context of the provided examples.  What specific methods (e.g., surveys, A/B testing, implicit feedback) were used to quantify user satisfaction and how were the results analyzed?",
+        "The provided content mentions several fine-tuning methods (like RLHF and PEFT) and evaluation strategies (human evaluation, LLM-eval), but lacks concrete comparative data showing how different fine-tuning techniques affect performance on these specific evaluation metrics.  Quantitative results comparing different fine-tuning methods across human evaluations and LLM-based evaluations are needed.",
+        "While the content briefly touches upon overconfidence issues with fine-tuned LLMs, it doesn't explore how different fine-tuning techniques specifically exacerbate or mitigate this problem.  Research investigating the calibration performance of various fine-tuning methods is missing."
+      ],
+      "next_level_gaps": [],
+      "processed_gaps": [
+        "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "The provided content mentions dataset development and future techniques but lacks specific details on the *most optimal* fine-tuning techniques, such as prompt engineering strategies, parameter-efficient fine-tuning methods, or a comparison of different learning rate schedules and optimization algorithms.",
+        "While the content touches upon training data diversity, it doesn't provide information on evaluation metrics and benchmarks used to assess the performance of different fine-tuning techniques for chatbots, making it difficult to determine what 'optimal' actually means in practice.",
+        "The available content mentions parameter-efficient fine-tuning and learning rate as important aspects of fine-tuning LLMs, but lacks a comparative analysis of different parameter-efficient methods (like LoRA, Adapter, etc.) and their effectiveness relative to full fine-tuning in various downstream tasks.",
+        "While prompt engineering is mentioned, the content provides no concrete strategies or examples of effective prompting techniques for specific tasks, such as few-shot learning or chain-of-thought prompting.",
+        "While accuracy and usefulness are mentioned as evaluation characteristics, the available content lacks specific details on how these are measured in practice.  Specific metrics for accuracy (e.g., precision, recall, F1-score in different contexts) and usefulness (e.g., user satisfaction, task completion rate) are missing.",
+        "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed."
+      ],
+      "processed_gaps_count": 7,
+      "current_processing_query": "The content mentions human evaluation and LLM-eval, but doesn't provide details on how different fine-tuning techniques impact performance against these benchmarks.  Comparative analysis across different fine-tuning methods using these evaluation strategies is needed.",
+      "current_web_queries": [
+        "fine-tuning LLM-eval human evaluation",
+        "LLM performance comparison fine-tuning methods 2023"
+      ],
+      "current_web_results_count": 2,
+      "should_continue": false,
+      "query_sections_count": 0,
+      "performance_metrics": {
+        "llm_calls": 8,
+        "total_time": 0
+      },
+      "errors": [],
+      "errors_count": 0,
+      "state": {
+        "query": "Check what have been the most optimal techniques while fine-tuning a language model for chatbots",
+        "raw_research_results_count": 35,
+        "review_feedback_count": 0,
+        "report_sections_count": 0,
+        "section": {}
+      }
+    }
+  ],
+  "summary": {
+    "total_gaps_discovered": 15,
+    "total_errors": 0,
+    "workflow_completed": true,
+    "llm_calls_made": 8,
+    "vector_searches": 0,
+    "web_searches": 0
+  }
+}
