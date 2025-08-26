@@ -66,7 +66,6 @@ Generate an optimized prompt that leverages best practices in prompt engineering
 async def generate_section_prompt(langgraph_state: AgentGraphState) -> str:
     """Generates prompt asking LLM to create an optimal prompt for section writing."""
 
-
     report_sections = langgraph_state['report_sections']
 
     sections=''
@@ -104,6 +103,7 @@ Generate a highly effective prompt that will instruct an LLM to write detailed, 
 7. Importantly we put focus on not changing section factual and metric data which is very important
 8. Most Important Ensure the section content is focused and doesn't overlap with in the sections and we don't repeat same things again
 9. Specify requirements for critical analysis and detailed discussion
+10. Most important of All prompt should have instructions how LLM suppose to generate atleast 7-10 sections. So it will be list of sections.
 
 
 The prompt should be tailored to the specific characteristics of this section title and the available research context. Consider what type of content and analysis would be most appropriate for this particular section.
@@ -111,6 +111,7 @@ The prompt should be tailored to the specific characteristics of this section ti
 Focus on creating a prompt that will result in comprehensive, well-analyzed content that contributes meaningfully to the overall research report while maintaining professional standards and clear focus.
 
 Generate an optimized prompt that leverages best practices in prompt engineering for this specific section writing task."""
+   
     model = LlmsHouse.google_model('gemini-2.5-flash')
     # 1.5 flash is the fastest mdoel but 2.5 flash is slower but better  in output
     response_prompt = await model.ainvoke(prompt) # Await the coroutine
