@@ -1,0 +1,1 @@
+['quantum computing explained', 'principles of quantum mechanics', 'quantum computing applications', 'quantum computer hardware', 'quantum computing vs classical computing']

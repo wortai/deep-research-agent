@@ -1,0 +1,1 @@
+['What are the fundamental principles of quantum computing?', 'How does a quantum computer differ from a classical computer?', 'What are the potential applications of quantum computing?', 'What are the current limitations and challenges in building and using quantum computers?', 'Explain the concepts of qubits, superposition, and entanglement in quantum computing.']
