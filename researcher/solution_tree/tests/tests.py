@@ -72,13 +72,13 @@ def test_analyze_gaps(vector_queries):
 
 if __name__ == "__main__":
     # Test 1: Web Queries generation (PASS)
-    # web_queries = test_web_queries()
+    web_queries = test_web_queries()
     
     # Test 2: Web Content Retrieval (PASS) + Vector Store Upload (FAIL)
-    # web_content = asyncio.run(test_retrieve_store_content(['quantum computing explained', 'principles of quantum mechanics']))
+    web_content = asyncio.run(test_retrieve_store_content(['quantum computing explained', 'principles of quantum mechanics']))
 
     # Test 3: Vector Queries generation (PASS)
-    # vector_queries = test_vector_search_queries()
+    vector_queries = test_vector_search_queries()
 
     # Test 4: Analyze Gaps
     # ['What are the fundamental principles of quantum computing?', 'How does a quantum computer differ from a classical computer?', 'What are the potential applications of quantum computing?', 'What are the current limitations and challenges in building and using quantum computers?', 'Explain the concepts of qubits, superposition, and entanglement in quantum computing.']

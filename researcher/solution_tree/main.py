@@ -2,6 +2,8 @@
 # vector_store function - retrieve and upload
 import json
 import logging
+import asyncio
+from collections import deque
 from typing import List
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.exceptions import OutputParserException
@@ -15,6 +17,7 @@ from researcher.solution_tree.prompts import (
 from researcher.web_search import WebSearch
 from researcher.vectore_store.vector_store import VectorStoreManager  # Import the VectorStoreManager
 from researcher.vectore_store.qdrant_db import QdrantService  # Import QdrantService for initialization
+from researcher.solution_tree.utils import dump_query_solution
 
 logging.basicConfig(level=logging.INFO)
 
@@ -22,14 +25,15 @@ class Solver():
     _vector_store_manager = None
     _active_collection = None
 
-    def __init__(self, query, num_web_queries=1, num_vector_queries=5, max_web_results=1, 
-                 collection_name="research-documents", batch_size=100):
+    def __init__(self, query, num_web_queries=1, num_vector_queries=1, max_web_results=1, 
+                 collection_name="research-documents", batch_size=100, num_gaps_per_node=2):
         self.query = query
 
         self._initialize_or_reuse_vector_store(collection_name)
         
         self.num_web_queries = num_web_queries
         self.num_vector_queries = num_vector_queries
+        self.num_gaps_per_node = num_gaps_per_node
 
         self.max_results = max_web_results # Web Results
         self.batch_size = batch_size
@@ -91,38 +95,6 @@ class Solver():
         cls._vector_store_manager = None
         cls._active_collection = None
         logging.info("Vector store cache cleared")
-
-    def dump_query_solution(self, query: str, answer: str, filename: str = "query_solutions.md"):
-        """
-        Append query and solution to a markdown document.
-        Creates the file if it doesn't exist, appends if it does.
-        
-        Args:
-            query: The original query/question
-            answer: The generated answer/solution
-            filename: Output filename (default: query_solutions.md)
-        """
-        try:
-            # Create markdown formatted content
-            content = f"""
-            ## Query
-            {query}
-
-            ## Solution
-            {answer}
-
-            ---
-
-            """
-            
-            # Append to file (create if doesn't exist)
-            with open(filename, "a") as f:
-                f.write(content)
-            
-            logging.info(f"Query and solution appended to {filename}")
-            
-        except Exception as e:
-            logging.error(f"Failed to dump query solution to {filename}: {e}")
 
 
     def create_web_search_queries(self):
@@ -216,71 +188,68 @@ class Solver():
     def analyze_gaps(self, vector_search_queries):
         """
         Analyzes whether vector search results are sufficient to answer the main query.
-        
-        Returns:
-            Tuple of (main_query, query_answers_dict, gaps_list)
         """
-        # Store context organized by query
         context_by_query = {}
         
-        # Use the VectorStoreManager's batch_similarity_search method
         search_results = self.vector_store_manager.batch_similarity_search(
             vector_search_queries, 
-            k=4
+            k=5 
         )
 
-        # Extract page_content from LangChain Document objects, organized by query
+        # --- THIS IS THE KEY UPDATE ---
+        # We will now process documents to ensure source URLs are unique.
         for query, documents in search_results.items():
-            # Combine all documents for this query
-            query_contexts = [doc.page_content for doc in documents]
-            context_by_query[query] = "\n\n".join(query_contexts) if query_contexts else "No relevant information found."
+            if not documents:
+                context_by_query[query] = "No relevant information found."
+                continue
 
-        # Create the prompt
+            # Use a list for content and a set for unique URLs
+            all_content_parts = []
+            unique_sources = set()
+
+            for doc in documents:
+                all_content_parts.append(doc.page_content)
+                source_url = doc.metadata.get('source')
+                if source_url:
+                    unique_sources.add(source_url)
+
+            # Construct a clean context block with unique sources listed at the top.
+            # We sort the list of URLs for consistent, clean output.
+            sources_list = sorted(list(unique_sources))
+            
+            sources_header = "Sources:\n" + "\n".join(f"- {url}" for url in sources_list)
+            content_body = "Content:\n" + "\n\n---\n\n".join(all_content_parts)
+
+            context_by_query[query] = f"{sources_header}\n\n{content_body}"
+        # --- END OF UPDATE ---
+
+        # The rest of the function remains exactly the same
         prompt = get_gap_analysis_prompt(
             main_query=self.query,
             vector_queries=vector_search_queries,
-            context_by_query=context_by_query
+            context_by_query=context_by_query,
+            num_gaps_per_node=self.num_gaps_per_node
         )
 
-        # Set up parser and chain with increased max_tokens
         parser = JsonOutputParser()
         
-        # Configure LLM with higher token limit if using OpenAI
         if hasattr(self.analysis_llm, 'max_tokens'):
-            analysis_llm_configured = self.analysis_llm.bind(max_tokens=4000)  # Increase from default
+            analysis_llm_configured = self.analysis_llm.bind(max_tokens=4000)
         else:
             analysis_llm_configured = self.analysis_llm
         
         chain = analysis_llm_configured | parser
 
         try:
-            # Invoke the chain
             logging.info("Invoking Gap Analysis")
             data = chain.invoke(prompt)
-            logging.info("Gap Analysis completed")
-            
-            # Extract the three components
+            # ... (rest of the function is unchanged)
             main_query = data.get("main_query", self.query)
             query_answers = data.get("query_answers", {})
             gaps = data.get("gaps", [])
-            
-            # Validate the response
-            if not isinstance(query_answers, dict):
-                logging.error("query_answers is not a dictionary")
-                query_answers = {}
-            
-            if not isinstance(gaps, list):
-                logging.error("gaps is not a list")
-                gaps = []
-            
             return main_query, query_answers, gaps
-        
-        except json.JSONDecodeError as e:
-            logging.error(f"Failed to decode JSON from gap analysis: {e}")
-            return self.query, {}, []
-        
         except Exception as e:
-            logging.error(f"Unexpected error in analyze_gaps: {e}")
+            logging.error(f"Error in analyze_gaps: {e}")
             return self.query, {}, []
     
     async def resolve(self):
@@ -304,46 +273,126 @@ class Solver():
         query, answer, gaps = self.analyze_gaps(vector_search_queries)
 
         # Step 5: Dump query and solution to document
-        self.dump_query_solution(query, answer, filename="query_solutions.md")
+        dump_query_solution(query, answer, filename="query_solutions.md")
         
         logging.info(f"Resolved query with {len(gaps)} gaps remaining")
 
         return gaps, answer
 
 
-async def step_executor(unresolved: List[str], depth=2):
-    """Execute resolution for multiple unresolved queries."""
-    for iteration in range(depth):
-        logging.info(f"Executing iteration {iteration + 1} of {depth}")
-        new_unresolved = []
+class Node:
+    """A simple class to represent a node in the research tree."""
+    def __init__(self, query: str, depth: int = 0, parent=None):
+        self.query = query
+        self.depth = depth
+        self.parent = parent
+        self.children = []
+        self.answer = None  # This will be filled by the Solver
 
-        for query in unresolved:
-            try:
-                solver = Solver(query=query)  # ✅ Pass query
-                gaps, answer = await solver.resolve()  # ✅ Await async call
-                
-                logging.info(f"Query '{query}' resolved with {len(gaps)} gaps")
-                
-                if gaps:
-                    new_unresolved.extend(gaps)
-            except Exception as e:
-                logging.error(f"Error resolving '{query}': {e}")
-                new_unresolved.append(query)
+def print_tree(node: Node, prefix: str = "", is_last: bool = True):
+    """Prints a visual representation of the research tree."""
+    print(prefix + ("└── " if is_last else "├── ") + node.query)
+    child_prefix = prefix + ("    " if is_last else "│   ")
+    for i, child in enumerate(node.children):
+        is_last_child = (i == len(node.children) - 1)
+        print_tree(child, child_prefix, is_last_child)
 
-        unresolved = new_unresolved
-        if not unresolved:
-            break
+async def step_executor(initial_queries: List[str], max_depth: int = 2, num_gaps_per_node: int = 2):
+    """
+    Builds and resolves a tree of research queries using a breadth-first approach.
+    """
+    if not initial_queries:
+        return None
+    
+    # Use the first query as the root of our research tree
+    root_node = Node(query=initial_queries[0])
+    
+    # Initialize a queue with the root node to start the process
+    queue = deque([root_node])
 
-    return unresolved
+    while queue:
+        # Dequeue the next node to process
+        current_node = queue.popleft()
+
+        print("=" * 40)
+        logging.info(f"Resolving Node at Depth {current_node.depth}: '{current_node.query}'")
+        print("=" * 40)
+
+        # Stop expanding the tree if the maximum depth is reached
+        if current_node.depth >= max_depth:
+            logging.info("Max depth reached for this branch. Not generating new gaps.")
+            # We don't resolve the final layer, just identify them as leaves
+            continue
+
+        try:
+            # Use the Solver to resolve the current query
+            solver = Solver(query=current_node.query, num_gaps_per_node=num_gaps_per_node)
+            gaps, answer = await solver.resolve()
+            
+            # Store the generated answer in the node
+            current_node.answer = answer
+            
+            logging.info(f"Query resolved. Found {len(gaps)} new child nodes (gaps).")
+
+            # Create child nodes from the identified gaps
+            for gap_query in gaps:
+                child_node = Node(
+                    query=gap_query, 
+                    depth=current_node.depth + 1, 
+                    parent=current_node
+                )
+                current_node.children.append(child_node)
+                # Enqueue the new children to be processed in the next level
+                queue.append(child_node)
+
+        except Exception as e:
+            logging.error(f"An error occurred while resolving '{current_node.query}': {e}")
+            
+    logging.info("Research tree resolution is complete.")
+    return root_node
+
+if __name__ == "__main__":
+    async def main():
+        initial_queries = [
+            "Provide a comprehensive comparison between Vision Transformers (ViT) and Convolutional Neural Networks (CNNs) for image classification tasks.",
+        ]
+        
+        # Start the process. Note 'depth' is now 'max_depth'.
+        research_tree_root = await step_executor(
+            initial_queries, 
+            max_depth=2, 
+            num_gaps_per_node=2
+        )
+        
+        print("\n" + "=" * 40)
+        logging.info("RESEARCH PROCESS COMPLETE")
+        print("=" * 40)
+
+        if research_tree_root:
+            print("Final Research Tree Structure:")
+            print_tree(research_tree_root)
+        else:
+            print("No research was conducted.")
+    
+    asyncio.run(main())
     
 if __name__ == "__main__":
-    import asyncio
-    
     async def main():
-        queries = [
-            "What is quantum computing?",
+        # A more detailed initial query often yields better results
+        initial_queries = [
+            "Provide a comprehensive comparison between Vision Transformers (ViT) and Convolutional Neural Networks (CNNs) for image classification tasks.",
         ]
-        remaining_gaps = await step_executor(queries, depth=2)
-        print(f"Remaining gaps: {remaining_gaps}")
+        
+        # Start the process with the initial high-level query
+        remaining_gaps = await step_executor(initial_queries, max_depth=2)
+        
+        print("\n" + "=" * 40)
+        logging.info("RESEARCH PROCESS COMPLETE")
+        print("=" * 40)
+
+        if remaining_gaps:
+            print(f"Final unresolved gaps after {2} iterations: {remaining_gaps}")
+        else:
+            print("All queries were resolved with no remaining gaps.")
     
     asyncio.run(main())
