@@ -304,7 +304,7 @@ async def step_executor(initial_queries: List[str], max_depth: int = 2, num_gaps
     if not initial_queries:
         return None
     
-    # Use the first query as the root of our research tree
+    # 🟡 PARALLEL PROCESS QUERIES Use the first query as the root of our research tree
     root_node = Node(query=initial_queries[0])
     
     # Initialize a queue with the root node to start the process
