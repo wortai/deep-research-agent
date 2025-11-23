@@ -1,4 +1,4 @@
-# In src/vector_store_manager.py
+# In vectore_store/vector_store.py
 
 from typing import List, Dict, Tuple
 from langchain.docstore.document import Document
@@ -18,7 +18,7 @@ class VectorStoreManager:
         self.vector_store = vector_store
         
         # Extract embedding model for batch operations
-        self.embedding_model = getattr(vector_store, 'embedding', None)
+        self.embedding_model = getattr(vector_store, 'embeddings', None)
         if self.embedding_model is None:
             logger.warning("No embedding model found in vector store - batch operations may not work")
 
@@ -92,19 +92,12 @@ class VectorStoreManager:
             
             # Extract texts for batch embedding
             texts = [doc.page_content for doc in documents]
+            metadatas = [doc.metadata for doc in documents]
             
-            # Get embeddings in batch - single API call
-            logger.info(f"Generating embeddings for {len(texts)} texts in batch")
-            embeddings = self.embedding_model.embed_documents(texts)
-            
-            # Add documents with pre-computed embeddings
-            if hasattr(self.vector_store, 'add_texts'):
-                # Use add_texts with embeddings if available
-                metadatas = [doc.metadata for doc in documents]
-                self.vector_store.add_texts(texts, metadatas=metadatas, embeddings=embeddings)
-            else:
-                # Fallback to add_documents
-                self.vector_store.add_documents(documents)
+            # Qdrant will handle embeddings internally through its embedding model
+            # Just pass texts and metadata
+            logger.info(f"Adding {len(texts)} texts to vector store in batch")
+            self.vector_store.add_texts(texts, metadatas=metadatas)
             
             return True
             
@@ -255,8 +248,3 @@ if __name__ == "__main__":
         if '_collection_name' in doc.metadata:
             print(f"  Collection Name: {doc.metadata['_collection_name']}")
         # You can add more checks for other metadata keys if they might not always be present
-
-
-
-
-

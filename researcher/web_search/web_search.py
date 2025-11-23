@@ -120,9 +120,6 @@ class WebSearch:
         # print(serpapi_results_combined)
         return serpapi_results_combined[:self.max_results]
 
-
-
-
     # async def search_with_arxiv(self) -> List[Dict[str, Any]]:
     #     """
     #     Searches for research papers on Arxiv.
@@ -249,9 +246,7 @@ if __name__ == "__main__":
         for result in results:
             print(f"URL: {result['url']}")
             print(f"Content: {result['content'][:100]}...\n")
-
         
     # Run the test main
     import asyncio
-    asyncio.run(main())  
- 
+    asyncio.run(main())
