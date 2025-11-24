@@ -1,0 +1,10 @@
+Complexity Analysis
+For max_depth=2, num_gaps_per_node=2:
+Depth 0: 1 node (root)
+Depth 1: 2 nodes (children)
+Depth 2: 4 nodes (grandchildren)
+Total nodes processed: 7
+Total LLM calls: 7 nodes × 3 operations = 21
+Total web searches: 7 queries
+Total vector searches: ~21 vector queries
+The tree grows exponentially: num_gaps_per_node^depth leaf nodes at maximum depth.

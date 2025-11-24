@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-10-30T21:13:52.092495",
+  "summary": {
+    "total_queries_in_plan": 2,
+    "total_llm_calls": 26,
+    "total_qa_pairs": 26,
+    "avg_llm_calls_per_query": 13.0,
+    "avg_qa_pairs_per_query": 13.0
+  },
+  "plan": [
+    "What are the limitations of traditional Convolutional Neural Networks (CNNs) that prompted researchers to look for a new architecture for vision tasks?",
+    "How does a Vision Transformer (ViT) reframe an image processing problem into a sequence processing problem, similar to how Transformers handle text?"
+  ],
+  "query_results": [
+    {
+      "query": "What are the limitations of traditional Convolutional Neural Networks (CNNs) that prompted researchers to look for a new architecture for vision tasks?",
+      "llm_calls": 13,
+      "qa_pairs": 18,
+      "gaps_found": 2,
+      "gaps": [
+        "What specific aspects of Vision Transformers make them better at capturing global context compared to CNNs?",
+        "What are the trade-offs (e.g., computational cost, data requirements) when using Vision Transformers versus CNNs for different vision tasks?"
+      ],
+      "researcher_qa_count": 3,
+      "reviewer_qa_count": 15
+    },
+    {
+      "query": "How does a Vision Transformer (ViT) reframe an image processing problem into a sequence processing problem, similar to how Transformers handle text?",
+      "llm_calls": 13,
+      "qa_pairs": 8,
+      "gaps_found": 2,
+      "gaps": [
+        "What are the specific mathematical operations involved in converting image patches into tokens and embedding them?",
+        "How do the inductive biases of Vision Transformers compare to those of Convolutional Neural Networks (CNNs), and how does this affect their performance on different image processing tasks?"
+      ],
+      "researcher_qa_count": 3,
+      "reviewer_qa_count": 5
+    }
+  ]
+}
