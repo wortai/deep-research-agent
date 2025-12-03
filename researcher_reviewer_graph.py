@@ -366,7 +366,7 @@ async def run_researcher_reviewer_workflow(
     # Create semaphore for concurrency control
     semaphore = asyncio.Semaphore(max_concurrent)
 
-    async def controlled_process(query: str, idx: int, total: int) -> Dict[str, Any]:
+    async def controlled_porocess(query: str, idx: int, total: int) -> Dict[str, Any]:
         """Process with semaphore control."""
         async with semaphore:
             return await process_single_query(query, idx, total)
@@ -384,7 +384,7 @@ async def run_researcher_reviewer_workflow(
         query = result["query"]
         final_state["solver_answers"][query] = result["solver_answer"]
         final_state["solver_gaps"][query] = result["solver_gaps"]
-        final_state["enriched_content"][query] = result["enriched_content"]
+        final_state["enriched_cntent"][query] = result["enriched_content"]
         final_state["llm_calls_per_query"][query] = result["llm_calls"]
         final_state["qa_pairs_per_query"][query] = result["qa_pairs"]
         final_state["total_llm_calls"] += result["llm_calls"]
@@ -414,8 +414,8 @@ async def main():
 
     # Define research plan - list of queries to execute in parallel
     research_plan = [
-        "What are the limitations of traditional Convolutional Neural Networks (CNNs) that prompted researchers to look for a new architecture for vision tasks?",
-        "How does a Vision Transformer (ViT) reframe an image processing problem into a sequence processing problem, similar to how Transformers handle text?"
+        "What structural factors are currently driving the U.S. inflation trend, and how much of it is supply-side versus demand-side?",
+        "How sustainable is current U.S. economic growth given interest rate levels, federal debt, and demographic changes?
     ]
 
     # Run workflow with 3 concurrent workers
