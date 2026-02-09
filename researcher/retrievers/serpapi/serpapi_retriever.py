@@ -35,7 +35,6 @@ class SerpApiClient:
 
     def get_api_key(self):
         try:
-            print(os.environ.get("SERP_API_KEY"))
             return os.environ.get("SERP_API_KEY")
         except KeyError:
             logging.error("SERP API key not found.") # Improved error message

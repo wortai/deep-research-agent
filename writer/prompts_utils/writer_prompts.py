@@ -1,216 +1,176 @@
 """
-Prompt generators for research report creation.
-Contains methods to generate prompts that ask LLMs to create better prompts for specific tasks.
-"""
+Prompt generators for unified research report creation.
 
+This module contains the first LLM call that generates an optimized 
+prompt for unified report generation based on user query, planner's 
+plan, and research sections.
+"""
 
 import asyncio
 from typing import List, Dict, Any
 from llms import LlmsHouse
-from states import ResearchReviewData , AgentGraphState
 
-async def generate_report_outline_prompt(langgraph_state: Dict[str, Any]) -> str:
-    """ Generates prompt asking LLM to create an optimal prompt for report outline generation. """
 
-    report_sections = langgraph_state['report_sections']
-
-    sections=''
-    for section in report_sections:
-        sections +=f"""
-        -----------------------------------------------------------------------------    
-          Here's this section starts.
-            
-            {section}
-
-            Here's this section ends.
-        ------------------------------------------------------------------------------
+async def generate_unified_report_prompt(
+    user_query: str,
+    planner_queries: List[Dict[str, Any]],
+    sections: List[Dict[str, Any]]
+) -> str:
     """
-
-
-    prompt = f"""You are an expert in prompt engineering and research report writing. Your task is to generate an optimal prompt that will be used to instruct an LLM to create a comprehensive report outline.
-
-AVAILABLE INFORMATION:
-- Available Sections: 
-
-    {sections}
-
- AVAILABLE INFORMATION ENDS HERE.    
--------------------------------------------
-
-PROMPT ENGINEERING REQUIREMENTS:
-Generate a highly effective prompt that will instruct an LLM to create a professional research report outline. The prompt should:
-
-1. Follow best prompting practices (clear instructions, specific requirements, structured format).
-2. Address the specific nature of this research topic and task.
-3. Ensure the outline will be extremely professional and comprehensive.
-4. Highlight the need for distinct sections without redundancy , atleast should have 10 minimum sections and should be well-structured and easy to follow.
-5. Make sure you mention what going to  be the Each Section name and what we will discuss about in these sections , like important parts , other side information to focus on  .
-6. Your prompt should have details of which sections should be combined and be made one , what will be the order of these sections , Order is very Important as report sections should go deep in topic from top to bottom , like intial topics sections should come first and then sections based on previous or in depth analysis of other should be in bottom.
-7. Your prompt should contain the details about , what Should be the heading , title , content , and other relevant details of each section ,Include requirements for executive summary, methodology, findings, and conclusion sections etc but these will be always there sections ,should like based on section content and details.
-8. Include specific instructions for Each section purposes and descriptive content explanation that will be discussed in content .
-9. Very Important Ensure logical flow and hierarchy in the outline structure.
-10. Address the available research data effectively , talk about the important sections and how to address those sections in a prompt.
-
-
-The prompt you generate should be crafted to produce a high-quality, well-structured outline that will serve as the foundation for an excellent research report. Consider the specific characteristics of this research topic and the available data when crafting your prompt.
-Focus on creating a prompt that will result in an outline with clear section definitions, proper academic structure, and comprehensive coverage of the research topic without content overlap between sections.
-Generate an optimized prompt that leverages best practices in prompt engineering for this specific report outline generation task.
-
-"""
-    model = LlmsHouse.google_model('gemini-2.5-flash')
-    # 1.5 flash is the fastest mdoel but 2.5 flash is slower but better  in output
-    response_prompt = await model.ainvoke(prompt) # Await the coroutine
-    return response_prompt.content
-
-
-
-async def generate_report_conclusion_prompt(langgraph_state: AgentGraphState) -> str:
-    """Generates prompt asking LLM to create an optimal prompt for conclusion writing."""
-
-
+    First LLM call: generates optimized prompt for unified report creation.
     
-    report_sections = langgraph_state['report_sections']
-
-    sections=''
-    for section in report_sections:
-        sections +=f"""
-        -----------------------------------------------------------------------------    
-          Here's this section starts.
-            
-            {section}
-
-            Here's this section ends.
-        ------------------------------------------------------------------------------
+    Takes user query, planner's plan, and research sections to produce detailed
+    instructions for report generation covering hierarchy, focus areas, styling,
+    and structure.
+    
+    Args:
+        user_query: Original user research question
+        planner_queries: List of PlannerQuery dicts with query_num and query fields
+        sections: List of section dicts with section_content field (markdown with embedded headings)
+        
+    Returns:
+        Optimized prompt string for second LLM call to generate unified report
     """
-    prompt = f"""You are an expert in prompt engineering and research analysis. Your task is to generate an optimal prompt that will be used to instruct an LLM to write a comprehensive conclusion for a research report.
+    
+    # Format planner queries for context
+    planner_context = "PLANNER'S RESEARCH PLAN:\n" + "-" * 80 + "\n"
+    for pq in planner_queries:
+        planner_context += f"Query #{pq.get('query_num', 0)}: {pq.get('query', '')}\n"
+    planner_context += "-" * 80 + "\n\n"
+    
+    # Format sections with preview
+    sections_context = "RESEARCH SECTIONS AVAILABLE (already in markdown with URLs):\n" + "=" * 80 + "\n\n"
+    for idx, section in enumerate(sections):
+        content = section.get('section_content', '')
+        preview = content[:500] + ('...' if len(content) > 500 else '')
+        sections_context += f"--- Section {idx + 1} ---\n{preview}\n\n"
+    sections_context += "=" * 80 + "\n\n"
+    
+    meta_prompt = f"""You are an expert in prompt engineering and academic research report writing. Your task is to generate an EXTREMELY DETAILED and COMPREHENSIVE prompt that will instruct an LLM to create a professional unified research report.
 
-RESEARCH INFORMATION:
---------------
-Sections of the report  :
- {sections}
---------------
+CONTEXT INFORMATION:
+=====================
+
+USER'S ORIGINAL QUERY:
+{user_query}
 
 
-PROMPT ENGINEERING REQUIREMENTS:
-Generate a highly effective prompt that will instruct an LLM to create a professional, comprehensive conclusion for this research report. The prompt should:
+This is the Plan we made to cover the topics 
+{planner_context}
 
-1. Utilize advanced prompt engineering strategies for maximum effectiveness
-2. Address the specific nature of this research topic and its conclusions
-3. Emphasize the need for synthesis rather than mere summarization
-4. Include instructions for addressing the original research questions directly
-5. Specify requirements for precision and specificity over vague generalizations
-6. Address the importance of evidence-based conclusions
-7. Include guidelines for discussing implications and significance
-8. Specify the need to acknowledge limitations and suggest future research
-9. Ensure the conclusion provides actionable insights and recommendations
-10. Emphasize professional academic writing standards and tone
+This is the Preview of each sections so you get the idea of what type of sections we covering. Remember 
+these sections are already in markdown format with URLs in the end of each section. 
+{sections_context}
 
-The prompt should be crafted considering the specific characteristics of this research topic and the available findings. Focus on creating instructions that will result in a conclusion that definitively answers the research questions and provides valuable insights.
+YOUR TASK:
+==========
+Generate a highly detailed prompt that will guide an LLM to create a unified, professional research report. Your prompt MUST include ALL of the following elements:
 
-Consider the depth of analysis required for this particular topic and the type of conclusions that would be most valuable for this research. The prompt should guide the LLM to create a conclusion that demonstrates thorough understanding and provides meaningful contributions to the field.
+1. **REPORT STRUCTURE INSTRUCTIONS**:
+   - Table of Contents with chapter/subchapter numbering (Chapter 1, 1.1, 1.2, Chapter 2, 2.1, 2.2, etc.)
+   - Abstract (150-250 words)
+   - Introduction with proper context and research objectives
+   - Report Body organized by chapters and subchapters
+   - Conclusion with synthesis and recommendations
 
-Focus on creating a prompt that will result in a precise, well-supported conclusion that addresses all aspects of the research topic while maintaining high professional standards and providing clear, actionable insights.
+2. **CONTENT HIERARCHY & ORGANIZATION**:
+   - Explain which sections should be MERGED and why
+   - Define the LOGICAL ORDER from foundational concepts to advanced analysis
+   - Specify which topics deserve MORE FOCUS (main chapters) vs LESS FOCUS (subchapters)
+   - Ensure progressive depth: start with basics, move to deeper analysis
+   - Explain how to organize content to directly address the user's original query: "{user_query}"
 
-Generate an optimized prompt that leverages best practices in prompt engineering for this specific conclusion writing task."""
+3. **MARKDOWN FORMATTING REQUIREMENTS**:
+   - ALL content must be in valid markdown format
+   - Chapter headings use `#`, subchapters use `##`, sub-subchapters use `###`
+   - Preserve URLs from original sections and place them next to relevant content as markdown links
+   - Use appropriate formatting: **bold**, *italic*, tables, code blocks, bullet lists, numbered lists
+   - Ensure consistent styling throughout
 
-    model = LlmsHouse.google_model('gemini-2.5-flash')
-    # 1.5 flash is the fastest mdoel but 2.5 flash is slower but better  in output
-    response_prompt = await model.ainvoke(prompt) # Await the coroutine
+4. **CONTENT PRESENTATION TECHNIQUES**:
+   - Specify when to use TABLES for comparisons or structured data
+   - When to use BULLET POINTS for lists or key findings
+   - When to use NARRATIVE paragraphs for explanations
+   - When to use CHARTS/DIAGRAMS descriptions (in markdown format)
+   - When to use SUB-PARAGRAPH techniques for detailed elaboration
+   - When to use COMPARISON techniques for contrasting concepts
+
+5. **QUALITY REQUIREMENTS FOR EACH SECTION**:
+   
+   **Table of Contents**:
+   - Numbered hierarchically (1, 1.1, 1.2, 2, 2.1, etc.)
+   - Include page/section references
+   - Clear and descriptive chapter titles
+   
+   **Abstract**:
+   - AMAZING synthesis of entire report
+   - Cover: objectives, methodology overview, key findings, main conclusions
+   - Professional academic tone
+   - Self-contained (can be read independently)
+   
+   **Introduction**:
+   - EXCEPTIONAL opening that hooks the reader
+   - Clear background and context
+   - Explicit research objectives tied to user query
+   - Scope and limitations
+   - Brief methodology mention
+   - Roadmap of report structure
+   
+   **Report Body**:
+   - Seamlessly UNIFY the provided sections without major content changes
+   - Preserve factual accuracy, data, and URLs from original sections
+   - Eliminate redundancy between sections
+   - Create smooth transitions between chapters
+   - Use appropriate presentation techniques based on content type
+   - Include URLs and citations from original sections
+   - Maintain logical flow from simple to complex topics
+   
+   **Conclusion**:
+   - OUTSTANDING synthesis of all findings
+   - Directly answer the original research question
+   - Key takeaways and insights
+   - Practical recommendations
+   - Acknowledge limitations
+   - Future research directions
+
+6. **CONTENT FIDELITY RULES**:
+   - DO NOT invent facts, data, or URLs not present in sections
+   - DO preserve all factual information from sections
+   - DO maintain all URLs and proper attribution
+   - DO keep technical details and metrics accurate
+   - DO unify and organize but NOT fundamentally rewrite content
+
+7. **STYLE & TONE**:
+   - Professional academic writing
+   - Clear and accessible language
+   - Avoid unnecessary jargon
+   - Evidence-based statements
+   - Authoritative but not overly technical
+   - Engaging and readable
+
+8. **SPECIAL INSTRUCTIONS BASED ON PLANNER'S PLAN**:
+   - Analyze the planner's queries to understand the research structure
+   - Ensure report addresses each planner query appropriately
+   - Create chapters that align with the planner's logical breakdown
+   - Maintain the investigative flow the planner intended
+
+CRITICAL REMINDERS:
+- The sections provided are already in markdown format with embedded headings
+- Your job is to UNIFY, ORGANIZE, and ENHANCE presentation, not completely rewrite
+- URLs must be preserved and included next to relevant content
+- The final report should feel like a cohesive, professional document, not a collection of separate answers
+- Focus on answering "{user_query}" comprehensively
+
+Generate the detailed prompt NOW. Be as specific and comprehensive as possible. This prompt will be used to create a high-quality research report."""
+
+    model = LlmsHouse().google_model('gemini-2.0-flash')
+    response_prompt = await model.ainvoke(meta_prompt)
     return response_prompt.content
-
-
-
-async def generate_section_prompt_batch(langgraph_state: AgentGraphState, batch_sections: List[Dict[str, Any]]) -> str:
-    """Generate an optimal prompt to instruct an LLM to write/refine ONLY the given batch (2–3) of sections."""
-    def fmt(sec: Dict[str, Any]) -> str:
-        return f"Heading: {sec.get('section_heading','')}.\nCurrent Content: {sec.get('section_content','')}\nURLs: {sec.get('section_urls', [])}"
-
-    sections_block = "\n\n".join(
-        [
-            f"----- SECTION {i+1} START -----\n{fmt(s)}\n----- SECTION {i+1} END -----"
-            for i, s in enumerate(batch_sections)
-        ]
-    )
-
- 
-
-    prompt = f"""
-You are an expert in prompt engineering and academic writing. Your task is to craft an optimal prompt that will instruct an LLM to write or refine high-quality report sections for ONLY the selected sections below.
-
-AVAILABLE SECTIONS (use as the sole target for writing/refinement):
-{sections_block}
-
-PROMPT ENGINEERING REQUIREMENTS:
-- Your prompt should also include instruction about hyperlink url to the content in markdown format .
-- Content should contain hyperlinked URLS for which the content belong too.
-- Maintain fidelity to facts, metrics, and given URLs; never invent citations.
-- Remove redundancy between these sections; ensure each is distinct and focused.
-- Specify which part of the secions have best research data and most relevant to focus on 
-- Provide clear instructions for depth, analysis, structure (headings/subheadings), and use of lists/tables where appropriate.
-- Emphasize professional tone, specificity over generalities, and logical connections between these sections.
-- The prompt you produce must instruct the LLM to output well-structured sections ready for direct inclusion in the report.
-- Make sure Section Content should be in MARKDOWN FORMAT . 
-
-Generate the optimized prompt text only.
-"""
-
-    model = LlmsHouse.google_model('gemini-2.5-flash')
-    response_prompt = await model.ainvoke(prompt)
-    return response_prompt.content
-
-
 
 
 async def main():
-    # Example usage of generate_report_outline_prompt
-
-    # print("Generating prompt for report outline...")
-    # outline_prompt = await generate_report_outline_prompt(sample_state) # Await the async function
-    # print("\n--- Generated Outline Prompt ---")
-    # print(outline_prompt)
-    # print("------------------------------")
-
-    # Example usage of generate_section_prompt (requires sample data)
-    # sample_section_data = {
-    #     'title': 'Introduction',
-    #     'content': 'Initial draft content...',
-    #     'conclusion': 'Initial draft conclusion...',
-    #     'sources': ['source_id_1', 'source_id_2']
-    # }
-    # sample_context_data = {
-    #     'topic': 'The Impact of AI on Climate Change Research',
-    #     # Add other relevant context data if needed by the function
-    # }
-    # print("\nGenerating prompt for section writing...")
-    # section_prompt = generate_section_prompt(sample_section_data, sample_context_data)
-    # print("\n--- Generated Section Prompt ---")
-    # print(section_prompt)
-    # print("------------------------------")
-
-    # Example usage of generate_report_conclusion_prompt (requires sample data)
-    print("\nGenerating prompt for report conclusion...")
-    conclusion_prompt = await generate_report_conclusion_prompt(sample_state) # Reusing sample_state
-    print("\n--- Generated Conclusion Prompt ---")
-    print(conclusion_prompt)
-    # print("------------------------------")
-
-    # Example usage of generate_section_structure_prompt (requires sample data)
-    # sample_section_structure_data = {
-    #     'title': 'Methodology',
-    #     'content': 'Details about research methods...',
-    #     'sources': ['source_id_3'],
-    #     'sub_sections': ['Data Collection', 'Analysis Techniques']
-    # }
-    # sample_structure_context_data = {
-    #     'topic': 'The Impact of AI on Climate Change Research',
-    #     # Add other relevant context data if needed by the function
-    # }
-    # print("\nGenerating prompt for section structure...")
-    # structure_prompt = generate_section_structure_prompt(sample_section_structure_data, sample_structure_context_data)
-    # print("\n--- Generated Section Structure Prompt ---")
-    # print(structure_prompt)
-    # print("------------------------------")
+    print("Unified report prompt generator module")
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) # Run the async main function
+    asyncio.run(main())

@@ -1,3 +1,3 @@
-from .publisher import Publisher
+"""Publisher module for PDF report generation."""
 
-__all__ = ['Publisher']
+from .publisher import Publisher, publisher_node

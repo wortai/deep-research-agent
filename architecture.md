@@ -15,12 +15,14 @@
 
 | Component | Description | Location |
 |-----------|-------------|----------|
-| **Research Router** | Query categorization and routing | `categorizer/router.py` |
-| **Planner v2** | Advanced research planning with dependency trees | `planner/v2/` |
-| **Web Search Engine** | Multi-source web scraping and retrieval | `web_search.py` |
-| **Academic Tools** | ArXiv, MedRxiv, BioRxiv integration | `tools/tools.py` |
-| **Vector Store** | Qdrant-based similarity search | `vectore_store/` |
-| **Gap Generator** | Intelligent follow-up question generation | `gap_questions/` |
+| **Planner v2** | Advanced research planning with dependency trees | `researcher/planner/v2/` |
+| **Solution Tree** | Recursive research solver with gap analysis | `researcher/solution_tree/` |
+| **Web Search Engine** | Multi-source web scraping and retrieval | `researcher/web_search/web_search.py` |
+| **Academic Tools** | ArXiv, MedRxiv, BioRxiv integration | `researcher/tools/tools.py` |
+| **Vector Store** | Qdrant-based similarity search | `researcher/vectore_store/` |
+| **Reviewer** | Research quality assurance | `reviewer/reviewer.py` |
+| **Writer** | Content generation and formatting | `writer/writer.py` |
+| **Publisher** | Output publication | `publisher/publisher.py` |
 
 ---
 
@@ -91,9 +93,6 @@ flowchart TD
 
 ```
 deep-research-agent/
-├── 📊 categorizer/           # Query routing and categorization
-│   ├── router.py            # Main routing logic
-│   └── categories.py        # Category definitions
 ├── 🔬 Researcher/           # Core research components
 │   ├── scrapers/           # Data collection modules
 │   │   ├── browser/        # Web browser automation
@@ -101,25 +100,44 @@ deep-research-agent/
 │   │   ├── agentql/        # AgentQL scraping
 │   │   ├── arxiv/          # ArXiv paper scraping
 │   │   ├── medrxiv/        # MedRxiv integration
-│   │   └── biorxiv/        # BioRxiv integration
+│   │   ├── biorxiv/        # BioRxiv integration
+│   │   ├── ecommerce/      # Ecommerce scraping
+│   │   └── finance/        # Finance scraping
 │   ├── retrievers/         # Search and retrieval
 │   │   ├── serpapi/        # Google Search API
 │   │   ├── arxiv/          # ArXiv API
 │   │   └── research_rssharvest/ # RSS feed processing
 │   ├── vectore_store/      # Vector database
 │   │   ├── vector_store.py # Vector operations
-│   │   └── qdrant_db.py    # Qdrant integration
+│   │   ├── qdrant_db.py    # Qdrant integration
+│   │   ├── long_term_memory/
+│   │   ├── reddis/
+│   │   └── short_conversational_memory/
 │   ├── planner/            # Research planning
 │   │   ├── v1/             # Legacy planner
-│   │   └── v2/             # Advanced planner
-│   │       ├── plan_tree.py        # Dependency trees
-│   │       ├── query_enhancer.py   # Query optimization
-│   │       └── ambiguity_resolver.py # Ambiguity handling
-│   ├── gap_questions/      # Gap analysis
-│   │   └── generator.py    # Question generation
+│   │   ├── v2/             # Advanced planner
+│   │   ├── archive-tree-based/
+│   │   ├── planner.py      # Main planner logic
+│   │   └── ...             # Planner utilities
+│   ├── solution_tree/      # Solution tree implementation
+│   ├── web_search/         # Web search module
 │   ├── graph_rag/          # Graph RAG implementation
-│   └── tools/              # Research utilities
-└── 📝 Prompts/             # LLM prompt management
+│   ├── tools/              # Research utilities
+│   └── research_engine.py  # Research engine entry point
+├── 📝 Prompts/             # LLM prompt management
+│   └── prompt.py
+├── 🧠 LLMs/                # LLM integration
+│   └── llms.py
+├── 📢 Publisher/           # Publishing module
+│   └── publisher.py
+├── 🧐 Reviewer/            # Reviewer module
+│   └── reviewer.py
+├── 💾 States/              # State management
+│   └── state.py
+├── ✍️ Writer/              # Writing module
+│   └── writer.py
+├── researcher_reviewer_graph.py # Main graph definition
+└── workflow_results/       # Workflow results
 ```
 
 ---

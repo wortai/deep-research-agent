@@ -50,7 +50,7 @@ class LlmsHouse:
     """
     
     def __init__(self):
-        self.fallback_model = "gemini-2.0-flash-001"
+        self.fallback_model = "gemini-2.0-flash"
 
     @staticmethod
     def openai_model(model_name: str, temperature: float = 1.25, **kwargs) -> ChatOpenAI:
@@ -70,10 +70,10 @@ class LlmsHouse:
         )
 
     @staticmethod
-    def google_model(model_name: str ='gemini-2.5-flash', temperature: float = 0.95, **kwargs) -> ChatGoogleGenerativeAI:
+    def google_model(model_name: str ='gemini-3.0-flash', temperature: float = 0.95, **kwargs) -> ChatGoogleGenerativeAI:
         """
             Google Gemini models - Excellent for multimodal tasks and reasoning.
-            Supports: gemini-2.0-flash-001 (default), gemini-1.5-flash-latest, gemini-1.5-pro-latest, gemini-2.5-pro, etc.
+            Supports: gemini-2.0-flash (default), gemini-1.5-flash-latest, gemini-1.5-pro-latest, gemini-2.5-pro, etc.
             """
         LlmsHouse._ensure_api_key("GOOGLE_API_KEY")
         return ChatGoogleGenerativeAI(
@@ -174,7 +174,7 @@ class LlmsHouse:
     def get_fallback_model(**kwargs):
         """Get fallback model when primary model fails."""
         # Access fallback_model as a class attribute
-        fallback_model_name = "gemini-2.0-flash-001" # Hardcoded or make LlmsHouse.fallback_model a class attribute
+        fallback_model_name = "gemini-2.0-flash" # Hardcoded or make LlmsHouse.fallback_model a class attribute
         try:
             return LlmsHouse.google_model(fallback_model_name, **kwargs)
         except Exception as e:

@@ -26,4 +26,4 @@
 ## 5. Clean Code Practices
 - **No Unnecessary IO**: Remove `print` statements that are not essential for logging or final output.
 - **Dead Code**: Only declare methods that are currently used or you sure , will be used , **immediate** future use.
-- **Comments**: Use docstrings for documentation. Avoid inline comments (`#`) unless necessary to explain complex, non-obvious logic.
+- **Comments**: Use docstrings for documentation. Avoid inline comments (`#`) unless very  necessary to explain complex, non-obvious logic and Inline comments should be 1 Liners .

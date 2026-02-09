@@ -7,6 +7,7 @@ from datetime import datetime
 import os
 
 from researcher.retrievers.serpapi import SerpApiClient
+from researcher.retrievers.custom_url_retriever.google_search import GoogleSearchRetriever
 from researcher.scrapers.agentql import AgentQLScraper
 from researcher.scrapers.browser import UniversalLoader
 from researcher.scrapers.tavily import Tavily          
@@ -31,7 +32,8 @@ class WebSearch:
         self.query = query
         self.agentql_prompt = agentql_prompt if agentql_prompt else f"Extract all Important data from the page related to this query :{self.query}"
         self.max_results = max_results
-        self.serpapi_client = SerpApiClient()
+        self.serpapi_client = SerpApiClient() # Kept as backup
+        self.google_retriever = GoogleSearchRetriever()
         self.universal_loader = UniversalLoader()
         self.tavily_scraper = Tavily(query=query, max_result=max_results)
         self.completed_urls = []
@@ -74,11 +76,10 @@ class WebSearch:
 
         extracted_data = []
         try:
-            # Assuming 'multiple_extract_content' is an async method returning a list of results.
             tavily_results = await self.tavily_scraper.multiple_extract_content(urls)
             for res in tavily_results:
                 if res.get("content"):
-                    extracted_data.append({"metadata": res.get("metadata"), "content": res.get("content")})
+                    extracted_data.append({"url": res.get("url"), "content": res.get("content")})
                     self.completed_urls.append(res.get("url"))
         except Exception as e:
             logging.error(f"Tavily search failed: {e}")
@@ -176,6 +177,17 @@ class WebSearch:
     #         return []
 
 
+    async def get_google_results(self) -> list:
+        """
+        Retrieves URLs using the custom Google retriever (DuckDuckGo backed).
+        """
+        try:
+            urls = await self.google_retriever.search(self.query, max_results=self.max_results)
+            return urls
+        except Exception as e:
+            logging.error(f"Google custom search failed: {e}")
+            return []
+
     async def initiate_research(self) -> List[Dict[str, Any]]:
         """
         Initiates the research process by retrieving URLs and scraping data using
@@ -186,21 +198,21 @@ class WebSearch:
                                   Only resolved URLs with content are included.
         """
         try:
-            # Step 1: Retrieve URLs using SerpApi
-            urls  =  await self.get_serpapi_results()
+            print("Step 1: Retrieve URLs using SerpApi")
+            # urls = await self.get_serpapi_results() # Deprecated due to quota limits
+            urls = await self.get_google_results()
+            
             for url in urls: 
                 print(url)
 
             print("--------------------------------------------------")
-            # Step 2: Scrape data using browser
-            browser_results = await self.search_with_browser(urls)
-      
-          
-
+            # Step 2: Scrape data using Tavily first
+            tavily_results = await self.search_with_tavily(urls)
             print("--------------------------------------------------")
-            # # Step 3: Scrape unresolved URLs using Tavily
+
+            # Step 3: Scrape unresolved URLs using  browser
             unresolved_urls = [url for url in urls if url not in self.completed_urls]
-            tavily_results = await self.search_with_tavily(unresolved_urls)
+            browser_results = await self.search_with_browser(unresolved_urls)
             print("--------------------------------------------------")
 
 
