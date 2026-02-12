@@ -12,7 +12,9 @@ Emits progress events via StreamWriter for real-time tracking.
 """
 
 import logging
+import uuid
 from typing import Dict, Any
+from datetime import datetime
 
 from langgraph.graph import StateGraph, END
 from langgraph.types import StreamWriter
@@ -54,7 +56,15 @@ async def researcher_node(state: ResearchReviewData, writer: StreamWriter) -> Di
     
     return {
         "raw_research_results": all_answers,
-        "iteration_count": 0
+        "iteration_count": 0,
+        "logs": [{
+            "message_id": str(uuid.uuid4()),
+            "role": "system",
+            "content": f"Researcher #{query_num} completed initial research. Found {len(all_answers)} results.",
+            "timestamp": datetime.utcnow().isoformat(),
+            "message_type": "log",
+            "metadata": {"query_num": query_num, "step": "researcher"}
+        }]
     }
 
 
@@ -95,7 +105,15 @@ async def reviewer_node(state: ResearchReviewData, writer: StreamWriter) -> Dict
     return {
         "current_reviews": reviews,
         "review_feedback": reviews,
-        "iteration_count": iteration + 1
+        "iteration_count": iteration + 1,
+        "logs": [{
+            "message_id": str(uuid.uuid4()),
+            "role": "system",
+            "content": f"Reviewer #{query_num} generated {len(reviews)} follow-up questions.",
+            "timestamp": datetime.utcnow().isoformat(),
+            "message_type": "log",
+            "metadata": {"query_num": query_num, "step": "reviewer"}
+        }]
     }
 
 
@@ -131,21 +149,31 @@ async def resolve_node(state: ResearchReviewData, writer: StreamWriter) -> Dict[
                 "query": q,
                 "answer": a,
                 "parent_query": review_query,
-                "depth": 0
+                "depth": 0,
+                "section_id": str(uuid.uuid4())
             })
     elif isinstance(answer, str) and answer:
         new_results.append({
             "query": review_query,
             "answer": answer,
             "parent_query": review_query,
-            "depth": 0
+            "depth": 0,
+            "section_id": str(uuid.uuid4())
         })
 
     logger.info(f"[resolve_node] Added {len(new_results)} new research results")
     emit_node_progress(writer, "resolver", query_num, "completed", 90, {"results_count": len(new_results)})
 
     return {
-        "raw_research_results": new_results
+        "raw_research_results": new_results,
+        "logs": [{
+            "message_id": str(uuid.uuid4()),
+            "role": "system", 
+            "content": f"Resolver #{query_num} answered {len(new_results)} questions.",
+            "timestamp": datetime.utcnow().isoformat(),
+            "message_type": "log",
+            "metadata": {"query_num": query_num, "step": "resolver"}
+        }]
     }
 
 

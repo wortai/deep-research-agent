@@ -9,6 +9,7 @@ import logging
 import asyncio
 from collections import deque
 from typing import List, Optional, Dict, Any
+import uuid
 
 from researcher.solution_tree.research_node import Node
 from researcher.solution_tree.query_sol_ans import Solver
@@ -16,14 +17,6 @@ from researcher.solution_tree.query_sol_ans import Solver
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
-def print_tree(node: Node, prefix: str = "", is_last: bool = True):
-    """Prints a visual representation of the research tree."""
-    print(prefix + ("└── " if is_last else "├── ") + node.query)
-    child_prefix = prefix + ("    " if is_last else "│   ")
-    for i, child in enumerate(node.children):
-        is_last_child = (i == len(node.children) - 1)
-        print_tree(child, child_prefix, is_last_child)
 
 
 def _estimate_total_nodes(max_depth: int, num_gaps_per_node: int) -> int:
@@ -97,83 +90,120 @@ async def execute_research_tree(
     nodes_processed = 0
 
     while queue:
-        current_node = queue.popleft()
+        # Group all nodes at the same depth for parallel processing
+        current_depth = queue[0].depth
+        same_depth_nodes = []
+        while queue and queue[0].depth == current_depth:
+            same_depth_nodes.append(queue.popleft())
         
-        _emit_event(
-            writer,
-            "research_node_started",
-            "researching",
-            {
-                "query": current_node.query[:100],
-                "depth": current_node.depth,
-                "node_id": f"node_{nodes_processed}"
-            },
-            {"completed": nodes_processed, "total": estimated_total}
-        )
-
-        logger.info(f"Resolving Node at Depth {current_node.depth}: '{current_node.query}'")
-        
-        nodes_processed += 1
-
-        if current_node.depth >= max_depth:
-            logger.info("Max depth reached for this branch.")
-            _emit_event(
-                writer,
-                "research_node_completed",
-                "researching",
-                {"query": current_node.query[:100], "status": "max_depth_reached"},
-                {"completed": nodes_processed, "total": estimated_total}
-            )
-            continue
-
-        try:
-            solver = Solver(query=current_node.query, num_gaps_per_node=num_gaps_per_node)
-            gaps, answer = await solver.resolve()
+        async def process_single_node(node: Node, node_index: int) -> Dict[str, Any]:
+            """
+            Process a single research node.
             
-            current_node.answer = answer
+            Resolves the query using Solver and returns results for aggregation.
+            Handles max_depth check and error cases.
             
-            for q, a in answer.items():
-                all_answers.append({
-                    "query": q,
-                    "answer": a,
-                    "parent_query": current_node.query,
-                    "depth": current_node.depth
-                })
-            
-            all_gaps[current_node.query] = gaps
-            
-            logger.info(f"Query resolved. Found {len(gaps)} new child nodes (gaps).")
+            Args:
+                node: The research node to process.
+                node_index: Index for tracking progress.
+                
+            Returns:
+                Dict with node, gaps, answer, and success status.
+            """
+            nonlocal nodes_processed
+            local_node_id = nodes_processed + node_index
             
             _emit_event(
                 writer,
-                "research_node_completed",
+                "research_node_started",
                 "researching",
                 {
-                    "query": current_node.query[:100],
-                    "answers_count": len(answer),
-                    "gaps_found": len(gaps),
-                    "status": "resolved"
+                    "query": node.query[:100],
+                    "depth": node.depth,
+                    "node_id": f"node_{local_node_id}"
                 },
-                {"completed": nodes_processed, "total": estimated_total}
+                {"completed": local_node_id, "total": estimated_total}
             )
-
-            for gap_query in gaps:
-                child_node = Node(
-                    query=gap_query, 
-                    depth=current_node.depth + 1, 
-                    parent=current_node
+            
+            logger.info(f"Resolving Node at Depth {node.depth}: '{node.query}'")
+            
+            if node.depth >= max_depth:
+                logger.info("Max depth reached for this branch.")
+                _emit_event(
+                    writer,
+                    "research_node_completed",
+                    "researching",
+                    {"query": node.query[:100], "status": "max_depth_reached"},
+                    {"completed": local_node_id + 1, "total": estimated_total}
                 )
-                current_node.children.append(child_node)
-                queue.append(child_node)
-
-        except Exception as e:
-            logger.error(f"An error occurred while resolving '{current_node.query}': {e}")
-            _emit_event(
-                writer,
-                "error",
-                "researching",
-                {"query": current_node.query[:100], "error": str(e)[:200]}
-            )
+                return {"node": node, "gaps": [], "answer": {}, "success": True, "max_depth": True}
+            
+            try:
+                solver = Solver(query=node.query, num_gaps_per_node=num_gaps_per_node)
+                gaps, answer = await solver.resolve()
+                
+                _emit_event(
+                    writer,
+                    "research_node_completed",
+                    "researching",
+                    {
+                        "query": node.query[:100],
+                        "answers_count": len(answer),
+                        "gaps_found": len(gaps),
+                        "status": "resolved"
+                    },
+                    {"completed": local_node_id + 1, "total": estimated_total}
+                )
+                
+                return {"node": node, "gaps": gaps, "answer": answer, "success": True, "max_depth": False}
+                
+            except Exception as e:
+                logger.error(f"An error occurred while resolving '{node.query}': {e}")
+                _emit_event(
+                    writer,
+                    "error",
+                    "researching",
+                    {"query": node.query[:100], "error": str(e)[:200]}
+                )
+                return {"node": node, "gaps": [], "answer": {}, "success": False, "max_depth": False}
+        
+        # Process all sibling nodes in parallel
+        results = await asyncio.gather(*[
+            process_single_node(node, idx) for idx, node in enumerate(same_depth_nodes)
+        ])
+        
+        # Aggregate results from parallel execution
+        for result in results:
+            nodes_processed += 1
+            node = result["node"]
+            
+            if result["max_depth"]:
+                continue
+                
+            if result["success"]:
+                node.answer = result["answer"]
+                
+                for q, a in result["answer"].items():
+                    all_answers.append({
+                        "query": q,
+                        "answer": a,
+                        "parent_query": node.query,
+                        "depth": node.depth,
+                        "section_id": str(uuid.uuid4())
+                    })
+                
+                all_gaps[node.query] = result["gaps"]
+                
+                logger.info(f"Query resolved. Found {len(result['gaps'])} new child nodes (gaps).")
+                
+                for gap_query in result["gaps"]:
+                    child_node = Node(
+                        query=gap_query, 
+                        depth=node.depth + 1, 
+                        parent=node
+                    )
+                    node.children.append(child_node)
+                    queue.append(child_node)
             
     _emit_event(
         writer,

@@ -8,20 +8,79 @@ Includes:
 - Graph state definitions for main agent and subgraphs
 """
 
-from typing import TypedDict, List, Dict, Annotated, Optional, Literal
+from typing import TypedDict, List, Dict, Annotated, Optional, Literal, Any
 import operator
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 # --- Pydantic Models for Structured Output ---
 
-class UnifiedReportResponse(BaseModel):
-    """LLM response for complete unified report generation."""
-    table_of_contents: str = Field(description="Markdown table of contents with chapter/subchapter hierarchy (1, 1.1, 1.2, 2, 2.1...)")
-    abstract: str = Field(description="Professional abstract summarizing objectives, methodology, key findings, and conclusions in markdown")
-    introduction: str = Field(description="Comprehensive introduction with background, context, objectives, and scope in markdown")
-    report_body: str = Field(description="Main report content organized by chapters and subchapters with headings (#, ##, ###), URLs, tables, comparisons, etc. in markdown")
-    conclusion: str = Field(description="Synthesis of findings, recommendations, limitations, and future directions in markdown")
+class ReportOutlineResponse(BaseModel):
+    """
+    LLM response for report outline generation (Phase 1).
+    
+    Produces a table of contents with chapter/subchapter hierarchy,
+    a report_outline mapping headings to section_ids, plus abstract,
+    introduction, and conclusion content.
+    """
+    table_of_contents: Dict[str, List[str]] = Field(
+        description="Table of contents where keys are main chapter headings (e.g. '1. Neural Network Fundamentals') and values are arrays of subchapter headings (e.g. ['1.1 Architecture', '1.2 Activation Functions'])"
+    )
+    report_outline: Dict[str, List[str]] = Field(
+        description="Mapping of each chapter/subchapter heading to array of section_ids required to generate that part. Keys must match exactly the headings from table_of_contents (both main chapters and subchapters)"
+    )
+    abstract: str = Field(
+        description="Professional abstract (150-300 words) summarizing the report objectives, methodology, key findings, and conclusions in markdown"
+    )
+    introduction: str = Field(
+        description="Comprehensive introduction with background context, research objectives, scope, and report roadmap in markdown"
+    )
+    conclusion: str = Field(
+        description="Synthesis of all findings, key takeaways, practical recommendations, limitations, and future directions in markdown"
+    )
+
+    @model_validator(mode='before')
+    @classmethod
+    def parse_json_fields(cls, data: Any) -> Any:
+        import json
+        if isinstance(data, dict):
+            for field in ['table_of_contents', 'report_outline']:
+                if field in data and isinstance(data[field], str):
+                    try:
+                        # Clean markdown code blocks if present
+                        value = data[field].strip()
+                        if value.startswith('```json'):
+                            value = value.split('```json')[1]
+                        if value.endswith('```'):
+                            value = value.rsplit('```', 1)[0]
+                        data[field] = json.loads(value)
+                    except json.JSONDecodeError:
+                        pass
+        return data
+
+
+
+
+
+
+class ReportChapterResponse(BaseModel):
+    """
+    LLM response for a single chapter/subchapter body (Phase 2).
+    
+    Contains the generated markdown content for one chapter or subchapter,
+    produced in parallel for each entry in the report_outline.
+    """
+    chapter_content: str = Field(
+        description="Complete markdown content for this chapter/subchapter with proper headings, URLs, tables, comparisons, and formatting"
+    )
+
+    @model_validator(mode='before')
+    @classmethod
+    def parse_chapter_content(cls, data: Any) -> Any:
+        # If the model returns a plain string (raw markdown), treat it as the content
+        if isinstance(data, str):
+            return {"chapter_content": data}
+        return data
 
 
 # --- Chat Message Model for Memory System ---
@@ -39,7 +98,16 @@ class ChatMessage(BaseModel):
     timestamp: str = Field(description="ISO format timestamp of message creation")
     tool_calls: Optional[List[Dict]] = Field(default=None, description="Tool calls initiated by assistant")
     tool_results: Optional[List[Dict]] = Field(default=None, description="Results from tool execution")
-    metadata: Optional[Dict] = Field(default=None, description="Additional metadata like tokens, latency")
+    message_type: Literal["chat", "log", "plan"] = Field(
+        default="chat", 
+        description="Type of message: 'chat' for conversation, 'log' for system events, 'plan' for research plans"
+    )
+    metadata: Optional[Dict] = Field(default=None, description="Additional metadata like tokens, latency, step_duration")
+
+
+
+
+
 
 
 
@@ -78,6 +146,7 @@ class RawResearchResult(TypedDict):
     answer: str
     parent_query: str
     depth: int
+    section_id: str
 
 
 class PlannerQuery(TypedDict):
@@ -99,6 +168,9 @@ class ResearchReviewData(TypedDict):
     review_feedback: Annotated[List[str], operator.add]
     current_reviews: List[str]
     iteration_count: int
+    logs: Annotated[List[Dict], operator.add]
+
+
 
 
 

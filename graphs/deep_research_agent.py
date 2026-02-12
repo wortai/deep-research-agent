@@ -195,7 +195,15 @@ class DeepResearchAgent:
 
         logger.info(f"[parallel_research_node] All {len(results)} research tasks complete")
         
-        return {"research_review": list(results)}
+        all_logs = []
+        for res in results:
+            if "logs" in res:
+                all_logs.extend(res["logs"])
+        
+        # Sort logs by timestamp to keep them in order (optional but good)
+        all_logs.sort(key=lambda x: x.get("timestamp", ""))
+
+        return {"research_review": list(results), "chat_messages": all_logs}
 
     async def _parallel_solver_node(self, state: AgentGraphState) -> Dict[str, Any]:
         """
@@ -378,7 +386,8 @@ class DeepResearchAgent:
         self, 
         user_query: str, 
         search_mode: str = "deepsearch",
-        thread_id: Optional[str] = None
+        thread_id: Optional[str] = None,
+        resume: bool = False
     ) -> Dict[str, Any]:
         """
         Execute deep research with real-time streaming to terminal.
@@ -390,6 +399,7 @@ class DeepResearchAgent:
             user_query: The research question to investigate.
             search_mode: Search mode (default: deepsearch).
             thread_id: Optional existing thread ID for memory.
+            resume: If True, resume from last checkpoint instead of starting fresh.
 
         Returns:
             Final state containing report content and metadata.
@@ -399,29 +409,51 @@ class DeepResearchAgent:
         
         thread_id = thread_id or str(uuid.uuid4())
         config = {"configurable": {"thread_id": thread_id}}
-        initial_state = self._create_initial_state(
-            user_query, 
-            search_mode=search_mode,
-            thread_id=thread_id
-        )
-
-        logger.info(f"[run_with_streaming] Starting research for: {user_query}")
         
-        if self._memory:
-            await self._memory.initialize()
-            memory_context = await self._memory.get_context_for_planner(
-                thread_id=thread_id,
-                user_id=initial_state["user_id"],
-                current_query=user_query
+        # Resume mode: check checkpoint state and continue from last point
+        if resume:
+            logger.info(f"[run_with_streaming] Resuming from checkpoint for thread: {thread_id}")
+            
+            # Check current state from checkpoint
+            state_snapshot = await self._graph.aget_state(config)
+            if state_snapshot is None or not state_snapshot.values:
+                logger.error(f"[run_with_streaming] No checkpoint found for thread: {thread_id}")
+                return {"error": "No checkpoint found for this thread"}
+            
+            # Log what we're resuming from
+            pending_tasks = state_snapshot.tasks if hasattr(state_snapshot, 'tasks') else []
+            next_nodes = state_snapshot.next if hasattr(state_snapshot, 'next') else []
+            logger.info(f"[run_with_streaming] Resuming - Next nodes: {next_nodes}, Pending tasks: {len(pending_tasks)}")
+            
+            # For error recovery, we pass None to re-execute from last checkpoint
+            # LangGraph will automatically resume from the failed node
+            current_input = None
+            
+        else:
+            initial_state = self._create_initial_state(
+                user_query, 
+                search_mode=search_mode,
+                thread_id=thread_id
             )
-            initial_state["memory_context"] = memory_context
+
+            logger.info(f"[run_with_streaming] Starting research for: {user_query}")
+            
+            if self._memory:
+                await self._memory.initialize()
+                memory_context = await self._memory.get_context_for_planner(
+                    thread_id=thread_id,
+                    user_id=initial_state["user_id"],
+                    current_query=user_query
+                )
+                initial_state["memory_context"] = memory_context
+            
+            current_input = initial_state
 
         display = TerminalDisplay()
         consumer = StreamConsumer(display)
-        display.set_phase("initializing")
+        display.set_phase("resuming" if resume else "initializing")
         
         final_state = None
-        current_input = initial_state
         
         while True:
             async for chunk in self._graph.astream(

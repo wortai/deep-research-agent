@@ -133,8 +133,8 @@ Generate a JSON object with two keys: "main_query" and "query_answers".
 **Structure Requirements:**
 
 1. **Main Heading (H1)**: Start with a clear, relevant title using `# Title`
-2. **Introduction**: Brief 1-2 sentence overview
-3. **Body Content**: Organized into logical sections with:
+
+2. **Body Content**: Organized into logical sections with:
    - `## Section Headings` for major topics
    - `### Subsection Headings` for subtopics
    - Tables (use Markdown table syntax) for comparative data
@@ -142,25 +142,37 @@ Generate a JSON object with two keys: "main_query" and "query_answers".
    - Numbered lists (`1.`, `2.`) for sequential steps
    - **Bold** for emphasis on key terms
    - *Italic* for secondary emphasis
-4. **Inline Citations**: After each statement/paragraph that uses information from a source, add the 🔗 emoji as a hyperlink to the source URL: `[🔗](https://example.com)`
-5. **Conclusion/Summary** (if appropriate): Brief wrap-up for complex topics
+3 **Inline Citations**: After each statement/paragraph that uses information from a source, add the 🔗 emoji as a hyperlink to the source URL: `[🔗](https://example.com)`
+
 
 **Citation Rules:**
 
-- **MANDATORY**: Every fact, statistic, or claim MUST have an inline citation immediately after the relevant sentence or paragraph
+
 - Format: `[🔗](URL)` - the emoji itself becomes the clickable link
 - Place citations at the end of the sentence or paragraph they support
 - If multiple sources support a paragraph, include multiple citation links: `[🔗](URL1) [🔗](URL2)`
 - DO NOT create a separate "Sources" section at the end
-- All URLs from the context that contributed to the answer must be cited inline
+- Ensure the JSON is valid (properly escaped quotes, newlines as `\\n`)
+
 
 **Quality Standards:**
 
 - **Accuracy**: Keep all numbers, dates, names, and facts exactly as stated in the context
-- **Comprehensiveness**: Cover all relevant aspects of the query found in the context
+- **Comprehensiveness**: Cover all relevant aspects of the query found in the context and in depth 
 - **Clarity**: Use clear, concise language; avoid jargon unless necessary
 - **Completeness**: Ensure the answer can stand alone without needing additional context
 - **Relevance**: Focus strictly on answering the main query
+
+
+
+
+** CONTEXT RULE **
+- Strictly Don't Try to Summarize the Context , Instead Try to get in the depth 
+- Don't Loose the Details of the context 
+- Don't make it shorter or way longer than the context 
+- Don't Try to give short summary answer of the query , instead try to get in the depth 
+- Don't Make answer vague , it has to be clear and getting in depths to explain
+
 
 **Example Output Format:**
 ```json
@@ -172,13 +184,7 @@ Generate a JSON object with two keys: "main_query" and "query_answers".
 }}
 ```
 
-**CRITICAL REMINDERS:**
 
-- Output **ONLY** the JSON object - no additional text, explanations, or markdown code fences
-- Ensure the JSON is valid (properly escaped quotes, newlines as `\\n`)
-- Every claim must have an inline citation [🔗](URL)
-- Adapt formatting to best suit the query type and available content
-- Be thorough but concise - quality over quantity
 """
 def get_plan_prompt(query: str) -> str:
     """
@@ -212,13 +218,13 @@ Create a research plan that follows this progression:
 - **Query 2**: Core mechanisms/fundamentals - How does it work? Key components? Basic principles
 - **Query 3**: Historical context & evolution - Background, trajectory, major milestones
 
-**Level 2 - Deep Dive (Queries 4-7):**
-- **Query 4-5**: Specific dimensions of the topic (e.g., financial performance, technical capabilities, market position)
-- **Query 6-7**: Comparative analysis, challenges, opportunities, or specialized aspects
+**Level 2 - Deep Dive (Queries 4-6):**
+- **Query 4**: Specific dimensions of the topic (e.g., financial performance, technical capabilities, market position)
+- **Query 5**: Comparative analysis, challenges, opportunities, or specialized aspects
 
-**Level 3 - Advanced Insights (Queries 8-10):**
-- **Query 8-9**: Expert perspectives, emerging trends, future implications
-- **Query 10**: Synthesis query - connecting themes, implications, or forward-looking analysis
+**Level 3 - Advanced Insights (Queries 6-8):**
+- **Query 6-7**: Expert perspectives, emerging trends, future implications
+- **Query 8**: Synthesis query - connecting themes, implications, or forward-looking analysis
 
 **QUERY DESIGN PRINCIPLES:**
 
@@ -352,47 +358,77 @@ def get_clarifying_questions_prompt(query: str) -> str:
 
 
 
-
 def get_gaps_prompt(main_query: str, query_answers: dict, num_gaps: int) -> str:
-    """Generates a prompt to identify information gaps based on synthesized answers."""
+    """
+    Generates a depth-focused research gap prompt.
+    Main query = user intent anchor.
+    Subqueries + answers = current depth state.
+    Output = next-level depth probes.
+    """
 
     answers_str = ""
     for query, answer in query_answers.items():
-        answers_str += f'### Answer for: subQuery "{query}"\n Answers: {answer}\n\n'
+        answers_str += f'### Subquery: "{query}"\nCurrent Answer:\n{answer}\n\n'
 
-    return f"""You are a research gap analyst. Your task is to identify what information is still missing to fully answer the main query but base refrence should be Subquery.
+    return f"""
+You are a **Depth-First Research Analyst Agent**.
 
-    **Main Query:**
-    {main_query}
+Your mission is to determine what *additional depth* is needed to fully and rigorously answer the **Main Query**, using the **Subqueries and their Answers as your base reference layer**.
 
-    **Current Answers (already gathered):**
-    {answers_str}
-   
+---
 
-   These queries with answers are a Try to Know more about the Main query and to get into more depth of above Current Answers queries and Answers too .
-    ---
+### 🧭 Anchors
 
-    **Your Task:**
-    Analyze the current knowledge state and identify exactly **{num_gaps}** information gaps. A gap is a missing link required to provide a definitive, high-fidelity response to the main query but Our focus should be in getting in more to **subquery** that will lead to answer Main Query .
-    We should Try to Get in more depth of above Current Answers queries and Answers too .
-    Depth Means we should get into more depth of another topic, perspective or another angle or aspect of query that we have answers for.
-    This will Helps us to Get into topics that We need to know more about to answer the head query and the Main Query 
+**Main Query (User Intent Anchor):**  
+{main_query}
 
-    **Gap Identification Strategy:**
-    1.  **Granularity:** Look for surface-level explanations that lack technical specifics, causal mechanisms, or quantitative data. Move from "what" to "how" and "why."
-    2.  **Multidimensionality:** Evaluate the query through missing lenses: technical architecture, economic impact, regulatory constraints, ethical implications, or historical context.
-    3.  **Logical Continuity:** Identify "black boxes" or unverified assumptions where the current answers leap to conclusions without supporting evidence.
-    4.  **Edge Cases:** Consider if the current information only covers the "happy path" while ignoring limitations, risks, or specific exceptions.
+**Current Depth Layer (What We Already Know):**  
+{answers_str}
 
-    **JSON Output Format:**
-    ```json
-    {{
+---
 
-        "gaps": [
-            "Specific, actionable question 1?",
-            "Specific, actionable question 2?",
-            ...
-        ]
-    }} ```
-    Output only the JSON object, nothing else.
-    """
+### 🎯 Your Objective
+
+Generate exactly **{num_gaps}** research gaps that:
+
+• Stay aligned with the *Main Query*  
+• Go *deeper into the subqueries and their answers*  
+• Uncover missing mechanisms, assumptions, limits, or technical details  
+• Lead to stronger, more complete understanding of the topic  
+• Can be directly used as new search queries
+
+---
+
+### 🔎 How to Go Deeper
+
+Use the subqueries + answers as your base and ask:
+
+1. **Mechanism Depth** – Where do we explain *what*, but not *how / why*?
+2. **Detail Gaps** – What parts lack concrete data, steps, or examples?
+3. **Hidden Assumptions** – What is being taken for granted?
+4. **Constraints & Tradeoffs** – What limits, risks, or costs are missing?
+5. **Comparative Depth** – What alternatives or benchmarks are missing?
+6. **Operational Reality** – What happens in real-world usage?
+
+---
+
+### 🧱 Output Rules
+
+• Return ONLY valid JSON  
+• No prose, no markdown  
+• Each gap must be a **specific, high-leverage research question**  
+• Do NOT repeat what is already answered  
+• Each gap must clearly help answer the *Main Query better*
+
+---
+
+### 📦 JSON Output Format
+
+{
+  "gaps": [
+    "Precise, actionable depth question 1?",
+    "Precise, actionable depth question 2?",
+    ...
+  ]
+}
+"""

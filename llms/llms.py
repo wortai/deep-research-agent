@@ -178,7 +178,7 @@ class LlmsHouse:
         try:
             return LlmsHouse.google_model(fallback_model_name, **kwargs)
         except Exception as e:
-            print(f"Fallback model failed: {e}")
+            # Fallback model error logged silently (no stdout print)
             return None
     @staticmethod
     def _ensure_api_key(key_name: str):

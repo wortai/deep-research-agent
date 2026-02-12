@@ -6,6 +6,7 @@ import json
 import logging
 import asyncio
 from typing import List, Tuple, Dict, Any, Optional
+import uuid
 
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.exceptions import OutputParserException
@@ -37,7 +38,7 @@ class Solver:
         self, 
         query: str, 
         num_web_queries: int = 1, 
-        max_web_results: int = 1, 
+        max_web_results: int = 2, 
         num_gaps_per_node: int = 2
     ):
         """
@@ -55,9 +56,9 @@ class Solver:
         self.max_results = max_web_results
 
         self.web_search_llm = LlmsHouse.google_model("gemini-2.0-flash")
-        self.analysis_llm = LlmsHouse.google_model("gemini-2.0-flash")
+        self.analysis_llm = LlmsHouse.google_model("gemini-2.5-flash")
 
-    def create_web_search_queries(self) -> List[str]:
+    async def create_web_search_queries(self) -> List[str]:
         """
         Generate web search queries using the LLM.
         
@@ -69,7 +70,7 @@ class Solver:
         prompt = get_web_search_queries_prompt(self.query, self.num_web_queries)
         
         try:
-            data = chain.invoke(prompt)
+            data = await chain.ainvoke(prompt)
             return data.get("queries", [])
         except OutputParserException as e:
             logger.error(f"Failed to parse web search queries: {e}")
@@ -106,7 +107,7 @@ class Solver:
         
         return all_web_content
         
-    def analyze_gaps(self, web_content: List[Dict[str, str]]) -> Tuple[str, Dict[str, str], List[str]]:
+    async def analyze_gaps(self, web_content: List[Dict[str, str]]) -> Tuple[str, Dict[str, str], List[str]]:
         """
         Analyzes web search results to answer the main query and identify gaps.
         
@@ -146,12 +147,12 @@ class Solver:
         chain = analysis_llm_configured | parser
 
         try:
-            answers_data = chain.invoke(answer_prompt)
+            answers_data = await chain.ainvoke(answer_prompt)
             query_answers = answers_data.get("query_answers", {})
 
             if self.num_gaps_per_node > 0:
                 gaps_prompt = get_gaps_prompt(self.query, query_answers, self.num_gaps_per_node)
-                gaps_data = chain.invoke(gaps_prompt)
+                gaps_data = await chain.ainvoke(gaps_prompt)
                 gaps = gaps_data.get("gaps", [])
             else:
                 gaps = []
@@ -171,13 +172,13 @@ class Solver:
                 - List of gaps (new queries).
                 - Dictionary of answers.
         """
-        web_search_queries = self.create_web_search_queries()
+        web_search_queries = await self.create_web_search_queries()
         logger.info(f"Web queries: {web_search_queries}")
         
         web_content = await self.retrieve_web_content(web_search_queries)
         logger.info(f"Retrieved {len(web_content)} content items")
         
-        query, answer, gaps = self.analyze_gaps(web_content)
+        query, answer, gaps = await self.analyze_gaps(web_content)
 
         dump_query_solution(query, answer, filename="query_solutions.md")
         
@@ -204,13 +205,13 @@ class Solver:
             search_results = await tavily.basic_search()
             
             formatted_results = []
-            print(search_results)
             for result in search_results:
                 formatted_results.append({
                     "query": self.query,
                     "answer": f"{result.get('url', '')}: {result.get('content', '')}",
                     "parent_query": self.query,
-                    "depth": 0
+                    "depth": 0,
+                    "section_id": str(uuid.uuid4())
                 })
             
             research_review_data = {

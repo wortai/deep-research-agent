@@ -337,13 +337,19 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Print link URLs */
+/* Show link indicator with emoji instead of full URL */
 @media print {
     a[href^="http"]:after {
-        content: " (" attr(href) ")";
-        font-size: 0.8em;
-        color: #718096;
+        content: " 🔗";
+        font-size: 0.9em;
+        text-decoration: none;
     }
+}
+
+/* Keep clickable link styling */
+a[href^="http"] {
+    cursor: pointer;
+    position: relative;
 }
 
 /* Methodology Section */

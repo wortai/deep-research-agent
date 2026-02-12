@@ -19,7 +19,13 @@ from .publisher_utils.utils import (
     convert_markdown_to_html
 )
 from writer.cover.report_cover import ReportCover
-from weasyprint import HTML, CSS
+try:
+    from weasyprint import HTML, CSS
+except OSError:
+    # Handle missing system dependencies (e.g. libgobject on mac)
+    HTML = None
+    CSS = None
+    print("Warning: WeasyPrint system dependencies not found. PDF generation disabled.")
 
 
 class Publisher:
@@ -115,6 +121,10 @@ class Publisher:
             Path to generated PDF.
         """
         css_path = get_default_css_path()
+        if HTML is None:
+            print("Error: WeasyPrint not mapped. Returning empty path.")
+            return ""
+
         html_content = convert_markdown_to_html(layout)
         css = CSS(filename=css_path)
         

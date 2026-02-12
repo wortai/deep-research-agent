@@ -174,20 +174,113 @@ def process_math_in_markdown(markdown_content: str) -> str:
     return text
 
 
+def clean_url_links_in_markdown(markdown_content: str) -> str:
+    """
+    Replaces markdown links with URL-like text with 🔗 emoji.
+    
+    Converts links formatted as [URL](URL) or [Citation Text](URL)
+    where the citation text contains the URL domain to just show 🔗
+    while preserving the clickable link functionality.
+    
+    Args:
+        markdown_content: Markdown with various link formats.
+        
+    Returns:
+        Markdown with clean emoji icons for URL-heavy links.
+    """
+    # Pattern 1: Replace [https://example.com](https://example.com) with [🔗](https://example.com)
+    # This handles cases where the entire URL is used as link text
+    markdown_content = re.sub(
+        r'\[https?://[^\]]+\]\((https?://[^\)]+)\)',
+        r'[🔗](\1)',
+        markdown_content
+    )
+    
+    # Pattern 2: Replace [www.example.com](https://example.com) with [🔗](https://example.com)
+    markdown_content = re.sub(
+        r'\[www\.[^\]]+\]\((https?://[^\)]+)\)',
+        r'[🔗](\1)',
+        markdown_content
+    )
+    
+    # Pattern 3: Replace citations that include the domain/URL in the text
+    # Example: [Nature - Title](https://nature.com/article) -> [🔗](https://nature.com/article)
+    # This is more conservative - only replace if link text looks like a citation
+    def replace_citation_link(match):
+        link_text = match.group(1)
+        url = match.group(2)
+        
+        # Extract domain from URL for comparison
+        domain_match = re.search(r'https?://(?:www\.)?([^/]+)', url)
+        if domain_match:
+            domain = domain_match.group(1)
+            # If the link text contains the domain name, replace with emoji
+            if domain.lower() in link_text.lower():
+                return f'[🔗]({url})'
+        
+        # Otherwise keep the original link
+        return match.group(0)
+    
+    markdown_content = re.sub(
+        r'\[([^\]]+)\]\((https?://[^\)]+)\)',
+        replace_citation_link,
+        markdown_content
+    )
+    
+    return markdown_content
+
+
+def add_link_tooltips(html_content: str) -> str:
+    """
+    Adds title attributes to links for tooltip display in PDF readers.
+    
+    This enhances the user experience by showing the full URL when
+    hovering over the 🔗 emoji in PDF readers that support tooltips.
+    
+    Args:
+        html_content: HTML with links.
+        
+    Returns:
+        HTML with title attributes added to external links.
+    """
+    def add_title(match):
+        href = match.group(1)
+        # Check if title attribute already exists
+        if 'title=' in match.group(0):
+            return match.group(0)
+        # Add title attribute with the URL
+        return f'<a href="{href}" title="{href}"'
+    
+    # Pattern matches <a href="http..." but not if it already has title
+    pattern = r'<a href="(https?://[^"]+)"'
+    return re.sub(pattern, add_title, html_content)
+
+
 def convert_markdown_to_html(markdown_content: str) -> str:
     """
     Converts markdown to HTML with LaTeX math rendered as SVG images.
     
-    Process order: math -> markdown to preserve equation formatting.
+    Process order: clean URLs -> math -> markdown -> link tooltips.
+    This preserves equation formatting and creates clean, clickable
+    link icons while adding URL tooltips for PDF accessibility.
     
     Args:
-        markdown_content: Raw markdown with LaTeX math.
+        markdown_content: Raw markdown with LaTeX math and links.
         
     Returns:
         Complete HTML document ready for PDF conversion.
     """
-    processed_content = process_math_in_markdown(markdown_content)
+    # First, clean up URL-heavy links in markdown
+    cleaned_markdown = clean_url_links_in_markdown(markdown_content)
+    
+    # Process math equations
+    processed_content = process_math_in_markdown(cleaned_markdown)
+    
+    # Convert markdown to HTML
     body_html = mistune.html(processed_content)
+    
+    # Add title attributes to external links for PDF tooltip support
+    body_html = add_link_tooltips(body_html)
     
     html_document = f"""<!DOCTYPE html>
 <html lang="en">

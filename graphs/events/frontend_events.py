@@ -30,6 +30,13 @@ class EventType(str, Enum):
     
     PLAN_GENERATED = "plan_generated"
     PLAN_APPROVED = "plan_approved"
+    PLANNER_PROGRESS = "planner_progress"
+    
+    WRITER_PROGRESS = "writer_progress"
+    PUBLISHER_PROGRESS = "publisher_progress"
+    
+    RESPONSE_TOKEN = "response_token"
+    RESPONSE_COMPLETE = "response_complete"
     
     REPORT_SECTION_COMPLETED = "report_section_completed"
     REPORT_READY = "report_ready"

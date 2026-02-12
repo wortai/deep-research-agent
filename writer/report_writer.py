@@ -1,33 +1,81 @@
+"""
+Two-phase research report writer.
+
+Phase 1 (_generate_outline_report): Uses full sections to produce
+    table_of_contents, report_outline, abstract, introduction, conclusion.
+Phase 2 (_generate_report_body): Generates each chapter in parallel via
+    asyncio.gather, each chapter is a complete ready-to-add section.
+
+Replaces the previous single-call approach that failed on large contexts.
+"""
+
 import sys
 import os
+import json
+import re
 import asyncio
+import logging
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from graphs.states.subgraph_state import AgentGraphState as AgentState
-from graphs.states.subgraph_state import UnifiedReportResponse
-from writer.prompts_utils.writer_prompts import generate_unified_report_prompt
+from writer.prompts_utils.writer_prompts import generate_outline_prompt, generate_chapter_prompt
 from llms import LlmsHouse
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class Writer:
     """
-    Generates unified research reports using 2 LLM calls.
+    Generates research reports in two phases to avoid large-context failures.
     
-    First call generates an optimized prompt analyzing user query, planner plan,
-    and sections. Second call produces the complete report with ToC, abstract,
-    introduction, chapter-based body, and conclusion.
+    Phase 1: _generate_outline_report produces table_of_contents,
+    report_outline (heading → [section_ids]), abstract, introduction,
+    and conclusion from full research sections.
+    Phase 2: _generate_report_body generates each chapter in parallel.
+    Each chapter is a complete, ready-to-add section with heading and content.
     """
 
     def __init__(self):
-        self.gemini_model = LlmsHouse().google_model('gemini-3-pro-preview')
+        self.gemini_model = LlmsHouse().google_model('gemini-2.5-flash')
 
+    def _extract_json_from_response(self, text: str) -> dict:
+        """
+        Extracts a JSON object from raw LLM text output.
+
+        Handles responses wrapped in markdown code blocks (```json ... ```).
+        Falls back to finding the first { ... } block in the text.
+
+        Args:
+            text: Raw LLM response string.
+
+        Returns:
+            Parsed dict from the JSON content, or empty dict on failure.
+        """
+        code_block = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', text, re.DOTALL)
+        if code_block:
+            try:
+                return json.loads(code_block.group(1).strip())
+            except json.JSONDecodeError:
+                pass
+
+        brace_match = re.search(r'\{.*\}', text, re.DOTALL)
+        if brace_match:
+            try:
+                return json.loads(brace_match.group(0))
+            except json.JSONDecodeError:
+                pass
+
+        logger.error("[Writer] Could not extract JSON from LLM response")
+        return {}
 
     def _aggregate_sections_from_research_review(self, state: AgentState) -> list:
         """
         Extracts raw_research_results from each ResearchReviewData.
         
         Sorts by query_num first, then by parent_query within each review.
-        Converts research results into section format for report generation.
+        Converts research results into section format with section_id.
         """
         aggregated_sections = []
         research_reviews = state.get('research_review', [])
@@ -36,136 +84,320 @@ class Writer:
         
         for review_data in sorted_reviews:
             raw_results = review_data.get('raw_research_results', [])
-            
             sorted_results = sorted(raw_results, key=lambda r: r.get('parent_query', ''))
             
             for result in sorted_results:
                 section = {
-                    'section_content': f"# {result['query']}\n\n{result['answer']}"
+                    'section_content': f"# {result['query']}\n\n{result['answer']}",
+                    'section_id': result.get('section_id', 'unknown')
                 }
                 aggregated_sections.append(section)
         
         return aggregated_sections
 
+    def _build_section_index(self, sections: list) -> dict:
+        """
+        Builds a lookup dict mapping section_id to full section data.
+        
+        Args:
+            sections: List of section dicts with section_id and section_content.
+            
+        Returns:
+            Dict mapping section_id → section dict for O(1) lookups.
+        """
+        return {section.get('section_id', 'unknown'): section for section in sections}
 
-    async def _generate_unified_report(
+    async def _generate_outline_report(
         self,
         user_query: str,
         planner_queries: list,
         sections: list
     ) -> dict:
         """
-        Second LLM call: generates complete unified report.
+        Phase 1: Generates report outline with ToC, section mapping, abstract,
+        introduction, and conclusion using full research sections.
         
-        Takes the optimized prompt from first call and produces the final report
-        with all components (ToC, abstract, introduction, body, conclusion).
+        Calls generate_outline_prompt with full section content (no previews),
+        then invokes gemini-3-pro-preview with ReportOutlineResponse structured
+        output for table_of_contents, report_outline, abstract, introduction,
+        and conclusion. 
         
         Args:
-            user_query: Original user research question
-            planner_queries: List of planner query dicts
-            sections: List of research section dicts
+            user_query: Original user research question.
+            planner_queries: List of planner query dicts.
+            sections: List of section dicts with full content and section_id.
             
         Returns:
-            Dict with table_of_contents, abstract, introduction, report_body, conclusion
+            Dict with table_of_contents, report_outline, abstract,
+            introduction, and conclusion fields.
         """
-        # First LLM call: generate optimized prompt
-        optimized_prompt = await generate_unified_report_prompt(
+        optimized_prompt = await generate_outline_prompt(
             user_query=user_query,
             planner_queries=planner_queries,
             sections=sections
         )
-        
-        # Format sections for second LLM call
-        sections_formatted = "\n\n".join([
-            f"=== SECTION {idx + 1} ===\n{section.get('section_content', '')}"
-            for idx, section in enumerate(sections)
-        ])
-        
-        # Second LLM call prompt
-        final_prompt = f"""
-{optimized_prompt}
+
+        sections_block = "RESEARCH SECTIONS (full content with section_id):\n"
+        sections_block += "=" * 80 + "\n\n"
+        for idx, section in enumerate(sections):
+            content = section.get('section_content', '')
+            section_id = section.get('section_id', 'unknown')
+            sections_block += f"--- Section {idx + 1} [section_id: {section_id}] ---\n{content}\n\n"
+        sections_block += "=" * 80 + "\n"
+
+        final_prompt = f"""{optimized_prompt}
 
 =============================================================================
-RESEARCH SECTIONS TO UNIFY (already in markdown with URLs embedded):
+Use the following sections IDs to refer to the section content.
+{sections_block}
 =============================================================================
 
-{sections_formatted}
+NOW GENERATE THE REPORT OUTLINE following ALL instructions above.
 
-=============================================================================
+You MUST respond with a SINGLE JSON object (no extra text before or after) with these five keys:
 
-NOW GENERATE THE COMPLETE UNIFIED REPORT following ALL instructions above.
+{{
+  "table_of_contents": {{
+    "1. Chapter Title": ["1.1 Subchapter", "1.2 Subchapter"],
+    "2. Chapter Title": ["2.1 Subchapter"]
+  }},
+  "report_outline": {{
+    "1. Chapter Title": ["section-id-1", "section-id-2"],
+    "1.1 Subchapter": ["section-id-1", "section-id-2"],
+    "1.2 Subchapter": ["section-id-3", "section-id-4"],
+    "2. Chapter Title": ["section-id-5", "section-id-6"],
+    "2.1 Subchapter": ["section-id-6"]
+  }},
+  "abstract": "Professional abstract in markdown...",
+  "introduction": "Introduction in markdown...",
+  "conclusion": "Conclusion in markdown..."
+}}
 
-OUTPUT STRUCTURE:
-- table_of_contents: Markdown ToC with chapter/subchapter numbering
-- abstract: Professional abstract (150-250 words)
-- introduction: Comprehensive introduction with context and objectives
-- report_body: Full report organized by chapters (1, 1.1, 2, 2.1...) in markdown
-- conclusion: Synthesis with recommendations and future directions
+AVAILABLE SECTION IDS: {[s.get('section_id', 'unknown') for s in sections]}
 
-CRITICAL REMINDERS:
-✓ ALL content must be in valid markdown format
-✓ Preserve URLs from sections and place next to relevant content
-✓ Unify sections without major rewrites - organize and enhance presentation
-✓ Use chapter hierarchy: # for chapters, ## for subchapters, ### for sub-subchapters
-✓ Ensure smooth transitions and eliminate redundancy
-✓ Directly address the user's query: "{user_query}"
+RULES:
+- table_of_contents keys = main chapters, values = subchapter arrays
+- report_outline keys = ALL headings (chapters + subchapters), values = section_id arrays
+- Every section_id MUST appear in at least one heading
+- Respond with ONLY the JSON object, no markdown fencing, no explanation
 """
-        
-        # Configure model with max tokens and structured output
-        model_with_structure = self.gemini_model.with_structured_output(
-            UnifiedReportResponse
-        ).with_config(
-            {"max_output_tokens": 20000}
-        )
-        
-        # Generate report
-        structured_response = await model_with_structure.ainvoke(final_prompt)
-        
+
+        response = await self.gemini_model.ainvoke(final_prompt)
+        raw_text = response.content if hasattr(response, 'content') else str(response)
+
+        parsed = self._extract_json_from_response(raw_text)
+
+        if not parsed or 'table_of_contents' not in parsed:
+            logger.error("[Writer] Outline generation failed to produce valid JSON")
+            all_ids = [s.get('section_id', '') for s in sections]
+            return {
+                "table_of_contents": {"1. Report": ["1.1 Content"]},
+                "report_outline": {
+                    "1. Report": all_ids,
+                    "1.1 Content": all_ids
+                },
+                "abstract": "",
+                "introduction": "",
+                "conclusion": ""
+            }
+
         return {
-            "table_of_contents": structured_response.table_of_contents,
-            "abstract": structured_response.abstract,
-            "introduction": structured_response.introduction,
-            "report_body": structured_response.report_body,
-            "conclusion": structured_response.conclusion
+            "table_of_contents": parsed.get("table_of_contents", {}),
+            "report_outline": parsed.get("report_outline", {}),
+            "abstract": parsed.get("abstract", ""),
+            "introduction": parsed.get("introduction", ""),
+            "conclusion": parsed.get("conclusion", "")
         }
 
 
+    async def _generate_single_chapter(
+        self,
+        chapter_heading: str,
+        section_ids: list,
+        section_index: dict,
+        table_of_contents: dict
+    ) -> str:
+        """
+        Generates complete markdown content for one chapter/subchapter.
+        
+        Filters full sections by section_id from section_index, calls
+        generate_chapter_prompt, and invokes LLM with ReportChapterResponse.
+        Returns the complete chapter content string with heading and all
+        formatting — ready to be directly inserted into report_body.
+        
+        Args:
+            chapter_heading: The heading to generate (e.g. "1.1 Architecture").
+            section_ids: List of section_ids assigned to this chapter.
+            section_index: Dict mapping section_id → full section data.
+            table_of_contents: Full ToC dict for context.
+            
+        Returns:
+            Complete chapter content as markdown string (heading included).
+        """
+        sections_for_chapter = []
+        for sid in section_ids:
+            if sid in section_index:
+                sections_for_chapter.append(section_index[sid])
+            else:
+                logger.warning(f"[Writer] section_id '{sid}' not found in index, skipping")
+
+        if not sections_for_chapter:
+            logger.warning(f"[Writer] No sections found for chapter: {chapter_heading}")
+            return f"## {chapter_heading}\n\nNo content available for this section.\n"
+
+        prompt = await generate_chapter_prompt(
+            chapter_heading=chapter_heading,
+            table_of_contents=table_of_contents,
+            sections_for_chapter=sections_for_chapter
+        )
+
+        response = await self.gemini_model.ainvoke(prompt)
+        raw_text = response.content if hasattr(response, 'content') else str(response)
+
+        if not raw_text or not raw_text.strip():
+            logger.error(f"[Writer] Chapter generation returned empty for: {chapter_heading}")
+            fallback = "\n\n".join([s.get('section_content', '') for s in sections_for_chapter])
+            return f"## {chapter_heading}\n\n{fallback}\n"
+
+        return raw_text.strip()
+
+
+    async def _generate_report_body(
+        self,
+        report_outline: dict,
+        section_index: dict,
+        table_of_contents: dict
+    ) -> str:
+        """
+        Phase 2: Generates all chapters in parallel and merges into report_body.
+        
+        For each heading in report_outline, creates a parallel task via
+        _generate_single_chapter. Each task returns a complete chapter string.
+        Results are merged in table_of_contents order.
+        
+        Args:
+            report_outline: Dict mapping heading → [section_ids].
+            section_index: Dict mapping section_id → full section data.
+            table_of_contents: ToC dict defining chapter order.
+            
+        Returns:
+            Complete report_body as a single markdown string.
+        """
+        ordered_headings = []
+        for main_chapter, subchapters in table_of_contents.items():
+            ordered_headings.append(main_chapter)
+            for sub in subchapters:
+                ordered_headings.append(sub)
+
+        tasks = []
+        heading_order = []
+
+        for heading in ordered_headings:
+            section_ids = report_outline.get(heading, [])
+            if not section_ids:
+                continue
+            
+            heading_order.append(heading)
+            tasks.append(
+                self._generate_single_chapter(
+                    chapter_heading=heading,
+                    section_ids=section_ids,
+                    section_index=section_index,
+                    table_of_contents=table_of_contents
+                )
+            )
+
+        print(f"  📝 Generating {len(tasks)} chapters in parallel...")
+        chapter_contents = await asyncio.gather(*tasks)
+
+        body_parts = list(chapter_contents)
+        report_body = "\n\n".join(body_parts)
+
+        print(f"  ✅ Report body assembled: {len(body_parts)} chapters, {len(report_body)} characters")
+        return report_body
+
+    def _format_table_of_contents_markdown(self, table_of_contents: dict) -> str:
+        """
+        Converts table_of_contents dict into formatted markdown string.
+        
+        Args:
+            table_of_contents: Dict where keys are main chapters, values are subchapter arrays.
+            
+        Returns:
+            Markdown-formatted table of contents string.
+        """
+        lines = ["# Table of Contents\n"]
+        for main_chapter, subchapters in table_of_contents.items():
+            lines.append(f"- **{main_chapter}**")
+            for sub in subchapters:
+                lines.append(f"  - {sub}")
+        return "\n".join(lines)
+
     async def run(self, state: AgentState) -> dict:
         """
-        Main entry point - generates complete unified report using 2 LLM calls.
+        Orchestrates two-phase report generation.
         
-        Aggregates sections from research_review, then generates unified report
-        with table of contents, abstract, introduction, body, and conclusion.
+        Phase 1: Aggregates sections → generates outline (ToC, section mapping,
+        abstract, introduction, conclusion).
+        Phase 2: Generates each chapter in parallel → merges into report_body.
+        
+        Returns:
+            Dict with table_of_contents, abstract, introduction, report_body,
+            and conclusion fields matching AgentGraphState.
         """
         aggregated_sections = self._aggregate_sections_from_research_review(state)
         
         if not aggregated_sections:
-            print("Warning: No sections found in research_review")
+            logger.warning("[Writer] No sections found in research_review")
             return {
                 "table_of_contents": "# Table of Contents\n\nNo content available",
-                "abstract": "No abstract - No sections available",
-                "introduction": "No introduction - No sections available",
-                "report_body": "No report body - No sections available",
-                "conclusion": "No conclusion - No sections available"
+                "abstract": "",
+                "introduction": "",
+                "report_body": "",
+                "conclusion": ""
             }
 
         user_query = state.get('user_query', 'Research Report')
         planner_queries = state.get('planner_query', [])
-        
-        report = await self._generate_unified_report(
+
+        print(f"\n📋 Phase 1: Generating report outline from {len(aggregated_sections)} sections...")
+        outline = await self._generate_outline_report(
             user_query=user_query,
             planner_queries=planner_queries,
             sections=aggregated_sections
         )
-        
-        return report
+
+
+        table_of_contents = outline["table_of_contents"]
+        report_outline = outline["report_outline"]
+        print(f"  ✅ Outline: {len(table_of_contents)} chapters, {len(report_outline)} headings mapped")
+
+        section_index = self._build_section_index(aggregated_sections)
+
+        print(f"\n📖 Phase 2: Generating report body...")
+        report_body = await self._generate_report_body(
+            report_outline=report_outline,
+            section_index=section_index,
+            table_of_contents=table_of_contents
+        )
+
+        toc_markdown = self._format_table_of_contents_markdown(table_of_contents)
+        print(f"\n✨ Report generation complete\n")
+
+        return {
+            "table_of_contents": toc_markdown,
+            "abstract": outline["abstract"],
+            "introduction": outline["introduction"],
+            "report_body": report_body,
+            "conclusion": outline["conclusion"]
+        }
 
 
 async def writer_node(state: AgentState) -> dict:
     """
     LangGraph node wrapper for Writer.
     
-    Reads research_review from state, generates unified report,
+    Reads research_review from state, generates outline + parallel body,
     and returns structured output matching AgentGraphState fields.
     """
     writer = Writer()

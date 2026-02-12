@@ -118,12 +118,26 @@ class ResponseComposer:
         
         logger.info(f"[ResponseComposer] Composing response for intent: {intent_type}")
         
+        # Get StreamEmitter with terminal output enabled for dev
+        from streaming.stream_event import get_emitter
+        try:
+            from langgraph.config import get_stream_writer
+            writer = get_stream_writer()
+        except Exception:
+            writer = None
+        
+        emitter = get_emitter(writer, enable_terminal=True)
+        
         try:
             if intent_type == "off_topic":
                 response = OFF_TOPIC_RESPONSE
-                print(f"\n🤖 Assistant: {response}\n")
+                print("\n🤖 Assistant: ", end="", flush=True)
+                for token in response.split():
+                    emitter.emit_response_token(token + " ")
+                emitter.emit_response_token("", is_complete=True)
                 
             else:
+                response = ""
                 prompt = ""
                 if intent_type == "websearch":
                     research_review = state.get("research_review", [])
@@ -150,19 +164,24 @@ class ResponseComposer:
                 elif intent_type == "edit":
                     pdf_path = state.get("pdf_s3_path") or state.get("final_report_path", "")
                     response = f"I've updated the report based on your request. The revised version is available at: {pdf_path}"
-                    print(f"\n🤖 Assistant: {response}\n")
+                    print("\n🤖 Assistant: ", end="", flush=True)
+                    for token in response.split():
+                        emitter.emit_response_token(token + " ")
+                    emitter.emit_response_token("", is_complete=True)
                     
                 else:
                     response = "I apologize, but I couldn't process your request. Please try rephrasing your question."
-                    print(f"\n🤖 Assistant: {response}\n")
+                    print("\n🤖 Assistant: ", end="", flush=True)
+                    for token in response.split():
+                        emitter.emit_response_token(token + " ")
+                    emitter.emit_response_token("", is_complete=True)
 
                 if prompt:
                     print("\n🤖 Assistant: ", end="", flush=True)
-                    response = ""
                     for chunk in self.chain.stream(prompt):
-                        print(chunk, end="", flush=True)
+                        emitter.emit_response_token(chunk)
                         response += chunk
-                    print("\n")
+                    emitter.emit_response_token("", is_complete=True)
             
             assistant_message = self._create_chat_message("assistant", response)
             

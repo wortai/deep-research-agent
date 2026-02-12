@@ -13,6 +13,8 @@ from llms.llms import LlmsHouse
 from researcher.solution_tree.prompts.prompts import get_plan_prompt, get_clarifying_questions_prompt
 from graphs.states.subgraph_state import AgentGraphState, PlannerQuery, MemoryContext
 import logging
+import uuid
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -100,6 +102,7 @@ class Planner:
             return {"planner_query": []}
 
         context_prompt = self._build_context_prompt(state)
+
         
         plan_feedback = state.get("plan_feedback", "")
         
@@ -127,7 +130,15 @@ class Planner:
             result = self.chain.invoke(prompt)
             plan = result.get("plan", [])
             logger.info(f"Generated plan with {len(plan)} steps.")
-            return {"planner_query": _to_numbered_queries(plan)}
+            plan_message = {
+                "message_id": f"plan_{uuid.uuid4()}",
+                "role": "assistant", 
+                "content": f"I have generated a research plan with {len(plan)} steps:\n\n" + "\n".join([f"{i+1}. {step}" for i, step in enumerate(plan)]),
+                "timestamp": datetime.utcnow().isoformat(),
+                "message_type": "plan",
+                "metadata": {"plan_steps": len(plan)}
+            }
+            return {"planner_query": _to_numbered_queries(plan), "chat_messages": [plan_message]}
 
         except OutputParserException as e:
             logger.error(f"Failed to parse plan: {e}")

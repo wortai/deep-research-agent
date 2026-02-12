@@ -33,16 +33,15 @@ Given the user's query and conversation context, classify the intent.
 1. If user asks about details from an existing report → "follow_up"
 2. If user wants to edit/change/update the report → "edit"
 3. If user is answering a question you asked → "clarification"
-4. If query is unrelated to research (e.g., "I want cookies") → "off_topic"
-5. Otherwise, use the frontend-provided search mode
+4. If query is unrelated to research (e.g., "I want cookies", "hi", "who are you") → "off_topic"
+5. For ALL NEW research questions (e.g., "what is X", "find me Y"), return "use_search_mode". DO NOT return "deepsearch" or "websearch" directly.
 
 ## Response Format
 Return JSON:
 {{
     "intent": "follow_up" | "edit" | "clarification" | "off_topic" | "use_search_mode",
     "edit_instructions": "what to edit" (only if intent is "edit"),
-    "reasoning": "depth
-     explanation"
+    "reasoning": "explanation"
 }}
 """
 

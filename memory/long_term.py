@@ -65,7 +65,9 @@ class LongTermMemory:
                 
                 embeddings = OpenAIEmbeddings(model=self._embedding_model)
                 
-                self._store = await AsyncPostgresStore.from_conn_string(
+                # AsyncPostgresStore.from_conn_string returns an async context manager
+                # We need to manually enter it to get the store object and keep it open
+                self._store_cm = AsyncPostgresStore.from_conn_string(
                     self._db_uri,
                     index={
                         "embed": embeddings,
@@ -73,10 +75,10 @@ class LongTermMemory:
                         "fields": ["content"]
                     }
                 )
+                self._store = await self._store_cm.__aenter__()
                 self._is_async = True
                 
                 # Should setup store if needed (create tables etc)
-                # AsyncPostgresStore usually handles this or has a setup method
                 if hasattr(self._store, 'setup'):
                      await self._store.setup()
                 
