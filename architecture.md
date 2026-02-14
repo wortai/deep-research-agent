@@ -1,249 +1,149 @@
-# 🔍 Deep Research Agent - Architecture Documentation
+# 🔍 WORT - Complete Project Architecture
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://python.org)
-[![Status](https://img.shields.io/badge/status-active-green.svg)]()
-
-
-## 🏗️ System Architecture
-
-![Deep Research Agent Workflow](researcher/workflow.png)
-
-*The complete system workflow showing all components and their interactions*
-
-### 🔄 Core Components
-
-| Component | Description | Location |
-|-----------|-------------|----------|
-| **Planner v2** | Advanced research planning with dependency trees | `researcher/planner/v2/` |
-| **Solution Tree** | Recursive research solver with gap analysis | `researcher/solution_tree/` |
-| **Web Search Engine** | Multi-source web scraping and retrieval | `researcher/web_search/web_search.py` |
-| **Academic Tools** | ArXiv, MedRxiv, BioRxiv integration | `researcher/tools/tools.py` |
-| **Vector Store** | Qdrant-based similarity search | `researcher/vectore_store/` |
-| **Reviewer** | Research quality assurance | `reviewer/reviewer.py` |
-| **Writer** | Content generation and formatting | `writer/writer.py` |
-| **Publisher** | Output publication | `publisher/publisher.py` |
+> A Full-Stack AI Research Agent: Research Planning → Execution → Report Generation
 
 ---
 
-## 🚀 Search Modes
+## 📋 Project Overview
 
-### 🌐 WebSearch Mode
-**Quick web-based research for immediate answers**
+**WORT** (Web Orchestrated Research Tool) is a high-performance, full-stack AI research platform. It leverages a **LangGraph-based agent** (`deep-research-agent`) to autonomously plan, research, and write comprehensive reports. The backend is powered by **FastAPI** with WebSocket capabilities for real-time streaming of agent thought processes and results to a **React (Vite)** frontend.
 
-- Uses SerpAPI for search results
-- Multiple scraper integration (Tavily, AgentQL, Browser)
-- Fast response time
-- Ideal for: Current events, quick facts, general queries
-
-### 🔬 DeepSearch Mode
-**Comprehensive research combining multiple sources**
-
-- Web search + Academic sources
-- Vector store integration for context
-- Enhanced query processing
-- Ideal for: Research projects, detailed analysis, academic work
-
-### ⚡ ExtremeSearch Mode
-**Full-pipeline research with advanced AI techniques**
-
-- Complete dependency-driven research
-- Graph RAG integration
-- Ambiguity resolution
-- Gap question generation
-- Ideal for: Complex research, thesis work, comprehensive reports
+### Core Stack
+- **Agent**: Python, LangGraph, LangChain, Tavily API, Google Gemini Pro
+- **Backend**: FastAPI, WebSockets, PostgreSQL (Memory), Qdrant (Vector DB)
+- **Frontend**: React, TypeScript, TanStack Query, Tailwind CSS, Shadcn/ui
 
 ---
 
-## 📊 Current Data Flow Architecture
+## 📁 Complete File Structure & Explanations
+
+### **Deep Research Agent** (`deep-research-agent/`)
+
+*All agent logic, state management, and orchestration.*
+
+*   **`deep_research_agent.py`**: Main entry point defining the primary LangGraph workflow, routing logic, and node orchestration (planner → research → writer).
+*   **`graphs/states/subgraph_state.py`**: Defines `AgentGraphState` (main workflow state) and `ResearchReviewData` (subgraph state) using TypeDicts.
+*   **`graphs/subgraphs/researcher_reviewer_subgraph.py`**: Implements the parallel research loop (researcher → reviewer → resolver) invoked by the main graph.
+*   **`planner/plan.py`**: `Planner` class that uses LLMs to generate structured research plans based on user queries and memory context.
+*   **`researcher/solution_tree/query_sol_ans.py`**: `Solver` class executing BFS-based research, handling web queries, content extraction, and answer synthesis.
+*   **`reviewer/reviewer.py`**: `Reviewer` class that analyzes research findings to identify gaps and generate follow-up questions.
+*   **`writer/report_writer.py`**: Orchestrates report generation, creating outlines and writing chapters in parallel using research data.
+*   **`publisher/publisher.py`**: Formats the final report into Markdown/PDF, manages file saving, and potentially uploads to S3.
+*   **`router/intent_router.py`**: Classifies user queries into modes (websearch, deepsearch, etc.) to determine the graph execution path.
+*   **`response/response_composer.py`**: Formats the final agent response, combining report sections and metadata for frontend delivery.
+*   **`memory/memory_facade.py`**: Unified interface for accessing both short-term (PostgreSQL) and long-term (Qdrant) memory systems.
+*   **`streaming/stream_event.py`**: Defines the event schema and utilities for emitting real-time progress events to the frontend.
+*   **`HITL/human_in_loop.py`**: Manages human-in-the-loop interactions, mainly pausing execution for plan approval/feedback.
+
+### **Backend Server** (`server/`)
+
+*FastAPI application handling HTTP and WebSocket connections.*
+
+*   **`main.py`**: Application entry point. Initializes FastAPI, database connections, memory facade, and mounts routers and static files.
+*   **`api/websocket.py`**: Manages WebSocket endpoints (`/ws/chat/{thread_id}`), delegating connection handling to `StreamService`.
+*   **`api/routes.py`**: Defines HTTP REST endpoints, primarily for retrieving chat history and system health checks.
+*   **`services/stream_service.py`**: Handles the WebSocket lifecycle: receiving messages, running the agent graph, and streaming events back to the client.
+*   **`core/connection.py`**: `ConnectionManager` class that tracks active WebSocket connections and handles broadcasting/disconnection.
+
+### **Frontend** (`FrontEnd/wort-ai-core/`)
+
+*Modern React application for user interaction.*
+
+*   **`src/App.tsx`**: Main application component setting up routing, providers (Query, Theme, Toaster), and layout structure.
+*   **`src/pages/Index.tsx`**: The primary chat page layout, combining the sidebar, header, and main chat workspace.
+*   **`src/components/ChatWorkspace.tsx`**: Core chat interface component. Manages message history, WebSocket connection status, and renders the chat stream.
+*   **`src/components/ChatInput.tsx`**: User input component handling text entry and search mode selection (web, deep, extreme).
+*   **`src/components/AgentProgress.tsx`**: Visualizes the progress of parallel research agents using meaningful progress bars and status text.
+*   **`hooks/useChat.ts`**: Custom hook encapsulating WebSocket logic, state management (messages, logs), and connection handling.
+
+---
+
+## 🏗️ Core Architecture: LangGraph Nodes
+
+### Main Agent Workflow
 
 ```mermaid
-flowchart TD
-    A[👤 User Query] --> B[🎯 Research Router]
-    B --> C{Query Category}
+graph TD
+    Start([User Query]) --> Router{Router Node}
     
-    C -->|Web| D[🌐 Web Search]
-    C -->|Academic| E[📚 Academic Tools]
-    C -->|Complex| F[🧠 Planner v2]
+    Router -- "websearch" --> WebSolver[Parallel Solver Node]
+    WebSolver --> Response
     
-    D --> G[🔍 Multi-Source Scraping]
-    E --> H[📄 Paper Retrieval]
-    F --> I[🌳 Plan Tree Generation]
+    Router -- "deepsearch" --> Planner[Planner Node]
+    Planner --> HumanReview{Human Review Node}
     
-    G --> J[📊 Data Processing]
-    H --> J
-    I --> K[🎯 Gap Analysis]
+    HumanReview -- "Approved" --> ParallelResearch[Parallel Research Node]
+    HumanReview -- "Feedback" --> Planner
     
-    J --> L[🗄️ Vector Store]
-    L --> M[🔍 Similarity Search]
-    M --> K
+    ParallelResearch --> Writer[Writer Node]
+    Writer --> Publisher[Publisher Node]
+    Publisher --> Response[Response Node]
     
-    K --> N[📋 Final Report]
+    Response --> End([End])
+
+    style ParallelResearch fill:#f9f,stroke:#333,stroke-width:2px
+```
+
+### The `parallel_research_node` Subgraph
+
+The `parallel_research_node` is a critical component that enables **concurrency**. Instead of processing research queries sequentially, it spawns multiple instances of a subgraph—one for each query in the research plan.
+
+**Logic Mechanism:**
+1.  **Input**: Receives a list of `PlannerQuery` objects from the `Planner Node`.
+2.  **Concurrency**: Uses `asyncio.gather` to invoke the `researcher_reviewer_subgraph` for every query simultaneously.
+3.  **Accumulation**: As subgraphs complete, their results (`ResearchReviewData`) are collected and merged into the main state's `research_review` list.
+
+**Subgraph Flow (Per Query):**
+```mermaid
+graph TD
+    Start([Query]) --> Researcher[Researcher Node]
+    Researcher --> Reviewer[Reviewer Node]
     
-    style A fill:#e1f5fe,stroke:#01579b,stroke-width:3px
-    style N fill:#fce4ec,stroke:#880e4f,stroke-width:3px
-    style B fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    Reviewer --> Check{Any Gaps?}
+    Check -- "Yes" --> Resolver[Resolve Node]
+    Resolver --> Reviewer
+    
+    Check -- "No / Max Iterations" --> End([Return Results])
 ```
 
 ---
 
-## 🏗️ Component Structure
+## 🧠 Core Logic & Functionality
 
-### 📁 Project Organization
-
-```
-deep-research-agent/
-├── 🔬 Researcher/           # Core research components
-│   ├── scrapers/           # Data collection modules
-│   │   ├── browser/        # Web browser automation
-│   │   ├── tavily/         # Tavily API integration
-│   │   ├── agentql/        # AgentQL scraping
-│   │   ├── arxiv/          # ArXiv paper scraping
-│   │   ├── medrxiv/        # MedRxiv integration
-│   │   ├── biorxiv/        # BioRxiv integration
-│   │   ├── ecommerce/      # Ecommerce scraping
-│   │   └── finance/        # Finance scraping
-│   ├── retrievers/         # Search and retrieval
-│   │   ├── serpapi/        # Google Search API
-│   │   ├── arxiv/          # ArXiv API
-│   │   └── research_rssharvest/ # RSS feed processing
-│   ├── vectore_store/      # Vector database
-│   │   ├── vector_store.py # Vector operations
-│   │   ├── qdrant_db.py    # Qdrant integration
-│   │   ├── long_term_memory/
-│   │   ├── reddis/
-│   │   └── short_conversational_memory/
-│   ├── planner/            # Research planning
-│   │   ├── v1/             # Legacy planner
-│   │   ├── v2/             # Advanced planner
-│   │   ├── archive-tree-based/
-│   │   ├── planner.py      # Main planner logic
-│   │   └── ...             # Planner utilities
-│   ├── solution_tree/      # Solution tree implementation
-│   ├── web_search/         # Web search module
-│   ├── graph_rag/          # Graph RAG implementation
-│   ├── tools/              # Research utilities
-│   └── research_engine.py  # Research engine entry point
-├── 📝 Prompts/             # LLM prompt management
-│   └── prompt.py
-├── 🧠 LLMs/                # LLM integration
-│   └── llms.py
-├── 📢 Publisher/           # Publishing module
-│   └── publisher.py
-├── 🧐 Reviewer/            # Reviewer module
-│   └── reviewer.py
-├── 💾 States/              # State management
-│   └── state.py
-├── ✍️ Writer/              # Writing module
-│   └── writer.py
-├── researcher_reviewer_graph.py # Main graph definition
-└── workflow_results/       # Workflow results
-```
+*   **`router_node`**: Classifies intent (websearch/deepsearch) using LLM to route execution path.
+*   **`planner_node`**: Generates a multi-step research plan + memory context retrieval for personalization.
+*   **`parallel_research_node`**: Spawns concurrent subgraphs for each plan query using `asyncio` for speed.
+*   **`writer_node`**: Synthesizes all research into a structured report (outline → chapters).
+*   **`publisher_node`**: Formats final output (Markdown/PDF) and handles file I/O or S3 upload.
+*   **`MemoryFacade`**: Unified API abstracting Postgres (chat history) and Qdrant (semantic knowledge).
+*   **`AgentGraphState`**: TypedDict holding shared state (messages, plan, results, report) across nodes.
+*   **FastAPI WebSocket**: bidirectional stream enabling real-time token, log, and state updates to frontend.
 
 ---
 
-## 🔧 Technical Implementation
+## ⚠️ Flaws, Missing Logic & Roadmap
 
-### 🧠 Planning System
+### **Backend (FastAPI & Server)**
+1.  **Error Recovery**: No global exception handler for graph failures; a crash in one node kills the connection.
+2.  **Connection Leaks**: `ConnectionManager` lacks a heartbeat mechanism, potentially leaving dead connections open.
+3.  **State Persistence**: While `MemorySaver` exists, server restarts wipe in-memory graph states if not backed by Redis/DB.
+4.  **Streaming Noise**: Examples of `StreamService` emit too many raw events; needs filtering/batching to reduce frontend load.
 
-The **Planner v2** system creates intelligent research strategies:
+### **LangGraph & Agent**
+1.  **Infinite Loops**: The `reviewer_node` logic relies on `MAX_ITERATIONS` but lacks semantic convergence checks (stopping if answers don't improve).
+2.  **Duplicate Research**: No deduplication of queries across parallel branches; multiple agents might research the same topic.
+3.  **Context limitation**: `parallel_research_node` subgraphs don't share findings with each other *during* execution, only after merging.
+4.  **Integration**: `human_review_node` interrupt logic is implemented in the graph but **NOT** fully wired to the WebSocket/Frontend for interactive approval.
 
-- **Plan Tree**: Builds dependency-driven question hierarchies
-- **Query Enhancer**: Optimizes search queries for better results
-- **Ambiguity Resolver**: Clarifies unclear or ambiguous queries
-- **Dependency Management**: Ensures logical research flow
+### **Frontend & User Experience**
+1.  **Offline Support**: No local storage sync; reloading the page kills the WebSocket connection and loses ephemeral progress.
+2.  **Rendering**: Large reports cause layout shifts; markdown rendering needs optimization (virtualization).
+3.  **Missing Features**: "Stop/Cancel" button to abort long-running research not implemented.
 
-### 🗄️ Vector Store Integration
-
-**Qdrant-powered similarity search**:
-
-```python
-# Example vector store workflow
-scraped_data → vector_embedding → qdrant_storage → similarity_search → relevant_context
-```
-
-### 🎯 Gap Question Generation
-
-Advanced AI system that:
-- Identifies knowledge gaps in research
-- Generates intelligent follow-up questions
-- Uses LangGraph for orchestration
-- Provides comprehensive logging and visualization
-
----
-
-## 🚦 Getting Started
-
-### Prerequisites
-
-- Python 3.8+
-- Qdrant database
-- API keys for external services (SerpAPI, etc.)
-
-### Quick Start
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-repo/deep-research-agent.git
-   cd deep-research-agent
-   ```
-
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Configure environment**
-   ```bash
-   # Set up your API keys and configuration
-   cp .env.example .env
-   ```
-
-4. **Run a simple search**
-   ```python
-   from researcher.web_search import WebSearch
-   
-   # Quick web search
-   results = WebSearch().search("AI research trends 2024")
-   ```
-
----
-
-## 📈 Performance & Scalability
-
-| Mode | Response Time | Sources | Accuracy | Use Case |
-|------|---------------|---------|----------|----------|
-| WebSearch | ~30 seconds | 5-10 | Good | Quick queries |
-| DeepSearch | ~2-5 minutes | 15-25 | High | Research projects |
-| ExtremeSearch | ~5-15 minutes | 25+ | Excellent | Comprehensive analysis |
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-### Development Setup
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🔗 Links
-
-
-- [Issues](https://github.com/your-repo/deep-research-agent/issues)
-
----
-
-*Built By WORT TEAM*
+### **FastAPI & Streaming Missing Logic (< 100 words)**
+To truly robustify the system, the **Streaming Logic** needs:
+1.  **Backpressure & Batching**: Buffer tokens (50ms window) before sending to prevent frontend jitter.
+2.  **Heartbeat/Ping-Pong**: Automatically detect and close stale connections.
+3.  **Reconnection Strategy**: Allow clients to reconnect with a `thread_id` and receive the *current* execution state instead of restarting.
+4.  **Error Boundaries**: Wrap graph execution in `try/except` blocks that emit proper `error` events to the UI instead of silent failures.
+5.  **Structured Logs**: Replace raw string logs with structured events (`{step, status, duration}`) for better UI visualization.

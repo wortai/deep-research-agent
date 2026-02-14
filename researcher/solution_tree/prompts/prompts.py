@@ -266,7 +266,7 @@ Create a research plan that follows this progression:
 
 **EXAMPLE STRUCTURE** (for "What is NVIDIA's performance in 2025?"):
 ```json
-{{
+{
     "plan": [
         "1. NVIDIA comprehensive business overview 2025 including complete breakdown of revenue streams from data center GPUs, gaming graphics cards, professional visualization, automotive and embedded systems, along with current market capitalization, total employee count, geographic revenue distribution, major product lines like H100 and B100 AI accelerators, and overall company positioning in semiconductor industry",
         
@@ -288,7 +288,7 @@ Create a research plan that follows this progression:
         
         "10. Eegulatory challenges and strategic risks NVIDIA might face including antitrust scrutiny from regulators worldwide, customer concentration risk with major cloud providers, potential for customers developing in-house alternatives, geopolitical export control impacts, IP litigation concerns, and market saturation risks as AI infrastructure buildout matures"
     ]
-}}
+}
 ```
 
 **ADAPTATION GUIDELINES:**

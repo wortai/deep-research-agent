@@ -61,7 +61,15 @@ class MemoryFacade:
         await self._short_term.initialize()
         await self._long_term.initialize()
         self._initialized = True
+        self._initialized = True
         logger.info("MemoryFacade fully initialized")
+
+    async def shutdown(self) -> None:
+        """Closes database connections."""
+        if self._initialized:
+            await self._short_term.shutdown()
+            await self._long_term.shutdown()
+            logger.info("MemoryFacade shut down")
 
     @property
     def short_term(self) -> ShortTermMemory:

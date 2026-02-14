@@ -23,7 +23,7 @@ from graphs.states.subgraph_state import ResearchReviewData
 from researcher.solution_tree.research_orchestrator import execute_research_tree
 from researcher.solution_tree.query_sol_ans import Solver
 from reviewer.reviewer import Reviewer
-from streaming.stream_event import emit_node_progress
+from graphs.events.stream_emitter import get_emitter, AgentPhase
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ async def researcher_node(state: ResearchReviewData, writer: StreamWriter) -> Di
     query_num = state.get("query_num", 0)
     logger.info(f"[researcher_node] Starting research for: {query}")
     
-    emit_node_progress(writer, "researcher", query_num, "started", 10, {"query": query[:50]})
+    get_emitter(writer).emit_subgraph_node_progress("researcher", query_num, "started", 10, {"query": query[:50]})
     
     research_results = await execute_research_tree(
         initial_query=query,
@@ -52,7 +52,7 @@ async def researcher_node(state: ResearchReviewData, writer: StreamWriter) -> Di
     all_answers = research_results["all_answers"]
     
     logger.info(f"[researcher_node] Research complete: {len(all_answers)} research results")
-    emit_node_progress(writer, "researcher", query_num, "completed", 40, {"results_count": len(all_answers)})
+    get_emitter(writer).emit_subgraph_node_progress("researcher", query_num, "completed", 40, {"results_count": len(all_answers)})
     
     return {
         "raw_research_results": all_answers,
@@ -83,11 +83,11 @@ async def reviewer_node(state: ResearchReviewData, writer: StreamWriter) -> Dict
     research_results = state["raw_research_results"]
     iteration = state.get("iteration_count", 0)
     
-    emit_node_progress(writer, "reviewer", query_num, "started", 50)
+    get_emitter(writer).emit_subgraph_node_progress("reviewer", query_num, "started", 50)
     
     if iteration >= MAX_ITERATIONS:
         logger.info(f"[reviewer_node] Max iterations ({MAX_ITERATIONS}) reached. Stopping reviews.")
-        emit_node_progress(writer, "reviewer", query_num, "completed", 100, {"status": "max_iterations"})
+        get_emitter(writer).emit_subgraph_node_progress("reviewer", query_num, "completed", 100, {"status": "max_iterations"})
         return {
             "current_reviews": [],
             "review_feedback": [],
@@ -100,7 +100,7 @@ async def reviewer_node(state: ResearchReviewData, writer: StreamWriter) -> Dict
     reviews = reviewer.generate_reviews(query, research_results)
     
     logger.info(f"[reviewer_node] Generated {len(reviews)} reviews and the main query is {state['query']}")
-    emit_node_progress(writer, "reviewer", query_num, "completed", 70, {"reviews_count": len(reviews)})
+    get_emitter(writer).emit_subgraph_node_progress("reviewer", query_num, "completed", 70, {"reviews_count": len(reviews)})
     
     return {
         "current_reviews": reviews,
@@ -128,7 +128,7 @@ async def resolve_node(state: ResearchReviewData, writer: StreamWriter) -> Dict[
     current_reviews = state.get("current_reviews", [])
     query_num = state.get("query_num", 0)
     
-    emit_node_progress(writer, "resolver", query_num, "started", 75)
+    get_emitter(writer).emit_subgraph_node_progress("resolver", query_num, "started", 75)
     logger.info(f"[resolve_node] Resolving {len(current_reviews)} reviews...")
     
     new_results = []
@@ -162,7 +162,7 @@ async def resolve_node(state: ResearchReviewData, writer: StreamWriter) -> Dict[
         })
 
     logger.info(f"[resolve_node] Added {len(new_results)} new research results")
-    emit_node_progress(writer, "resolver", query_num, "completed", 90, {"results_count": len(new_results)})
+    get_emitter(writer).emit_subgraph_node_progress("resolver", query_num, "completed", 90, {"results_count": len(new_results)})
 
     return {
         "raw_research_results": new_results,

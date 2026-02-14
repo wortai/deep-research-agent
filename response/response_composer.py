@@ -11,8 +11,10 @@ Handles all response types:
 
 from typing import Dict, Any
 from langchain_core.output_parsers import StrOutputParser
-from llms.llms import LlmsHouse
+from llms import LlmsHouse
 from graphs.states.subgraph_state import AgentGraphState
+from graphs.events.stream_emitter import get_emitter
+from langchain_core.messages import SystemMessage, HumanMessage
 from datetime import datetime
 import logging
 
@@ -119,22 +121,21 @@ class ResponseComposer:
         logger.info(f"[ResponseComposer] Composing response for intent: {intent_type}")
         
         # Get StreamEmitter with terminal output enabled for dev
-        from streaming.stream_event import get_emitter
         try:
             from langgraph.config import get_stream_writer
             writer = get_stream_writer()
         except Exception:
             writer = None
         
-        emitter = get_emitter(writer, enable_terminal=True)
+        emitter = get_emitter(writer)
         
         try:
             if intent_type == "off_topic":
                 response = OFF_TOPIC_RESPONSE
                 print("\n🤖 Assistant: ", end="", flush=True)
                 for token in response.split():
-                    emitter.emit_response_token(token + " ")
-                emitter.emit_response_token("", is_complete=True)
+                    emitter.emit_token(token + " ")
+                emitter.emit_token("")
                 
             else:
                 response = ""
@@ -166,22 +167,27 @@ class ResponseComposer:
                     response = f"I've updated the report based on your request. The revised version is available at: {pdf_path}"
                     print("\n🤖 Assistant: ", end="", flush=True)
                     for token in response.split():
-                        emitter.emit_response_token(token + " ")
-                    emitter.emit_response_token("", is_complete=True)
-                    
-                else:
-                    response = "I apologize, but I couldn't process your request. Please try rephrasing your question."
-                    print("\n🤖 Assistant: ", end="", flush=True)
-                    for token in response.split():
-                        emitter.emit_response_token(token + " ")
-                    emitter.emit_response_token("", is_complete=True)
+                        emitter.emit_token(token + " ")
+                    emitter.emit_token("")
+                response = "I apologize, but I couldn't process your request. Please try rephrasing your question."
+                print("\n🤖 Assistant: ", end="", flush=True)
+                for token in response.split():
+                    emitter.emit_token(token + " ")
 
-                if prompt:
-                    print("\n🤖 Assistant: ", end="", flush=True)
-                    for chunk in self.chain.stream(prompt):
-                        emitter.emit_response_token(chunk)
-                        response += chunk
-                    emitter.emit_response_token("", is_complete=True)
+            if prompt:
+                print("\n🤖 Assistant: ", end="", flush=True)
+                full_response = ""
+                for chunk in self.chain.stream(prompt):
+                    content = chunk # Assuming chunk is already the string content
+                    if content:
+                        full_response += content
+                        # Stream token to user
+                        emitter.emit_token(content)
+                        print(content, end="", flush=True)
+                response = full_response # Update response with streamed content
+            
+            emitter.emit_token("") # Optional: signal end
+            print() # Newline after assistant response
             
             assistant_message = self._create_chat_message("assistant", response)
             

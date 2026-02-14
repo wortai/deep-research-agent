@@ -98,9 +98,9 @@ class ChatMessage(BaseModel):
     timestamp: str = Field(description="ISO format timestamp of message creation")
     tool_calls: Optional[List[Dict]] = Field(default=None, description="Tool calls initiated by assistant")
     tool_results: Optional[List[Dict]] = Field(default=None, description="Results from tool execution")
-    message_type: Literal["chat", "log", "plan"] = Field(
+    message_type: Literal["chat", "log", "plan", "report"] = Field(
         default="chat", 
-        description="Type of message: 'chat' for conversation, 'log' for system events, 'plan' for research plans"
+        description="Type of message: 'chat' for conversation, 'log' for system events, 'plan' for research plans, 'report' for final output"
     )
     metadata: Optional[Dict] = Field(default=None, description="Additional metadata like tokens, latency, step_duration")
 

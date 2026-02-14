@@ -1,3 +1,4 @@
+
 """
 Short-term memory management for conversation history.
 
@@ -12,7 +13,7 @@ from datetime import datetime
 import uuid
 
 from dotenv import load_dotenv
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
+from langchain_core.messages import BaseMessage
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.checkpoint.memory import MemorySaver
 from psycopg_pool import AsyncConnectionPool
@@ -47,7 +48,21 @@ class ShortTermMemory:
         if self._db_uri:
             try:
                 # Initialize pool with open=False to allow async opening later
-                self._pool = AsyncConnectionPool(conninfo=self._db_uri, max_size=20, open=False)
+                # Add keepalives to prevent connection drops on remote DBs
+                conn_kwargs = {
+                    "keepalives": 1,
+                    "keepalives_idle": 30,
+                    "keepalives_interval": 10,
+                    "keepalives_count": 5
+                }
+                # Add automatic connection checking to prune dead connections
+                self._pool = AsyncConnectionPool(
+                    conninfo=self._db_uri, 
+                    max_size=20, 
+                    open=False, 
+                    kwargs=conn_kwargs,
+                    check=AsyncConnectionPool.check_connection
+                )
                 self._checkpointer = AsyncPostgresSaver(self._pool)
                 self._is_async = True
                 logger.info("AsyncPostgresSaver instantiated (pending initialization)")
@@ -71,6 +86,7 @@ class ShortTermMemory:
                 # Setup tables/indexes using a dedicated autocommit connection.
                 # This is required because 'CREATE INDEX CONCURRENTLY' cannot run inside a transaction properly
                 # when facilitated by the pool's default behavior or AsyncPostgresSaver's setup logic.
+                # Note: This connection is temporary and closed automatically after the block.
                 if self._db_uri:
                     import psycopg
                     async with await psycopg.AsyncConnection.connect(self._db_uri, autocommit=True) as conn:
@@ -83,7 +99,15 @@ class ShortTermMemory:
                 # Fallbact to MemorySaver if initialization fails? 
                 # Ideally we typically want to fail hard or fallback, but graph is already compiled.
                 # If we fail here, ainvoke will likely fail.
+                # Ideally we typically want to fail hard or fallback, but graph is already compiled.
+                # If we fail here, ainvoke will likely fail.
                 raise e
+
+    async def shutdown(self) -> None:
+        """Closes the connection pool."""
+        if self._pool:
+            await self._pool.close()
+            logger.info("ShortTermMemory pool closed")
 
     @property
     def checkpointer(self):
@@ -120,6 +144,7 @@ class ShortTermMemory:
                 
             if checkpoint and checkpoint.checkpoint:
                 messages = checkpoint.checkpoint.get("channel_values", {}).get("chat_messages", [])
+                print(f"Retrieved {len(messages)} messages from conversation history")
                 return messages[-limit:] if len(messages) > limit else messages
         except Exception as e:
             logger.error(f"Failed to retrieve conversation history: {e}")

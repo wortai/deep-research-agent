@@ -89,6 +89,34 @@ class LongTermMemory:
         else:
             logger.info("LongTermMemory initialized with in-memory storage")
 
+    async def shutdown(self) -> None:
+        """Closes the store connection."""
+        if self._store and hasattr(self._store, 'aclose'):
+             # If using AsyncPostgresStore (which is a context manager), we might need to exit it?
+             # Actually AsyncPostgresStore doesn't strictly have a close method exposed directly 
+             # if we used it as a context manager manually.
+             # But let's check if we can close the underlying connection.
+             pass
+        
+        # If we used the context manager pattern in initialize:
+        if hasattr(self, '_store_cm') and self._store_cm:
+             # We can't easily exit the context manager from here without passing exception details
+             # determining how to close it properly is tricky if it wraps a pool. 
+             # However, langgraph's PostgresStore usually manages a pool.
+             # Best effort: close the pool if we can access it.
+             pass
+             
+        # For now, we'll assume the pool is managed by the store and we might not have a direct close 
+        # unless we kept a reference to the pool or connection.
+        # Updated strategy: Rely on the fact that we opened it. 
+        # Let's see if we can close the internal pool if it exists.
+        if self._store and hasattr(self._store, 'pool'):
+             await self._store.pool.close()
+             logger.info("LongTermMemory store pool closed")
+        elif self._is_async:
+             logger.warning("LongTermMemory: Could not find pool to close in store.")
+
+
     async def store_memory(
         self, 
         user_id: str, 
@@ -387,15 +415,22 @@ class LongTermMemory:
         Uses LLM to merge similar or duplicate memories.
         
         Reduces memory bloat by combining related facts.
+        Includes a batch limit to prevent context overflow.
         
         Args:
             user_id: User identifier.
             llm: LangChain LLM instance. Uses default if None.
         """
+        # Limit to 50 memories for consolidation to prevent context overflow
+        BATCH_LIMIT = 50
         memories = await self.get_all_memories(user_id)
         
         if len(memories) < 5:
             return
+            
+        if len(memories) > BATCH_LIMIT:
+             logger.info(f"Consolidating first {BATCH_LIMIT} of {len(memories)} memories")
+             memories = memories[:BATCH_LIMIT]
             
         if llm is None:
             from llms.llms import LlmsHouse
@@ -435,12 +470,14 @@ Analysis (JSON):"""
                 merged_content = merge_group.get("merged_content", "")
                 
                 if len(indices) >= 2 and merged_content:
+                    # Store new merged memory
                     await self.store_memory(
                         user_id,
                         memories[indices[0] - 1].get("type", "fact"),
                         merged_content
                     )
                     
+                    # Delete old ones
                     for idx in indices:
                         if 0 < idx <= len(memories):
                             await self.delete_memory(user_id, memories[idx - 1]["memory_id"])
@@ -489,3 +526,4 @@ Analysis (JSON):"""
                 matches.append(memory)
                 
         return matches[:limit]
+

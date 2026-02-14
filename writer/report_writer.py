@@ -21,6 +21,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from graphs.states.subgraph_state import AgentGraphState as AgentState
 from writer.prompts_utils.writer_prompts import generate_outline_prompt, generate_chapter_prompt
 from llms import LlmsHouse
+import uuid
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -403,12 +405,43 @@ async def writer_node(state: AgentState) -> dict:
     writer = Writer()
     result = await writer.run(state)
     
+    user_query = state.get("user_query", "Research Report")
+    
+    report_content = f"# Research Report: {user_query}\n\n"
+    
+    if result.get('abstract'):
+        report_content += f"## Abstract\n{result['abstract']}\n\n"
+        
+    if result.get('introduction'):
+        report_content += f"## Introduction\n{result['introduction']}\n\n"
+        
+    if result.get('report_body'):
+        report_content += f"{result['report_body']}\n\n"
+        
+    if result.get('conclusion'):
+        report_content += f"## Conclusion\n{result['conclusion']}\n"
+    
+    report_message = {
+        "message_id": str(uuid.uuid4()),
+        "role": "assistant",
+        "content": report_content,
+        "timestamp": datetime.now().isoformat(),
+        "tool_calls": None,
+        "tool_results": None,
+        "message_type": "report",
+        "metadata": {
+            "title": f"Report: {user_query}",
+            "pdf_generated": False 
+        }
+    }
+
     return {
         "report_table_of_contents": result["table_of_contents"],
         "report_abstract": result["abstract"],
         "report_introduction": result["introduction"],
         "report_body": result["report_body"],
-        "report_conclusion": result["conclusion"]
+        "report_conclusion": result["conclusion"],
+        "chat_messages": [report_message]
     }
 
 
