@@ -3,8 +3,8 @@ Two-phase research report writer.
 
 Phase 1 (_generate_outline_report): Uses full sections to produce
     table_of_contents, report_outline, abstract, introduction, conclusion.
-Phase 2 (_generate_report_body): Generates each chapter in parallel via
-    asyncio.gather, each chapter is a complete ready-to-add section.
+Phase 2 (_generate_report_body_sections): Generates each chapter in parallel
+    as a ReportBodySection with unique section_id for ordered preview.
 
 Replaces the previous single-call approach that failed on large contexts.
 """
@@ -35,8 +35,9 @@ class Writer:
     Phase 1: _generate_outline_report produces table_of_contents,
     report_outline (heading → [section_ids]), abstract, introduction,
     and conclusion from full research sections.
-    Phase 2: _generate_report_body generates each chapter in parallel.
-    Each chapter is a complete, ready-to-add section with heading and content.
+    Phase 2: _generate_report_body_sections generates each chapter in parallel.
+    Returns a list of ReportBodySection dicts with UUID section_id,
+    section_order, and section_content.
     """
 
     def __init__(self):
@@ -223,9 +224,8 @@ RULES:
         Generates complete markdown content for one chapter/subchapter.
         
         Filters full sections by section_id from section_index, calls
-        generate_chapter_prompt, and invokes LLM with ReportChapterResponse.
-        Returns the complete chapter content string with heading and all
-        formatting — ready to be directly inserted into report_body.
+        generate_chapter_prompt, and invokes LLM. Returns raw markdown
+        including heading — ready to become a ReportBodySection.
         
         Args:
             chapter_heading: The heading to generate (e.g. "1.1 Architecture").
@@ -264,18 +264,19 @@ RULES:
         return raw_text.strip()
 
 
-    async def _generate_report_body(
+    async def _generate_report_body_sections(
         self,
         report_outline: dict,
         section_index: dict,
         table_of_contents: dict
-    ) -> str:
+    ) -> list:
         """
-        Phase 2: Generates all chapters in parallel and merges into report_body.
+        Phase 2: Generates all chapters in parallel and returns ordered sections.
         
         For each heading in report_outline, creates a parallel task via
         _generate_single_chapter. Each task returns a complete chapter string.
-        Results are merged in table_of_contents order.
+        Results are wrapped in ReportBodySection dicts with UUID section_id,
+        sequential section_order, and the raw markdown as section_content.
         
         Args:
             report_outline: Dict mapping heading → [section_ids].
@@ -283,7 +284,7 @@ RULES:
             table_of_contents: ToC dict defining chapter order.
             
         Returns:
-            Complete report_body as a single markdown string.
+            List of ReportBodySection dicts ordered by section_order.
         """
         ordered_headings = []
         for main_chapter, subchapters in table_of_contents.items():
@@ -309,14 +310,19 @@ RULES:
                 )
             )
 
-        print(f"  📝 Generating {len(tasks)} chapters in parallel...")
+        logger.info(f"[Writer] Generating {len(tasks)} chapters in parallel...")
         chapter_contents = await asyncio.gather(*tasks)
 
-        body_parts = list(chapter_contents)
-        report_body = "\n\n".join(body_parts)
+        report_body_sections = []
+        for order_idx, content in enumerate(chapter_contents, start=1):
+            report_body_sections.append({
+                "section_id": str(uuid.uuid4()),
+                "section_order": order_idx,
+                "section_content": content
+            })
 
-        print(f"  ✅ Report body assembled: {len(body_parts)} chapters, {len(report_body)} characters")
-        return report_body
+        logger.info(f"[Writer] Report body assembled: {len(report_body_sections)} sections")
+        return report_body_sections
 
     def _format_table_of_contents_markdown(self, table_of_contents: dict) -> str:
         """
@@ -341,11 +347,11 @@ RULES:
         
         Phase 1: Aggregates sections → generates outline (ToC, section mapping,
         abstract, introduction, conclusion).
-        Phase 2: Generates each chapter in parallel → merges into report_body.
+        Phase 2: Generates each chapter in parallel → returns report_body_sections.
         
         Returns:
-            Dict with table_of_contents, abstract, introduction, report_body,
-            and conclusion fields matching AgentGraphState.
+            Dict with table_of_contents, abstract, introduction,
+            report_body_sections (list of section dicts), and conclusion.
         """
         aggregated_sections = self._aggregate_sections_from_research_review(state)
         
@@ -355,42 +361,41 @@ RULES:
                 "table_of_contents": "# Table of Contents\n\nNo content available",
                 "abstract": "",
                 "introduction": "",
-                "report_body": "",
+                "report_body_sections": [],
                 "conclusion": ""
             }
 
         user_query = state.get('user_query', 'Research Report')
         planner_queries = state.get('planner_query', [])
 
-        print(f"\n📋 Phase 1: Generating report outline from {len(aggregated_sections)} sections...")
+        logger.info(f"[Writer] Phase 1: Generating report outline from {len(aggregated_sections)} sections...")
         outline = await self._generate_outline_report(
             user_query=user_query,
             planner_queries=planner_queries,
             sections=aggregated_sections
         )
 
-
         table_of_contents = outline["table_of_contents"]
         report_outline = outline["report_outline"]
-        print(f"  ✅ Outline: {len(table_of_contents)} chapters, {len(report_outline)} headings mapped")
+        logger.info(f"[Writer] Outline: {len(table_of_contents)} chapters, {len(report_outline)} headings mapped")
 
         section_index = self._build_section_index(aggregated_sections)
 
-        print(f"\n📖 Phase 2: Generating report body...")
-        report_body = await self._generate_report_body(
+        logger.info("[Writer] Phase 2: Generating report body sections...")
+        report_body_sections = await self._generate_report_body_sections(
             report_outline=report_outline,
             section_index=section_index,
             table_of_contents=table_of_contents
         )
 
         toc_markdown = self._format_table_of_contents_markdown(table_of_contents)
-        print(f"\n✨ Report generation complete\n")
+        logger.info("[Writer] Report generation complete")
 
         return {
             "table_of_contents": toc_markdown,
             "abstract": outline["abstract"],
             "introduction": outline["introduction"],
-            "report_body": report_body,
+            "report_body_sections": report_body_sections,
             "conclusion": outline["conclusion"]
         }
 
@@ -399,49 +404,18 @@ async def writer_node(state: AgentState) -> dict:
     """
     LangGraph node wrapper for Writer.
     
-    Reads research_review from state, generates outline + parallel body,
-    and returns structured output matching AgentGraphState fields.
+    Reads research_review from state, generates outline + parallel body sections,
+    and returns structured output with report_body_sections for JSON delivery.
     """
     writer = Writer()
     result = await writer.run(state)
-    
-    user_query = state.get("user_query", "Research Report")
-    
-    report_content = f"# Research Report: {user_query}\n\n"
-    
-    if result.get('abstract'):
-        report_content += f"## Abstract\n{result['abstract']}\n\n"
-        
-    if result.get('introduction'):
-        report_content += f"## Introduction\n{result['introduction']}\n\n"
-        
-    if result.get('report_body'):
-        report_content += f"{result['report_body']}\n\n"
-        
-    if result.get('conclusion'):
-        report_content += f"## Conclusion\n{result['conclusion']}\n"
-    
-    report_message = {
-        "message_id": str(uuid.uuid4()),
-        "role": "assistant",
-        "content": report_content,
-        "timestamp": datetime.now().isoformat(),
-        "tool_calls": None,
-        "tool_results": None,
-        "message_type": "report",
-        "metadata": {
-            "title": f"Report: {user_query}",
-            "pdf_generated": False 
-        }
-    }
 
     return {
         "report_table_of_contents": result["table_of_contents"],
         "report_abstract": result["abstract"],
         "report_introduction": result["introduction"],
-        "report_body": result["report_body"],
-        "report_conclusion": result["conclusion"],
-        "chat_messages": [report_message]
+        "report_body_sections": result["report_body_sections"],
+        "report_conclusion": result["conclusion"]
     }
 
 

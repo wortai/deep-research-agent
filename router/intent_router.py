@@ -86,7 +86,7 @@ class IntentRouter:
         user_query = state.get("user_query", "")
         search_mode = state.get("search_mode", "deepsearch")
         chat_messages = state.get("chat_messages", [])
-        has_report = bool(state.get("report_body"))
+        has_report = bool(state.get("report_body_sections"))
         
         if not user_query:
             logger.warning("[IntentRouter] No user query provided")

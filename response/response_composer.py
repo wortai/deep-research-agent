@@ -146,14 +146,18 @@ class ResponseComposer:
                     )
                 
                 case "follow_up":
+                    body_sections = state.get("report_body_sections", [])
+                    combined_body = "\n\n".join(
+                        s.get("section_content", "")
+                        for s in sorted(body_sections, key=lambda s: s.get("section_order", 0))
+                    )
                     prompt = FOLLOW_UP_PROMPT.format(
                         user_query=user_query,
-                        report_body=state.get("report_body", "")[:30000]
+                        report_body=combined_body[:30000]
                     )
 
                 case "edit":
-                    pdf_path = state.get("pdf_s3_path") or state.get("final_report_path", "")
-                    response = f"I've updated the report based on your request. The revised version is available at: {pdf_path}"
+                    response = "I've updated the report based on your request. The revised version is available."
                     print("\n🤖 Assistant: ", end="", flush=True)
                     print(response)
 

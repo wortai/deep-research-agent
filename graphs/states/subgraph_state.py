@@ -173,20 +173,11 @@ class ResearchReviewData(TypedDict):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+class ReportBodySection(TypedDict):
+    """Single report body section with unique ID for tracking."""
+    section_id: str
+    section_order: int
+    section_content: str
 
 
 class AgentGraphState(TypedDict):
@@ -240,13 +231,9 @@ class AgentGraphState(TypedDict):
     report_table_of_contents: str
     report_abstract: str
     report_introduction: str
-    report_body: str
+    report_body_sections: List[ReportBodySection]
     report_conclusion: str
     report_methodology: str
-    
-    # --- Publisher Output ---
-    final_report_path: str
-    pdf_s3_path: Optional[str]
     
     # --- Response ---
     final_response: str

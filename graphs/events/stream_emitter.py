@@ -117,6 +117,24 @@ class StreamEmitter:
 
 
 
+    def emit_report_ready(self, section_count: int) -> None:
+        """
+        Emit report ready signal after writer completes all sections.
+
+        Carries section_count so the frontend knows structured report JSON
+        is available in the state update. This is purely a notification —
+        the actual report data is delivered via the 'updates' stream mode.
+
+        Args:
+            section_count: Total number of report body sections generated.
+        """
+        event = self._create_event(
+            EventType.REPORT_READY,
+            {"section_count": section_count}
+        )
+        self._emit(event)
+
+
     def emit_token(self, token: str) -> None:
         """
         Emit a generic token event.

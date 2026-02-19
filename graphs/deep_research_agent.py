@@ -6,7 +6,7 @@ This module implements DeepResearchAgent class that orchestrates:
 2. Planner Node: Generates research queries from user input
 3. Human Review Node: Pauses for user approval of the plan
 4. Parallel Research: Invokes researcher-reviewer subgraph for each query
-5. Writer Node: Aggregates research and generates final report
+5. Writer Node: Aggregates research and generates final report sections
 6. Response Node: Composes final response for frontend
 
 Supports short-term (conversation) and long-term (semantic) memory
@@ -31,7 +31,6 @@ from planner.plan import planner_node, editor_node
 from writer.report_writer import writer_node
 from HITL.human_in_loop import human_review_node, HumanPlanReview
 from memory import MemoryFacade
-from publisher import publisher_node
 from router.intent_router import router_node
 from response.response_composer import response_node
 from researcher.solution_tree.query_sol_ans import Solver
@@ -72,9 +71,9 @@ class DeepResearchAgent:
         Flow:
             router_node → [intent routing]
                 ├── websearch → parallel_solver_node → response_node → END
-                ├── deepsearch/extremesearch → planner_node → human_review_node → parallel_research_node → writer_node → publisher_node → response_node → END
+                ├── deepsearch/extremesearch → planner_node → human_review_node → parallel_research_node → writer_node → response_node → END
                 ├── follow_up/off_topic → response_node → END
-                └── edit → editor_node → publisher_node → response_node → END
+                └── edit → editor_node → response_node → END
 
         Returns:
             Compiled StateGraph with checkpointer for interrupt/resume.
@@ -88,7 +87,6 @@ class DeepResearchAgent:
         workflow.add_node("parallel_research_node", self._parallel_research_node)
         workflow.add_node("parallel_solver_node", self._parallel_solver_node)
         workflow.add_node("writer_node", writer_node)
-        workflow.add_node("publisher_node", publisher_node)
         workflow.add_node("response_node", response_node)
 
         workflow.set_entry_point("router_node")
@@ -119,11 +117,10 @@ class DeepResearchAgent:
             }
         )
         workflow.add_edge("parallel_research_node", "writer_node")
-        workflow.add_edge("writer_node", "publisher_node")
+        workflow.add_edge("writer_node", "response_node")
         
-        workflow.add_edge("editor_node", "publisher_node")
+        workflow.add_edge("editor_node", "response_node")
         
-        workflow.add_edge("publisher_node", "response_node")
         workflow.add_edge("response_node", END)
 
         return workflow.compile(checkpointer=self._checkpointer)
@@ -259,7 +256,7 @@ class DeepResearchAgent:
         return {
             "thread_id": thread_id or str(uuid.uuid4()),
             "user_id": user_id or "default_user",
-            "chat_messages": [new_message],  # Append new message to history
+            "chat_messages": [new_message],
             "memory_context": MemoryContext(
                 semantic_memories=[],
                 user_profile=None,
@@ -280,11 +277,9 @@ class DeepResearchAgent:
             "report_table_of_contents": "",
             "report_abstract": "",
             "report_introduction": "",
-            "report_body": "",
+            "report_body_sections": [],
             "report_conclusion": "",
             "report_methodology": "",
-            "final_report_path": "",
-            "pdf_s3_path": None,
             "final_response": "",
             "edit_instructions": None
         }
@@ -298,7 +293,7 @@ class DeepResearchAgent:
     ) -> Dict[str, Any]:
         """
         Creates a partial state update for existing threads.
-        Only updates fields that change per-turn, preserving report_body/etc.
+        Only updates fields that change per-turn, preserving report_body_sections/etc.
         """
         new_message = {
             "message_id": str(uuid.uuid4()),
@@ -314,7 +309,7 @@ class DeepResearchAgent:
             "intent_type": "", # Reset intent for new turn
             "current_phase": "routing", # Reset phase
             "user_id": user_id,
-            # DO NOT reset report_body, report_abstract, etc. here
+            # DO NOT reset report_body_sections, report_abstract, etc. here
         }
 
     async def run(
@@ -441,8 +436,10 @@ if __name__ == "__main__":
             lines.append("---\n")
 
         # Report Body (chapters and subchapters)
-        if result.get('report_body'):
-            lines.append(f"{result['report_body']}\n")
+        body_sections = result.get('report_body_sections', [])
+        for section in sorted(body_sections, key=lambda s: s.get('section_order', 0)):
+            lines.append(f"{section.get('section_content', '')}\n")
+        if body_sections:
             lines.append("---\n")
 
         if result.get('report_conclusion'):
@@ -487,10 +484,10 @@ if __name__ == "__main__":
         print(f"\n📊 Stats:")
         print(f"   - Planner Queries: {len(result.get('planner_query', []))}")
         print(f"   - Research Reviews: {len(result.get('research_review', []))}")
-        print(f"   - Report Body Length: {len(result.get('report_body', ''))} characters")
+        print(f"   - Report Body Sections: {len(result.get('report_body_sections', []))}")
         print(f"\n📄 Report saved to: {file_path}")
         print("\n" + "=" * 80)
-        if result.get('report_body'):
+        if result.get('report_body_sections'):
             print("\n" + "=" * 80)
             print("FULL REPORT")
             print("=" * 80 + "\n")

@@ -295,8 +295,8 @@ Return JSON with:
         Edits existing report based on user instructions.
         
         Reads edit_instructions and current report sections, uses LLM
-        to apply targeted edits. Skips research phase and goes directly
-        to publisher after editing.
+        to apply targeted edits. Concatenates report_body_sections
+        for LLM context, then returns updated sections.
         
         Args:
             state: State with edit_instructions and current report sections.
@@ -309,7 +309,10 @@ Return JSON with:
             logger.warning("[Editor] No edit instructions provided")
             return {}
         
-        report_body = state.get("report_body", "")
+        body_sections = state.get("report_body_sections", [])
+        combined_body = "\n\n".join(
+            s.get("section_content", "") for s in sorted(body_sections, key=lambda s: s.get("section_order", 0))
+        )
         report_abstract = state.get("report_abstract", "")
         report_introduction = state.get("report_introduction", "")
         report_conclusion = state.get("report_conclusion", "")
@@ -328,7 +331,7 @@ Return JSON with:
 {report_introduction}
 
 ### Body
-{report_body}
+{combined_body}
 
 ### Conclusion
 {report_conclusion}
@@ -346,9 +349,17 @@ Apply the requested edits to the appropriate sections. Return JSON with only the
             result = self.chain.invoke(prompt)
             updates = {}
             
-            for key in ["report_abstract", "report_introduction", "report_body", "report_conclusion"]:
+            for key in ["report_abstract", "report_introduction", "report_conclusion"]:
                 if result.get(key) and result[key] != "null":
                     updates[key] = result[key]
+            
+            if result.get("report_body") and result["report_body"] != "null":
+                import uuid as _uuid
+                updates["report_body_sections"] = [{
+                    "section_id": str(_uuid.uuid4()),
+                    "section_order": 1,
+                    "section_content": result["report_body"]
+                }]
             
             logger.info(f"[Editor] Applied edits to {len(updates)} sections")
             return updates
