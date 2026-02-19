@@ -24,15 +24,26 @@ def _estimate_total_nodes(max_depth: int, num_gaps_per_node: int) -> int:
     return sum(num_gaps_per_node ** d for d in range(max_depth + 1))
 
 
-def _emit_event(writer, event_type: str, phase: str, payload: dict, progress: dict = None):
-    """Emit event to stream writer if available."""
+def _emit_event(writer, phase: str, payload: dict, progress: dict = None):
+    """
+    Emit agent_progress event to stream writer for frontend tracking.
+
+    Uses consistent 'agent_progress' event_type so stream_service.py
+    handles orchestrator events identically to subgraph-level emissions.
+
+    Args:
+        writer: LangGraph stream writer callable.
+        phase: Current phase string (e.g. 'researching').
+        payload: Event data with query, current_step, percentage, etc.
+        progress: Optional dict with completed/total counts.
+    """
     if writer is None:
         return
     
     from datetime import datetime
     
     event = {
-        "event_type": event_type,
+        "event_type": "agent_progress",
         "phase": phase,
         "payload": payload,
         "timestamp": datetime.utcnow().isoformat()
@@ -49,17 +60,21 @@ def _emit_event(writer, event_type: str, phase: str, payload: dict, progress: di
 async def execute_research_tree(
     initial_query: str, 
     max_depth: int = 2, 
-    num_gaps_per_node: int = 2
+    num_gaps_per_node: int = 2,
+    query_num: int = 0
 ) -> Dict[str, Any]:
     """
     Builds and resolves a tree of research queries using a breadth-first approach.
     
     Emits progress events via get_stream_writer for frontend progress bars.
+    Each event includes query_num so the frontend routes it to the
+    correct agent card (one subgraph invocation = one agent).
     
     Args:
-        initial_query (str): The initial research query (root).
-        max_depth (int): Maximum depth of the research tree.
-        num_gaps_per_node (int): Number of gaps to identify per node.
+        initial_query: The initial research query (root).
+        max_depth: Maximum depth of the research tree.
+        num_gaps_per_node: Number of gaps to identify per node.
+        query_num: Planner query index this tree belongs to.
         
     Returns:
         Dict[str, Any]: Dictionary with tree_root, all_answers (List[RawResearchResult]), 
@@ -76,9 +91,13 @@ async def execute_research_tree(
     
     _emit_event(
         writer,
-        "phase_started",
         "researching",
-        {"query": initial_query, "max_depth": max_depth},
+        {
+            "query_num": query_num,
+            "query": initial_query,
+            "current_step": f"Starting research tree (depth {max_depth})",
+            "percentage": 0
+        },
         {"completed": 0, "total": estimated_total}
     )
     
@@ -115,12 +134,13 @@ async def execute_research_tree(
             
             _emit_event(
                 writer,
-                "research_node_started",
                 "researching",
                 {
+                    "query_num": query_num,
                     "query": node.query[:100],
+                    "current_step": f"Searching: {node.query[:80]}",
                     "depth": node.depth,
-                    "node_id": f"node_{local_node_id}"
+                    "percentage": int((local_node_id / max(estimated_total, 1)) * 100)
                 },
                 {"completed": local_node_id, "total": estimated_total}
             )
@@ -131,9 +151,13 @@ async def execute_research_tree(
                 logger.info("Max depth reached for this branch.")
                 _emit_event(
                     writer,
-                    "research_node_completed",
                     "researching",
-                    {"query": node.query[:100], "status": "max_depth_reached"},
+                    {
+                        "query_num": query_num,
+                        "query": node.query[:100],
+                        "current_step": "Max depth reached",
+                        "percentage": int(((local_node_id + 1) / max(estimated_total, 1)) * 100)
+                    },
                     {"completed": local_node_id + 1, "total": estimated_total}
                 )
                 return {"node": node, "gaps": [], "answer": {}, "success": True, "max_depth": True}
@@ -144,13 +168,12 @@ async def execute_research_tree(
                 
                 _emit_event(
                     writer,
-                    "research_node_completed",
                     "researching",
                     {
+                        "query_num": query_num,
                         "query": node.query[:100],
-                        "answers_count": len(answer),
-                        "gaps_found": len(gaps),
-                        "status": "resolved"
+                        "current_step": f"Resolved ({len(answer)} answers, {len(gaps)} gaps)",
+                        "percentage": int(((local_node_id + 1) / max(estimated_total, 1)) * 100)
                     },
                     {"completed": local_node_id + 1, "total": estimated_total}
                 )
@@ -161,9 +184,13 @@ async def execute_research_tree(
                 logger.error(f"An error occurred while resolving '{node.query}': {e}")
                 _emit_event(
                     writer,
-                    "error",
                     "researching",
-                    {"query": node.query[:100], "error": str(e)[:200]}
+                    {
+                        "query_num": query_num,
+                        "query": node.query[:100],
+                        "current_step": f"Error: {str(e)[:100]}",
+                        "percentage": int(((local_node_id + 1) / max(estimated_total, 1)) * 100)
+                    }
                 )
                 return {"node": node, "gaps": [], "answer": {}, "success": False, "max_depth": False}
         
@@ -207,9 +234,12 @@ async def execute_research_tree(
             
     _emit_event(
         writer,
-        "phase_completed",
         "researching",
-        {"total_answers": len(all_answers), "total_nodes": nodes_processed},
+        {
+            "query_num": query_num,
+            "current_step": f"Research complete ({len(all_answers)} answers, {nodes_processed} nodes)",
+            "percentage": 100
+        },
         {"completed": nodes_processed, "total": nodes_processed}
     )
     

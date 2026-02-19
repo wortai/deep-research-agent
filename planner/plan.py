@@ -13,7 +13,6 @@ from langgraph.types import StreamWriter
 from llms.llms import LlmsHouse
 from researcher.solution_tree.prompts.prompts import get_plan_prompt, get_clarifying_questions_prompt
 from graphs.states.subgraph_state import AgentGraphState, PlannerQuery, MemoryContext
-from graphs.events.stream_emitter import get_emitter
 import logging
 import uuid
 from datetime import datetime
@@ -99,7 +98,6 @@ class Planner:
         Returns:
             State update with 'planner_query' list populated.
         """
-        emitter = get_emitter(writer)
         query = state.get("user_query")
         if not query:
             logger.warning("User query not found in state.")
@@ -131,27 +129,11 @@ class Planner:
         prompt = get_plan_prompt(complete_query)
 
         try:
-            # Switch to token streaming to provide immediate feedback
             full_response = ""
-            in_json_block = False
-            print("\n🤖 Planner: ", end="", flush=True)
             for chunk in self.llm.stream(prompt):
                  content = chunk.content
                  if content:
                      full_response += content
-
-                     # Check if we are entering the JSON block
-                     if "```json" in full_response and not in_json_block:
-                         in_json_block = True
-                         # Stop streaming tokens to user once we hit JSON
-                         # We might have printed some of the backticks, but that's okay for now.
-                         continue
-                         
-                     if not in_json_block:
-                         # Stream the Strategy/Thinking part to the user
-                         emitter.emit_token(content)
-            
-            emitter.emit_token("")  # Optional: signal end of token stream if handled manually
             
             # Now parse the full response
             result = self.parser.parse(full_response)

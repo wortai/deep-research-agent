@@ -215,7 +215,7 @@ class AgentGraphState(TypedDict):
         "websearch", "deepsearch", "extremesearch",
         "follow_up", "edit", "clarification", "off_topic"
     ]
-    
+    router_thinking:str
     # --- Progress Tracking ---
     total_agents: int
     completed_agents: int

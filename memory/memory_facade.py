@@ -187,6 +187,7 @@ class MemoryFacade:
         except Exception as e:
             logger.error(f"Failed to process turn: {e}")
 
+   
     async def add_chat_message(
         self,
         thread_id: str,

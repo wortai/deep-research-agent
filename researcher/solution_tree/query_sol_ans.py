@@ -93,7 +93,7 @@ class Solver:
                 logger.info(f"Web search: {query}")
                 web_search = WebSearch(query=query, max_results=self.max_results)
                 results = await web_search.initiate_research()
-                logger.info(f"Retrieved {len(results)} results")
+                logger.info(f"Retrieved {len(results)} results of websearch data ")
                 
                 if results:
                     for result in results:
@@ -173,17 +173,25 @@ class Solver:
                 - Dictionary of answers.
         """
         web_search_queries = await self.create_web_search_queries()
-        logger.info(f"Web queries: {web_search_queries}")
+        logger.info(f"[Solver] Web queries generated: {len(web_search_queries)} for '{self.query[:60]}'")
+        
+        if not web_search_queries:
+            logger.warning(f"[Solver] No web search queries generated for '{self.query[:60]}' — returning empty")
+            return [], {}
         
         web_content = await self.retrieve_web_content(web_search_queries)
-        logger.info(f"Retrieved {len(web_content)} content items")
+        logger.info(f"[Solver] Web content retrieved: {len(web_content)} items")
+        
+        if not web_content:
+            logger.warning(f"[Solver] No web content retrieved for '{self.query[:60]}' — returning empty")
+            return [], {}
         
         query, answer, gaps = await self.analyze_gaps(web_content)
+        
+        logger.info(f"[Solver] Analysis complete: {len(answer)} answers, {len(gaps)} gaps for '{self.query[:60]}'")
 
         dump_query_solution(query, answer, filename="query_solutions.md")
         
-        logger.info(f"Resolved with {len(gaps)} gaps remaining")
-
         return gaps, answer
 
     async def websearch_solver(self) -> Dict[str, Any]:

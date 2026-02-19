@@ -13,7 +13,6 @@ from typing import Dict, Any
 from langchain_core.output_parsers import StrOutputParser
 from llms import LlmsHouse
 from graphs.states.subgraph_state import AgentGraphState
-from graphs.events.stream_emitter import get_emitter
 from langchain_core.messages import SystemMessage, HumanMessage
 from datetime import datetime
 import logging
@@ -22,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-WEBSEARCH_RESPONSE_PROMPT = """Based on the research results below, provide a concise, informative answer to the user's question.
+WEBSEARCH_RESPONSE_PROMPT = """You are a helpful research assistant. Based on the provided research results, answer the user's question accurately and concisely.
 
 ## User Question
 {user_query}
@@ -30,8 +29,16 @@ WEBSEARCH_RESPONSE_PROMPT = """Based on the research results below, provide a co
 ## Research Results
 {research_results}
 
-Provide a helpful, conversational response. Include key facts and cite sources where relevant.
-"""
+## Instructions
+1. Synthesize the information from the research results into a coherent, conversational response.
+2. Use Markdown formatting (e.g., bolding, bullet points) to improve readability.
+3. Cite sources using inline citations (e.g., [Source Name] or [1]) where relevant.
+4. If the provided results do not contain enough information to answer the question, state what is missing.
+5. Focus on key facts and data points while maintaining a helpful tone.
+
+Response:"""
+
+
 
 REPORT_SUMMARY_PROMPT = """Summarize the research report for the user in a conversational way.
 
@@ -106,48 +113,30 @@ class ResponseComposer:
         }
 
     def compose(self, state: AgentGraphState) -> Dict[str, Any]:
-        """
-        Generate appropriate response based on workflow path.
-        
-        Args:
-            state: Final state with research/report data.
-            
-        Returns:
-            State update with final_response and chat_messages.
-        """
+
         intent_type = state.get("intent_type", "off_topic")
         user_query = state.get("user_query", "")
         
         logger.info(f"[ResponseComposer] Composing response for intent: {intent_type}")
         
-        # Get StreamEmitter with terminal output enabled for dev
         try:
-            from langgraph.config import get_stream_writer
-            writer = get_stream_writer()
-        except Exception:
-            writer = None
-        
-        emitter = get_emitter(writer)
-        
-        try:
-            if intent_type == "off_topic":
-                response = OFF_TOPIC_RESPONSE
-                print("\n🤖 Assistant: ", end="", flush=True)
-                for token in response.split():
-                    emitter.emit_token(token + " ")
-                emitter.emit_token("")
-                
-            else:
-                response = ""
-                prompt = ""
-                if intent_type == "websearch":
+            response = ""
+            prompt = ""
+
+            match intent_type:
+                case "off_topic":
+                    response = OFF_TOPIC_RESPONSE
+                    print("\n🤖 Assistant: ", end="", flush=True)
+                    print(response)
+
+                case "websearch":
                     research_review = state.get("research_review", [])
                     prompt = WEBSEARCH_RESPONSE_PROMPT.format(
                         user_query=user_query,
                         research_results=self._format_research_results(research_review)
                     )
-                    
-                elif intent_type in ("deepsearch", "extremesearch"):
+
+                case "deepsearch" | "extremesearch":
                     pdf_path = state.get("pdf_s3_path") or state.get("final_report_path", "")
                     prompt = REPORT_SUMMARY_PROMPT.format(
                         user_query=user_query,
@@ -155,39 +144,34 @@ class ResponseComposer:
                         introduction=state.get("report_introduction", "")[:500],
                         pdf_path=pdf_path
                     )
-                    
-                elif intent_type == "follow_up":
+                
+                case "follow_up":
                     prompt = FOLLOW_UP_PROMPT.format(
                         user_query=user_query,
-                        report_body=state.get("report_body", "")[:3000]
+                        report_body=state.get("report_body", "")[:30000]
                     )
-                    
-                elif intent_type == "edit":
+
+                case "edit":
                     pdf_path = state.get("pdf_s3_path") or state.get("final_report_path", "")
                     response = f"I've updated the report based on your request. The revised version is available at: {pdf_path}"
                     print("\n🤖 Assistant: ", end="", flush=True)
-                    for token in response.split():
-                        emitter.emit_token(token + " ")
-                    emitter.emit_token("")
-                response = "I apologize, but I couldn't process your request. Please try rephrasing your question."
-                print("\n🤖 Assistant: ", end="", flush=True)
-                for token in response.split():
-                    emitter.emit_token(token + " ")
+                    print(response)
+
+                case _:
+                    response = "I apologize, but I couldn't process your request. Please try rephrasing your question."
+                    print("\n🤖 Assistant: ", end="", flush=True)
+                    print(response)
 
             if prompt:
                 print("\n🤖 Assistant: ", end="", flush=True)
                 full_response = ""
                 for chunk in self.chain.stream(prompt):
-                    content = chunk # Assuming chunk is already the string content
-                    if content:
-                        full_response += content
-                        # Stream token to user
-                        emitter.emit_token(content)
-                        print(content, end="", flush=True)
-                response = full_response # Update response with streamed content
+                    if chunk:
+                        full_response += chunk
+                        print(chunk, end="", flush=True)
+                response = full_response
             
-            emitter.emit_token("") # Optional: signal end
-            print() # Newline after assistant response
+            print() 
             
             assistant_message = self._create_chat_message("assistant", response)
             
@@ -206,10 +190,6 @@ class ResponseComposer:
 
 
 def response_node(state: AgentGraphState) -> Dict[str, Any]:
-    """
-    LangGraph node wrapper for ResponseComposer.
-    
-    Generates final response based on intent_type and workflow results.
-    """
+
     composer = ResponseComposer()
     return composer.compose(state)

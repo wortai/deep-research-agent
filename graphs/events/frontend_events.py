@@ -56,6 +56,36 @@ class PhaseType(str, Enum):
     PUBLISHING = "publishing"
     RESPONDING = "responding"
 
+# Alias for backward compatibility or clarity in agent contexts
+AgentPhase = PhaseType
+
+
+class AgentProgress:
+    """Tracks progress of a specific research agent."""
+    
+    def __init__(
+        self, 
+        query_num: int, 
+        query: str, 
+        phase: AgentPhase, 
+        percentage: int, 
+        current_step: str = ""
+    ):
+        self.query_num = query_num
+        self.query = query
+        self.phase = phase
+        self.percentage = percentage
+        self.current_step = current_step
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "query_num": self.query_num,
+            "query": self.query,
+            "phase": self.phase,
+            "percentage": self.percentage,
+            "current_step": self.current_step
+        }
+
 
 class ProgressInfo(TypedDict, total=False):
     """Progress tracking for frontend progress bars."""
@@ -95,7 +125,7 @@ def create_event(
     Args:
         event_type: Type of event being emitted.
         phase: Current workflow phase.
-        payload: Event-specific data.
+        payload: Event-specific data.z
         progress: Optional progress info for progress bars.
         agent_id: Optional identifier for specific agent.
         query_num: Optional query number for tracking.

@@ -184,7 +184,8 @@ class DeepResearchAgent:
                 "raw_research_results": [],
                 "review_feedback": [],
                 "current_reviews": [],
-                "iteration_count": 0
+                "iteration_count": 0,
+                "logs": []
             }
             result = await subgraph.ainvoke(initial_state)
             logger.info(f"[parallel_research_node] Completed research for query #{query_num}: {query[:50]}...")
@@ -226,45 +227,7 @@ class DeepResearchAgent:
         solver = Solver(query=user_query)
         return await solver.websearch_solver()
 
-    def _display_plan_for_terminal(self, interrupt_data) -> str:
-        """
-        Formats interrupt plan data for terminal display. Helper for testing.
 
-        Args:
-            interrupt_data: Interrupt payload containing plan_display.
-
-        Returns:
-            Formatted display string.
-        """
-        if interrupt_data:
-            return interrupt_data[0].value.get("plan_display", "")
-        return ""
-
-    def _get_terminal_approval(self, plan_display: str) -> Dict[str, Any]:
-        """
-        Prompts user in terminal for plan approval or feedback. Helper for testing.
-
-        Args:
-            plan_display: Formatted plan string.
-
-        Returns:
-            Dict with 'approved' (bool) and 'feedback' (str) keys.
-        """
-        print("\n" + "=" * 60)
-        print("📋 RESEARCH PLAN FOR REVIEW")
-        print("=" * 60)
-        print(plan_display)
-        print("=" * 60)
-
-        while True:
-            approval = input("\n✅ Approve this plan? (yes/no): ").strip().lower()
-            if approval in ("yes", "y"):
-                return {"approved": True, "feedback": ""}
-            elif approval in ("no", "n"):
-                feedback = input("📝 Please provide feedback for improvement: ").strip()
-                return {"approved": False, "feedback": feedback}
-            else:
-                print("Please enter 'yes' or 'no'.")
 
     def _create_initial_state(
         self, 
@@ -326,6 +289,34 @@ class DeepResearchAgent:
             "edit_instructions": None
         }
 
+    def _create_update_state(
+        self,
+        user_query: str,
+        search_mode: str,
+        thread_id: str,
+        user_id: str = "default_user"
+    ) -> Dict[str, Any]:
+        """
+        Creates a partial state update for existing threads.
+        Only updates fields that change per-turn, preserving report_body/etc.
+        """
+        new_message = {
+            "message_id": str(uuid.uuid4()),
+            "role": "user",
+            "content": user_query,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        return {
+            "user_query": user_query,
+            "search_mode": search_mode,
+            "chat_messages": [new_message], # Appends due to operator.add
+            "intent_type": "", # Reset intent for new turn
+            "current_phase": "routing", # Reset phase
+            "user_id": user_id,
+            # DO NOT reset report_body, report_abstract, etc. here
+        }
+
     async def run(
         self, 
         user_query: str, 
@@ -357,6 +348,25 @@ class DeepResearchAgent:
 
         logger.info(f"[run] Starting research for: {user_query}")
         
+        # Check if state exists to decide between Init vs Update
+        current_state = await self._graph.get_state(config)
+        state_exists = bool(current_state.values)
+
+        if state_exists:
+            logger.info(f"[run] Thread {thread_id} exists - updating state")
+            initial_state = self._create_update_state(
+                user_query, 
+                search_mode=search_mode, 
+                thread_id=thread_id
+            )
+        else:
+            logger.info(f"[run] Thread {thread_id} new - initializing full state")
+            initial_state = self._create_initial_state(
+                user_query, 
+                search_mode=search_mode, 
+                thread_id=thread_id
+            )
+        
         if self._memory:
             await self._memory.initialize()
             
@@ -384,15 +394,6 @@ class DeepResearchAgent:
 
 
 
-def build_deep_research_agent() -> StateGraph:
-    """
-    Convenience function to build and return a compiled deep research agent graph.
-    
-    Returns:
-        Compiled StateGraph ready for invocation.
-    """
-    agent = DeepResearchAgent()
-    return agent._graph
 
 
 async def run_deep_research(

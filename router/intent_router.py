@@ -109,7 +109,8 @@ class IntentRouter:
             
             response = {
                 "intent_type": intent,
-                "current_phase": "routing"
+                "current_phase": "routing",
+                "router_thinking": result.get("reasoning", "Mergin my Conciousness with universe to find the best possible answer for you")
             }
             
             if intent == "edit" and result.get("edit_instructions"):

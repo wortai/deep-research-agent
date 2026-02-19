@@ -29,6 +29,10 @@ class StreamEmitter:
         self._writer = writer
         self._terminal_callback = terminal_callback
     
+
+
+
+    
     def _emit(self, event: Dict[str, Any]) -> None:
         """Core emit logic - sends to writer."""
         if self._terminal_callback:
@@ -45,6 +49,10 @@ class StreamEmitter:
         except Exception:
             pass
     
+
+
+
+
     def _create_event(
         self,
         event_type: EventType,
@@ -60,17 +68,31 @@ class StreamEmitter:
         }
         return event
     
+
+
+
     def emit_agent_progress(
         self,
         query_num: int,
         query: str,
         phase: AgentPhase,
         percentage: int,
-        current_step: str = ""
+        current_step: str = "",
+        metadata: Optional[Dict[str, Any]] = None
     ) -> None:
         """
-        Emit agent progress event for subgraph tracking.
-        Used by the parallel researcher to update its progress bar.
+        Emit unified agent progress event for frontend tracking.
+
+        All subgraph progress (researcher, reviewer, resolver) flows through
+        this single method to avoid duplicate event types.
+
+        Args:
+            query_num: Index of the planner query this agent handles.
+            query: The research query text being processed.
+            phase: Current workflow phase (RESEARCHING, REVIEWING, etc.).
+            percentage: Progress percentage (0-100).
+            current_step: Human-readable description of current activity.
+            metadata: Optional extra data (results_count, etc.).
         """
         progress = AgentProgress(
             query_num=query_num,
@@ -80,34 +102,21 @@ class StreamEmitter:
             current_step=current_step
         )
         
+        payload = progress.to_dict()
+        if metadata:
+            payload["metadata"] = metadata
+        
         event = self._create_event(
             EventType.AGENT_PROGRESS,
-            progress.to_dict(),
+            payload,
             agent_id=f"agent_{query_num}"
         )
         self._emit(event)
     
-    def emit_subgraph_node_progress(
-        self,
-        node_name: str,
-        query_num: int,
-        status: str,
-        percentage: int,
-        details: Optional[Dict[str, Any]] = None
-    ) -> None:
-        """
-        Emit progress event for specific subgraph node execution.
-        """
-        event = self._create_event(
-            EventType.SUBGRAPH_NODE_PROGRESS,
-            details or {},
-            node_name=node_name,
-            agent_id=f"agent_{query_num}",
-            status=status,
-            percentage=percentage
-        )
-        self._emit(event)
-    
+
+
+
+
     def emit_token(self, token: str) -> None:
         """
         Emit a generic token event.
