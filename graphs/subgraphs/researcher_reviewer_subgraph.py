@@ -39,7 +39,7 @@ async def researcher_node(state: ResearchReviewData, writer: StreamWriter) -> Di
     """
     query = state["query"]
     query_num = state.get("query_num", 0)
-    logger.info(f"[researcher_node] Starting research for: {query}")
+    # logger.info(f"[researcher_node] Starting research for: {query}")
     
     emitter = get_emitter(writer)
     emitter.emit_agent_progress(
@@ -59,7 +59,7 @@ async def researcher_node(state: ResearchReviewData, writer: StreamWriter) -> Di
     
     all_answers = research_results["all_answers"]
     
-    logger.info(f"[researcher_node] Research complete: {len(all_answers)} research results")
+    # logger.info(f"[researcher_node] Research complete: {len(all_answers)} research results")
     emitter.emit_agent_progress(
         query_num=query_num,
         query=query,
@@ -108,7 +108,7 @@ async def reviewer_node(state: ResearchReviewData, writer: StreamWriter) -> Dict
     )
     
     if iteration >= MAX_ITERATIONS:
-        logger.info(f"[reviewer_node] Max iterations ({MAX_ITERATIONS}) reached. Stopping reviews.")
+        # logger.info(f"[reviewer_node] Max iterations ({MAX_ITERATIONS}) reached. Stopping reviews.")
         emitter.emit_agent_progress(
             query_num=query_num,
             query=query,
@@ -123,12 +123,12 @@ async def reviewer_node(state: ResearchReviewData, writer: StreamWriter) -> Dict
             "iteration_count": iteration
         }
     
-    logger.info(f"[reviewer_node] Iteration {iteration}: Generating reviews...")
+    # logger.info(f"[reviewer_node] Iteration {iteration}: Generating reviews...")
     
     reviewer = Reviewer(num_review_queries=3)
     reviews = reviewer.generate_reviews(query, research_results)
     
-    logger.info(f"[reviewer_node] Generated {len(reviews)} reviews and the main query is {state['query']}")
+    # logger.info(f"[reviewer_node] Generated {len(reviews)} reviews and the main query is {state['query']}")
     emitter.emit_agent_progress(
         query_num=query_num,
         query=query,
@@ -174,7 +174,7 @@ async def resolve_node(state: ResearchReviewData, writer: StreamWriter) -> Dict[
         percentage=75,
         current_step=f"Resolving: {review_query[:80]}"
     )
-    logger.info(f"[resolve_node] Resolving {len(current_reviews)} reviews...")
+    # logger.info(f"[resolve_node] Resolving {len(current_reviews)} reviews...")
     
     new_results = []
     solver = Solver(
@@ -204,7 +204,7 @@ async def resolve_node(state: ResearchReviewData, writer: StreamWriter) -> Dict[
             "section_id": str(uuid.uuid4())
         })
 
-    logger.info(f"[resolve_node] Added {len(new_results)} new research results")
+    # logger.info(f"[resolve_node] Added {len(new_results)} new research results")
     emitter.emit_agent_progress(
         query_num=query_num,
         query=query,
@@ -238,10 +238,10 @@ def should_continue(state: ResearchReviewData) -> str:
     current_reviews = state.get("current_reviews", [])
     
     if current_reviews:
-        logger.info(f"[should_continue] {len(current_reviews)} reviews pending -> continue")
+        # logger.info(f"[should_continue] {len(current_reviews)} reviews pending -> continue")
         return "resolve_node"
     else:
-        logger.info("[should_continue] No reviews -> END")
+        # logger.info("[should_continue] No reviews -> END")
         return END
 
 

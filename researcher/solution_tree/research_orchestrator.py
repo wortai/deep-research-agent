@@ -145,10 +145,10 @@ async def execute_research_tree(
                 {"completed": local_node_id, "total": estimated_total}
             )
             
-            logger.info(f"Resolving Node at Depth {node.depth}: '{node.query}'")
+            # logger.info(f"Resolving Node at Depth {node.depth}: '{node.query}'")
             
             if node.depth >= max_depth:
-                logger.info("Max depth reached for this branch.")
+                # logger.info("Max depth reached for this branch.")
                 _emit_event(
                     writer,
                     "researching",
@@ -221,7 +221,7 @@ async def execute_research_tree(
                 
                 all_gaps[node.query] = result["gaps"]
                 
-                logger.info(f"Query resolved. Found {len(result['gaps'])} new child nodes (gaps).")
+                # logger.info(f"Query resolved. Found {len(result['gaps'])} new child nodes (gaps).")
                 
                 for gap_query in result["gaps"]:
                     child_node = Node(
@@ -243,7 +243,7 @@ async def execute_research_tree(
         {"completed": nodes_processed, "total": nodes_processed}
     )
     
-    logger.info("Research tree resolution is complete.")
+    # logger.info("Research tree resolution is complete.")
     
     return {
         "tree_root": root_node,

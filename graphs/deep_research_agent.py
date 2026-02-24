@@ -133,7 +133,7 @@ class DeepResearchAgent:
             Node name to route to based on intent_type.
         """
         intent = state.get("intent_type", "deepsearch")
-        logger.info(f"[_route_by_intent] Routing to: {intent}")
+        # logger.info(f"[_route_by_intent] Routing to: {intent}")
         return intent
 
     def _route_after_review(self, state: AgentGraphState) -> str:
@@ -166,7 +166,7 @@ class DeepResearchAgent:
             logger.warning("[parallel_research_node] No queries from planner")
             return {"research_review": []}
 
-        logger.info(f"[parallel_research_node] Starting parallel research for {len(queries)} queries")
+        # logger.info(f"[parallel_research_node] Starting parallel research for {len(queries)} queries")
 
         subgraph = build_researcher_reviewer_subgraph()
 
@@ -185,13 +185,13 @@ class DeepResearchAgent:
                 "logs": []
             }
             result = await subgraph.ainvoke(initial_state)
-            logger.info(f"[parallel_research_node] Completed research for query #{query_num}: {query[:50]}...")
+            # logger.info(f"[parallel_research_node] Completed research for query #{query_num}: {query[:50]}...")
             return result
 
         tasks = [invoke_subgraph(q) for q in queries]
         results = await asyncio.gather(*tasks)
 
-        logger.info(f"[parallel_research_node] All {len(results)} research tasks complete")
+        # logger.info(f"[parallel_research_node] All {len(results)} research tasks complete")
         
         all_logs = []
         for res in results:
@@ -219,12 +219,34 @@ class DeepResearchAgent:
             logger.warning("[_parallel_solver_node] No user query provided")
             return {"research_review": []}
         
-        logger.info(f"[_parallel_solver_node] Starting websearch for: {user_query[:50]}...")
+        # logger.info(f"[_parallel_solver_node] Starting websearch for: {user_query[:50]}...")
         
         solver = Solver(query=user_query)
         return await solver.websearch_solver()
 
+    def _display_plan_for_terminal(self, interrupt_data: Any) -> str:
+        """Extract plan display string from interrupt data"""
+        if isinstance(interrupt_data, tuple) and len(interrupt_data) > 0:
+            data = interrupt_data[0].value
+        elif isinstance(interrupt_data, list) and len(interrupt_data) > 0:
+            data = getattr(interrupt_data[0], "value", interrupt_data[0])
+        else:
+            data = interrupt_data
+            
+        if isinstance(data, dict):
+            return data.get("plan_display", str(data))
+        return str(data)
 
+    def _get_terminal_approval(self, plan_display: str) -> Dict[str, Any]:
+        """Ask user in terminal for plan approval"""
+        print("\n--- Plan Ready For Review ---")
+        print(plan_display)
+        print("-----------------------------\n")
+        val = input("Approve this plan? (y/n) [y]: ").strip().lower()
+        if val in ["", "y", "yes"]:
+            return {"approved": True, "feedback": ""}
+        feedback = input("Please provide feedback: ").strip()
+        return {"approved": False, "feedback": feedback}
 
     def _create_initial_state(
         self, 
@@ -341,21 +363,21 @@ class DeepResearchAgent:
             thread_id=thread_id
         ) 
 
-        logger.info(f"[run] Starting research for: {user_query}")
+        # logger.info(f"[run] Starting research for: {user_query}")
         
         # Check if state exists to decide between Init vs Update
-        current_state = await self._graph.get_state(config)
+        current_state = await self._graph.aget_state(config)
         state_exists = bool(current_state.values)
 
         if state_exists:
-            logger.info(f"[run] Thread {thread_id} exists - updating state")
+            # logger.info(f"[run] Thread {thread_id} exists - updating state")
             initial_state = self._create_update_state(
                 user_query, 
                 search_mode=search_mode, 
                 thread_id=thread_id
             )
         else:
-            logger.info(f"[run] Thread {thread_id} new - initializing full state")
+            # logger.info(f"[run] Thread {thread_id} new - initializing full state")
             initial_state = self._create_initial_state(
                 user_query, 
                 search_mode=search_mode, 
@@ -384,7 +406,7 @@ class DeepResearchAgent:
             else:
                 break
 
-        logger.info("[run] Research complete")
+        # logger.info("[run] Research complete")
         return result
 
 
@@ -462,7 +484,7 @@ if __name__ == "__main__":
         await memory.initialize()
         
         # First turn
-        result = await run_deep_research(query, "websearch", thread_id, memory)
+        result = await run_deep_research(query, "deepsearch", thread_id, memory)
         
         # Simulate follow-up in same thread (memory persistence)
         # follow_up = await run_deep_research("What about transformers?", "follow_up", thread_id, memory)

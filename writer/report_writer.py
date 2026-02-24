@@ -18,7 +18,9 @@ import logging
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from langgraph.types import StreamWriter
 from graphs.states.subgraph_state import AgentGraphState as AgentState
+from graphs.events.stream_emitter import get_emitter, StreamEmitter
 from writer.prompts_utils.writer_prompts import generate_outline_prompt, generate_chapter_prompt
 from llms import LlmsHouse
 import uuid
@@ -40,8 +42,25 @@ class Writer:
     section_order, and section_content.
     """
 
-    def __init__(self):
+    def __init__(self, emitter: StreamEmitter = None):
         self.gemini_model = LlmsHouse().google_model('gemini-2.5-flash')
+        self._emitter = emitter
+
+    def _emit_progress(self, percentage: int, current_step: str, metadata: dict = None) -> None:
+        """
+        Emit writer progress if emitter is available.
+
+        Args:
+            percentage: Progress percentage (0-100).
+            current_step: Human-readable description of current activity.
+            metadata: Optional extra data.
+        """
+        if self._emitter:
+            self._emitter.emit_writer_progress(
+                percentage=percentage,
+                current_step=current_step,
+                metadata=metadata
+            )
 
     def _extract_json_from_response(self, text: str) -> dict:
         """
@@ -310,8 +329,29 @@ RULES:
                 )
             )
 
-        logger.info(f"[Writer] Generating {len(tasks)} chapters in parallel...")
-        chapter_contents = await asyncio.gather(*tasks)
+        total_chapters = len(tasks)
+        chapters_done = 0
+        chapter_progress_lock = asyncio.Lock()
+
+        async def _tracked_chapter(coro, heading: str):
+            """Wraps a chapter coroutine to emit progress on completion."""
+            nonlocal chapters_done
+            result = await coro
+            async with chapter_progress_lock:
+                chapters_done += 1
+                pct = 30 + int((chapters_done / total_chapters) * 60)
+                self._emit_progress(
+                    percentage=min(pct, 90),
+                    current_step=f"Chapter done: {heading[:60]}… ({chapters_done}/{total_chapters})",
+                    metadata={"chapters_done": chapters_done, "chapters_total": total_chapters}
+                )
+            return result
+
+        tracked_tasks = [
+            _tracked_chapter(task, heading)
+            for task, heading in zip(tasks, heading_order)
+        ]
+        chapter_contents = await asyncio.gather(*tracked_tasks)
 
         report_body_sections = []
         for order_idx, content in enumerate(chapter_contents, start=1):
@@ -321,7 +361,6 @@ RULES:
                 "section_content": content
             })
 
-        logger.info(f"[Writer] Report body assembled: {len(report_body_sections)} sections")
         return report_body_sections
 
     def _format_table_of_contents_markdown(self, table_of_contents: dict) -> str:
@@ -343,16 +382,19 @@ RULES:
 
     async def run(self, state: AgentState) -> dict:
         """
-        Orchestrates two-phase report generation.
+        Orchestrates two-phase report generation with progress streaming.
         
         Phase 1: Aggregates sections → generates outline (ToC, section mapping,
         abstract, introduction, conclusion).
         Phase 2: Generates each chapter in parallel → returns report_body_sections.
+        Emits writer progress events via StreamEmitter at each milestone.
         
         Returns:
             Dict with table_of_contents, abstract, introduction,
             report_body_sections (list of section dicts), and conclusion.
         """
+        self._emit_progress(5, "Reading through all agent research and understanding the data…")
+
         aggregated_sections = self._aggregate_sections_from_research_review(state)
         
         if not aggregated_sections:
@@ -368,7 +410,8 @@ RULES:
         user_query = state.get('user_query', 'Research Report')
         planner_queries = state.get('planner_query', [])
 
-        logger.info(f"[Writer] Phase 1: Generating report outline from {len(aggregated_sections)} sections...")
+        self._emit_progress(15, "Figuring out what our chapters should look like…")
+
         outline = await self._generate_outline_report(
             user_query=user_query,
             planner_queries=planner_queries,
@@ -377,19 +420,27 @@ RULES:
 
         table_of_contents = outline["table_of_contents"]
         report_outline = outline["report_outline"]
-        logger.info(f"[Writer] Outline: {len(table_of_contents)} chapters, {len(report_outline)} headings mapped")
+        total_chapters = len(report_outline)
 
         section_index = self._build_section_index(aggregated_sections)
 
-        logger.info("[Writer] Phase 2: Generating report body sections...")
+        self._emit_progress(
+            30,
+            f"Outline locked in. Writing {total_chapters} chapters in parallel…",
+            metadata={"chapters_total": total_chapters}
+        )
+
         report_body_sections = await self._generate_report_body_sections(
             report_outline=report_outline,
             section_index=section_index,
             table_of_contents=table_of_contents
         )
 
+        self._emit_progress(95, "Stitching everything together into the final report…")
+
         toc_markdown = self._format_table_of_contents_markdown(table_of_contents)
-        logger.info("[Writer] Report generation complete")
+
+        self._emit_progress(100, "Hell yeah, report complete! 🎉")
 
         return {
             "table_of_contents": toc_markdown,
@@ -400,15 +451,17 @@ RULES:
         }
 
 
-async def writer_node(state: AgentState) -> dict:
+async def writer_node(state: AgentState, writer: StreamWriter) -> dict:
     """
     LangGraph node wrapper for Writer.
     
+    Accepts StreamWriter from LangGraph to emit real-time progress events.
     Reads research_review from state, generates outline + parallel body sections,
     and returns structured output with report_body_sections for JSON delivery.
     """
-    writer = Writer()
-    result = await writer.run(state)
+    emitter = get_emitter(writer)
+    writer_instance = Writer(emitter=emitter)
+    result = await writer_instance.run(state)
 
     return {
         "report_table_of_contents": result["table_of_contents"],

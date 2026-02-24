@@ -1,4 +1,4 @@
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 import logging
 import asyncio
 from typing import List
@@ -45,6 +45,7 @@ class GoogleSearchRetriever:
             
         except Exception as e:
             logger.error(f"Error during search: {e}")
+            print(f"DEBUG: Google search error: {e}")
                 
         return list(extracted_urls)
 

@@ -135,6 +135,33 @@ class StreamEmitter:
         self._emit(event)
 
 
+    def emit_writer_progress(
+        self,
+        percentage: int,
+        current_step: str = "",
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Emit writer-specific progress for the single synthesis agent.
+
+        Unlike emit_agent_progress (keyed by query_num for parallel research),
+        this emits a flat WRITER_PROGRESS event since only one writer exists.
+
+        Args:
+            percentage: Progress percentage (0-100).
+            current_step: Human-readable description of current activity.
+            metadata: Optional extra data (chapters_total, chapters_done, etc.).
+        """
+        payload = {
+            "percentage": percentage,
+            "current_step": current_step,
+            "phase": "writing"
+        }
+        if metadata:
+            payload["metadata"] = metadata
+        event = self._create_event(EventType.WRITER_PROGRESS, payload)
+        self._emit(event)
+
     def emit_token(self, token: str) -> None:
         """
         Emit a generic token event.

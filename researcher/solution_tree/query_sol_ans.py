@@ -137,22 +137,23 @@ class Solver:
             context=combined_context
         )
 
-        parser = JsonOutputParser()
+        from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
         
         if hasattr(self.analysis_llm, 'max_tokens'):
             analysis_llm_configured = self.analysis_llm.bind(max_tokens=10000)
         else:
             analysis_llm_configured = self.analysis_llm
         
-        chain = analysis_llm_configured | parser
+        answer_chain = analysis_llm_configured | StrOutputParser()
 
         try:
-            answers_data = await chain.ainvoke(answer_prompt)
-            query_answers = answers_data.get("query_answers", {})
+            answer_text = await answer_chain.ainvoke(answer_prompt)
+            query_answers = {self.query: answer_text}
 
             if self.num_gaps_per_node > 0:
                 gaps_prompt = get_gaps_prompt(self.query, query_answers, self.num_gaps_per_node)
-                gaps_data = await chain.ainvoke(gaps_prompt)
+                gaps_chain = analysis_llm_configured | JsonOutputParser()
+                gaps_data = await gaps_chain.ainvoke(gaps_prompt)
                 gaps = gaps_data.get("gaps", [])
             else:
                 gaps = []

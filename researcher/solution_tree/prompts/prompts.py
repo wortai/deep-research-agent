@@ -110,10 +110,7 @@ def get_answers_prompt(main_query: str, context: str) -> str:
 
 **Your Task:**
 
-Generate a JSON object with two keys: "main_query" and "query_answers".
-
-1. **main_query**: The original main query (unchanged).
-2. **query_answers**: A dictionary where the key is the main query and the value is a comprehensive answer in **Markdown format**.
+Write a comprehensive answer in **Markdown format** directly. DO NOT wrap your answer in JSON.
 
 ---
 
@@ -152,7 +149,6 @@ Generate a JSON object with two keys: "main_query" and "query_answers".
 - Place citations at the end of the sentence or paragraph they support
 - If multiple sources support a paragraph, include multiple citation links: `[🔗](URL1) [🔗](URL2)`
 - DO NOT create a separate "Sources" section at the end
-- Ensure the JSON is valid (properly escaped quotes, newlines as `\\n`)
 
 
 **Quality Standards:**
@@ -175,16 +171,35 @@ Generate a JSON object with two keys: "main_query" and "query_answers".
 
 
 **Example Output Format:**
-```json
-{{
-    
-    "query_answers": {{
-        "{main_query}": "# Understanding Machine Learning Basics\\n\\nMachine learning is a subset of artificial intelligence that enables systems to learn from data. [🔗](https://example.com/ml-intro)\\n\\n## Types of Machine Learning\\n\\n### Supervised Learning\\n\\nSupervised learning uses labeled datasets to train algorithms. Common applications include classification and regression tasks. [🔗](https://example.com/supervised)\\n\\n### Unsupervised Learning\\n\\nThis approach finds hidden patterns in unlabeled data. [🔗](https://example.com/unsupervised)\\n\\n## Comparison of Approaches\\n\\n| Feature | Supervised | Unsupervised |\\n|---------|-----------|--------------|\\n| Data Type | Labeled | Unlabeled |\\n| Use Case | Prediction | Pattern Discovery |\\n| Complexity | Lower | Higher |\\n\\n[🔗](https://example.com/comparison)\\n\\n## Key Takeaways\\n\\n- Machine learning automates decision-making processes [🔗](https://example.com/benefits)\\n- Different approaches suit different problem types [🔗](https://example.com/selection)\\n- Training data quality is critical for success [🔗](https://example.com/data-quality)"
-    }}
-}}
-```
+# Understanding Machine Learning Basics
 
+Machine learning is a subset of artificial intelligence that enables systems to learn from data. [🔗](https://example.com/ml-intro)
 
+## Types of Machine Learning
+
+### Supervised Learning
+
+Supervised learning uses labeled datasets to train algorithms. Common applications include classification and regression tasks. [🔗](https://example.com/supervised)
+
+### Unsupervised Learning
+
+This approach finds hidden patterns in unlabeled data. [🔗](https://example.com/unsupervised)
+
+## Comparison of Approaches
+
+| Feature | Supervised | Unsupervised |
+|---------|-----------|--------------|
+| Data Type | Labeled | Unlabeled |
+| Use Case | Prediction | Pattern Discovery |
+| Complexity | Lower | Higher |
+
+[🔗](https://example.com/comparison)
+
+## Key Takeaways
+
+- Machine learning automates decision-making processes [🔗](https://example.com/benefits)
+- Different approaches suit different problem types [🔗](https://example.com/selection)
+- Training data quality is critical for success [🔗](https://example.com/data-quality)
 """
 def get_plan_prompt(query: str) -> str:
     """
@@ -424,11 +439,11 @@ Use the subqueries + answers as your base and ask:
 
 ### 📦 JSON Output Format
 
-{
+{{
   "gaps": [
     "Precise, actionable depth question 1?",
     "Precise, actionable depth question 2?",
     ...
   ]
-}
+}}
 """
