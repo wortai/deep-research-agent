@@ -1,0 +1,289 @@
+//checkpoints 
+[
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-0918-652a-bfff-8156d679218a",
+        "parent_checkpoint_id": "",
+        "type": "",
+        "checkpoint": "{\"v\": 4, \"id\": \"1f10499b-0918-652a-bfff-8156d679218a\", \"ts\": \"2026-02-08T02:55:56.403012+00:00\", \"versions_seen\": {\"__input__\": {}}, \"channel_values\": {}, \"channel_versions\": {\"__start__\": \"00000000000000000000000000000001.0.21846020308738556\"}, \"updated_channels\": [\"__start__\"]}",
+        "metadata": "{\"step\": -1, \"source\": \"input\", \"parents\": {}}"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-091d-6a7a-8000-6ad209ff5876",
+        "parent_checkpoint_id": "1f10499b-0918-652a-bfff-8156d679218a",
+        "type": "",
+        "checkpoint": "{\"v\": 4, \"id\": \"1f10499b-091d-6a7a-8000-6ad209ff5876\", \"ts\": \"2026-02-08T02:55:56.405184+00:00\", \"versions_seen\": {\"__input__\": {}, \"__start__\": {\"__start__\": \"00000000000000000000000000000001.0.21846020308738556\"}}, \"channel_values\": {\"user_id\": \"default_user\", \"thread_id\": \"b1fa1077-974c-442f-9756-2dbeb2427c08\", \"user_query\": \"How Neural Networks works\", \"intent_type\": \"\", \"pdf_s3_path\": null, \"report_body\": \"\", \"search_mode\": \"websearch\", \"total_agents\": 0, \"current_phase\": \"routing\", \"plan_approved\": false, \"plan_feedback\": \"\", \"final_response\": \"\", \"report_abstract\": \"\", \"completed_agents\": 0, \"edit_instructions\": null, \"final_report_path\": \"\", \"report_conclusion\": \"\", \"report_methodology\": \"\", \"report_introduction\": \"\", \"total_research_steps\": 0, \"branch:to:router_node\": null, \"completed_research_steps\": 0, \"report_table_of_contents\": \"\"}, \"channel_versions\": {\"user_id\": \"00000000000000000000000000000002.0.046414449593473295\", \"__start__\": \"00000000000000000000000000000002.0.046414449593473295\", \"thread_id\": \"00000000000000000000000000000002.0.046414449593473295\", \"user_query\": \"00000000000000000000000000000002.0.046414449593473295\", \"intent_type\": \"00000000000000000000000000000002.0.046414449593473295\", \"pdf_s3_path\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_body\": \"00000000000000000000000000000002.0.046414449593473295\", \"search_mode\": \"00000000000000000000000000000002.0.046414449593473295\", \"total_agents\": \"00000000000000000000000000000002.0.046414449593473295\", \"chat_messages\": \"00000000000000000000000000000002.0.046414449593473295\", \"current_phase\": \"00000000000000000000000000000002.0.046414449593473295\", \"plan_approved\": \"00000000000000000000000000000002.0.046414449593473295\", \"plan_feedback\": \"00000000000000000000000000000002.0.046414449593473295\", \"planner_query\": \"00000000000000000000000000000002.0.046414449593473295\", \"final_response\": \"00000000000000000000000000000002.0.046414449593473295\", \"memory_context\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_abstract\": \"00000000000000000000000000000002.0.046414449593473295\", \"research_review\": \"00000000000000000000000000000002.0.046414449593473295\", \"completed_agents\": \"00000000000000000000000000000002.0.046414449593473295\", \"edit_instructions\": \"00000000000000000000000000000002.0.046414449593473295\", \"final_report_path\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_conclusion\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_methodology\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_introduction\": \"00000000000000000000000000000002.0.046414449593473295\", \"total_research_steps\": \"00000000000000000000000000000002.0.046414449593473295\", \"branch:to:router_node\": \"00000000000000000000000000000002.0.046414449593473295\", \"completed_research_steps\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_table_of_contents\": \"00000000000000000000000000000002.0.046414449593473295\"}, \"updated_channels\": [\"branch:to:router_node\", \"chat_messages\", \"completed_agents\", \"completed_research_steps\", \"current_phase\", \"edit_instructions\", \"final_report_path\", \"final_response\", \"intent_type\", \"memory_context\", \"pdf_s3_path\", \"plan_approved\", \"plan_feedback\", \"planner_query\", \"report_abstract\", \"report_body\", \"report_conclusion\", \"report_introduction\", \"report_methodology\", \"report_table_of_contents\", \"research_review\", \"search_mode\", \"thread_id\", \"total_agents\", \"total_research_steps\", \"user_id\", \"user_query\"]}",
+        "metadata": "{\"step\": 0, \"source\": \"loop\", \"parents\": {}}"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-1ceb-664c-8001-366e3c6ddc0b",
+        "parent_checkpoint_id": "1f10499b-091d-6a7a-8000-6ad209ff5876",
+        "type": "",
+        "checkpoint": "{\"v\": 4, \"id\": \"1f10499b-1ceb-664c-8001-366e3c6ddc0b\", \"ts\": \"2026-02-08T02:55:58.481744+00:00\", \"versions_seen\": {\"__input__\": {}, \"__start__\": {\"__start__\": \"00000000000000000000000000000001.0.21846020308738556\"}, \"router_node\": {\"branch:to:router_node\": \"00000000000000000000000000000002.0.046414449593473295\"}}, \"channel_values\": {\"user_id\": \"default_user\", \"thread_id\": \"b1fa1077-974c-442f-9756-2dbeb2427c08\", \"user_query\": \"How Neural Networks works\", \"intent_type\": \"websearch\", \"pdf_s3_path\": null, \"report_body\": \"\", \"search_mode\": \"websearch\", \"total_agents\": 0, \"current_phase\": \"routing\", \"plan_approved\": false, \"plan_feedback\": \"\", \"final_response\": \"\", \"report_abstract\": \"\", \"completed_agents\": 0, \"edit_instructions\": null, \"final_report_path\": \"\", \"report_conclusion\": \"\", \"report_methodology\": \"\", \"report_introduction\": \"\", \"total_research_steps\": 0, \"completed_research_steps\": 0, \"report_table_of_contents\": \"\", \"branch:to:parallel_solver_node\": null}, \"channel_versions\": {\"user_id\": \"00000000000000000000000000000002.0.046414449593473295\", \"__start__\": \"00000000000000000000000000000002.0.046414449593473295\", \"thread_id\": \"00000000000000000000000000000002.0.046414449593473295\", \"user_query\": \"00000000000000000000000000000002.0.046414449593473295\", \"intent_type\": \"00000000000000000000000000000003.0.4293006125180635\", \"pdf_s3_path\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_body\": \"00000000000000000000000000000002.0.046414449593473295\", \"search_mode\": \"00000000000000000000000000000002.0.046414449593473295\", \"total_agents\": \"00000000000000000000000000000002.0.046414449593473295\", \"chat_messages\": \"00000000000000000000000000000002.0.046414449593473295\", \"current_phase\": \"00000000000000000000000000000003.0.4293006125180635\", \"plan_approved\": \"00000000000000000000000000000002.0.046414449593473295\", \"plan_feedback\": \"00000000000000000000000000000002.0.046414449593473295\", \"planner_query\": \"00000000000000000000000000000002.0.046414449593473295\", \"final_response\": \"00000000000000000000000000000002.0.046414449593473295\", \"memory_context\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_abstract\": \"00000000000000000000000000000002.0.046414449593473295\", \"research_review\": \"00000000000000000000000000000002.0.046414449593473295\", \"completed_agents\": \"00000000000000000000000000000002.0.046414449593473295\", \"edit_instructions\": \"00000000000000000000000000000002.0.046414449593473295\", \"final_report_path\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_conclusion\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_methodology\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_introduction\": \"00000000000000000000000000000002.0.046414449593473295\", \"total_research_steps\": \"00000000000000000000000000000002.0.046414449593473295\", \"branch:to:router_node\": \"00000000000000000000000000000003.0.4293006125180635\", \"completed_research_steps\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_table_of_contents\": \"00000000000000000000000000000002.0.046414449593473295\", \"branch:to:parallel_solver_node\": \"00000000000000000000000000000003.0.4293006125180635\"}, \"updated_channels\": [\"branch:to:parallel_solver_node\", \"current_phase\", \"intent_type\"]}",
+        "metadata": "{\"step\": 1, \"source\": \"loop\", \"parents\": {}}"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-26ca-6870-8002-2723ab2545db",
+        "parent_checkpoint_id": "1f10499b-1ceb-664c-8001-366e3c6ddc0b",
+        "type": "",
+        "checkpoint": "{\"v\": 4, \"id\": \"1f10499b-26ca-6870-8002-2723ab2545db\", \"ts\": \"2026-02-08T02:55:59.516846+00:00\", \"versions_seen\": {\"__input__\": {}, \"__start__\": {\"__start__\": \"00000000000000000000000000000001.0.21846020308738556\"}, \"router_node\": {\"branch:to:router_node\": \"00000000000000000000000000000002.0.046414449593473295\"}, \"parallel_solver_node\": {\"branch:to:parallel_solver_node\": \"00000000000000000000000000000003.0.4293006125180635\"}}, \"channel_values\": {\"user_id\": \"default_user\", \"thread_id\": \"b1fa1077-974c-442f-9756-2dbeb2427c08\", \"user_query\": \"How Neural Networks works\", \"intent_type\": \"websearch\", \"pdf_s3_path\": null, \"report_body\": \"\", \"search_mode\": \"websearch\", \"total_agents\": 0, \"current_phase\": \"routing\", \"plan_approved\": false, \"plan_feedback\": \"\", \"final_response\": \"\", \"report_abstract\": \"\", \"completed_agents\": 0, \"edit_instructions\": null, \"final_report_path\": \"\", \"report_conclusion\": \"\", \"report_methodology\": \"\", \"report_introduction\": \"\", \"total_research_steps\": 0, \"branch:to:response_node\": null, \"completed_research_steps\": 0, \"report_table_of_contents\": \"\"}, \"channel_versions\": {\"user_id\": \"00000000000000000000000000000002.0.046414449593473295\", \"__start__\": \"00000000000000000000000000000002.0.046414449593473295\", \"thread_id\": \"00000000000000000000000000000002.0.046414449593473295\", \"user_query\": \"00000000000000000000000000000002.0.046414449593473295\", \"intent_type\": \"00000000000000000000000000000003.0.4293006125180635\", \"pdf_s3_path\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_body\": \"00000000000000000000000000000002.0.046414449593473295\", \"search_mode\": \"00000000000000000000000000000002.0.046414449593473295\", \"total_agents\": \"00000000000000000000000000000002.0.046414449593473295\", \"chat_messages\": \"00000000000000000000000000000002.0.046414449593473295\", \"current_phase\": \"00000000000000000000000000000003.0.4293006125180635\", \"plan_approved\": \"00000000000000000000000000000002.0.046414449593473295\", \"plan_feedback\": \"00000000000000000000000000000002.0.046414449593473295\", \"planner_query\": \"00000000000000000000000000000002.0.046414449593473295\", \"final_response\": \"00000000000000000000000000000002.0.046414449593473295\", \"memory_context\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_abstract\": \"00000000000000000000000000000002.0.046414449593473295\", \"research_review\": \"00000000000000000000000000000004.0.0975297314283382\", \"completed_agents\": \"00000000000000000000000000000002.0.046414449593473295\", \"edit_instructions\": \"00000000000000000000000000000002.0.046414449593473295\", \"final_report_path\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_conclusion\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_methodology\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_introduction\": \"00000000000000000000000000000002.0.046414449593473295\", \"total_research_steps\": \"00000000000000000000000000000002.0.046414449593473295\", \"branch:to:router_node\": \"00000000000000000000000000000003.0.4293006125180635\", \"branch:to:response_node\": \"00000000000000000000000000000004.0.0975297314283382\", \"completed_research_steps\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_table_of_contents\": \"00000000000000000000000000000002.0.046414449593473295\", \"branch:to:parallel_solver_node\": \"00000000000000000000000000000004.0.0975297314283382\"}, \"updated_channels\": [\"branch:to:response_node\", \"research_review\"]}",
+        "metadata": "{\"step\": 2, \"source\": \"loop\", \"parents\": {}}"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-337c-62f8-8003-af8cba29b4e1",
+        "parent_checkpoint_id": "1f10499b-26ca-6870-8002-2723ab2545db",
+        "type": "",
+        "checkpoint": "{\"v\": 4, \"id\": \"1f10499b-337c-62f8-8003-af8cba29b4e1\", \"ts\": \"2026-02-08T02:56:00.847908+00:00\", \"versions_seen\": {\"__input__\": {}, \"__start__\": {\"__start__\": \"00000000000000000000000000000001.0.21846020308738556\"}, \"router_node\": {\"branch:to:router_node\": \"00000000000000000000000000000002.0.046414449593473295\"}, \"response_node\": {\"branch:to:response_node\": \"00000000000000000000000000000004.0.0975297314283382\"}, \"parallel_solver_node\": {\"branch:to:parallel_solver_node\": \"00000000000000000000000000000003.0.4293006125180635\"}}, \"channel_values\": {\"user_id\": \"default_user\", \"thread_id\": \"b1fa1077-974c-442f-9756-2dbeb2427c08\", \"user_query\": \"How Neural Networks works\", \"intent_type\": \"websearch\", \"pdf_s3_path\": null, \"report_body\": \"\", \"search_mode\": \"websearch\", \"total_agents\": 0, \"current_phase\": \"responding\", \"plan_approved\": false, \"plan_feedback\": \"\", \"final_response\": \"Neural networks are a type of machine learning model inspired by the human brain. (IBM, AWS, Khan Academy, Reddit). They work by processing data through layers of interconnected \\\"neurons\\\" or nodes (IBM, GeeksforGeeks, Reddit). Each neuron takes an input, applies a weight and bias, and passes the result to the next layer (IBM, Reddit). The network learns by adjusting these weights and biases to recognize patterns and map inputs to desired outputs (IBM). This process of learning from data enables neural networks to perform tasks like image recognition, natural language processing, and more (IBM, AWS).\", \"report_abstract\": \"\", \"completed_agents\": 0, \"edit_instructions\": null, \"final_report_path\": \"\", \"report_conclusion\": \"\", \"report_methodology\": \"\", \"report_introduction\": \"\", \"total_research_steps\": 0, \"completed_research_steps\": 0, \"report_table_of_contents\": \"\"}, \"channel_versions\": {\"user_id\": \"00000000000000000000000000000002.0.046414449593473295\", \"__start__\": \"00000000000000000000000000000002.0.046414449593473295\", \"thread_id\": \"00000000000000000000000000000002.0.046414449593473295\", \"user_query\": \"00000000000000000000000000000002.0.046414449593473295\", \"intent_type\": \"00000000000000000000000000000003.0.4293006125180635\", \"pdf_s3_path\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_body\": \"00000000000000000000000000000002.0.046414449593473295\", \"search_mode\": \"00000000000000000000000000000002.0.046414449593473295\", \"total_agents\": \"00000000000000000000000000000002.0.046414449593473295\", \"chat_messages\": \"00000000000000000000000000000005.0.7228032070877947\", \"current_phase\": \"00000000000000000000000000000005.0.7228032070877947\", \"plan_approved\": \"00000000000000000000000000000002.0.046414449593473295\", \"plan_feedback\": \"00000000000000000000000000000002.0.046414449593473295\", \"planner_query\": \"00000000000000000000000000000002.0.046414449593473295\", \"final_response\": \"00000000000000000000000000000005.0.7228032070877947\", \"memory_context\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_abstract\": \"00000000000000000000000000000002.0.046414449593473295\", \"research_review\": \"00000000000000000000000000000004.0.0975297314283382\", \"completed_agents\": \"00000000000000000000000000000002.0.046414449593473295\", \"edit_instructions\": \"00000000000000000000000000000002.0.046414449593473295\", \"final_report_path\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_conclusion\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_methodology\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_introduction\": \"00000000000000000000000000000002.0.046414449593473295\", \"total_research_steps\": \"00000000000000000000000000000002.0.046414449593473295\", \"branch:to:router_node\": \"00000000000000000000000000000003.0.4293006125180635\", \"branch:to:response_node\": \"00000000000000000000000000000005.0.7228032070877947\", \"completed_research_steps\": \"00000000000000000000000000000002.0.046414449593473295\", \"report_table_of_contents\": \"00000000000000000000000000000002.0.046414449593473295\", \"branch:to:parallel_solver_node\": \"00000000000000000000000000000004.0.0975297314283382\"}, \"updated_channels\": [\"chat_messages\", \"current_phase\", \"final_response\"]}",
+        "metadata": "{\"step\": 3, \"source\": \"loop\", \"parents\": {}}"
+    },
+    {
+        "thread_id": "b7c5de9f-fd84-458b-9c4d-667b314c65a7",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f1049c7-3942-6ae4-bfff-608694429a2f",
+        "parent_checkpoint_id": "",
+        "type": "",
+        "checkpoint": "{\"v\": 4, \"id\": \"1f1049c7-3942-6ae4-bfff-608694429a2f\", \"ts\": \"2026-02-08T03:15:42.569533+00:00\", \"versions_seen\": {\"__input__\": {}}, \"channel_values\": {}, \"channel_versions\": {\"__start__\": \"00000000000000000000000000000001.0.5094644868215511\"}, \"updated_channels\": [\"__start__\"]}",
+        "metadata": "{\"step\": -1, \"source\": \"input\", \"parents\": {}}"
+    },
+    {
+        "thread_id": "b7c5de9f-fd84-458b-9c4d-667b314c65a7",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f1049c7-3948-62e6-8000-74fe186fba23",
+        "parent_checkpoint_id": "1f1049c7-3942-6ae4-bfff-608694429a2f",
+        "type": "",
+        "checkpoint": "{\"v\": 4, \"id\": \"1f1049c7-3948-62e6-8000-74fe186fba23\", \"ts\": \"2026-02-08T03:15:42.571780+00:00\", \"versions_seen\": {\"__input__\": {}, \"__start__\": {\"__start__\": \"00000000000000000000000000000001.0.5094644868215511\"}}, \"channel_values\": {\"user_id\": \"default_user\", \"thread_id\": \"b7c5de9f-fd84-458b-9c4d-667b314c65a7\", \"user_query\": \"How Neural Networks works\", \"intent_type\": \"\", \"pdf_s3_path\": null, \"report_body\": \"\", \"search_mode\": \"websearch\", \"total_agents\": 0, \"current_phase\": \"routing\", \"plan_approved\": false, \"plan_feedback\": \"\", \"final_response\": \"\", \"report_abstract\": \"\", \"completed_agents\": 0, \"edit_instructions\": null, \"final_report_path\": \"\", \"report_conclusion\": \"\", \"report_methodology\": \"\", \"report_introduction\": \"\", \"total_research_steps\": 0, \"branch:to:router_node\": null, \"completed_research_steps\": 0, \"report_table_of_contents\": \"\"}, \"channel_versions\": {\"user_id\": \"00000000000000000000000000000002.0.10373875531345145\", \"__start__\": \"00000000000000000000000000000002.0.10373875531345145\", \"thread_id\": \"00000000000000000000000000000002.0.10373875531345145\", \"user_query\": \"00000000000000000000000000000002.0.10373875531345145\", \"intent_type\": \"00000000000000000000000000000002.0.10373875531345145\", \"pdf_s3_path\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_body\": \"00000000000000000000000000000002.0.10373875531345145\", \"search_mode\": \"00000000000000000000000000000002.0.10373875531345145\", \"total_agents\": \"00000000000000000000000000000002.0.10373875531345145\", \"chat_messages\": \"00000000000000000000000000000002.0.10373875531345145\", \"current_phase\": \"00000000000000000000000000000002.0.10373875531345145\", \"plan_approved\": \"00000000000000000000000000000002.0.10373875531345145\", \"plan_feedback\": \"00000000000000000000000000000002.0.10373875531345145\", \"planner_query\": \"00000000000000000000000000000002.0.10373875531345145\", \"final_response\": \"00000000000000000000000000000002.0.10373875531345145\", \"memory_context\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_abstract\": \"00000000000000000000000000000002.0.10373875531345145\", \"research_review\": \"00000000000000000000000000000002.0.10373875531345145\", \"completed_agents\": \"00000000000000000000000000000002.0.10373875531345145\", \"edit_instructions\": \"00000000000000000000000000000002.0.10373875531345145\", \"final_report_path\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_conclusion\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_methodology\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_introduction\": \"00000000000000000000000000000002.0.10373875531345145\", \"total_research_steps\": \"00000000000000000000000000000002.0.10373875531345145\", \"branch:to:router_node\": \"00000000000000000000000000000002.0.10373875531345145\", \"completed_research_steps\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_table_of_contents\": \"00000000000000000000000000000002.0.10373875531345145\"}, \"updated_channels\": [\"branch:to:router_node\", \"chat_messages\", \"completed_agents\", \"completed_research_steps\", \"current_phase\", \"edit_instructions\", \"final_report_path\", \"final_response\", \"intent_type\", \"memory_context\", \"pdf_s3_path\", \"plan_approved\", \"plan_feedback\", \"planner_query\", \"report_abstract\", \"report_body\", \"report_conclusion\", \"report_introduction\", \"report_methodology\", \"report_table_of_contents\", \"research_review\", \"search_mode\", \"thread_id\", \"total_agents\", \"total_research_steps\", \"user_id\", \"user_query\"]}",
+        "metadata": "{\"step\": 0, \"source\": \"loop\", \"parents\": {}}"
+    },
+    {
+        "thread_id": "b7c5de9f-fd84-458b-9c4d-667b314c65a7",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f1049c7-48be-6aae-8001-b19e5716808f",
+        "parent_checkpoint_id": "1f1049c7-3948-62e6-8000-74fe186fba23",
+        "type": "",
+        "checkpoint": "{\"v\": 4, \"id\": \"1f1049c7-48be-6aae-8001-b19e5716808f\", \"ts\": \"2026-02-08T03:15:44.193162+00:00\", \"versions_seen\": {\"__input__\": {}, \"__start__\": {\"__start__\": \"00000000000000000000000000000001.0.5094644868215511\"}, \"router_node\": {\"branch:to:router_node\": \"00000000000000000000000000000002.0.10373875531345145\"}}, \"channel_values\": {\"user_id\": \"default_user\", \"thread_id\": \"b7c5de9f-fd84-458b-9c4d-667b314c65a7\", \"user_query\": \"How Neural Networks works\", \"intent_type\": \"websearch\", \"pdf_s3_path\": null, \"report_body\": \"\", \"search_mode\": \"websearch\", \"total_agents\": 0, \"current_phase\": \"routing\", \"plan_approved\": false, \"plan_feedback\": \"\", \"final_response\": \"\", \"report_abstract\": \"\", \"completed_agents\": 0, \"edit_instructions\": null, \"final_report_path\": \"\", \"report_conclusion\": \"\", \"report_methodology\": \"\", \"report_introduction\": \"\", \"total_research_steps\": 0, \"completed_research_steps\": 0, \"report_table_of_contents\": \"\", \"branch:to:parallel_solver_node\": null}, \"channel_versions\": {\"user_id\": \"00000000000000000000000000000002.0.10373875531345145\", \"__start__\": \"00000000000000000000000000000002.0.10373875531345145\", \"thread_id\": \"00000000000000000000000000000002.0.10373875531345145\", \"user_query\": \"00000000000000000000000000000002.0.10373875531345145\", \"intent_type\": \"00000000000000000000000000000003.0.038283637541013826\", \"pdf_s3_path\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_body\": \"00000000000000000000000000000002.0.10373875531345145\", \"search_mode\": \"00000000000000000000000000000002.0.10373875531345145\", \"total_agents\": \"00000000000000000000000000000002.0.10373875531345145\", \"chat_messages\": \"00000000000000000000000000000002.0.10373875531345145\", \"current_phase\": \"00000000000000000000000000000003.0.038283637541013826\", \"plan_approved\": \"00000000000000000000000000000002.0.10373875531345145\", \"plan_feedback\": \"00000000000000000000000000000002.0.10373875531345145\", \"planner_query\": \"00000000000000000000000000000002.0.10373875531345145\", \"final_response\": \"00000000000000000000000000000002.0.10373875531345145\", \"memory_context\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_abstract\": \"00000000000000000000000000000002.0.10373875531345145\", \"research_review\": \"00000000000000000000000000000002.0.10373875531345145\", \"completed_agents\": \"00000000000000000000000000000002.0.10373875531345145\", \"edit_instructions\": \"00000000000000000000000000000002.0.10373875531345145\", \"final_report_path\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_conclusion\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_methodology\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_introduction\": \"00000000000000000000000000000002.0.10373875531345145\", \"total_research_steps\": \"00000000000000000000000000000002.0.10373875531345145\", \"branch:to:router_node\": \"00000000000000000000000000000003.0.038283637541013826\", \"completed_research_steps\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_table_of_contents\": \"00000000000000000000000000000002.0.10373875531345145\", \"branch:to:parallel_solver_node\": \"00000000000000000000000000000003.0.038283637541013826\"}, \"updated_channels\": [\"branch:to:parallel_solver_node\", \"current_phase\", \"intent_type\"]}",
+        "metadata": "{\"step\": 1, \"source\": \"loop\", \"parents\": {}}"
+    },
+    {
+        "thread_id": "b7c5de9f-fd84-458b-9c4d-667b314c65a7",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f1049c7-4a79-6538-8002-80ba9fc6ff1c",
+        "parent_checkpoint_id": "1f1049c7-48be-6aae-8001-b19e5716808f",
+        "type": "",
+        "checkpoint": "{\"v\": 4, \"id\": \"1f1049c7-4a79-6538-8002-80ba9fc6ff1c\", \"ts\": \"2026-02-08T03:15:44.374474+00:00\", \"versions_seen\": {\"__input__\": {}, \"__start__\": {\"__start__\": \"00000000000000000000000000000001.0.5094644868215511\"}, \"router_node\": {\"branch:to:router_node\": \"00000000000000000000000000000002.0.10373875531345145\"}, \"parallel_solver_node\": {\"branch:to:parallel_solver_node\": \"00000000000000000000000000000003.0.038283637541013826\"}}, \"channel_values\": {\"user_id\": \"default_user\", \"thread_id\": \"b7c5de9f-fd84-458b-9c4d-667b314c65a7\", \"user_query\": \"How Neural Networks works\", \"intent_type\": \"websearch\", \"pdf_s3_path\": null, \"report_body\": \"\", \"search_mode\": \"websearch\", \"total_agents\": 0, \"current_phase\": \"routing\", \"plan_approved\": false, \"plan_feedback\": \"\", \"final_response\": \"\", \"report_abstract\": \"\", \"completed_agents\": 0, \"edit_instructions\": null, \"final_report_path\": \"\", \"report_conclusion\": \"\", \"report_methodology\": \"\", \"report_introduction\": \"\", \"total_research_steps\": 0, \"branch:to:response_node\": null, \"completed_research_steps\": 0, \"report_table_of_contents\": \"\"}, \"channel_versions\": {\"user_id\": \"00000000000000000000000000000002.0.10373875531345145\", \"__start__\": \"00000000000000000000000000000002.0.10373875531345145\", \"thread_id\": \"00000000000000000000000000000002.0.10373875531345145\", \"user_query\": \"00000000000000000000000000000002.0.10373875531345145\", \"intent_type\": \"00000000000000000000000000000003.0.038283637541013826\", \"pdf_s3_path\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_body\": \"00000000000000000000000000000002.0.10373875531345145\", \"search_mode\": \"00000000000000000000000000000002.0.10373875531345145\", \"total_agents\": \"00000000000000000000000000000002.0.10373875531345145\", \"chat_messages\": \"00000000000000000000000000000002.0.10373875531345145\", \"current_phase\": \"00000000000000000000000000000003.0.038283637541013826\", \"plan_approved\": \"00000000000000000000000000000002.0.10373875531345145\", \"plan_feedback\": \"00000000000000000000000000000002.0.10373875531345145\", \"planner_query\": \"00000000000000000000000000000002.0.10373875531345145\", \"final_response\": \"00000000000000000000000000000002.0.10373875531345145\", \"memory_context\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_abstract\": \"00000000000000000000000000000002.0.10373875531345145\", \"research_review\": \"00000000000000000000000000000004.0.716028204496007\", \"completed_agents\": \"00000000000000000000000000000002.0.10373875531345145\", \"edit_instructions\": \"00000000000000000000000000000002.0.10373875531345145\", \"final_report_path\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_conclusion\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_methodology\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_introduction\": \"00000000000000000000000000000002.0.10373875531345145\", \"total_research_steps\": \"00000000000000000000000000000002.0.10373875531345145\", \"branch:to:router_node\": \"00000000000000000000000000000003.0.038283637541013826\", \"branch:to:response_node\": \"00000000000000000000000000000004.0.716028204496007\", \"completed_research_steps\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_table_of_contents\": \"00000000000000000000000000000002.0.10373875531345145\", \"branch:to:parallel_solver_node\": \"00000000000000000000000000000004.0.716028204496007\"}, \"updated_channels\": [\"branch:to:response_node\", \"research_review\"]}",
+        "metadata": "{\"step\": 2, \"source\": \"loop\", \"parents\": {}}"
+    },
+    {
+        "thread_id": "b7c5de9f-fd84-458b-9c4d-667b314c65a7",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f1049c7-54f4-6044-8003-c814b811228e",
+        "parent_checkpoint_id": "1f1049c7-4a79-6538-8002-80ba9fc6ff1c",
+        "type": "",
+        "checkpoint": "{\"v\": 4, \"id\": \"1f1049c7-54f4-6044-8003-c814b811228e\", \"ts\": \"2026-02-08T03:15:45.473310+00:00\", \"versions_seen\": {\"__input__\": {}, \"__start__\": {\"__start__\": \"00000000000000000000000000000001.0.5094644868215511\"}, \"router_node\": {\"branch:to:router_node\": \"00000000000000000000000000000002.0.10373875531345145\"}, \"response_node\": {\"branch:to:response_node\": \"00000000000000000000000000000004.0.716028204496007\"}, \"parallel_solver_node\": {\"branch:to:parallel_solver_node\": \"00000000000000000000000000000003.0.038283637541013826\"}}, \"channel_values\": {\"user_id\": \"default_user\", \"thread_id\": \"b7c5de9f-fd84-458b-9c4d-667b314c65a7\", \"user_query\": \"How Neural Networks works\", \"intent_type\": \"websearch\", \"pdf_s3_path\": null, \"report_body\": \"\", \"search_mode\": \"websearch\", \"total_agents\": 0, \"current_phase\": \"responding\", \"plan_approved\": false, \"plan_feedback\": \"\", \"final_response\": \"Neural networks are a type of machine learning model inspired by the human brain. They work by processing data through layers of interconnected \\\"neurons\\\" (or nodes) that learn to recognize patterns. (IBM, AWS, Khan Academy). Input data passes through these layers, including hidden layers, where each neuron applies weights and biases to map inputs to desired outputs (IBM, GeeksforGeeks). Essentially, neural networks learn from data to make predictions or classifications, mimicking how our brains process information (Khan Academy, Reddit).\\n\", \"report_abstract\": \"\", \"completed_agents\": 0, \"edit_instructions\": null, \"final_report_path\": \"\", \"report_conclusion\": \"\", \"report_methodology\": \"\", \"report_introduction\": \"\", \"total_research_steps\": 0, \"completed_research_steps\": 0, \"report_table_of_contents\": \"\"}, \"channel_versions\": {\"user_id\": \"00000000000000000000000000000002.0.10373875531345145\", \"__start__\": \"00000000000000000000000000000002.0.10373875531345145\", \"thread_id\": \"00000000000000000000000000000002.0.10373875531345145\", \"user_query\": \"00000000000000000000000000000002.0.10373875531345145\", \"intent_type\": \"00000000000000000000000000000003.0.038283637541013826\", \"pdf_s3_path\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_body\": \"00000000000000000000000000000002.0.10373875531345145\", \"search_mode\": \"00000000000000000000000000000002.0.10373875531345145\", \"total_agents\": \"00000000000000000000000000000002.0.10373875531345145\", \"chat_messages\": \"00000000000000000000000000000005.0.6293137840953238\", \"current_phase\": \"00000000000000000000000000000005.0.6293137840953238\", \"plan_approved\": \"00000000000000000000000000000002.0.10373875531345145\", \"plan_feedback\": \"00000000000000000000000000000002.0.10373875531345145\", \"planner_query\": \"00000000000000000000000000000002.0.10373875531345145\", \"final_response\": \"00000000000000000000000000000005.0.6293137840953238\", \"memory_context\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_abstract\": \"00000000000000000000000000000002.0.10373875531345145\", \"research_review\": \"00000000000000000000000000000004.0.716028204496007\", \"completed_agents\": \"00000000000000000000000000000002.0.10373875531345145\", \"edit_instructions\": \"00000000000000000000000000000002.0.10373875531345145\", \"final_report_path\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_conclusion\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_methodology\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_introduction\": \"00000000000000000000000000000002.0.10373875531345145\", \"total_research_steps\": \"00000000000000000000000000000002.0.10373875531345145\", \"branch:to:router_node\": \"00000000000000000000000000000003.0.038283637541013826\", \"branch:to:response_node\": \"00000000000000000000000000000005.0.6293137840953238\", \"completed_research_steps\": \"00000000000000000000000000000002.0.10373875531345145\", \"report_table_of_contents\": \"00000000000000000000000000000002.0.10373875531345145\", \"branch:to:parallel_solver_node\": \"00000000000000000000000000000004.0.716028204496007\"}, \"updated_channels\": [\"chat_messages\", \"current_phase\", \"final_response\"]}",
+        "metadata": "{\"step\": 3, \"source\": \"loop\", \"parents\": {}}"
+    }
+]
+// checkpoint_writes
+[
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-0918-652a-bfff-8156d679218a",
+        "task_id": "ec509bb1-ee76-f2dd-297a-1397818b7f2f",
+        "idx": "0",
+        "channel": "thread_id",
+        "type": "msgpack",
+        "blob": "$b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "task_path": "~__pregel_pull, __start__"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-0918-652a-bfff-8156d679218a",
+        "task_id": "ec509bb1-ee76-f2dd-297a-1397818b7f2f",
+        "idx": "1",
+        "channel": "user_id",
+        "type": "msgpack",
+        "blob": "default_user",
+        "task_path": "~__pregel_pull, __start__"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-0918-652a-bfff-8156d679218a",
+        "task_id": "ec509bb1-ee76-f2dd-297a-1397818b7f2f",
+        "idx": "2",
+        "channel": "chat_messages",
+        "type": "msgpack",
+        "blob": "message_id$24c2cac0-1671-4200-9754-107878c9f0c1roleusercontentHow Neural Networks workstimestamp2026-02-07T21:55:56.161127",
+        "task_path": "~__pregel_pull, __start__"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-0918-652a-bfff-8156d679218a",
+        "task_id": "ec509bb1-ee76-f2dd-297a-1397818b7f2f",
+        "idx": "3",
+        "channel": "memory_context",
+        "type": "msgpack",
+        "blob": "semantic_memoriesuser_profileconversation_summary",
+        "task_path": "~__pregel_pull, __start__"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-0918-652a-bfff-8156d679218a",
+        "task_id": "ec509bb1-ee76-f2dd-297a-1397818b7f2f",
+        "idx": "4",
+        "channel": "user_query",
+        "type": "msgpack",
+        "blob": "How Neural Networks works",
+        "task_path": "~__pregel_pull, __start__"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-0918-652a-bfff-8156d679218a",
+        "task_id": "ec509bb1-ee76-f2dd-297a-1397818b7f2f",
+        "idx": "5",
+        "channel": "search_mode",
+        "type": "msgpack",
+        "blob": "websearch",
+        "task_path": "~__pregel_pull, __start__"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-0918-652a-bfff-8156d679218a",
+        "task_id": "ec509bb1-ee76-f2dd-297a-1397818b7f2f",
+        "idx": "6",
+        "channel": "intent_type",
+        "type": "msgpack",
+        "blob": "",
+        "task_path": "~__pregel_pull, __start__"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-0918-652a-bfff-8156d679218a",
+        "task_id": "ec509bb1-ee76-f2dd-297a-1397818b7f2f",
+        "idx": "7",
+        "channel": "total_agents",
+        "type": "msgpack",
+        "blob": "\u0000",
+        "task_path": "~__pregel_pull, __start__"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-0918-652a-bfff-8156d679218a",
+        "task_id": "ec509bb1-ee76-f2dd-297a-1397818b7f2f",
+        "idx": "8",
+        "channel": "completed_agents",
+        "type": "msgpack",
+        "blob": "\u0000",
+        "task_path": "~__pregel_pull, __start__"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "checkpoint_id": "1f10499b-0918-652a-bfff-8156d679218a",
+        "task_id": "ec509bb1-ee76-f2dd-297a-1397818b7f2f",
+        "idx": "9",
+        "channel": "total_research_steps",
+        "type": "msgpack",
+        "blob": "\u0000",
+        "task_path": "~__pregel_pull, __start__"
+    }
+]
+// checkpoint_blobs 
+[
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "channel": "__start__",
+        "version": "00000000000000000000000000000001.0.21846020308738556",
+        "type": "msgpack",
+        "blob": "\u0000\u001athread_id$b1fa1077-974c-442f-9756-2dbeb2427c08user_iddefault_userchat_messagesmessage_id$24c2cac0-1671-4200-9754-107878c9f0c1roleusercontentHow Neural Networks workstimestamp2026-02-07T21:55:56.161127memory_contextsemantic_memoriesuser_profileconversation_summaryuser_queryHow Neural Networks workssearch_modewebsearchintent_typetotal_agents\u0000completed_agents\u0000total_research_steps\u0000completed_research_steps\u0000current_phaseroutingplanner_queryplan_feedbackplan_approved¯research_reviewreport_table_of_contentsreport_abstractreport_introductionreport_bodyreport_conclusionreport_methodologyfinal_report_pathpdf_s3_pathfinal_responseedit_instructions"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "channel": "chat_messages",
+        "version": "00000000000000000000000000000002.0.046414449593473295",
+        "type": "msgpack",
+        "blob": "message_id$24c2cac0-1671-4200-9754-107878c9f0c1roleusercontentHow Neural Networks workstimestamp2026-02-07T21:55:56.161127"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "channel": "memory_context",
+        "version": "00000000000000000000000000000002.0.046414449593473295",
+        "type": "msgpack",
+        "blob": "semantic_memoriesuser_profileconversation_summary"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "channel": "planner_query",
+        "version": "00000000000000000000000000000002.0.046414449593473295",
+        "type": "msgpack",
+        "blob": ""
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "channel": "research_review",
+        "version": "00000000000000000000000000000002.0.046414449593473295",
+        "type": "msgpack",
+        "blob": ""
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "channel": "research_review",
+        "version": "00000000000000000000000000000004.0.0975297314283382",
+        "type": "msgpack",
+        "blob": "queryHow Neural Networks worksquery_num\u0001raw_research_resultsqueryHow Neural Networks worksanswer\u0004https://www.ibm.com/think/topics/neural-networks: A neural network is a machine learning model that stacks simple \"neurons\" in layers and learns pattern-recognizing weights and biases from data to map inputs to outputs. Neural networks are among the most influential algorithms in modern machine learning and artificial intelligence (AI). Mathematically, a neural network learns a function    by mapping an input vector    to a predict a response    What distinguishes neural networks from other traditional machine learning algorithms is their layered structure and their ability to perform nonlinear transformation. Modern neural network architectures—such as transformers and encoder-decoder models—follow the same core principles (learned weights and biases, stacked layers, nonlinear activations, end-to-end training by backpropagation). Neural networks learn useful internal representations directly from data, capturing nonlinear structure that classical models miss. Understanding activation functions, training requirements and the main types of networks provides a practical bridge from classical neural nets to today’s generative systems and clarifies why these models have become central to modern AI.parent_queryHow Neural Networks worksdepth\u0000queryHow Neural Networks worksanswerhttps://aws.amazon.com/what-is/neural-network/: A neural network is a method in artificial intelligence (AI) that teaches computers to process data in a way that is inspired by the human brain.parent_queryHow Neural Networks worksdepth\u0000queryHow Neural Networks worksanswer\u0004zhttps://www.khanacademy.org/computing/code-org/x06130d92:how-ai-works/x06130d92:what-is-ai/v/how-neural-networks-work: It's how your brain&nbsp; processes information and recognizes patterns.&nbsp;&nbsp; Early AI scientists decided to mimic human neurons&nbsp; by making their own simple artificial neurons in&nbsp;&nbsp; software. This is what allows computers to&nbsp;&nbsp; recognize images, drive cars,&nbsp; and make some truly weird art.&nbsp;&nbsp; To see how a neuron works, let's build a movie&nbsp; recommendation system, that uses critics reviews&nbsp;&nbsp; to guess how much you'll like a movie. The output of one layer of neurons, becomes&nbsp; the input to the next layer, and so on.&nbsp;&nbsp; Many real world media music and shopping&nbsp; recommendation systems work like this,&nbsp;&nbsp; using ratings for millions of everyday users&nbsp;&nbsp; in those neural networks. These cookies provide you with a more tailored experience and allow you to make certain selections on our Service. We use these cookies to inform our own digital marketing and help us connect with people who are interested in our Service and our mission.parent_queryHow Neural Networks worksdepth\u0000queryHow Neural Networks worksanswerhttps://www.geeksforgeeks.org/machine-learning/neural-networks-a-beginners-guide/: In a neural network, input data is passed through multiple layers, including one or more hidden layers. Each neuron in these hidden layersparent_queryHow Neural Networks worksdepth\u0000queryHow Neural Networks worksanswerhttps://www.reddit.com/r/explainlikeimfive/comments/14he980/eli5_what_are_neural_networks/: Neural networks are a method of machine learning that tries to mimic how a brain would work. It's made up of nodes. A node just takes an input,parent_queryHow Neural Networks worksdepth\u0000review_feedbackcurrent_reviewsiteration_count\u0000"
+    },
+    {
+        "thread_id": "b1fa1077-974c-442f-9756-2dbeb2427c08",
+        "checkpoint_ns": "",
+        "channel": "chat_messages",
+        "version": "00000000000000000000000000000005.0.7228032070877947",
+        "type": "msgpack",
+        "blob": "message_id$24c2cac0-1671-4200-9754-107878c9f0c1roleusercontentHow Neural Networks workstimestamp2026-02-07T21:55:56.161127message_idmsg_1770537360.846603roleassistantcontent\u0002^Neural networks are a type of machine learning model inspired by the human brain. (IBM, AWS, Khan Academy, Reddit). They work by processing data through layers of interconnected \"neurons\" or nodes (IBM, GeeksforGeeks, Reddit). Each neuron takes an input, applies a weight and bias, and passes the result to the next layer (IBM, Reddit). The network learns by adjusting these weights and biases to recognize patterns and map inputs to desired outputs (IBM). This process of learning from data enables neural networks to perform tasks like image recognition, natural language processing, and more (IBM, AWS).timestamp2026-02-08T02:56:00.846664message_typetext"
+    },
+    {
+        "thread_id": "b7c5de9f-fd84-458b-9c4d-667b314c65a7",
+        "checkpoint_ns": "",
+        "channel": "__start__",
+        "version": "00000000000000000000000000000001.0.5094644868215511",
+        "type": "msgpack",
+        "blob": "\u0000\u001athread_id$b7c5de9f-fd84-458b-9c4d-667b314c65a7user_iddefault_userchat_messagesmessage_id$9361f9ad-8c7a-47c1-b858-0ab57e2bb869roleusercontentHow Neural Networks workstimestamp2026-02-07T22:15:42.343123memory_contextsemantic_memoriesuser_profileconversation_summaryuser_queryHow Neural Networks workssearch_modewebsearchintent_typetotal_agents\u0000completed_agents\u0000total_research_steps\u0000completed_research_steps\u0000current_phaseroutingplanner_queryplan_feedbackplan_approved¯research_reviewreport_table_of_contentsreport_abstractreport_introductionreport_bodyreport_conclusionreport_methodologyfinal_report_pathpdf_s3_pathfinal_responseedit_instructions"
+    },
+    {
+        "thread_id": "b7c5de9f-fd84-458b-9c4d-667b314c65a7",
+        "checkpoint_ns": "",
+        "channel": "chat_messages",
+        "version": "00000000000000000000000000000002.0.10373875531345145",
+        "type": "msgpack",
+        "blob": "message_id$9361f9ad-8c7a-47c1-b858-0ab57e2bb869roleusercontentHow Neural Networks workstimestamp2026-02-07T22:15:42.343123"
+    },
+    {
+        "thread_id": "b7c5de9f-fd84-458b-9c4d-667b314c65a7",
+        "checkpoint_ns": "",
+        "channel": "memory_context",
+        "version": "00000000000000000000000000000002.0.10373875531345145",
+        "type": "msgpack",
+        "blob": "semantic_memoriesuser_profileconversation_summary"
+    }
+]
