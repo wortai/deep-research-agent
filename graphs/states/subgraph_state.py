@@ -162,6 +162,7 @@ class ResearchReviewData(TypedDict):
     Accumulates raw results and reviewer feedback through
     the researcher-reviewer iteration loop.
     """
+    run_id: str
     query: str
     query_num: int
     raw_research_results: Annotated[List[RawResearchResult], operator.add]
@@ -179,6 +180,25 @@ class ReportBodySection(TypedDict):
     section_order: int
     section_content: str
 
+
+class ReportData(TypedDict):
+    """A complete generated report for a specific research run."""
+    run_id: str
+    query: str
+    table_of_contents: str
+    abstract: str
+    introduction: str
+    body_sections: List[ReportBodySection]
+    conclusion: str
+    css: str
+    timestamp: str
+
+class WebSearchData(TypedDict):
+    """Results from a quick websearch run."""
+    run_id: str
+    query: str
+    results: str
+    timestamp: str
 
 class AgentGraphState(TypedDict):
     """
@@ -200,6 +220,9 @@ class AgentGraphState(TypedDict):
     # --- User Input ---
     user_query: str
     
+    # --- Run Tracking ---
+    current_run_id: str
+    
     # --- Intent & Search Mode ---
     search_mode: Literal["websearch", "deepsearch", "extremesearch"]
     intent_type: Literal[
@@ -220,20 +243,29 @@ class AgentGraphState(TypedDict):
     # --- Planner Output ---
     planner_query: List[PlannerQuery]
     
-    # --- Human-in-the-Loop ---
+    # --- Clarification HITL (pre-plan) ---
+    clarification_answers: Annotated[List[Dict], operator.add]
+    clarification_loop_count: int
+    
+    # --- Skill Selection ---
+    selected_skills: List[str]
+    
+    # --- Human-in-the-Loop (plan approval) ---
     plan_feedback: str
     plan_approved: bool
     
     # --- Research Data ---
     research_review: Annotated[List[ResearchReviewData], operator.add]
     
-    # --- Writer Output ---
-    report_table_of_contents: str
-    report_abstract: str
-    report_introduction: str
-    report_body_sections: List[ReportBodySection]
-    report_conclusion: str
-    report_methodology: str
+    # --- Results & Reports ---
+    reports: Annotated[List[ReportData], operator.add]
+    websearch_results: Annotated[List[WebSearchData], operator.add]
+    
+    # --- Image Analysis (from websearch agent) ---
+    analyzed_images: Annotated[List[Dict], operator.add]
+    
+    # --- Response Skill (LLM-generated presentation instructions) ---
+    response_skill: str
     
     # --- Response ---
     final_response: str

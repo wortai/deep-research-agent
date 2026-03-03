@@ -173,6 +173,32 @@ class StreamEmitter:
         )
         self._emit(event)
 
+    def emit_tool_execution(
+        self,
+        tool_name: str,
+        description: str,
+        status: str = "running",
+    ) -> None:
+        """
+        Emit a tool execution event for websearch agent activity.
+
+        Displayed as system log entries in the frontend during websearch mode.
+
+        Args:
+            tool_name: Name of the tool being executed.
+            description: Human-readable description of the tool action.
+            status: Execution status — "running", "completed", or "error".
+        """
+        event = self._create_event(
+            EventType.TOOL_EXECUTION,
+            {
+                "tool_name": tool_name,
+                "description": description,
+                "status": status,
+            }
+        )
+        self._emit(event)
+
 
 def get_emitter(writer: Optional[StreamWriter] = None) -> StreamEmitter:
     """

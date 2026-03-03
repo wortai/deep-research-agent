@@ -7,9 +7,23 @@ Phase 2: generate_chapter_prompt() — produces instructions for LLM to write
          one complete chapter/subchapter ready to be added to report_body.
 """
 
+import os
 import asyncio
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
+from pydantic import BaseModel, Field
 from llms import LlmsHouse
+
+class DesignSkillSelection(BaseModel):
+    """Structured output for deciding which design skill to use."""
+    selected_skill_filename: str = Field(
+        description="The exact filename of the best matching design skill markdown file (e.g. 'academic.md'). Must be one of the explicitly provided available libraries."
+    )
+
+class CssGenerationResult(BaseModel):
+    """Structured output for the generated CSS code."""
+    css_code: str = Field(
+        description="The raw, final CSS code strictly scoped to .dynamic-report-style. Should contain NO markdown blocks."
+    )
 
 
 async def generate_outline_prompt(
@@ -299,6 +313,148 @@ CHAPTER WRITING REQUIREMENTS:
 Write the COMPLETE chapter "{chapter_heading}" NOW. Include the heading, all subheadings, and all content. The output must be ready to directly insert into the final report."""
 
     return prompt
+
+
+
+def get_available_design_skills() -> Dict[str, str]:
+    """
+    Reads all markdown files in the design_skills directory.
+    
+    Returns:
+        Dict mapping filename (e.g. 'academic.md') to its contents.
+    """
+    skills_dir = os.path.join(os.path.dirname(__file__), 'design_skills')
+    skills = {}
+    
+    if not os.path.exists(skills_dir):
+        return skills
+        
+    for filename in os.listdir(skills_dir):
+        if filename.endswith('.md'):
+            filepath = os.path.join(skills_dir, filename)
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    skills[filename] = f.read()
+            except Exception:
+                pass
+                
+    return skills
+
+
+async def choose_design_skill_prompt(
+    user_query: str,
+    table_of_contents: Dict[str, List[str]],
+    abstract: str,
+    introduction: str,
+    available_skills: Dict[str, str]
+) -> str:
+    """
+    Generates a prompt asking the LLM to select the most appropriate design
+    skill filename based on the report context.
+    
+    Returns:
+        Prompt for the routing LLM call.
+    """
+    toc_formatted = "FULL REPORT TABLE OF CONTENTS:\n"
+    for main_chapter, subchapters in table_of_contents.items():
+        toc_formatted += f"  {main_chapter}\n"
+        for sub in subchapters:
+            toc_formatted += f"    {sub}\n"
+            
+    # Create descriptions of available skills based on their filenames and first lines
+    skills_list = ""
+    for filename, content in available_skills.items():
+        first_line = content.split('\n')[0].replace('#', '').strip() if content else "Style rules"
+        skills_list += f"- {filename}: {first_line}\n"
+
+    prompt = f"""You are a master UI/UX Art Director. Your task is to analyze an upcoming research report and select the PERFECT CSS design style for it from our available libraries.
+
+=====================================================================
+REPORT DATA:
+=====================================================================
+USER QUERY: {user_query}
+
+{toc_formatted}
+
+ABSTRACT: 
+{abstract}
+
+INTRODUCTION:
+{introduction}
+
+=====================================================================
+AVAILABLE DESIGN LIBRARIES:
+=====================================================================
+{skills_list}
+
+YOUR TASK:
+Based heavily on the User Query and the Table of Contents, which ONE of these design libraries is the absolute best fit? 
+If none fit perfectly, or if it is a general report, select `general_fallback.md`.
+"""
+    return prompt
+
+
+async def generate_scoped_css_prompt(
+    user_query: str,
+    table_of_contents: Dict[str, List[str]],
+    selected_skill_name: str,
+    selected_skill_rules: str
+) -> str:
+    """
+    Generates the final prompt for creating a custom CSS design leveraging
+    the rules defined in the chosen design skill file.
+    
+    Args:
+        user_query: The user's original query.
+        table_of_contents: The generated TOC.
+        selected_skill_name: Filename of the chosen skill.
+        selected_skill_rules: The markdown contents of the chosen skill.
+        
+    Returns:
+        Prompt string for the CSS generation LLM call.
+    """
+    
+    toc_formatted = "FULL REPORT TABLE OF CONTENTS:\n"
+    for main_chapter, subchapters in table_of_contents.items():
+        toc_formatted += f"  {main_chapter}\n"
+        for sub in subchapters:
+            toc_formatted += f"    {sub}\n"
+            
+    prompt = f"""You are an elite, world-class UI/UX Designer and CSS Expert. Your task is to generate a custom, stunning CSS stylesheet for a report. You have been assigned to use the `{selected_skill_name}` design system.
+
+=====================================================================
+REPORT TOPIC:
+=====================================================================
+USER QUERY: {user_query}
+
+{toc_formatted}
+
+=====================================================================
+YOUR STRICT DESIGN GUIDELINES ({selected_skill_name}):
+=====================================================================
+Apply the visual rules, colors, typography, and vibes from the following design brief exactly:
+
+{selected_skill_rules}
+
+=====================================================================
+TECHNICAL REQUIREMENTS (CRITICAL!):
+=====================================================================
+1. **STRICT SCOPING RULES**:
+   - ALL CSS rules **MUST** be strictly scoped under the class `.dynamic-report-style`. 
+   - For example:
+     `.dynamic-report-style h1 {{ color: #2c3e50; border-bottom: 2px solid #e74c3c; padding-bottom: 8px; }}`
+     `.dynamic-report-style blockquote {{ border-left: 4px solid #eaeaea; }}`
+   - Do NOT write global CSS (e.g., `body {{ ... }}`). It MUST be scoped to `.dynamic-report-style`.
+
+2. **COMPONENT COVERAGE**:
+   - The report contains elements like `h1`, `h2`, `h3`, `p`, `blockquote`, `ul`, `ol`, `li`, `table`, `th`, `td`, `a`, `img`, `pre`, and `code`.
+   - Ensure the classes cover these beautifully according to your design brief.
+   - For links (`a`), add nice hover effects.
+   - Make sure your tables look incredible and professional.
+"""
+    return prompt
+
+
 
 
 async def main():

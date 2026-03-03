@@ -21,7 +21,15 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from langgraph.types import StreamWriter
 from graphs.states.subgraph_state import AgentGraphState as AgentState
 from graphs.events.stream_emitter import get_emitter, StreamEmitter
-from writer.prompts_utils.writer_prompts import generate_outline_prompt, generate_chapter_prompt
+from writer.prompts_utils.writer_prompts import (
+    generate_outline_prompt, 
+    generate_chapter_prompt, 
+    choose_design_skill_prompt,
+    generate_scoped_css_prompt,
+    get_available_design_skills,
+    DesignSkillSelection,
+    CssGenerationResult
+)
 from llms import LlmsHouse
 import uuid
 from datetime import datetime
@@ -44,6 +52,7 @@ class Writer:
 
     def __init__(self, emitter: StreamEmitter = None):
         self.gemini_model = LlmsHouse().google_model('gemini-2.5-flash')
+        self.css_model = LlmsHouse().google_model('gemini-3.1-pro-preview') # As requested by user
         self._emitter = emitter
 
     def _emit_progress(self, percentage: int, current_step: str, metadata: dict = None) -> None:
@@ -96,11 +105,19 @@ class Writer:
         """
         Extracts raw_research_results from each ResearchReviewData.
         
+        Filters by current_run_id to ensure only research from the current
+        search cycle is used in the report.
         Sorts by query_num first, then by parent_query within each review.
         Converts research results into section format with section_id.
         """
         aggregated_sections = []
-        research_reviews = state.get('research_review', [])
+        current_run = state.get('current_run_id', '')
+        
+        # Only process research from the current run
+        research_reviews = [
+            r for r in state.get('research_review', [])
+            if r.get('run_id') == current_run
+        ]
         
         sorted_reviews = sorted(research_reviews, key=lambda r: r.get('query_num', 0))
         
@@ -230,6 +247,85 @@ RULES:
             "introduction": parsed.get("introduction", ""),
             "conclusion": parsed.get("conclusion", "")
         }
+
+    async def _generate_design_css(
+        self,
+        user_query: str,
+        table_of_contents: dict,
+        abstract: str,
+        introduction: str
+    ) -> str:
+        """
+        Calls the LLM in a two-step process to generate custom scoped CSS:
+        1. Selects the appropriate design skill from available libraries.
+        2. Generates the CSS applying that specific skill's rules.
+        """
+        available_skills = get_available_design_skills()
+        
+        if not available_skills:
+            logger.warning("[Writer] No design skills found. Falling back to empty CSS.")
+            return ""
+
+        # Step 1: Decide which design skill to use
+        routing_prompt = await choose_design_skill_prompt(
+            user_query=user_query,
+            table_of_contents=table_of_contents,
+            abstract=abstract,
+            introduction=introduction,
+            available_skills=available_skills
+        )
+        
+        try:
+            # Enforce structured output for selection
+            routing_model = self.gemini_model.with_structured_output(DesignSkillSelection)
+            route_response = await routing_model.ainvoke(routing_prompt)
+            
+            # The response is now directly a DesignSkillSelection object
+            selected_filename = route_response.selected_skill_filename.strip()
+            
+            # Fallback if the LLM hallucinated a filename
+            if selected_filename not in available_skills:
+                logger.warning(f"[Writer] LLM selected unknown design skill: {selected_filename}. Defaulting to general_fallback.md")
+                selected_filename = 'general_fallback.md'
+                
+            selected_rules = available_skills.get(selected_filename, "")
+            logger.info(f"[Writer] Selected CSS Design Skill: {selected_filename}")
+            
+            # Emit progress showing which style was selected
+            style_name = selected_filename.replace('.md', '').replace('_', ' ').title()
+            self._emit_progress(88, f"Applying '{style_name}' aesthetic to the report...")
+
+        except Exception as e:
+            logger.error(f"[Writer] Error selecting design skill: {e}")
+            selected_filename = 'general_fallback.md'
+            selected_rules = available_skills.get(selected_filename, "")
+
+        # Step 2: Generate the CSS using the elite model and the selected rules
+        css_prompt = await generate_scoped_css_prompt(
+            user_query=user_query,
+            table_of_contents=table_of_contents,
+            selected_skill_name=selected_filename,
+            selected_skill_rules=selected_rules
+        )
+        
+        try:
+            # Enforce structured output for generation
+            styled_css_model = self.css_model.with_structured_output(CssGenerationResult)
+            response = await styled_css_model.ainvoke(css_prompt)
+            
+            # Extract pure string from Pydantic object
+            raw_text = response.css_code.strip()
+            
+            # Clean up potential markdown code block artifacts just in case
+            if '```css' in raw_text:
+                raw_text = raw_text.split('```css')[1].split('```')[0].strip()
+            elif '```' in raw_text:
+                raw_text = raw_text.split('```')[1].split('```')[0].strip()
+                
+            return raw_text.strip()
+        except Exception as e:
+            logger.error(f"[Writer] CSS generation failed: {e}")
+            return ""
 
 
     async def _generate_single_chapter(
@@ -436,6 +532,15 @@ RULES:
             table_of_contents=table_of_contents
         )
 
+        self._emit_progress(85, "Designing and generating custom aesthetic CSS for the report…")
+        
+        css_content = await self._generate_design_css(
+            user_query=user_query,
+            table_of_contents=table_of_contents,
+            abstract=outline.get("abstract", ""),
+            introduction=outline.get("introduction", "")
+        )
+
         self._emit_progress(95, "Stitching everything together into the final report…")
 
         toc_markdown = self._format_table_of_contents_markdown(table_of_contents)
@@ -447,7 +552,8 @@ RULES:
             "abstract": outline["abstract"],
             "introduction": outline["introduction"],
             "report_body_sections": report_body_sections,
-            "conclusion": outline["conclusion"]
+            "conclusion": outline["conclusion"],
+            "css": css_content
         }
 
 
@@ -457,19 +563,25 @@ async def writer_node(state: AgentState, writer: StreamWriter) -> dict:
     
     Accepts StreamWriter from LangGraph to emit real-time progress events.
     Reads research_review from state, generates outline + parallel body sections,
-    and returns structured output with report_body_sections for JSON delivery.
+    and returns structured output appended to the `reports` list.
     """
     emitter = get_emitter(writer)
     writer_instance = Writer(emitter=emitter)
     result = await writer_instance.run(state)
-
-    return {
-        "report_table_of_contents": result["table_of_contents"],
-        "report_abstract": result["abstract"],
-        "report_introduction": result["introduction"],
-        "report_body_sections": result["report_body_sections"],
-        "report_conclusion": result["conclusion"]
+    
+    report_data = {
+        "run_id": state.get("current_run_id", ""),
+        "query": state.get("user_query", ""),
+        "table_of_contents": result["table_of_contents"],
+        "abstract": result["abstract"],
+        "introduction": result["introduction"],
+        "body_sections": result["report_body_sections"],
+        "conclusion": result["conclusion"],
+        "css": result.get("css", ""),
+        "timestamp": datetime.utcnow().isoformat()
     }
+
+    return {"reports": [report_data]}
 
 
 if __name__ == "__main__":

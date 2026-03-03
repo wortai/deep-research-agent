@@ -447,3 +447,297 @@ Use the subqueries + answers as your base and ask:
   ]
 }}
 """
+
+
+# ─────────────────────────────────────────────────────────────
+# Planner Skills Prompts
+# ─────────────────────────────────────────────────────────────
+
+from pydantic import BaseModel, Field
+from typing import List
+
+
+class SkillSelectionResult(BaseModel):
+    """Structured output for selecting 1-4 research skills."""
+    selected_skills: List[str] = Field(
+        description="List of 1 to 4 skill filenames (e.g. ['coding_tech.md', 'general_academic.md']). Must be exact filenames from the provided available skills list."
+    )
+    reasoning: str = Field(
+        description="Brief explanation of why these specific skills were selected and how they complement each other for this query."
+    )
+
+
+def get_clarification_prompt(
+    user_query: str,
+    previous_answers: list,
+    loop_number: int
+) -> str:
+    """
+    Generates a prompt for the HITL clarification step.
+
+    Produces 2-3 genuine, mindset-probing questions that try to understand
+    the user's research angle, depth expectations, and focus areas.
+    Avoids repeating questions already answered.
+
+    Args:
+        user_query: Original user research query.
+        previous_answers: List of dicts with 'question' and 'answer' keys
+                          from earlier clarification rounds.
+        loop_number: Current clarification round (1-3).
+
+    Returns:
+        Prompt string for the LLM.
+    """
+    previous_context = ""
+    if previous_answers:
+        previous_context = "\n\nPREVIOUS CLARIFICATION (do NOT repeat these questions):\n"
+        for qa in previous_answers:
+            previous_context += f"Q: {qa.get('question', '')}\nA: {qa.get('answer', '')}\n\n"
+
+    return f"""You are a Research Strategist preparing to build a comprehensive research plan. Before planning, you need to deeply understand the user's intent.
+
+USER QUERY: "{user_query}"
+
+CLARIFICATION ROUND: {loop_number} of 3
+{previous_context}
+YOUR TASK:
+Generate 2-3 genuine questions that will help you understand:
+
+1. **Research Angle** — Which perspective or lens does the user want? (theoretical vs. practical, academic vs. industry, historical vs. contemporary)
+2. **Depth Expectations** — How deep should the research go? (surface overview, intermediate understanding, expert-level deep dive)
+3. **Focus Area** — Which specific aspects of the topic matter most? (if the topic has multiple facets, which one to prioritize)
+4. **Clarity on Ambiguities** — Any part of the query that could be interpreted multiple ways
+
+QUESTION QUALITY RULES:
+- Questions must be SPECIFIC to this query, not generic filler
+- Questions should uncover the user's MINDSET and research goals
+- If previous answers already covered an area, go DEEPER into unexplored angles
+- Each question should genuinely change how you would plan the research
+- Do NOT ask obvious questions the query already answers
+- If the query is already very clear and specific, you may return fewer questions or indicate no clarification needed
+
+OUTPUT RULES:
+Return ONLY a valid JSON object:
+{{
+    "needs_more_clarification": true/false,
+    "questions": [
+        "Question 1?",
+        "Question 2?",
+        "Question 3?"
+    ]
+}}
+
+If the query is crystal clear and no clarification is needed, return:
+{{
+    "needs_more_clarification": false,
+    "questions": []
+}}
+"""
+
+
+def get_skill_selection_prompt(
+    user_query: str,
+    clarification_context: list,
+    available_skills: dict
+) -> str:
+    """
+    Generates a prompt to select 1-4 research skills based on query analysis.
+
+    The LLM analyzes the user query and clarification answers to determine
+    which domain-specific skills should be merged for optimal research planning.
+
+    Args:
+        user_query: Original user research query.
+        clarification_context: List of Q&A dicts from HITL clarification.
+        available_skills: Dict mapping filename to file content preview.
+
+    Returns:
+        Prompt string for the LLM (used with structured output SkillSelectionResult).
+    """
+    clarification_text = ""
+    if clarification_context:
+        clarification_text = "\nCLARIFICATION CONTEXT (user's answers about their intent):\n"
+        for qa in clarification_context:
+            clarification_text += f"Q: {qa.get('question', '')}\nA: {qa.get('answer', '')}\n"
+
+    # Concise identity map so the LLM understands each skill's purpose
+    skill_identities = {
+        "general_academic.md": "Scholarly research — peer-reviewed papers, university-level depth, textbook rigor. "
+            "Detects academic discipline & sub-field (CS, Biology, Economics…). Prioritizes journals, surveys, conference proceedings. "
+            "Builds queries from definitions → methodology → state of the art → critical analysis.",
+        "general_student_practice.md": "Practice sheets, cheat sheets, flashcards, exam & interview prep. "
+            "Detects format (cheat sheet vs problem set vs exam sim), field, and difficulty level. "
+            "Structures by topic → difficulty progression → worked solutions with answer keys.",
+        "philosophy.md": "Philosophical inquiry — ethics, metaphysics, epistemology, political philosophy, aesthetics. "
+            "Identifies branch (ethics, logic, existentialism…) and key thinkers (Kant, Nietzsche, Rawls…). "
+            "Uses dialectical structure: thesis → arguments → objections → replies. Demands primary source citations.",
+        "finance_corporate.md": "Finance & markets — equity research, macro economics, corporate analysis, personal finance. "
+            "Detects financial domain (equity, fixed income, macro, crypto…). Prioritizes SEC filings, Bloomberg data, analyst reports. "
+            "Builds queries targeting specific metrics, valuations, and risk analysis.",
+        "news_journalism.md": "Current events & breaking news — recency-first, multi-source fact-checking. "
+            "Detects news category (breaking, analysis, political, industry). Requires wire services (AP, Reuters) and tier-1 outlets. "
+            "Timestamps all events, attributes every claim to sources, flags conflicting reports.",
+        "history.md": "Historical research — primary sources, chronological analysis, historiographical debate. "
+            "Detects time period (Ancient → Contemporary) and geographic region. Distinguishes primary vs secondary sources. "
+            "Examines causes, perspectives, legacy, and revisionist interpretations.",
+        "coding_tech.md": "Programming & technology — code, frameworks, system design, debugging, documentation. "
+            "Detects language, framework, and problem type (learning, implementation, debugging, architecture). "
+            "Requires version-specific official docs, complete runnable code examples, and error handling.",
+        "physics.md": "Physics — classical mechanics to quantum field theory, experimental & theoretical. "
+            "Detects sub-field (QM, EM, thermodynamics, astrophysics…). Demands mathematical rigor with proper notation and SI units. "
+            "Covers governing laws, derivations, experimental verification, and open problems.",
+        "math.md": "Mathematics — pure & applied, proofs, formulas, equations, notation-aware. "
+            "Detects exact field (algebra, analysis, topology, number theory, probability, differential equations…). "
+            "Requires precise definitions, step-by-step proofs, all variables defined, and conditions stated. "
+            "Identifies sub-topic before generating any query.",
+    }
+
+    skills_list = "\nAVAILABLE RESEARCH SKILLS:\n"
+    for filename in available_skills:
+        identity = skill_identities.get(filename, available_skills[filename][:200])
+        skills_list += f"\n**{filename}**: {identity}\n"
+
+    return f"""You are a Research Skills Router. Your task is to analyze the user's research query and select the BEST combination of domain-specific research skills.
+
+USER QUERY: "{user_query}"
+{clarification_text}
+{skills_list}
+
+YOUR TASK:
+Select between 1 and 4 skills that, when combined, will produce the most effective research plan for this query.
+
+SELECTION LOGIC:
+- Select the PRIMARY skill that matches the core domain of the query
+- Add SECONDARY skills if the query spans multiple domains
+- Consider skill combinations that complement each other:
+  • "Learn leetcode problems" → coding_tech.md + general_academic.md
+  • "SQL cheat sheet" → coding_tech.md + general_student_practice.md
+  • "Latest Tesla stock analysis" → finance_corporate.md + news_journalism.md
+  • "History of quantum mechanics" → physics.md + history.md
+  • "Nietzsche's influence on modern ethics" → philosophy.md + history.md
+  • "Practice calculus problems" → math.md + general_student_practice.md
+
+RULES:
+- Minimum 1 skill, maximum 4 skills
+- Selected skills must be exact filenames from the available list
+- If the query clearly belongs to one domain, selecting just 1 skill is correct
+- Only add additional skills if they genuinely add a distinct research dimension
+- The reasoning should explain how the skills work together
+"""
+
+
+def get_enhanced_plan_prompt(
+    query: str,
+    skill_instructions: str,
+    clarification_context: list
+) -> str:
+    """
+    Generates the planning prompt enhanced with merged skill instructions.
+
+    Wraps the core planning logic from get_plan_prompt with domain-specific
+    skill instructions and accumulated clarification context prepended.
+
+    Args:
+        query: Original user research query (may include memory context already).
+        skill_instructions: Merged content from 1-4 selected skill markdown files.
+        clarification_context: List of Q&A dicts from HITL clarification.
+
+    Returns:
+        Enhanced prompt string for plan generation.
+    """
+    clarification_block = ""
+    if clarification_context:
+        clarification_block = "\n\n=== USER CLARIFICATIONS ===\nThe following Q&A captures the user's exact intent, depth expectations, and focus areas:\n"
+        for qa in clarification_context:
+            clarification_block += f"Q: {qa.get('question', '')}\nA: {qa.get('answer', '')}\n"
+        clarification_block += "=== END CLARIFICATIONS ===\n"
+
+    return f"""You are an expert Research Strategist specializing in designing comprehensive, hierarchical investigation plans.
+
+=== DOMAIN-SPECIFIC RESEARCH INSTRUCTIONS ===
+The following skill instructions define HOW to approach research for this specific type of query.
+Read them carefully and apply their field-detection steps, source priorities, query design rules, and anti-patterns to every query you generate.
+
+{skill_instructions}
+
+=== END DOMAIN INSTRUCTIONS ===
+{clarification_block}
+
+**User Query:**
+"{query}"
+
+---
+
+**Your Task:**
+
+Generate a JSON object with one key: "plan".
+
+**PLANNING METHODOLOGY — ENHANCED WITH SKILLS:**
+
+You MUST apply the skill instructions above throughout your planning. Specifically:
+1. **Field Detection**: Use the skill's Step 1 to identify the exact sub-field/domain
+2. **Source Awareness**: Design queries that will surface the sources the skill prioritizes
+3. **Query Structure**: Follow the skill's query design layers (Foundation → Depth → Advanced)
+4. **Representation**: Keep in mind how data should be represented per the skill guidelines
+5. **Anti-Patterns**: Actively avoid every anti-pattern listed in the skill instructions
+
+**Phase 1: Query Analysis**
+- Identify the core subject, sub-field, and scope using the skill's field detection
+- Determine foundational knowledge needed first
+- Map logical progression from basics to advanced insights
+
+**Phase 2: Hierarchical Structure Design**
+
+Create a research plan that follows this progression:
+
+**Level 1 — Foundation (Queries 1-3):**
+- **Query 1**: Broad contextual overview through the skill's lens
+- **Query 2**: Core mechanisms/fundamentals as defined by the skill's domain
+- **Query 3**: Historical context & evolution relevant to this specific field
+
+**Level 2 — Deep Dive (Queries 4-6):**
+- **Query 4**: Specific dimensions identified by the skill's analytical layer
+- **Query 5**: Comparative analysis or specialized aspects per the skill guidelines
+
+**Level 3 — Advanced Insights (Queries 6-8):**
+- **Query 6-7**: Expert perspectives, cutting-edge developments in this field
+- **Query 8**: Synthesis query connecting themes identified by the skill
+
+**QUERY DESIGN PRINCIPLES:**
+
+1. **Independence**: Each query must be self-contained and searchable independently
+2. **Distinctness**: No two queries should return substantially overlapping information
+3. **Specificity**: Each query targets a specific aspect following the skill's sub-field categories
+4. **Progressive Depth**: Later queries assume knowledge from earlier ones
+5. **Completeness**: Together, queries should cover all critical aspects of the query
+6. **Searchability**: Phrased to work well with search engines
+7. **Density**: Queries should be detailed and comprehensive (30-120 words each)
+8. **Skill-Aligned**: Every query must reflect the priorities and source awareness from the skill instructions
+
+**CRITICAL RULES:**
+
+✓ **DO:**
+- Apply the skill's field detection before anything else
+- Start broad, then progressively narrow and deepen
+- Each query explores a DISTINCT dimension per the skill's analytical framework
+- Include time-specific elements when relevant
+- Pack queries with specific details per the skill's representation guidelines
+- Progress from "what/who" → "how/why" → "so what/what's next"
+
+✗ **DON'T:**
+- Violate any anti-pattern listed in the skill instructions
+- Create redundant queries
+- End with overview/summary queries
+- Make queries too vague
+- Ignore the skill's source prioritization
+
+**OUTPUT REQUIREMENTS:**
+
+- Generate 5-10 queries (use fewer for simple topics, more for complex ones)
+- Each query should be detailed and dense (30-120 words)
+- Output **ONLY** the JSON object — no explanations, no markdown fences
+- Number each query clearly: "1. ...", "2. ...", etc.
+- Ensure proper JSON formatting
+
+Output only the JSON object.
+"""

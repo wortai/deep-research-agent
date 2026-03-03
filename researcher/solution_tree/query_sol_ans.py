@@ -195,15 +195,14 @@ class Solver:
         
         return gaps, answer
 
-    async def websearch_solver(self) -> Dict[str, Any]:
+    async def websearch_solver(self) -> str:
         """
         Quick websearch using Tavily without full research tree.
         
-        Performs direct Tavily search and formats results for
-        response_node consumption. Skips research tree and report generation.
+        Performs direct Tavily search and formats results.
         
         Returns:
-            Dict with formatted research_review data for state update.
+            Formatted string of search results.
         """
         from researcher.scrapers.tavily.tavily_scraper import Tavily
         
@@ -212,30 +211,25 @@ class Solver:
         try:
             tavily = Tavily(query=self.query, max_result=5)
             search_results = await tavily.basic_search()
-            
+
             formatted_results = []
-            for result in search_results:
-                formatted_results.append({
-                    "query": self.query,
-                    "answer": f"{result.get('url', '')}: {result.get('content', '')}",
-                    "parent_query": self.query,
-                    "depth": 0,
-                    "section_id": str(uuid.uuid4())
-                })
-            
-            research_review_data = {
-                "query": self.query,
-                "query_num": 1,
-                "raw_research_results": formatted_results,
-                "review_feedback": [],
-                "current_reviews": [],
-                "iteration_count": 0
-            }
-            
+            for i, result in enumerate(search_results, 1):
+                title = result.get('title', 'No Title')
+                url = result.get('url', 'No URL')
+                content = result.get('content', 'No Content')
+                formatted_results.append(
+                    f"--- SEARCH RESULT {i} ---\n"
+                    f"SOURCE TITLE: {title}\n"
+                    f"SOURCE URL BELONGS TO EXTRACTED CONTENT : {url}\n"
+                    f"EXTRACTED CONTENT:\n{content}\n"
+                    f"--------------------------------------------------------\n"
+                )
+
+            logger.info(f"formatted_results: {formatted_results}")
+
             logger.info(f"[websearch_solver] Found {len(formatted_results)} results")
-            
-            return {"research_review": [research_review_data]}
+            return "\n\n".join(formatted_results)
             
         except Exception as e:
             logger.error(f"[websearch_solver] Search failed: {e}")
-            return {"research_review": []}
+            return ""

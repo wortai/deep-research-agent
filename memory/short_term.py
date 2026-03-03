@@ -144,8 +144,14 @@ class ShortTermMemory:
                 
             if checkpoint and checkpoint.checkpoint:
                 messages = checkpoint.checkpoint.get("channel_values", {}).get("chat_messages", [])
-                print(f"Retrieved {len(messages)} messages from conversation history")
+                logger.info(
+                    f"[ShortTermMemory] thread={thread_id}, "
+                    f"retrieved {len(messages)} chat_messages, "
+                    f"first_msg_id={messages[0].get('message_id', 'N/A') if messages else 'NONE'}"
+                )
                 return messages[-limit:] if len(messages) > limit else messages
+            else:
+                logger.info(f"[ShortTermMemory] thread={thread_id}, no checkpoint found")
         except Exception as e:
             logger.error(f"Failed to retrieve conversation history: {e}")
             

@@ -9,12 +9,20 @@ research plans or clarifying questions.
 from typing import Dict, Any, List, Optional
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.exceptions import OutputParserException
-from langgraph.types import StreamWriter
+from langgraph.types import StreamWriter, interrupt
 from llms.llms import LlmsHouse
-from researcher.solution_tree.prompts.prompts import get_plan_prompt, get_clarifying_questions_prompt
+from researcher.solution_tree.prompts.prompts import (
+    get_plan_prompt,
+    get_clarifying_questions_prompt,
+    get_clarification_prompt,
+    get_skill_selection_prompt,
+    get_enhanced_plan_prompt,
+    SkillSelectionResult
+)
 from graphs.states.subgraph_state import AgentGraphState, PlannerQuery, MemoryContext
 import logging
 import uuid
+import os
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -42,6 +50,9 @@ class Planner:
         self.parser = JsonOutputParser()
         self.chain = self.llm | self.parser
         self._memory = memory_facade
+        self._skills_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "skills"
+        )
 
     def _build_context_prompt(self, state: AgentGraphState) -> str:
         """
@@ -121,12 +132,31 @@ class Planner:
         if context_prompt:
             complete_query = f"{context_prompt}\n\n[User Query]\n{complete_query}"
 
+        # Use skill-enhanced planning if skills were selected
+        selected_skills = state.get("selected_skills", [])
+        clarification_answers = state.get("clarification_answers", [])
+
+        if selected_skills:
+            skill_contents = self._load_available_skills()
+            merged_instructions = "\n\n".join(
+                f"=== SKILL: {s} ===\n{skill_contents[s]}"
+                for s in selected_skills if s in skill_contents
+            )
+            prompt = get_enhanced_plan_prompt(
+                query=complete_query,
+                skill_instructions=merged_instructions,
+                clarification_context=clarification_answers
+            )
+            logger.info(f"Using skill-enhanced plan with skills: {selected_skills}")
+        else:
+            prompt = get_plan_prompt(complete_query)
+            logger.info("Using standard plan prompt (no skills selected)")
+
         def _to_numbered_queries(plan_list: list) -> list:
             """Convert plain query list to PlannerQuery format with query_num."""
             return [{"query_num": i + 1, "query": q} for i, q in enumerate(plan_list)]
 
         logger.info(f"Generating plan for query: {query[:100]}...")
-        prompt = get_plan_prompt(complete_query)
 
         try:
             full_response = ""
@@ -135,7 +165,6 @@ class Planner:
                  if content:
                      full_response += content
             
-            # Now parse the full response
             result = self.parser.parse(full_response)
             
             plan = result.get("plan", [])
@@ -151,7 +180,7 @@ class Planner:
                 "tool_calls": None,
                 "tool_results": None,
                 "message_type": "plan",
-                "metadata": {"raw_plan": plan}
+                "metadata": {"raw_plan": plan, "skills_used": selected_skills}
             }
             
             return {
@@ -165,6 +194,143 @@ class Planner:
         except Exception as e:
             logger.error(f"Error generating plan: {e}")
             return {"planner_query": _to_numbered_queries([query])}
+
+    def _load_available_skills(self) -> Dict[str, str]:
+        """
+        Reads all .md skill files from the planner/skills/ directory.
+
+        Returns:
+            Dict mapping skill filename (e.g. 'coding_tech.md') to
+            the full markdown content of that file.
+        """
+        skills = {}
+        if not os.path.isdir(self._skills_dir):
+            logger.warning(f"[Planner] Skills directory not found: {self._skills_dir}")
+            return skills
+
+        for filename in sorted(os.listdir(self._skills_dir)):
+            if filename.endswith(".md"):
+                filepath = os.path.join(self._skills_dir, filename)
+                with open(filepath, "r", encoding="utf-8") as f:
+                    skills[filename] = f.read()
+
+        logger.info(f"[Planner] Loaded {len(skills)} research skills: {list(skills.keys())}")
+        return skills
+
+    def _select_skills(self, state: AgentGraphState) -> Dict[str, Any]:
+        """
+        Uses LLM with structured output to select 1-4 skills for the query.
+
+        Reads user_query and clarification_answers from state, loads all
+        available skills, invokes get_skill_selection_prompt with
+        SkillSelectionResult structured output, and returns selected filenames.
+
+        Args:
+            state: Current state containing user_query and clarification_answers.
+
+        Returns:
+            State update with 'selected_skills' list of filenames.
+        """
+        user_query = state.get("user_query", "")
+        clarification_answers = state.get("clarification_answers", [])
+        available_skills = self._load_available_skills()
+
+        if not available_skills:
+            logger.warning("[Planner] No skills available, skipping selection")
+            return {"selected_skills": []}
+
+        prompt = get_skill_selection_prompt(
+            user_query=user_query,
+            clarification_context=clarification_answers,
+            available_skills=available_skills
+        )
+
+        try:
+            structured_llm = self.llm.with_structured_output(SkillSelectionResult)
+            result = structured_llm.invoke(prompt)
+
+            valid_skills = [
+                s for s in result.selected_skills
+                if s in available_skills
+            ][:4]
+
+            if not valid_skills:
+                logger.warning("[Planner] LLM returned no valid skill names, using general_academic.md")
+                valid_skills = ["general_academic.md"]
+
+            logger.info(f"[Planner] Selected skills: {valid_skills} — Reasoning: {result.reasoning}")
+            return {"selected_skills": valid_skills}
+
+        except Exception as e:
+            logger.error(f"[Planner] Skill selection failed: {e}")
+            return {"selected_skills": ["general_academic.md"]}
+
+    def _generate_clarification(self, state: AgentGraphState) -> Dict[str, Any]:
+        """
+        Generates clarification questions using HITL interrupt.
+
+        Invokes get_clarification_prompt, gets 2-3 questions, interrupts
+        the graph for user answers, then returns the accumulated Q&A pairs
+        plus an incremented loop count.
+
+        Args:
+            state: Current state with user_query, clarification_answers,
+                   and clarification_loop_count.
+
+        Returns:
+            State update with new clarification_answers appended and
+            clarification_loop_count incremented.
+        """
+        user_query = state.get("user_query", "")
+        previous_answers = state.get("clarification_answers", [])
+        loop_count = state.get("clarification_loop_count", 0)
+
+        prompt = get_clarification_prompt(
+            user_query=user_query,
+            previous_answers=previous_answers,
+            loop_number=loop_count + 1
+        )
+
+        try:
+            result = self.chain.invoke(prompt)
+            questions = result.get("questions", [])
+            needs_more = result.get("needs_more_clarification", True)
+
+            if not questions or not needs_more:
+                logger.info("[Planner] No clarification needed, proceeding")
+                return {
+                    "clarification_loop_count": loop_count + 1
+                }
+
+            # Interrupt graph for user to answer questions
+            user_response = interrupt({
+                "type": "clarification",
+                "questions": questions,
+                "loop_number": loop_count + 1
+            })
+
+            # user_response expected: {"answers": {"q1": "answer1", ...}} or list
+            answers_raw = user_response.get("answers", {})
+
+            new_qa_pairs = []
+            if isinstance(answers_raw, dict):
+                for q, a in answers_raw.items():
+                    new_qa_pairs.append({"question": q, "answer": a})
+            elif isinstance(answers_raw, list):
+                for i, a in enumerate(answers_raw):
+                    q = questions[i] if i < len(questions) else f"Question {i+1}"
+                    new_qa_pairs.append({"question": q, "answer": a})
+
+            logger.info(f"[Planner] Clarification round {loop_count + 1}: collected {len(new_qa_pairs)} answers")
+
+            return {
+                "clarification_answers": new_qa_pairs,
+                "clarification_loop_count": loop_count + 1
+            }
+
+        except Exception as e:
+            logger.error(f"[Planner] Clarification failed: {e}")
+            return {"clarification_loop_count": loop_count + 1}
 
     def ask_question(self, state: AgentGraphState) -> Dict[str, Any]:
         """
@@ -380,6 +546,28 @@ def planner_node(state: AgentGraphState, writer: StreamWriter = None) -> Dict[st
     return planner._generate_plan(state, writer)
 
 
+def clarification_node(state: AgentGraphState) -> Dict[str, Any]:
+    """
+    LangGraph node wrapper for HITL clarification.
+
+    Generates mindset-probing questions, interrupts for user answers,
+    and accumulates Q&A pairs in clarification_answers.
+    """
+    planner = Planner()
+    return planner._generate_clarification(state)
+
+
+def skill_selection_node(state: AgentGraphState) -> Dict[str, Any]:
+    """
+    LangGraph node wrapper for research skill selection.
+
+    Uses structured LLM output to pick 1-4 domain-specific skills
+    based on user query and accumulated clarification context.
+    """
+    planner = Planner()
+    return planner._select_skills(state)
+
+
 def editor_node(state: AgentGraphState) -> Dict[str, Any]:
     """
     LangGraph node wrapper for report editing.
@@ -389,5 +577,4 @@ def editor_node(state: AgentGraphState) -> Dict[str, Any]:
     """
     planner = Planner()
     return planner.editor(state)
-
 

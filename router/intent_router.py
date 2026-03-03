@@ -23,25 +23,24 @@ Given the user's query and conversation context, classify the intent.
 ## User Query
 {user_query}
 
-## Current Report Exists
-{has_report}
+## Reports in Context
+{reports_summary}
 
 ## Conversation History
 {chat_history}
 
 ## Classification Rules
-1. If user asks about details from an existing report → "follow_up"
-2. If user wants to edit/change/update the report → "edit"
-3. If user is answering a question you asked → "clarification"
-4. If query is unrelated to research (e.g., "I want cookies", "hi", "who are you") → "off_topic"
-5. For ALL NEW research questions (e.g., "what is X", "find me Y"), return "use_search_mode". DO NOT return "deepsearch" or "websearch" directly.
+1. If the user asks a question that can be answered using details from ONE OF THE existing reports → "follow_up"
+2. If the user wants to edit/change/update an existing report → "edit"
+3. If the user is answering a question you previously asked → "clarification"
+5. For ALL NEW distinct research questions (e.g., "now research Y", "what is X", "find me Z") → "use_search_mode". NEVER return "deepsearch" or "websearch" directly.
 
 ## Response Format
 Return JSON:
 {{
-    "intent": "follow_up" | "edit" | "clarification" | "off_topic" | "use_search_mode",
+    "intent":  "edit" | "clarification" | "off_topic" | "use_search_mode",
     "edit_instructions": "what to edit" (only if intent is "edit"),
-    "reasoning": "explanation"
+    "reasoning": "explanation of why you chose this intent"
 }}
 """
 
@@ -50,9 +49,9 @@ class IntentRouter:
     """
     Classifies user intent and routes to appropriate workflow.
     
-    Uses chat_messages history to detect follow-up questions,
-    edit requests, and clarifications. Falls back to frontend-provided
-    search_mode for new research requests.
+    Uses chat_messages history and existing reports to detect 
+    follow-up questions, edit requests, and clarifications. 
+    Falls back to frontend-provided search_mode for new research.
     """
 
     def __init__(self):
@@ -64,45 +63,68 @@ class IntentRouter:
     def _format_chat_history(self, chat_messages: list) -> str:
         """Format chat_messages for prompt context."""
         if not chat_messages:
+            print("No previous conversation.")
             return "No previous conversation."
             
         lines = []
         for msg in chat_messages[-5:]:
             role = msg.get("role", "unknown")
+            # print(" messages ")
+            # print("--"*20)
+            # print(msg.get("content", ""))
             content = msg.get("content", "")[:200]
             lines.append(f"{role}: {content}")
         return "\n".join(lines)
+        
+    def _format_reports_summary(self, reports: list) -> str:
+        """Create a summary of available reports for the router."""
+        if not reports:
+            return "No reports generated yet."
+            
+        summary = f"There are {len(reports)} reports available in this thread:\n"
+        for i, r in enumerate(reports, 1):
+            summary += f"- Report {i}: {r.get('query', 'Unknown Topic')}\n"
+        return summary
 
     def route(self, state: AgentGraphState) -> Dict[str, Any]:
         """
         Classify intent and determine workflow path.
-        
+
         Args:
-            state: Current state with user_query, chat_messages, search_mode.
+            state: Current state with user_query, chat_messages, reports, search_mode.
             
         Returns:
-            State update with intent_type and optionally edit_instructions.
+            State update with intent_type, router_thinking, and optionally edit_instructions.
         """
         user_query = state.get("user_query", "")
         search_mode = state.get("search_mode", "deepsearch")
         chat_messages = state.get("chat_messages", [])
-        has_report = bool(state.get("report_body_sections"))
+        reports = state.get("reports", [])
         
         if not user_query:
             logger.warning("[IntentRouter] No user query provided")
-            return {"intent_type": "off_topic", "current_phase": "routing"}
+            return {"intent_type": "off_topic", "current_phase": "routing", "router_thinking": "No query provided."}
         
         prompt = INTENT_CLASSIFICATION_PROMPT.format(
             user_query=user_query,
-            has_report="Yes - report exists in context" if has_report else "No report yet",
+            reports_summary=self._format_reports_summary(reports),
             chat_history=self._format_chat_history(chat_messages)
         )
         
         try:
             result = self.chain.invoke(prompt)
             intent = result.get("intent", "use_search_mode")
+            reasoning = result.get("reasoning", "Routing based on best guess.")
             
             if intent == "use_search_mode":
+                # Limit deepsearches to prevent huge state blobs
+                if search_mode in ("deepsearch", "extremesearch") and len(reports) >= 3:
+                    logger.info("[IntentRouter] Max deepsearches (3) reached for this thread.")
+                    return {
+                        "intent_type": "off_topic",
+                        "current_phase": "routing",
+                        "router_thinking": "This thread has reached the maximum limit of 3 deep research reports. Please start a new chat for further deep research."
+                    }
                 intent = search_mode
                 
             logger.info(f"[IntentRouter] Classified intent: {intent}")
@@ -110,7 +132,7 @@ class IntentRouter:
             response = {
                 "intent_type": intent,
                 "current_phase": "routing",
-                "router_thinking": result.get("reasoning", "Mergin my Conciousness with universe to find the best possible answer for you")
+                "router_thinking": reasoning
             }
             
             if intent == "edit" and result.get("edit_instructions"):
@@ -120,15 +142,15 @@ class IntentRouter:
             
         except Exception as e:
             logger.error(f"[IntentRouter] Classification failed: {e}")
-            return {"intent_type": search_mode, "current_phase": "routing"}
+            return {"intent_type": search_mode, "current_phase": "routing", "router_thinking": f"Fallback routing due to error: {e}"}
 
 
 def router_node(state: AgentGraphState) -> Dict[str, Any]:
     """
     LangGraph node wrapper for IntentRouter.
-    
-    Reads user_query, search_mode, chat_messages from state
-    and returns intent_type for conditional routing.
     """
+    print(f"Thread ID: {state['thread_id']}")
+    print("-"*50)
+    # print(state["chat_messages"])
     router = IntentRouter()
     return router.route(state)

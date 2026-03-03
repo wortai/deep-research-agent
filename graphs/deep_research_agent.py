@@ -27,13 +27,13 @@ from datetime import datetime
 from graphs.states.subgraph_state import AgentGraphState, ResearchReviewData, MemoryContext
 from graphs.subgraphs.researcher_reviewer_subgraph import build_researcher_reviewer_subgraph
 from graphs.events.frontend_events import create_event, EventType, PhaseType
-from planner.plan import planner_node, editor_node
+from planner.plan import planner_node, editor_node, clarification_node, skill_selection_node
 from writer.report_writer import writer_node
 from HITL.human_in_loop import human_review_node, HumanPlanReview
 from memory import MemoryFacade
 from router.intent_router import router_node
 from response.response_composer import response_node
-from researcher.solution_tree.query_sol_ans import Solver
+from websearch_agent import websearch_agent_node
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -70,8 +70,8 @@ class DeepResearchAgent:
 
         Flow:
             router_node → [intent routing]
-                ├── websearch → parallel_solver_node → response_node → END
-                ├── deepsearch/extremesearch → planner_node → human_review_node → parallel_research_node → writer_node → response_node → END
+                ├── websearch → websearch_agent → response_node → END
+                ├── deepsearch/extremesearch → clarification_node ⟲(max 3) → skill_selection_node → planner_node → human_review_node → parallel_research_node → writer_node → response_node → END
                 ├── follow_up/off_topic → response_node → END
                 └── edit → editor_node → response_node → END
 
@@ -81,11 +81,13 @@ class DeepResearchAgent:
         workflow = StateGraph(AgentGraphState)
 
         workflow.add_node("router_node", router_node)
+        workflow.add_node("clarification_node", clarification_node)
+        workflow.add_node("skill_selection_node", skill_selection_node)
         workflow.add_node("planner_node", planner_node)
         workflow.add_node("editor_node", editor_node)
         workflow.add_node("human_review_node", human_review_node)
         workflow.add_node("parallel_research_node", self._parallel_research_node)
-        workflow.add_node("parallel_solver_node", self._parallel_solver_node)
+        workflow.add_node("websearch_agent", websearch_agent_node)
         workflow.add_node("writer_node", writer_node)
         workflow.add_node("response_node", response_node)
 
@@ -95,18 +97,29 @@ class DeepResearchAgent:
             "router_node",
             self._route_by_intent,
             {
-                "websearch": "parallel_solver_node",
-                "deepsearch": "planner_node",
-                "extremesearch": "planner_node",
+                "websearch": "websearch_agent",
+                "deepsearch": "clarification_node",
+                "extremesearch": "clarification_node",
                 "follow_up": "response_node",
                 "edit": "editor_node",
-                "clarification": "planner_node",
+                "clarification": "clarification_node",
                 "off_topic": "response_node",
             }
         )
         
-        workflow.add_edge("parallel_solver_node", "response_node")
+        workflow.add_edge("websearch_agent", "response_node")
         
+        # Clarification loop: loops back up to 3 times, then proceeds to skill selection
+        workflow.add_conditional_edges(
+            "clarification_node",
+            self._route_after_clarification,
+            {
+                "clarification_node": "clarification_node",
+                "skill_selection_node": "skill_selection_node"
+            }
+        )
+
+        workflow.add_edge("skill_selection_node", "planner_node")
         workflow.add_edge("planner_node", "human_review_node")
         workflow.add_conditional_edges(
             "human_review_node",
@@ -135,6 +148,26 @@ class DeepResearchAgent:
         intent = state.get("intent_type", "deepsearch")
         # logger.info(f"[_route_by_intent] Routing to: {intent}")
         return intent
+
+    def _route_after_clarification(self, state: AgentGraphState) -> str:
+        """
+        Routes after a clarification round.
+
+        Continues looping to clarification_node if under the 3-loop max
+        and the LLM indicated more clarification is needed. Otherwise
+        proceeds to skill_selection_node.
+
+        Returns:
+            'clarification_node' to loop again, or 'skill_selection_node' to proceed.
+        """
+        loop_count = state.get("clarification_loop_count", 0)
+        if loop_count < 3:
+            answers = state.get("clarification_answers", [])
+            if not answers and loop_count == 0:
+                return "clarification_node"
+            if loop_count < 3 and answers:
+                return "skill_selection_node"
+        return "skill_selection_node"
 
     def _route_after_review(self, state: AgentGraphState) -> str:
         """
@@ -170,6 +203,8 @@ class DeepResearchAgent:
 
         subgraph = build_researcher_reviewer_subgraph()
 
+        current_run_id = state.get("current_run_id", "")
+
         async def invoke_subgraph(planner_query: dict) -> ResearchReviewData:
             """Invoke subgraph for a single query with query_num tracking."""
             query = planner_query["query"]
@@ -178,6 +213,7 @@ class DeepResearchAgent:
             initial_state = {
                 "query": query,
                 "query_num": query_num,
+                "run_id": current_run_id,
                 "raw_research_results": [],
                 "review_feedback": [],
                 "current_reviews": [],
@@ -193,36 +229,9 @@ class DeepResearchAgent:
 
         # logger.info(f"[parallel_research_node] All {len(results)} research tasks complete")
         
-        all_logs = []
-        for res in results:
-            if "logs" in res:
-                all_logs.extend(res["logs"])
-        
-        # Sort logs by timestamp to keep them in order (optional but good)
-        all_logs.sort(key=lambda x: x.get("timestamp", ""))
+        return {"research_review": list(results)}
 
-        return {"research_review": list(results), "chat_messages": all_logs}
 
-    async def _parallel_solver_node(self, state: AgentGraphState) -> Dict[str, Any]:
-        """
-        Quick websearch using Solver.websearch_solver for websearch mode.
-
-        Args:
-            state: Current state containing user_query.
-
-        Returns:
-            State update with research_review populated from Tavily results.
-        """
-        user_query = state.get("user_query", "")
-        
-        if not user_query:
-            logger.warning("[_parallel_solver_node] No user query provided")
-            return {"research_review": []}
-        
-        # logger.info(f"[_parallel_solver_node] Starting websearch for: {user_query[:50]}...")
-        
-        solver = Solver(query=user_query)
-        return await solver.websearch_solver()
 
     def _display_plan_for_terminal(self, interrupt_data: Any) -> str:
         """Extract plan display string from interrupt data"""
@@ -277,7 +286,7 @@ class DeepResearchAgent:
         
         return {
             "thread_id": thread_id or str(uuid.uuid4()),
-            "user_id": user_id or "default_user",
+            "user_id": user_id or "00000000-0000-0000-0000-000000000000",
             "chat_messages": [new_message],
             "memory_context": MemoryContext(
                 semantic_memories=[],
@@ -285,23 +294,24 @@ class DeepResearchAgent:
                 conversation_summary=None
             ),
             "user_query": user_query,
+            "current_run_id": str(uuid.uuid4()),
             "search_mode": search_mode,
             "intent_type": "",
+            "router_thinking": "",
             "total_agents": 0,
             "completed_agents": 0,
             "total_research_steps": 0,
             "completed_research_steps": 0,
             "current_phase": "routing",
             "planner_query": [],
+            "clarification_answers": [],
+            "clarification_loop_count": 0,
+            "selected_skills": [],
             "plan_feedback": "",
             "plan_approved": False,
             "research_review": [],
-            "report_table_of_contents": "",
-            "report_abstract": "",
-            "report_introduction": "",
-            "report_body_sections": [],
-            "report_conclusion": "",
-            "report_methodology": "",
+            "reports": [],
+            "websearch_results": [],
             "final_response": "",
             "edit_instructions": None
         }
@@ -311,7 +321,7 @@ class DeepResearchAgent:
         user_query: str,
         search_mode: str,
         thread_id: str,
-        user_id: str = "default_user"
+        user_id: str = "00000000-0000-0000-0000-000000000000"
     ) -> Dict[str, Any]:
         """
         Creates a partial state update for existing threads.
@@ -326,12 +336,12 @@ class DeepResearchAgent:
         
         return {
             "user_query": user_query,
+            "current_run_id": str(uuid.uuid4()),
             "search_mode": search_mode,
             "chat_messages": [new_message], # Appends due to operator.add
             "intent_type": "", # Reset intent for new turn
             "current_phase": "routing", # Reset phase
             "user_id": user_id,
-            # DO NOT reset report_body_sections, report_abstract, etc. here
         }
 
     async def run(

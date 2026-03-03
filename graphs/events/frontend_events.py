@@ -32,6 +32,9 @@ class EventType(str, Enum):
     PLAN_APPROVED = "plan_approved"
     PLANNER_PROGRESS = "planner_progress"
     
+    CLARIFICATION_STARTED = "clarification_started"
+    SKILL_SELECTION_COMPLETED = "skill_selection_completed"
+    
     WRITER_PROGRESS = "writer_progress"
     PUBLISHER_PROGRESS = "publisher_progress"
     
@@ -42,6 +45,7 @@ class EventType(str, Enum):
     REPORT_READY = "report_ready"
     
     ERROR = "error"
+    TOOL_EXECUTION = "tool_execution"
 
 
 class PhaseType(str, Enum):
@@ -49,6 +53,7 @@ class PhaseType(str, Enum):
     
     ROUTING = "routing"
     PLANNING = "planning"
+    CLARIFYING = "clarifying"
     HUMAN_REVIEW = "human_review"
     RESEARCHING = "researching"
     REVIEWING = "reviewing"
