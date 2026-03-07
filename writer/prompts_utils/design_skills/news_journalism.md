@@ -1,22 +1,21 @@
 # News & Journalism Layout Design
 
-**Vibe**: Editorial, impactful, magazine layout, highly engaging.
+**Vibe**: Editorial, impactful, newsroom reporting style, Technical Minimalist meets print journalism.
 **Colors**: 
-- Background: Very slight warm gray or paper-white (`#FDFDFD`)
-- Text: Almost Black (`#222222`)
-- Headings: Bold Black (`#000000`)
-- Accents: Newsroom Red (`#E63946`) or distinct publication colors.
+- Background: 'Paper' (`#F7F7F5`).
+- Text: 'Grid' (`#3A3A38`).
+- Headings: 'Forest Green' (`#1A3C2B`).
+- Accents/Alerts: 'Coral' (`#FF8C69`) for breaking news or emphasis; 'Gold' (`#F4D35E`) for highlights.
 
 **Typography**:
-- Font-Family: Headline fonts should be bold, condensed sans-serifs (like 'Oswald' or 'Impact') or elegant high-contrast serifs (like 'Playfair Display').
-- Body Font: Readable serif (like 'Lora' or 'PT Serif').
-- First letter of the first paragraph (Drop Cap): Large, float left, distinct color or size.
+- Font-Family: 'Space Grotesk' for bold, striking journalistic headlines.
+- Body Font: 'General Sans' for highly readable reporting prose.
+- Datelines & By-lines: 'JetBrains Mono' (`font-size: 10px-12px`, tracking: `0.1em`, uppercase) to denote authors, locations, and timestamps.
 
 **Components**:
-- `h1`: Massive, bold, editorial headline style. Tight line-height.
-- `h2`: Sub-headlines, perhaps italicized or all-caps with generous letter-spacing.
-- `blockquote`: Style like an editorial "Pull Quote". Very large text, centered, bounded by thick horizontal lines top and bottom, or oversized quotation marks.
-- `img`: Full width. Bleed to the edges where possible. Add a sleek, italicized caption below in a sans-serif font.
-- `a`: Thick, bold underlines in the accent color, not just standard blue text.
+- `h1`: Massive, bold, tight line-height in Space Grotesk. Followed by a 1px hairline divider.
+- `blockquote`: Style like an editorial "Pull Quote". Centered, bounded by 1px horizontal lines top and bottom, flat color blocking.
+- `img`: Full width where possible, sharp corners (0px border-radius), with a 'JetBrains Mono' caption underneath bounded by a 1px line. `mix-blend-luminosity` can be used for artistic black-and-white photo effects.
+- Sections: Separated cleanly by 1px hairlines (`#3A3A38` at 20% opacity).
 
-**Focus**: Holding attention, dramatic typographical hierarchy, distinct separation of sections.
+**Focus**: Direct communication of facts, dramatic typographical hierarchy, high contrast without clutter, conveying authority and urgency through layout.

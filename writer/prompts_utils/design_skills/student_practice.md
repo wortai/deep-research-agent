@@ -1,21 +1,20 @@
 # Student Practice & Learning Materials Layout
 
-**Vibe**: Educational, approachable, structured, extremely clear, workbook style.
+**Vibe**: Educational, workbook style, highly structured, encouraging but Technical Minimalist.
 **Colors**: 
-- Background: Very soft Ivory or Light Sky Blue (`#FAFDFF`)
-- Text: High contrast but soft Dark Blue (`#102A43`)
-- Headings: Vibrant accents for different sections (e.g., Purple `#6200EE` for questions, Green `#03DAC6` for answers/notes).
-- Borders: Soft Pastels (`#B3E5FC`, `#C8E6C9`).
+- Background: 'Paper' (`#F7F7F5`).
+- Text: 'Grid' (`#3A3A38`).
+- Headings: 'Forest Green' (`#1A3C2B`).
+- Accents: 'Mint' (`#9EFFBF`) for answers/hints, 'Coral' (`#FF8C69`) for corrections or vital cautions.
 
 **Typography**:
-- Font-Family: Highly legible, rounded sans-serifs (like 'Quicksand', 'Nunito', or 'Comic Neue' used sparingly for titles).
-- Large font sizes (base at least `18px`).
-- Generous line-height (`1.6` to `1.8`).
+- Font-Family: 'Space Grotesk' for clear question/section headers. 'General Sans' for directions and prose.
+- Metadata/Question Numbers: 'JetBrains Mono' (ex: "QUESTION 01:", "POINTS: 5").
 
 **Components**:
-- Questions (`h3`, `h4`): Boxed out with a soft background color, rounded corners (`8px`), and a distinct left border.
-- `blockquote`: Used as "Pro Tips" or "Remember" callouts. Bright background (e.g., light yellow `#FFF9C4`), an emoji-like icon via CSS `::before` (if possible), and bold text.
-- Fill-in-the-blanks / Coding spaces: Add empty bordered `div` or padded `pre` blocks with dotted bottom borders for the user to write on if printed.
-- `ol` / `ul`: Large, distinct numeric bullets, lots of space between list items.
+- Questions (`h3`, `h4`): Bounded by a 1px hairline border (`#3A3A38` at 20% opacity) or distinct left hairline. JetBrains Mono tags preceding the text.
+- `blockquote`: Used as "Pro Tips" or "Remember" callouts. Flat box, 0px border-radius, thin 1px border. No heavy drop-shadows.
+- Fill-in-the-blanks / Coding spaces: Empty bordered `div` or padded `pre` blocks with flat borders or 1px hairlines for the user to write on.
+- Responses/keys: Highlighted using 'Mint' flat background blocks.
 
-**Focus**: Reducing cognitive load, making learning fun and segmented, visual distinction between theory and practice questions.
+**Focus**: Reducing cognitive load, making segmented learning beautiful through typography instead of distracting colors. Clear separation of theory and practical exercises.

@@ -61,7 +61,9 @@ async def execute_research_tree(
     initial_query: str, 
     max_depth: int = 2, 
     num_gaps_per_node: int = 2,
-    query_num: int = 0
+    query_num: int = 0,
+    report_style_skill: str = "",
+    clarification_context: list = None
 ) -> Dict[str, Any]:
     """
     Builds and resolves a tree of research queries using a breadth-first approach.
@@ -163,7 +165,11 @@ async def execute_research_tree(
                 return {"node": node, "gaps": [], "answer": {}, "success": True, "max_depth": True}
             
             try:
-                solver = Solver(query=node.query, num_gaps_per_node=num_gaps_per_node)
+                solver = Solver(
+                    query=node.query, num_gaps_per_node=num_gaps_per_node,
+                    report_style_skill=report_style_skill,
+                    clarification_context=clarification_context or []
+                )
                 gaps, answer = await solver.resolve()
                 
                 _emit_event(

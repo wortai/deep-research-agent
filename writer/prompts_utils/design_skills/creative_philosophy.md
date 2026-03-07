@@ -1,22 +1,21 @@
 # Creative & Philosophical Layout Design
 
-**Vibe**: Aesthetic, contemplative, slow-reading, elegant, artistic.
+**Vibe**: Aesthetic, contemplative, slow-reading, elegant, classic maths era, applying Technical Minimalist principles to creative topics.
 **Colors**: 
-- Background: Warm, textured paper or sepia tint (`#FAF9F6` or `#F4EFE6`)
-- Text: Deep Brown or Soft Charcoal (`#4A443E` or `#3C3C3C`)
-- Headings: Muted Earth Tones (`#8C6D53` or `#5C6B73`)
-- Accents: Terracotta or Sage Green.
+- Background: 'Paper' (`#F7F7F5`). This slight warmth anchors the feeling of physical media.
+- Text: Deep 'Forest Green' (`#1A3C2B`) for a softer contrast than pure black.
+- Headings: Deep 'Forest Green' (`#1A3C2B`).
+- Accents: 'Gold' (`#F4D35E`) for subtle highlights.
 
 **Typography**:
-- Font-Family: Exclusively beautiful, high-quality serifs ('Cormorant Garamond', 'EB Garamond', or 'Spectral').
-- Line-Height: Very loose and airy (`1.9` to `2.1`).
-- Margins: Wide text margins. Narrow text column width for easy reading.
+- Font-Family: 'Space Grotesk' for bold, aesthetic headers. 'General Sans' for poetic or philosophical prose, or a beautiful serif if highly requested, though General Sans is the primary target.
+- Epigraphs/Metadata: 'JetBrains Mono'. Using monospace for artistic structural accents provides a satisfying contrast and grounded classic maths-era feel.
+- Generous line-height (`1.9` to `2.1`) and wide margins for unhurried reading.
 
 **Components**:
-- `h1`: Elegant, possibly small-caps, centered, elegant letter-spacing (`0.1em`).
-- `h2`: Italicized serif, unnumbered (hide numbering if possible through styling or soft colors).
-- `blockquote`: Centralized, highly italicized, smaller font size but wider margins. Perhaps a very faint background tint or subtle watercolor-like border.
-- `hr`: Instead of simple lines, perhaps a centered `* * *` or an elegant thin line (`1px solid #D5CABD`) with wide spacing.
-- `img`: Soft edges or a subtle blur/sepia filter via CSS if applicable, generous padding, elegant small-caps captions.
+- `h1`: Bold, centered, tight tracking, with a single 1px hairline (`#3A3A38` at 20% opacity) either above or below.
+- `blockquote`: Centralized, highly italicized. A subtle 1px border. No watercolor background; keep it brutally clean yet soft via padding.
+- `hr`: Instead of simple lines, perhaps a 1px solid hairline `1px solid #3A3A38` (20% opacity) with very wide spacing.
+- `img`: `mix-blend-luminosity` for a muted, timeless feeling. 0px border-radius.
 
-**Focus**: Beauty, typography, white space, slow absorption of deep concepts.
+**Focus**: Beauty through restraint, perfect typography, vast negative space, reducing visual noise to allow deep thoughts to resonate.

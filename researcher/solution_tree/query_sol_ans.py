@@ -39,24 +39,30 @@ class Solver:
         query: str, 
         num_web_queries: int = 1, 
         max_web_results: int = 2, 
-        num_gaps_per_node: int = 2
+        num_gaps_per_node: int = 2,
+        report_style_skill: str = "",
+        clarification_context: list = None
     ):
         """
         Initialize the Solver.
 
         Args:
-            query (str): The main research query.
-            num_web_queries (int): Number of web search queries to generate.
-            max_web_results (int): Maximum number of web results per query.
-            num_gaps_per_node (int): Number of gaps to identify per node.
+            query: The main research query.
+            num_web_queries: Number of web search queries to generate.
+            max_web_results: Maximum number of web results per query.
+            num_gaps_per_node: Number of gaps to identify per node.
+            report_style_skill: LLM-generated report style directive for formatting.
+            clarification_context: List of Q&A dicts from HITL clarification.
         """
         self.query = query
         self.num_web_queries = num_web_queries
         self.num_gaps_per_node = num_gaps_per_node
         self.max_results = max_web_results
+        self.report_style_skill = report_style_skill
+        self.clarification_context = clarification_context or []
 
         self.web_search_llm = LlmsHouse.google_model("gemini-2.0-flash")
-        self.analysis_llm = LlmsHouse.google_model("gemini-2.5-flash")
+        self.analysis_llm = LlmsHouse.google_model("gemini-2.0-flash")
 
     async def create_web_search_queries(self) -> List[str]:
         """
@@ -134,13 +140,14 @@ class Solver:
 
         answer_prompt = get_answers_prompt(
             main_query=self.query,
-            context=combined_context
+            context=combined_context,
+            report_style_skill=self.report_style_skill
         )
 
         from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
         
         if hasattr(self.analysis_llm, 'max_tokens'):
-            analysis_llm_configured = self.analysis_llm.bind(max_tokens=10000)
+            analysis_llm_configured = self.analysis_llm.bind(max_tokens=4096)
         else:
             analysis_llm_configured = self.analysis_llm
         
@@ -151,7 +158,11 @@ class Solver:
             query_answers = {self.query: answer_text}
 
             if self.num_gaps_per_node > 0:
-                gaps_prompt = get_gaps_prompt(self.query, query_answers, self.num_gaps_per_node)
+                gaps_prompt = get_gaps_prompt(
+                    self.query, query_answers, self.num_gaps_per_node,
+                    clarification_context=self.clarification_context,
+                    report_style_skill=self.report_style_skill
+                )
                 gaps_chain = analysis_llm_configured | JsonOutputParser()
                 gaps_data = await gaps_chain.ainvoke(gaps_prompt)
                 gaps = gaps_data.get("gaps", [])

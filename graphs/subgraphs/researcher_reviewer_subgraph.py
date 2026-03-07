@@ -54,7 +54,9 @@ async def researcher_node(state: ResearchReviewData, writer: StreamWriter) -> Di
         initial_query=query,
         max_depth=2,
         num_gaps_per_node=2,
-        query_num=query_num
+        query_num=query_num,
+        report_style_skill=state.get("report_style_skill", ""),
+        clarification_context=state.get("clarification_context", [])
     )
     
     all_answers = research_results["all_answers"]
@@ -181,7 +183,9 @@ async def resolve_node(state: ResearchReviewData, writer: StreamWriter) -> Dict[
         query=review_query,
         num_web_queries=1,
         max_web_results=2,
-        num_gaps_per_node=0
+        num_gaps_per_node=0,
+        report_style_skill=state.get("report_style_skill", ""),
+        clarification_context=state.get("clarification_context", [])
     )
     
     _, answer = await solver.resolve()

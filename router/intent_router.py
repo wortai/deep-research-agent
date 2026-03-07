@@ -4,13 +4,18 @@ Intent Router for classifying user queries.
 Determines workflow path based on:
 1. Search mode from frontend (websearch/deepsearch/extremesearch)
 2. Context-based detection (follow_up/edit/clarification/off_topic)
+
+Appends a compact system message to chat_messages so downstream
+nodes and future turns can see how the query was classified.
 """
 
 from typing import Dict, Any, Optional
+from datetime import datetime
 from langchain_core.output_parsers import JsonOutputParser
 from llms.llms import LlmsHouse
 from graphs.states.subgraph_state import AgentGraphState
 import logging
+import uuid
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -90,59 +95,87 @@ class IntentRouter:
         """
         Classify intent and determine workflow path.
 
+        Appends a compact system message to chat_messages recording the
+        routing decision so future turns have classification context.
+
         Args:
             state: Current state with user_query, chat_messages, reports, search_mode.
-            
+
         Returns:
-            State update with intent_type, router_thinking, and optionally edit_instructions.
+            State update with intent_type, router_thinking, chat_messages, and
+            optionally edit_instructions.
         """
         user_query = state.get("user_query", "")
         search_mode = state.get("search_mode", "deepsearch")
         chat_messages = state.get("chat_messages", [])
         reports = state.get("reports", [])
-        
+
         if not user_query:
             logger.warning("[IntentRouter] No user query provided")
-            return {"intent_type": "off_topic", "current_phase": "routing", "router_thinking": "No query provided."}
-        
+            return {
+                "intent_type": "off_topic",
+                "current_phase": "routing",
+                "router_thinking": "No query provided.",
+            }
+
         prompt = INTENT_CLASSIFICATION_PROMPT.format(
             user_query=user_query,
             reports_summary=self._format_reports_summary(reports),
-            chat_history=self._format_chat_history(chat_messages)
+            chat_history=self._format_chat_history(chat_messages),
         )
-        
+
         try:
             result = self.chain.invoke(prompt)
             intent = result.get("intent", "use_search_mode")
             reasoning = result.get("reasoning", "Routing based on best guess.")
-            
+
             if intent == "use_search_mode":
-                # Limit deepsearches to prevent huge state blobs
                 if search_mode in ("deepsearch", "extremesearch") and len(reports) >= 3:
                     logger.info("[IntentRouter] Max deepsearches (3) reached for this thread.")
                     return {
                         "intent_type": "off_topic",
                         "current_phase": "routing",
-                        "router_thinking": "This thread has reached the maximum limit of 3 deep research reports. Please start a new chat for further deep research."
+                        "router_thinking": (
+                            "This thread has reached the maximum limit of 3 deep research "
+                            "reports. Please start a new chat for further deep research."
+                        ),
                     }
                 intent = search_mode
-                
+
             logger.info(f"[IntentRouter] Classified intent: {intent}")
-            
-            response = {
+
+            routing_msg = self._build_routing_message(intent, reasoning)
+
+            response: Dict[str, Any] = {
                 "intent_type": intent,
                 "current_phase": "routing",
-                "router_thinking": reasoning
+                "router_thinking": reasoning,
+                "chat_messages": [routing_msg],
             }
-            
+
             if intent == "edit" and result.get("edit_instructions"):
                 response["edit_instructions"] = result["edit_instructions"]
-                
+
             return response
-            
+
         except Exception as e:
             logger.error(f"[IntentRouter] Classification failed: {e}")
-            return {"intent_type": search_mode, "current_phase": "routing", "router_thinking": f"Fallback routing due to error: {e}"}
+            return {
+                "intent_type": search_mode,
+                "current_phase": "routing",
+                "router_thinking": f"Fallback routing due to error: {e}",
+            }
+
+    @staticmethod
+    def _build_routing_message(intent: str, reasoning: str) -> Dict[str, Any]:
+        """Creates a compact system message recording the routing decision."""
+        return {
+            "message_id": str(uuid.uuid4()),
+            "role": "system",
+            "content": f"[Routed as: {intent}] {reasoning}",
+            "timestamp": datetime.now().isoformat(),
+            "metadata": {"message_type": "routing", "intent": intent},
+        }
 
 
 def router_node(state: AgentGraphState) -> Dict[str, Any]:

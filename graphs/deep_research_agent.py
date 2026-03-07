@@ -27,13 +27,14 @@ from datetime import datetime
 from graphs.states.subgraph_state import AgentGraphState, ResearchReviewData, MemoryContext
 from graphs.subgraphs.researcher_reviewer_subgraph import build_researcher_reviewer_subgraph
 from graphs.events.frontend_events import create_event, EventType, PhaseType
-from planner.plan import planner_node, editor_node, clarification_node, skill_selection_node
+from planner.plan import planner_node, editor_node, clarification_node, human_clarification_node, skill_selection_node, report_style_node
 from writer.report_writer import writer_node
 from HITL.human_in_loop import human_review_node, HumanPlanReview
 from memory import MemoryFacade
 from router.intent_router import router_node
 from response.response_composer import response_node
 from websearch_agent import websearch_agent_node
+from memory.memory_compactor import memory_node
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -69,7 +70,7 @@ class DeepResearchAgent:
         Builds the LangGraph workflow with all nodes and edges.
 
         Flow:
-            router_node → [intent routing]
+            memory_node → router_node → [intent routing]
                 ├── websearch → websearch_agent → response_node → END
                 ├── deepsearch/extremesearch → clarification_node ⟲(max 3) → skill_selection_node → planner_node → human_review_node → parallel_research_node → writer_node → response_node → END
                 ├── follow_up/off_topic → response_node → END
@@ -80,9 +81,12 @@ class DeepResearchAgent:
         """
         workflow = StateGraph(AgentGraphState)
 
+        workflow.add_node("memory_node", memory_node)
         workflow.add_node("router_node", router_node)
         workflow.add_node("clarification_node", clarification_node)
+        workflow.add_node("human_clarification_node", human_clarification_node)
         workflow.add_node("skill_selection_node", skill_selection_node)
+        workflow.add_node("report_style_node", report_style_node)
         workflow.add_node("planner_node", planner_node)
         workflow.add_node("editor_node", editor_node)
         workflow.add_node("human_review_node", human_review_node)
@@ -91,8 +95,9 @@ class DeepResearchAgent:
         workflow.add_node("writer_node", writer_node)
         workflow.add_node("response_node", response_node)
 
-        workflow.set_entry_point("router_node")
-        
+        workflow.set_entry_point("memory_node")
+        workflow.add_edge("memory_node", "router_node")
+
         workflow.add_conditional_edges(
             "router_node",
             self._route_by_intent,
@@ -114,12 +119,16 @@ class DeepResearchAgent:
             "clarification_node",
             self._route_after_clarification,
             {
-                "clarification_node": "clarification_node",
+                "human_clarification_node": "human_clarification_node",
                 "skill_selection_node": "skill_selection_node"
             }
         )
+        
+        # After human clarification, go back to clarification node to see if we need more
+        workflow.add_edge("human_clarification_node", "clarification_node")
 
-        workflow.add_edge("skill_selection_node", "planner_node")
+        workflow.add_edge("skill_selection_node", "report_style_node")
+        workflow.add_edge("report_style_node", "planner_node")
         workflow.add_edge("planner_node", "human_review_node")
         workflow.add_conditional_edges(
             "human_review_node",
@@ -133,7 +142,7 @@ class DeepResearchAgent:
         workflow.add_edge("writer_node", "response_node")
         
         workflow.add_edge("editor_node", "response_node")
-        
+    
         workflow.add_edge("response_node", END)
 
         return workflow.compile(checkpointer=self._checkpointer)
@@ -153,20 +162,19 @@ class DeepResearchAgent:
         """
         Routes after a clarification round.
 
-        Continues looping to clarification_node if under the 3-loop max
-        and the LLM indicated more clarification is needed. Otherwise
-        proceeds to skill_selection_node.
+        Continues looping to human_clarification_node if under the 3-loop max
+        and the LLM indicated more clarification is needed (by providing questions). 
+        Otherwise proceeds to skill_selection_node.
 
         Returns:
-            'clarification_node' to loop again, or 'skill_selection_node' to proceed.
+            'human_clarification_node' to ask user, or 'skill_selection_node' to proceed.
         """
         loop_count = state.get("clarification_loop_count", 0)
-        if loop_count < 3:
-            answers = state.get("clarification_answers", [])
-            if not answers and loop_count == 0:
-                return "clarification_node"
-            if loop_count < 3 and answers:
-                return "skill_selection_node"
+        questions = state.get("clarification_questions", [])
+        
+        if loop_count < 3 and questions:
+            return "human_clarification_node"
+        
         return "skill_selection_node"
 
     def _route_after_review(self, state: AgentGraphState) -> str:
@@ -218,7 +226,9 @@ class DeepResearchAgent:
                 "review_feedback": [],
                 "current_reviews": [],
                 "iteration_count": 0,
-                "logs": []
+                "logs": [],
+                "report_style_skill": state.get("report_style_skill", ""),
+                "clarification_context": state.get("clarification_answers", [])
             }
             result = await subgraph.ainvoke(initial_state)
             # logger.info(f"[parallel_research_node] Completed research for query #{query_num}: {query[:50]}...")
@@ -304,6 +314,7 @@ class DeepResearchAgent:
             "completed_research_steps": 0,
             "current_phase": "routing",
             "planner_query": [],
+            "clarification_questions": [],
             "clarification_answers": [],
             "clarification_loop_count": 0,
             "selected_skills": [],

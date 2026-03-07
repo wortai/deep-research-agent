@@ -1,21 +1,21 @@
 # Finance & Corporate Layout Design
 
-**Vibe**: Professional, sharp, trustworthy, data-centric, consulting-firm style.
+**Vibe**: Professional, sharp, trustworthy, old-money classic maths era combined with Technical Minimalism.
 **Colors**: 
-- Background: Clean White (`#FFFFFF`)
-- Text: Slate Gray (`#3E4C59`)
-- Headings: Corporate Navy (`#0A2540`) or Deep Forest/Teal (`#004B4B`)
-- Accents/Links: Crisp Blue (`#0066CC`) or Subtle Gold (`#C5A880`)
+- Background: 'Paper' (`#F7F7F5`).
+- Text: 'Grid' (`#3A3A38`).
+- Headings: Deep 'Forest' (`#1A3C2B`).
+- Accents: 'Gold' (`#F4D35E`) for subtle highlights, 'Mint' (`#9EFFBF`) for positive financial states, 'Coral' (`#FF8C69`) for alerts/negatives.
 
 **Typography**:
-- Font-Family: Clean, modern sans-serifs exclusively (e.g., 'Inter', 'Roboto', 'Open Sans').
-- Headings: Heavy weights (`600` or `700`), tight letter spacing.
+- Font-Family: 'Space Grotesk' for executive summaries and headers. 'General Sans' for prose.
+- Data/Numbers: 'JetBrains Mono' for all financial figures, table cells, percentage changes, metadata, and timestamps to ensure perfect alignment and readability.
 
 **Components**:
-- `h1` & `h2`: Add a professional bottom border (e.g., `1px solid #E4E7EB`) with some padding.
-- `table`: Tables are the centerpiece here. Excellent zebra striping (alternating `#F9FAFC`), bold table headers with a corporate blue background (`#0A2540`) and white text. Precise alignment.
-- `blockquote`: Use as an "Executive summary callout". Background tint (`#F0F4F8`), border-left (`4px solid #0066CC`), bold and slightly larger text.
-- `img` / charts: Subtle, sharp border (`1px solid #D9E2EC`), no border radius, small discrete drop shadow. 
-- `ul` / `ol`: Custom bullet points (perhaps small squares instead of circles) colored with the corporate accent.
+- `h1` & `h2`: Add a professional, clean 1px hairline bottom border (`#3A3A38` at 20% opacity).
+- `table`: Tables are the centerpiece. No heavy stripes. 1px hairline borders (`#3A3A38` at 20% opacity) for rows. Monospace data alignment.
+- `blockquote`: Used as an "Executive summary callout". Flat background (`#F7F7F5`), 1px solid left border in Forest Green, strict spacing. 0px border-radius.
+- Charts/Data elements block: Flat, sharp lines. No gradients, no shadows.
+- `ul` / `ol`: Monospaced numbers or simple dashes/squares instead of standard circles.
 
-**Focus**: Highlighting data, sharp contrasts, extreme professionalism, easy-to-skim executive summaries.
+**Focus**: Highlighting data clarity, extreme professionalism, precise financial reporting, flawless alignment of numbers.

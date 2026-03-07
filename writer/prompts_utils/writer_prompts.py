@@ -29,18 +29,21 @@ class CssGenerationResult(BaseModel):
 async def generate_outline_prompt(
     user_query: str,
     planner_queries: List[Dict[str, Any]],
-    sections: List[Dict[str, Any]]
+    sections: List[Dict[str, Any]],
+    report_style_skill: str = ""
 ) -> str:
     """
     First LLM call: generates optimized prompt for report outline creation.
     
     Receives full sections with section_ids. Produces instructions for
     table_of_contents, report_outline, abstract, introduction, conclusion.
+    Incorporates report_style_skill to determine structural conventions.
     
     Args:
         user_query: Original user research question.
         planner_queries: List of PlannerQuery dicts with query_num and query fields.
         sections: List of section dicts with section_content and section_id fields.
+        report_style_skill: LLM-generated style directive for report formatting.
         
     Returns:
         Optimized prompt string for the outline LLM call.
@@ -65,6 +68,26 @@ async def generate_outline_prompt(
     sections_context += "=" * 80 + "\n\n"
     
     meta_prompt = f"""You are an expert in prompt engineering and academic research report writing. Your task is to generate an EXTREMELY DETAILED and COMPREHENSIVE prompt that will instruct an LLM to create a professional REPORT OUTLINE with abstract, introduction, and conclusion.
+
+{'=' * 60}
+REPORT STYLE DIRECTIVE (HIGHEST PRIORITY)
+{'=' * 60}
+{report_style_skill if report_style_skill else 'No specific style directive provided. Use standard academic report format.'}
+
+The style directive above MUST be followed when deciding:
+- Whether to use chapters vs flat sections
+- How deep the heading hierarchy goes
+- What format each section takes (narrative paragraphs, numbered Q&A, tables, bullet lists)
+- Whether to include abstract/introduction/conclusion or skip them
+- The overall tone and presentation
+
+IMPORTANT: The table_of_contents structure should REFLECT the report type from the style directive.
+For example:
+- A practice sheet should have topic-based sections with numbered questions
+- A cheat sheet should have condensed flat sections with tables
+- An academic paper should have chapters with sub-chapters
+- A financial briefing should have executive summary, analysis sections, risk assessment
+{'=' * 60}
 
 CONTEXT INFORMATION:
 =====================
@@ -219,25 +242,10 @@ Generate the detailed prompt NOW. Be as specific and comprehensive as possible."
 async def generate_chapter_prompt(
     chapter_heading: str,
     table_of_contents: Dict[str, List[str]],
-    sections_for_chapter: List[Dict[str, Any]]
-) -> str:
-    """
-    Generates prompt for writing one complete chapter/subchapter.
-    
-    Called once per chapter in the report_outline, then invoked in parallel.
-    Uses only the relevant sections (filtered by section_id). The returned
-    prompt instructs LLM to produce a complete, ready-to-add chapter with
-    heading, subheadings, and all formatted content.
-    
-    Args:
-        chapter_heading: The heading for this chapter (e.g. "1.1 Architecture Overview").
-        table_of_contents: Full ToC dict for context on where this chapter fits.
-        sections_for_chapter: List of section dicts (full content) for this chapter.
-        
-    Returns:
-        Prompt string for the chapter generation LLM call.
-    """
-    
+    sections_for_chapter: List[Dict[str, Any]],
+    report_style_skill: str = "") -> str:
+
+
     toc_formatted = "FULL REPORT TABLE OF CONTENTS:\n"
     for main_chapter, subchapters in table_of_contents.items():
         toc_formatted += f"  {main_chapter}\n"
@@ -249,68 +257,202 @@ async def generate_chapter_prompt(
         content = section.get('section_content', '')
         sections_formatted += f"\n=== RESEARCH SECTION {idx + 1} ===\n{content}\n"
     
-    prompt = f"""You are an expert academic research writer. Your task is to write ONE COMPLETE chapter/subchapter of a research report. The output must be a FULLY FINISHED section — ready to be directly added to the final report with NO modifications needed.
+    prompt = f"""You are an expert academic research writer. Write ONE complete, publication-ready chapter of a research report — requiring zero post-editing.
 
-=====================================================================
-YOUR ASSIGNMENT: Write the complete chapter "{chapter_heading}"
-=====================================================================
+{'=' * 60}
+THIS IS THE REPORT STYLE DIRECTIVE
+{'=' * 60}
+{report_style_skill if report_style_skill else 'Use standard academic report formatting with professional tone.'}
+{'=' * 60}
 
+{'=' * 60}
+TABLE OF CONTENTS (for context only — do NOT write other chapters)
+{'=' * 60}
 {toc_formatted}
+{'=' * 60}
 
-You are writing ONLY: "{chapter_heading}"
+{'=' * 60}
+YOUR ASSIGNMENT: Write ONLY this chapter → "{chapter_heading}"
+{'=' * 60}
 
-=====================================================================
-RESEARCH SOURCE MATERIAL (use these sections to write your chapter):
-=====================================================================
+{'=' * 60}
+RESEARCH SOURCE MATERIAL FOR THIS CHAPTER
+{'=' * 60}
 {sections_formatted}
-=====================================================================
+{'=' * 60}
 
-CHAPTER WRITING REQUIREMENTS:
-==============================
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP-BY-STEP INSTRUCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. **HEADING STRUCTURE**: 
-   - Start with the correct markdown heading for "{chapter_heading}"
-   - Main chapters (e.g. "1. Topic") → use `# 1. Topic`
-   - Subchapters (e.g. "1.1 Subtopic") → use `## 1.1 Subtopic`
-   - Add sub-subheadings (`###`) within the chapter wherever logical grouping is needed
-   - The chapter must feel complete with proper internal structure
+Follow these steps IN ORDER before writing:
 
-2. **CONTENT SYNTHESIS**:
-   - Read ALL provided research sections carefully
-   - SYNTHESIZE and UNIFY the content into a cohesive, flowing narrative
-   - DO NOT copy-paste sections verbatim — rewrite, connect, and enhance
-   - Preserve ALL factual information, data points, statistics, and technical details
-   - Preserve ALL URLs and embed them as markdown links: [descriptive text](url)
-   - DO NOT invent any facts, data, or URLs not present in the source sections
-   - DO NOT include any internal references like "section_id", "Section 1", or technical identifiers in your output
-   - Eliminate redundancy while keeping every unique piece of information
-   - Add smooth transitions between topics within the chapter
-   
-3. **FORMATTING & PRESENTATION**:
-   - Use **tables** for comparisons, specifications, feature matrices, benchmark data
-   - Use **bullet points** for key findings, feature lists, enumerated items
-   - Use **numbered lists** for step-by-step processes, ranked items, sequential instructions
-   - Use **code blocks** (with language tag) for algorithms, code examples, technical configs
-   - Use **bold** for key terms, definitions, and important concepts
-   - Use *italic* for emphasis and first mention of technical terms
-   - Use **blockquotes** for notable findings or important takeaways
-   - Use proper markdown table syntax with header rows and alignment
-   - For content you think can be different use correct markdown format that represents the content best .
-  - Don't Include any section_id, section number, or technical identifiers in your output
-4. **COMPLETENESS**:
-   - The chapter must be SELF-CONTAINED and complete
-   - Include ALL relevant information from the source sections
-   - Do NOT reference other chapters' content — write what belongs HERE
-   - Do NOT add a table of contents, abstract, or conclusion within this chapter
-   - The output IS the chapter — heading, content, everything included
+STEP 1 — READ: Read ALL research sections completely before writing a single word.
+STEP 2 — PLAN: Identify the logical sub-groupings within this chapter.
+STEP 3 — SYNTHESIZE: Merge overlapping content; each fact appears exactly once.
+STEP 4 — WRITE: Produce the complete chapter following all rules below.
+STEP 5 — CHECK: Verify every `*`, `**`, `` ` ``, and `>` opens AND closes cleanly.
 
-5. **QUALITY**:
-   - Professional academic tone — clear, accessible, evidence-based
-   - Logical flow: overview → details → specifics → summary/transition
-   - Technical accuracy with readable presentation
-   - Proper attribution via embedded URL links
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. HEADING STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Write the COMPLETE chapter "{chapter_heading}" NOW. Include the heading, all subheadings, and all content. The output must be ready to directly insert into the final report."""
+- Main chapter   (e.g. "1. Topic")    → `# 1. Topic`
+- Subchapter     (e.g. "1.1 Topic")   → `## 1.1 Topic`
+- Section inside → `###` wherever 3+ related paragraphs need grouping
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. CONTENT SYNTHESIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ DO: Rewrite every sentence — synthesize and connect across source sections.
+✅ DO: Preserve every fact, number, statistic, and technical detail exactly.
+✅ DO: Add smooth transitions between topics.
+❌ DO NOT: Copy-paste any source text verbatim.
+❌ DO NOT: Invent any fact, figure, or URL not present in the source material.
+❌ DO NOT: Include internal identifiers — strip all section_id, [REF], [SOURCE] tags.
+❌ DO NOT: Reference other chapters or write content that belongs elsewhere.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. FORMATTING — RULES + EXAMPLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Choose the format that best matches the content type:
+
+──────────────────────────────────────────
+BOLD  →  key terms, definitions, critical values only
+──────────────────────────────────────────
+✅ CORRECT:
+  **Transformer architecture** relies on self-attention to process tokens in parallel.
+  Costs fell by **87% between 2015 and 2023**, driven by manufacturing scale.
+
+❌ WRONG:
+  **The model was trained on large datasets and showed strong results.**   ← whole sentence bolded
+  Results were **very** **good** and **highly** **significant**.           ← decorative overuse
+
+──────────────────────────────────────────
+ITALIC  →  first mention of a technical term; subtle emphasis
+──────────────────────────────────────────
+✅ CORRECT:
+  The system uses *backpropagation*, a gradient-descent optimization technique.
+  This approach yields *statistically significant* improvements over the baseline.
+
+❌ WRONG:
+  *The entire paragraph is italicized for stylistic reasons.*
+  The method is *fast* and *accurate* and *reliable* and *scalable*.   ← stacked, meaningless
+
+──────────────────────────────────────────
+BLOCKQUOTE  →  one key finding or critical takeaway per major section
+──────────────────────────────────────────
+✅ CORRECT:
+  > Models fine-tuned on domain-specific corpora outperformed general baselines by 34% on average.
+
+❌ WRONG:
+  > This section discusses machine learning.                 ← generic summary, not a finding
+  > As mentioned above, performance improved.                ← vague redundancy
+  > The results were interesting.                            ← not a notable takeaway
+
+LIMIT: At most ONE blockquote per major section. Never quote ordinary sentences.
+
+──────────────────────────────────────────
+CODE BLOCKS  →  multi-line code, configs, algorithms only
+──────────────────────────────────────────
+✅ CORRECT:
+  ```python
+  def train(model, data, epochs=10):
+      for epoch in range(epochs):
+          loss = model.step(data)
+  ```
+
+❌ WRONG:
+  ```
+  The accuracy was 94.2%
+  ```                        ← plain text is not code; use prose instead
+
+ALWAYS include a language tag: ```python / ```bash / ```json / ```yaml
+
+──────────────────────────────────────────
+TABLES  →  comparisons, specs, benchmarks, feature matrices
+──────────────────────────────────────────
+✅ CORRECT:
+  | Model       | Accuracy | Latency (ms) | Params |
+  |-------------|----------|--------------|--------|
+  | BERT-base   | 91.2%    | 45           | 110M   |
+  | RoBERTa     | 93.8%    | 52           | 125M   |
+
+❌ WRONG:
+  - BERT: 91.2%, 45ms    ← bullet list when a table is clearly better
+  Model, Accuracy, Size  ← comma list, not markdown table syntax
+
+──────────────────────────────────────────
+BULLETS / NUMBERED LISTS
+──────────────────────────────────────────
+- Bullet list  → unordered features, findings, properties
+- Numbered list → sequential steps, ranked items, procedures
+❌ DO NOT convert naturally flowing prose into bullets — write paragraphs.
+
+──────────────────────────────────────────
+INLINE CODE  →  variable names, commands, file paths, short expressions
+──────────────────────────────────────────
+✅  Run `pip install transformers` to install the library.
+❌  Run pip install transformers  ← missing backticks for a shell command
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. CITATION RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Every URL from the research MUST become an inline markdown link. No bare URLs. No footnote-style references. No `## Sources` section at the end.
+
+✅ CORRECT — cite at paragraph end, group multiple sources:
+  Battery costs dropped **90% since 2010** due to improved lithium-ion supply chains,
+  according to [BloombergNEF](https://bloomberg.com/energy) and
+  [MIT Technology Review](https://technologyreview.com/batteries).
+
+❌ WRONG:
+  Battery costs dropped 90%. [1]
+  https://bloomberg.com/energy                    ← bare URL
+  See source: [Click here](https://bloomberg.com) ← "click here" is not descriptive
+
+Link text rules:
+- Use the publication name or a clear short description — never "here", "source", or the raw URL
+- If the source name is unknown, use the domain name: [bloomberg.com](https://bloomberg.com/...)
+- Group multiple sources in one `according to [A](url) and [B](url)` phrase
+- Skip any URL that is weak, tangential, or adds nothing to the claim
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. HARD RULES — NEVER VIOLATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. CLEAN MARKDOWN ONLY — Every `*`, `**`, `` ` ``, and `>` must open and close
+   correctly. Unclosed or stray symbols break rendering. Double-check before output.
+2. NO INTERNAL IDs — Strip all section_id, Section N, [REF], [SOURCE] from output.
+3. NO INVENTED CONTENT — Facts, data, and URLs must come from the source material only.
+4. NO VERBATIM COPYING — Every sentence must be rewritten and synthesized.
+5. NO REDUNDANCY — Each fact appears once; merge duplicates across source sections.
+6. NO DECORATIVE FORMATTING — Bold, italic, and blockquotes signal importance, not style.
+7. NO PREAMBLE — Begin your output directly with the chapter heading. No "Here is..." intro.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT FORMAT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Start IMMEDIATELY with the heading. Example:
+
+# 1. Introduction          ← or ## 2.1 Background — match {chapter_heading} exactly
+
+[Chapter content...]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+QUICK REFERENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Heading        → main chapter         **term**   → key term / critical value
+## Heading       → subchapter           *term*     → first use of technical term
+### Heading      → logical group        `code`     → inline commands / vars only
+> blockquote     → one key finding      | Table |  → comparisons and specs
+- bullet         → unordered items      1. step    → sequential steps only
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Now write the COMPLETE chapter "{chapter_heading}". The output is the final chapter — heading, subheadings, and all content included."""
 
     return prompt
 
@@ -398,7 +540,8 @@ async def generate_scoped_css_prompt(
     user_query: str,
     table_of_contents: Dict[str, List[str]],
     selected_skill_name: str,
-    selected_skill_rules: str
+    selected_skill_rules: str,
+    report_style_skill: str = ""
 ) -> str:
     """
     Generates the final prompt for creating a custom CSS design leveraging
@@ -409,6 +552,7 @@ async def generate_scoped_css_prompt(
         table_of_contents: The generated TOC.
         selected_skill_name: Filename of the chosen skill.
         selected_skill_rules: The markdown contents of the chosen skill.
+        report_style_skill: LLM-generated style directive for content context.
         
     Returns:
         Prompt string for the CSS generation LLM call.
@@ -421,6 +565,13 @@ async def generate_scoped_css_prompt(
             toc_formatted += f"    {sub}\n"
             
     prompt = f"""You are an elite, world-class UI/UX Designer and CSS Expert. Your task is to generate a custom, stunning CSS stylesheet for a report. You have been assigned to use the `{selected_skill_name}` design system.
+
+=====================================================================
+REPORT STYLE CONTEXT
+=====================================================================
+{report_style_skill if report_style_skill else 'Standard academic report format.'}
+
+Use this style context to understand what kind of content elements the report will contain, so your CSS can highlight the right structural patterns.
 
 =====================================================================
 REPORT TOPIC:
@@ -451,6 +602,7 @@ TECHNICAL REQUIREMENTS (CRITICAL!):
    - Ensure the classes cover these beautifully according to your design brief.
    - For links (`a`), add nice hover effects.
    - Make sure your tables look incredible and professional.
+
 """
     return prompt
 

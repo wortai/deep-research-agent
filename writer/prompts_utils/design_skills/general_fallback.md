@@ -1,22 +1,23 @@
 # General Clean Layout (Fallback Skill)
 
-**Vibe**: Balanced, highly readable, universally acceptable, web-standard.
+**Vibe**: Balanced, highly readable, universally acceptable, pure Technical Minimalist web-standard.
 **Colors**: 
-- Background: Very slight off-white paper (`#FAFAFA`) to reduce eye strain.
-- Text: Standard Dark Gray (`#2C3E50` or `#333333`)
-- Headings: Slate/Dark Blue (`#1A2B3C`) or Jet Black.
-- Accents/Links: Standard web blue (`#0066CC`) or emerald green (`#27AE60`).
+- Background: 'Paper' (`#F7F7F5`).
+- Text: 'Grid' (`#3A3A38`).
+- Headings: 'Forest Green' (`#1A3C2B`).
+- Accents/Alerts: 'Coral' (`#FF8C69`) and 'Mint' (`#9EFFBF`).
 
 **Typography**:
-- Font-Family: System default sans-serif (`system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`) for snappy performance and familiarity.
-- Headings: Bold, clean, clearly differentiated sizes (h1 = 2.5rem, h2 = 2rem, etc.).
-- Line-Height: `1.6` for body text.
+- Font-Family: 'Space Grotesk' for headers, 'General Sans' for body text.
+- Form controls/Data: 'JetBrains Mono' for tables, code snippets, numbers, or technical labels (`font-size: 10px-12px`, tracking: `0.1em`).
+- Line-Height: `1.6` for perfectly balanced body text.
 
 **Components**:
-- `h1`-`h6`: Clear bottom margins to separate sections. Subtle `1px solid #EEEEEE` border under `h1` and `h2`.
-- `blockquote`: Standard left thick border (`4px solid #DFDFDF`), italicized text, slight gray background tint (`#F4F4F4`), `1rem` padding.
-- `ul` / `ol`: Generous left padding (`2rem`), standard circular or numeric bullets, `0.5rem` spacing between items.
-- `table`: Light gray header background (`#F8F9FA`), `1px solid #DEE2E6` borders for cells, `10px` padding.
-- `img`: Simple `8px` border-radius, `max-width: 100%`.
+- `h1`-`h6`: Clear margins to separate sections. Minimalist 1px hairline border (`#3A3A38` at 20% opacity) beneath major section splits.
+- `blockquote`: Flat background (`#F7F7F5`), 1px solid 'Grid' or 'Forest' left border. No background tints or shadows.
+- `ul` / `ol`: Monospace list numbers via 'JetBrains Mono' or standard clean, sharp bullets.
+- `table`: No zebra striping. 1px solid hairline cell borders (`#3A3A38` at 20% opacity). Simple padding.
+- `img`: 0px or 2px (`sm`) border-radius, `max-width: 100%`. No box shadows.
+- Buttons/Links: Flat colors, sharp hover transitions.
 
-**Focus**: Extreme versatility. When in doubt, this layout ensures any type of content looks structured, readable, and professional without forcing a specific aesthetic that might mismatch the topic.
+**Focus**: Extreme versatility. A baseline Technical Minimalist layout ensuring structured, clean, and professional aesthetics uniformly applied standard styling.

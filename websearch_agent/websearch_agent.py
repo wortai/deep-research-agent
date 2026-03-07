@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 TOOL_LABELS = {
     "generate_search_queries": "Generating search queries",
     "tavily_basic_search": "Searching",
-    "tavily_advance_search": "Concisou Searching",
+    "tavily_advance_search": "Concisous Searching",
     "generate_response_skill": "Crafting response vibe",
 }
 
@@ -34,18 +34,23 @@ SYSTEM_PROMPT = """You are a web research agent. Search the web to gather inform
 
 **Tools:**
 - `generate_search_queries` — Generate 1-3 targeted queries from the user question + chat history. Call this first.
+    - We need to analyze the user query and chat history to understand what the user is asking for.
+    - Then generate good SEO search queries that give us good URLs about the specific topic the user is asking for.
+    - These queries should be 15 to 60 words max and each query should cover different angles of the subject.
+    - Remember, we have to get the best URLs using these queries.
 - `tavily_basic_search` — Quick search, 1 credit per query. Returns top 2 results with snippets + images with descriptions. Use for simple facts and multiple queries.
 - `tavily_advance_search` — Deep search, 2 credits per query (expensive). Returns full raw content + described images. Use ONLY ONCE per request, only when deep detail is needed.
 - `generate_response_skill` — Generate formatting/tone instructions for the final response. Pass `user_query` and `search_context` (titles + key content snippets). Call this LAST before stopping.
 
-**Cost-Aware Strategy:**
-1. Call `generate_search_queries` first to plan your search.
-2. Use `tavily_basic_search` for most queries — it's cheap and returns images with descriptions.
-3. Use `tavily_advance_search` at most ONCE if you need in-depth raw content on the most important query.
-4. Call `generate_response_skill` as your FINAL tool — include titles, key findings, and short content excerpts so the skill understands the content type.
-5. Stop after generating the skill.
+**Instructions**
+STEP 1. Call `generate_search_queries` first to generate queries to USE in Step 2.
+STEP 2. Call `tavily_basic_search` using the generated queries to gather information.
+- You can skip step 3 if you have enough information from step 2.
+STEP 3. Use `tavily_advance_search` at most twice if you need in-depth raw content on the most important query.
+STEP 4. Call `generate_response_skill` as your FINAL tool — include titles, key findings, and short content excerpts so the skill understands the content type.
+STEP 5. Stop after generating the skill.
 
-Do NOT generate a final answer — just gather results. The response node handles synthesis."""
+Do NOT generate a final text answer summarizing the information — just execute tools to gather results. The response node handles synthesis."""
 
 
 class WebSearchAgent:
@@ -66,7 +71,7 @@ class WebSearchAgent:
         """
         self._emitter = emitter
         self._agent = create_agent(
-            model=LlmsHouse.google_model("gemini-2.0-flash", temperature=0.3),
+            model=LlmsHouse.google_model("gemini-2.0-flash", temperature=0.9),
             tools=ALL_SEARCH_TOOLS,
             system_prompt=SYSTEM_PROMPT,
             middleware=[self._build_tool_middleware()],
@@ -108,7 +113,7 @@ class WebSearchAgent:
             state: AgentGraphState with user_query, chat_messages.
 
         Returns:
-            State update with websearch_results, analyzed_images, response_skill.
+            State update with websearch_results, response_skill.
         """
         user_query = state.get("user_query", "")
         if not user_query:
@@ -124,24 +129,38 @@ class WebSearchAgent:
         })
 
         messages = result.get("messages", [])
-        search_outputs = self._extract_search_results(messages)
-        analyzed_images = self._extract_images(messages)
+        structured_results, all_images = self._parse_search_results(messages)
         skill = self._extract_skill(messages)
-
-        formatted_results = self._deduplicate_and_format(search_outputs)
 
         websearch_data = {
             "run_id": state.get("current_run_id", ""),
             "query": user_query,
-            "results": formatted_results,
+            "results": structured_results,
+            "images": all_images,
             "timestamp": datetime.now().isoformat(),
         }
 
         return {
             "websearch_results": [websearch_data],
-            "analyzed_images": analyzed_images,
+            "analyzed_images": [],
             "response_skill": skill,
         }
+
+    def _extract_skill(self, messages: list) -> str:
+        """
+        Extracts the response skill from the last generate_response_skill ToolMessage.
+        """
+        for msg in reversed(messages):
+            if not isinstance(msg, ToolMessage) or not msg.content:
+                continue
+            content = msg.content
+            if "error" in content.lower() or "failed" in content.lower():
+                continue
+            # We can detect skill by length or specific markers.
+            # Assuming it's typically a longer descriptive string not formatted as JSON.
+            if len(content) > 50 and not content.strip().startswith("["):
+                return content
+        return ""
 
     def _format_chat_context(self, chat_messages: List[Dict]) -> str:
         """Formats the last 10 chat_messages into a string for agent context."""
@@ -152,122 +171,53 @@ class WebSearchAgent:
             for m in chat_messages[-10:]
         )
 
-    def _extract_search_results(self, messages: list) -> List[str]:
+    def _parse_search_results(self, messages: list):
         """
-        Filters ToolMessages containing SEARCH RESULT blocks.
+        Parses JSON search results from ToolMessages.
 
-        Args:
-            messages: Full message list from the agent's final state.
+        Each search tool returns {query, images, results}. This collects
+        results (deduplicated by URL) and all top-level images.
 
         Returns:
-            List of search result strings from tavily tools.
+            Tuple of (unique_results, all_images).
         """
-        return [
-            msg.content for msg in messages
-            if isinstance(msg, ToolMessage)
-            and msg.content
-            and "--- SEARCH RESULT" in msg.content
-        ]
-
-    def _extract_images(self, messages: list) -> List[Dict]:
-        """
-        Extracts image data from Tavily's COLLECTED IMAGES blocks.
-
-        Parses TITLE / URL / DESCRIPTION from each IMAGE block,
-        generates a UUID per image URL for stable identification.
-
-        Args:
-            messages: Full message list from the agent's final state.
-
-        Returns:
-            List of {uuid, url, title, description} dicts for state.
-        """
-        images = []
+        unique_results = []
+        all_images = []
         seen_urls = set()
+        seen_image_urls = set()
+
+        import json
+
         for msg in messages:
             if not isinstance(msg, ToolMessage) or not msg.content:
                 continue
-            if "COLLECTED IMAGES" not in msg.content:
-                continue
-            for block in msg.content.split("--- IMAGE"):
-                block = block.strip()
-                if not block or "COLLECTED" in block:
+
+            try:
+                data = json.loads(msg.content)
+                if not isinstance(data, dict) or "results" not in data:
                     continue
-                data = {}
-                for line in block.split("\n"):
-                    line = line.strip()
-                    if line.startswith("TITLE:"):
-                        data["title"] = line.split(":", 1)[1].strip()
-                    elif line.startswith("URL:"):
-                        data["url"] = line.split(":", 1)[1].strip()
-                    elif line.startswith("DESCRIPTION:"):
-                        data["description"] = line.split(":", 1)[1].strip()
-                if data.get("url") and data["url"] not in seen_urls:
-                    seen_urls.add(data["url"])
-                    data["uuid"] = str(uuid.uuid5(uuid.NAMESPACE_URL, data["url"]))
-                    images.append(data)
-        return images[:5]
 
-    def _extract_skill(self, messages: list) -> str:
-        """
-        Extracts the response skill from the last generate_response_skill ToolMessage.
+                for item in data.get("results", []):
+                    url = item.get("url")
+                    if not url or url in seen_urls:
+                        continue
+                    seen_urls.add(url)
+                    unique_results.append({
+                        "title": item.get("title", "No Title"),
+                        "url": url,
+                        "content": item.get("content", ""),
+                    })
 
-        Walks messages in reverse, returns the first ToolMessage that
-        is not a search result and not an image block.
+                for img in data.get("images", []):
+                    img_url = img.get("url", "")
+                    if img_url and img_url not in seen_image_urls:
+                        seen_image_urls.add(img_url)
+                        all_images.append(img)
 
-        Args:
-            messages: Full message list from the agent's final state.
-
-        Returns:
-            Skill instruction string, or empty string if not found.
-        """
-        for msg in reversed(messages):
-            if not isinstance(msg, ToolMessage) or not msg.content:
+            except json.JSONDecodeError:
                 continue
-            content = msg.content
-            if "--- SEARCH RESULT" in content or "COLLECTED IMAGES" in content:
-                continue
-            if "No results" in content or "Search failed" in content:
-                continue
-            if len(content) > 50:
-                return content
-        return ""
 
-    def _deduplicate_and_format(self, raw_outputs: List[str]) -> str:
-        """
-        Deduplicates search results by URL and re-numbers them.
-
-        Args:
-            raw_outputs: List of formatted search result strings from tools.
-
-        Returns:
-            Single string with deduplicated, numbered search results.
-        """
-        seen_urls = set()
-        unique_results = []
-        result_index = 1
-
-        for output in raw_outputs:
-            blocks = output.split("--- SEARCH RESULT")
-            for block in blocks:
-                if not block.strip() or "COLLECTED IMAGES" in block:
-                    continue
-                url_line = ""
-                for line in block.split("\n"):
-                    if line.startswith("SOURCE URL"):
-                        url_line = line.split(":", 1)[-1].strip()
-                        break
-                if url_line and url_line in seen_urls:
-                    continue
-                if url_line:
-                    seen_urls.add(url_line)
-                clean_block = block.lstrip(" 0123456789-")
-                unique_results.append(
-                    f"--- SEARCH RESULT {result_index} ---{clean_block}"
-                )
-                result_index += 1
-
-        return "\n\n".join(unique_results) if unique_results else "No search results found."
+        return unique_results, all_images
 
 
 async def websearch_agent_node(state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:

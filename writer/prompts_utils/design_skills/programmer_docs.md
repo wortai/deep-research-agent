@@ -1,21 +1,21 @@
 # Programmer & API Documentation Layout
 
-**Vibe**: Developer-focused, dark mode (or high-contrast sharp light mode), monospace-heavy, GitHub/Stripe docs style.
+**Vibe**: Developer-focused, high-contrast, structural, pure Technical Minimalist format with monospace dominance.
 **Colors**: 
-- Background: Dark Mode (`#0D1117`) or Sleek Light Mode (`#FFFFFF` with `#F6F8FA` blocks)
-- Text: Light Gray (`#C9D1D9`) or Dark Gray (`#24292F`)
-- Headings: Pure White (`#FFFFFF`) or True Black (`#000000`)
-- Accents: Electric Blue (`#58A6FF`) or Primary Purple (`#8250DF`).
+- Background: 'Paper' (`#F7F7F5`).
+- Text: 'Grid' (`#3A3A38`).
+- Headings: 'Forest Green' (`#1A3C2B`).
+- Code Blocks/Terminal: Inverted dark blocks: 'Grid' (`#3A3A38`) background with 'Paper' (`#F7F7F5`) text for high contrast.
 
 **Typography**:
-- Font-Family: Headings and Interface in system sans-serif ('Inter', '-apple-system').
-- Code & Tech terms: Exclusively monospace ('Fira Code', 'JetBrains Mono', 'Menlo').
+- Font-Family: 'Space Grotesk' for chapter titles and broad structures.
+- Explanations: 'General Sans' for standard documentation.
+- Code & Tech terms: 'JetBrains Mono' everywhere. Used for inline code, terminal outputs, configuration parameters, and tags.
 
 **Components**:
-- `pre` / `code`: The star of the show. Dark background (`#161B22`), rounded corners (`6px`), syntax highlighting colors if possible, horizontal scrolling. Inline code gets a subtle grayish background bounding box.
-- `blockquote`: Used for "Warnings" or "Notes". Border-left in bright yellow or red, depending on context.
-- `table`: Parameter descriptions. Columns for "Name", "Type", "Description". Mono-spaced types, very clean borders (`1px solid #30363D`).
-- Links (`a`): Distinct tech blue, underline only on hover.
-- `h1`-`h3`: Very tight margins, bold, perhaps with an `id` anchor `#` symbol implemented via CSS `::before` on hover.
+- `pre` / `code`: The primary element. JetBrains Mono font. Dark background (`#3A3A38`), 0px to 2px border radius. Minimal semantic highlighting.
+- `table`: Parameter descriptions. 1px hairline borders (`#3A3A38` at 20% opacity). Columns for "Name", "Type", "Description". Mono-spaced types (JetBrains Mono).
+- Callouts: 1px hairlines around 'Coral' (`#FF8C69`) tinted side-borders for warnings.
+- Variables/paths: Inline backticks render with a `0px` radius, flat `#F7F7F5` or pale background and JetBrains Mono.
 
-**Focus**: Extreme clarity on code snippets, strict visual hierarchy representing object relations, high contrast for long staring sessions.
+**Focus**: Clarity, technical accuracy, strict visual hierarchies for APIs and logic structures, flat color blocks, highly readable monospace type.

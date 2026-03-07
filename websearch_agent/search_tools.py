@@ -6,9 +6,8 @@ response skill generation. Image descriptions come from
 Tavily API directly (no separate vision call needed).
 """
 
+import json
 import logging
-import uuid
-from typing import List
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage
 from researcher.scrapers.tavily.tavily_scraper import Tavily
@@ -20,57 +19,73 @@ from websearch_agent.web_prompts import (
 
 logger = logging.getLogger(__name__)
 
-SEARCH_RESULT_TEMPLATE = (
-    "--- SEARCH RESULT {index} ---\n"
-    "SOURCE TITLE: {title}\n"
-    "SOURCE URL BELONGS TO EXTRACTED CONTENT : {url}\n"
-    "EXTRACTED CONTENT:\n{content}\n"
-    "--------------------------------------------------------\n"
-)
 
-IMAGE_BLOCK_TEMPLATE = (
-    "--- IMAGE {index} ---\n"
-    "TITLE: {title}\n"
-    "URL: {url}\n"
-    "DESCRIPTION: {description}\n"
-    "--------------------------------------------------------\n"
-)
+def _format_images(raw_images: list) -> list:
+    """
+    Normalises Tavily image entries into {url, title, description} dicts.
+
+    Tavily returns images as either plain URL strings or dicts with
+    url/title/description keys depending on search depth settings.
+
+    Args:
+        raw_images: List of image entries from Tavily response.
+
+    Returns:
+        List of normalised image dicts.
+    """
+    formatted = []
+    for img in raw_images:
+        if isinstance(img, str):
+            formatted.append({"url": img, "title": "", "description": ""})
+        elif isinstance(img, dict):
+            formatted.append({
+                "url": img.get("url", ""),
+                "title": img.get("title", ""),
+                "description": img.get("description", ""),
+            })
+    return formatted
+
+
+def _format_results(raw_results: list, use_raw_content: bool = False) -> list:
+    """
+    Normalises Tavily result entries into {title, url, content} dicts.
+
+    Args:
+        raw_results: List of result dicts from Tavily response.
+        use_raw_content: If True, prefer raw_content over content snippet.
+
+    Returns:
+        List of normalised result dicts.
+    """
+    formatted = []
+    for r in raw_results:
+        content = r.get("content", "")
+        if use_raw_content:
+            content = r.get("raw_content") or content
+        formatted.append({
+            "title": r.get("title", "No Title"),
+            "url": r.get("url", ""),
+            "content": content,
+        })
+    return formatted
 
 
 @tool
 async def tavily_basic_search(query: str) -> str:
-    """Quick web search (1 credit). Returns top 2 results with content snippets + any related images with descriptions. Use for simple factual lookups."""
+    """Quick web search (1 credit). Returns top 2 results with content snippets + related images with descriptions. Use for simple factual lookups."""
     logger.info(f"[tavily_basic_search] Searching: {query[:60]}")
     try:
         tavily = Tavily(query=query, depth=False, max_result=2)
         images, results = await tavily.basic_search()
-        if not results:
-            return f"No results found for: {query}"
 
-        formatted = []
-        for i, result in enumerate(results, 1):
-            formatted.append(SEARCH_RESULT_TEMPLATE.format(
-                index=i,
-                title=result.get("title", "No Title"),
-                url=result.get("url", "No URL"),
-                content=result.get("content", "No Content"),
-            ))
-
-        if images:
-            formatted.append("\n--- COLLECTED IMAGES ---")
-            for i, img in enumerate(images[:3], 1):
-                if isinstance(img, dict):
-                    formatted.append(IMAGE_BLOCK_TEMPLATE.format(
-                        index=i,
-                        title=img.get("title", ""),
-                        url=img.get("url", ""),
-                        description=img.get("description", "No description"),
-                    ))
-
-        return "\n\n".join(formatted)
+        return json.dumps({
+            "query": query,
+            "images": _format_images(images),
+            "results": _format_results(results),
+        })
     except Exception as e:
         logger.error(f"[tavily_basic_search] Failed: {e}")
-        return f"Search failed for: {query}. Error: {str(e)}"
+        return json.dumps({"query": query, "images": [], "results": [], "error": str(e)})
 
 
 @tool
@@ -83,42 +98,23 @@ async def tavily_advance_search(query: str) -> str:
             include_raw_content=True, include_images=True,
         )
         images, results = await tavily.advance_search()
-        if not results:
-            return f"No results found for: {query}"
 
-        formatted = []
-        for i, result in enumerate(results, 1):
-            content = result.get("raw_content") or result.get("content", "No Content")
-            formatted.append(SEARCH_RESULT_TEMPLATE.format(
-                index=i,
-                title=result.get("title", "No Title"),
-                url=result.get("url", "No URL"),
-                content=content,
-            ))
-
-        if images:
-            formatted.append("\n--- COLLECTED IMAGES ---")
-            for i, img in enumerate(images[:3], 1):
-                if isinstance(img, dict):
-                    formatted.append(IMAGE_BLOCK_TEMPLATE.format(
-                        index=i,
-                        title=img.get("title", ""),
-                        url=img.get("url", ""),
-                        description=img.get("description", "No description"),
-                    ))
-
-        return "\n\n".join(formatted)
+        return json.dumps({
+            "query": query,
+            "images": _format_images(images),
+            "results": _format_results(results, use_raw_content=True),
+        })
     except Exception as e:
         logger.error(f"[tavily_advance_search] Failed: {e}")
-        return f"Deep search failed for: {query}. Error: {str(e)}"
+        return json.dumps({"query": query, "images": [], "results": [], "error": str(e)})
 
 
 @tool
 async def generate_search_queries(user_query: str, chat_history: str) -> str:
-    """Generate 1-3 targeted search queries based on the user's question and conversation history. Use this first to plan what to search for, then execute the generated queries with the search tools."""
+    """Generate 1-3 targeted search queries based on the user's question and conversation history. Use this first to plan what to search for, then execute those queries with the search tools."""
     logger.info(f"[generate_search_queries] Generating queries for: {user_query[:60]}")
     try:
-        llm = LlmsHouse.google_model("gemini-2.0-flash", temperature=0.3)
+        llm = LlmsHouse.google_model("gemini-2.0-flash", temperature=0.9)
         prompt = QUERY_GENERATION_PROMPT.format(
             user_query=user_query,
             chat_history=chat_history or "No prior conversation.",
@@ -137,7 +133,7 @@ async def generate_response_skill(user_query: str, search_context: str) -> str:
     """Generate a response skill — precise formatting and tone instructions tailored to the user's query and the research found. Pass the user_query and a summary of search results (titles + key content snippets). Call this as your LAST tool before stopping."""
     logger.info(f"[generate_response_skill] Generating skill for: {user_query[:60]}")
     try:
-        llm = LlmsHouse.google_model("gemini-2.5-flash", temperature=0.4)
+        llm = LlmsHouse.google_model("gemini-2.5-flash", temperature=0.8)
         prompt = SKILL_GENERATION_PROMPT.format(
             user_query=user_query,
             search_titles=search_context or "No context available.",

@@ -1,22 +1,22 @@
 # Academic Research Layout Design
 
-**Vibe**: Serious, clean, distraction-free, academic journal style.
+**Vibe**: Serious, academic journal, classic maths era, rigorous, Technical Minimalist.
 **Colors**: 
-- Background: Pure White (`#FFFFFF`) or very subtle off-white (`#FCFCFC`)
-- Text: Deep Charcoal (`#333333`)
-- Headings: Solid Black (`#111111`) or very dark academic blue (`#1A2B4C`)
-- Accents (links/borders): Muted navy (`#003366`)
+- Background: 'Paper' (`#F7F7F5`).
+- Text: 'Grid' (`#3A3A38`) or 'Forest' (`#1A3C2B`).
+- Headings: Solid Black/Forest (`#1A3C2B`).
+- Accents: Subtle uses of hairline borders (`#3A3A38` at 20% opacity).
 
 **Typography**:
-- Font-Family: Elegant serif fonts like 'Merriweather', 'Georgia', or 'Times New Roman' for body.
-- Headings can be a clean sans-serif like 'Inter' or 'Helvetica' for contrast.
-- Line-Height: `1.8` for high readability.
+- Font-Family: 'General Sans' for high-readability body text (or standard serif if specifically requested, but prefer the Technical Minimalist stack).
+- Headings: 'Space Grotesk' for solid, structured sections.
+- Citations & Metatags: 'JetBrains Mono' for footnotes, DOIs, reference numbers, and mathematical/code notations.
 
 **Components**:
-- `h1`: Centered, large, perhaps with a subtle bottom border or very generous margin-bottom (e.g. `2rem`).
-- `blockquote`: Stylized like an academic excerpt. Left border (`4px solid #eaeaea`), padding left (`1rem`), italicized text.
-- `table`: Academic standards. No vertical lines. Top and bottom horizontal borders (`2px solid black`), header row border (`1px solid black`). Clean and minimalistic.
-- `p`: Indent first lines of paragraphs except the first one after a heading (`text-indent: 1.5rem`), OR use generous margin-bottom.
-- `img`: Simple frame with a caption style below it. No heavy drop shadows.
+- `h1`: Centered or strictly left-aligned, tight tracking, Space Grotesk.
+- `blockquote`: Stylized for academic excerpts. Solid 1px left border in Forest green, modest padding.
+- `table`: Academic standards. Top and bottom horizontal 1px hairline borders. Clean and minimalistic, no vertical lines. JetBrains Mono for data cells.
+- Citations: Small, superscript or bracketed numbers mapped accurately to footnotes using JetBrains Mono.
+- Diagrams/Images: Sharp corners (0px border-radius), `mix-blend-luminosity` applied if appropriate, rigorous 1px boundary box.
 
-**Focus**: Content density, rigorous organization, easy-to-read citations and tables.
+**Focus**: Content density, rigorous organization, highly legible citations, logical progression of complex mathematical/academic arguments without stylistic distraction.

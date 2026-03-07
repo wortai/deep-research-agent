@@ -17,9 +17,12 @@ from researcher.solution_tree.prompts.prompts import (
     get_clarification_prompt,
     get_skill_selection_prompt,
     get_enhanced_plan_prompt,
-    SkillSelectionResult
+    get_report_style_prompt,
+    SkillSelectionResult,
+    PlanResult
 )
 from graphs.states.subgraph_state import AgentGraphState, PlannerQuery, MemoryContext
+from graphs.events.frontend_events import create_event, EventType, PhaseType
 import logging
 import uuid
 import os
@@ -47,8 +50,6 @@ class Planner:
             memory_facade: Optional MemoryFacade for context retrieval.
         """
         self.llm = LlmsHouse.google_model("gemini-2.5-flash")
-        self.parser = JsonOutputParser()
-        self.chain = self.llm | self.parser
         self._memory = memory_facade
         self._skills_dir = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "skills"
@@ -123,7 +124,8 @@ class Planner:
             complete_query = (
                 f"User Original Query: {query}\n\n"
                 f"Plan Generated Before Feedback: {state.get('planner_query', [])}\n\n"
-                f"[User Feedback on Previous Plan]:\n{plan_feedback}"
+                f"[User Feedback on Previous Plan]:\n{plan_feedback}\n\n"
+                f"CRITICAL INSTRUCTION REGARDING FEEDBACK: Formulate the queries EXACTLY as the user requested in the feedback above. If the user provided a single query, return EXACTLY 1 query. If they provided a list, return exactly that list without splitting it further."
             )
             logger.info(f"Regenerating plan with user feedback: {plan_feedback}")
         else:
@@ -146,6 +148,7 @@ class Planner:
                 query=complete_query,
                 skill_instructions=merged_instructions,
                 clarification_context=clarification_answers
+            
             )
             logger.info(f"Using skill-enhanced plan with skills: {selected_skills}")
         else:
@@ -159,15 +162,10 @@ class Planner:
         logger.info(f"Generating plan for query: {query[:100]}...")
 
         try:
-            full_response = ""
-            for chunk in self.llm.stream(prompt):
-                 content = chunk.content
-                 if content:
-                     full_response += content
+            structured_llm = self.llm.with_structured_output(PlanResult)
+            result = structured_llm.invoke(prompt)
             
-            result = self.parser.parse(full_response)
-            
-            plan = result.get("plan", [])
+            plan = result.plan
             logger.info(f"Generated plan with {len(plan)} steps.")
             numbered_plan = _to_numbered_queries(plan)
             plan_content = "Research Plan:\n" + "\n".join([f"{q['query_num']}. {q['query']}" for q in numbered_plan])
@@ -188,9 +186,6 @@ class Planner:
                 "chat_messages": [plan_message]
             }
 
-        except OutputParserException as e:
-            logger.error(f"Failed to parse plan: {e}")
-            return {"planner_query": _to_numbered_queries([query])}
         except Exception as e:
             logger.error(f"Error generating plan: {e}")
             return {"planner_query": _to_numbered_queries([query])}
@@ -217,16 +212,18 @@ class Planner:
         logger.info(f"[Planner] Loaded {len(skills)} research skills: {list(skills.keys())}")
         return skills
 
-    def _select_skills(self, state: AgentGraphState) -> Dict[str, Any]:
+    def _select_skills(self, state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:
         """
         Uses LLM with structured output to select 1-4 skills for the query.
 
         Reads user_query and clarification_answers from state, loads all
         available skills, invokes get_skill_selection_prompt with
         SkillSelectionResult structured output, and returns selected filenames.
+        Emits SKILL_SELECTION_COMPLETED event via StreamWriter.
 
         Args:
             state: Current state containing user_query and clarification_answers.
+            writer: Optional StreamWriter for emitting frontend events.
 
         Returns:
             State update with 'selected_skills' list of filenames.
@@ -238,6 +235,13 @@ class Planner:
         if not available_skills:
             logger.warning("[Planner] No skills available, skipping selection")
             return {"selected_skills": []}
+
+        if writer:
+            writer(create_event(
+                EventType.PLANNER_PROGRESS,
+                PhaseType.PLANNING,
+                payload={"message": "Analyzing query to select research skills..."}
+            ))
 
         prompt = get_skill_selection_prompt(
             user_query=user_query,
@@ -259,31 +263,42 @@ class Planner:
                 valid_skills = ["general_academic.md"]
 
             logger.info(f"[Planner] Selected skills: {valid_skills} — Reasoning: {result.reasoning}")
+
+            if writer:
+                skill_labels = [s.replace('.md', '').replace('_', ' ').title() for s in valid_skills]
+                writer(create_event(
+                    EventType.SKILL_SELECTION_COMPLETED,
+                    PhaseType.PLANNING,
+                    payload={
+                        "skills": valid_skills,
+                        "skill_labels": skill_labels,
+                        "reasoning": result.reasoning
+                    }
+                ))
+
             return {"selected_skills": valid_skills}
 
         except Exception as e:
             logger.error(f"[Planner] Skill selection failed: {e}")
             return {"selected_skills": ["general_academic.md"]}
 
-    def _generate_clarification(self, state: AgentGraphState) -> Dict[str, Any]:
+    def generate_clarification_questions(self, state: AgentGraphState, writer: StreamWriter = None) -> List[str]:
         """
-        Generates clarification questions using HITL interrupt.
+        Generates clarification questions using LLM without interruption.
 
-        Invokes get_clarification_prompt, gets 2-3 questions, interrupts
-        the graph for user answers, then returns the accumulated Q&A pairs
-        plus an incremented loop count.
-
-        Args:
-            state: Current state with user_query, clarification_answers,
-                   and clarification_loop_count.
-
-        Returns:
-            State update with new clarification_answers appended and
-            clarification_loop_count incremented.
+        Invokes get_clarification_prompt, gets 2-3 questions and returns them.
+        Emits CLARIFICATION_STARTED event via StreamWriter.
         """
         user_query = state.get("user_query", "")
         previous_answers = state.get("clarification_answers", [])
         loop_count = state.get("clarification_loop_count", 0)
+
+        if writer:
+            writer(create_event(
+                EventType.CLARIFICATION_STARTED,
+                PhaseType.CLARIFYING,
+                payload={"message": "Analyzing research deep context...", "loop_number": loop_count + 1}
+            ))
 
         prompt = get_clarification_prompt(
             user_query=user_query,
@@ -291,85 +306,29 @@ class Planner:
             loop_number=loop_count + 1
         )
 
+        from pydantic import BaseModel, Field
+        from typing import List
+
+        class ClarificationResult(BaseModel):
+            needs_more_clarification: bool = Field(description="Whether clarification from the user is needed.")
+            questions: List[str] = Field(description="List of clarification questions to ask.")
+
         try:
-            result = self.chain.invoke(prompt)
-            questions = result.get("questions", [])
-            needs_more = result.get("needs_more_clarification", True)
+            structured_llm = self.llm.with_structured_output(ClarificationResult)
+            result = structured_llm.invoke(prompt)
+            
+            questions = result.questions
+            needs_more = result.needs_more_clarification
 
             if not questions or not needs_more:
                 logger.info("[Planner] No clarification needed, proceeding")
-                return {
-                    "clarification_loop_count": loop_count + 1
-                }
-
-            # Interrupt graph for user to answer questions
-            user_response = interrupt({
-                "type": "clarification",
-                "questions": questions,
-                "loop_number": loop_count + 1
-            })
-
-            # user_response expected: {"answers": {"q1": "answer1", ...}} or list
-            answers_raw = user_response.get("answers", {})
-
-            new_qa_pairs = []
-            if isinstance(answers_raw, dict):
-                for q, a in answers_raw.items():
-                    new_qa_pairs.append({"question": q, "answer": a})
-            elif isinstance(answers_raw, list):
-                for i, a in enumerate(answers_raw):
-                    q = questions[i] if i < len(questions) else f"Question {i+1}"
-                    new_qa_pairs.append({"question": q, "answer": a})
-
-            logger.info(f"[Planner] Clarification round {loop_count + 1}: collected {len(new_qa_pairs)} answers")
-
-            return {
-                "clarification_answers": new_qa_pairs,
-                "clarification_loop_count": loop_count + 1
-            }
-
-        except Exception as e:
-            logger.error(f"[Planner] Clarification failed: {e}")
-            return {"clarification_loop_count": loop_count + 1}
-
-    def ask_question(self, state: AgentGraphState) -> Dict[str, Any]:
-        """
-        Generates clarifying questions for ambiguous queries.
-        
-        Uses memory context to avoid asking about known user preferences.
-        Returns questions that can be presented to user via HITL interrupt.
-        
-        Args:
-            state: Current state containing user_query and memory_context.
-            
-        Returns:
-            Dict with 'clarifying_questions' list of question strings.
-        """
-        query = state.get("user_query", "")
-        if not query:
-            return {"clarifying_questions": []}
-            
-        context_prompt = self._build_context_prompt(state)
-        
-        prompt_query = query
-        if context_prompt:
-            prompt_query = f"{context_prompt}\n\n[User Query]\n{query}"
-            
-        prompt = get_clarifying_questions_prompt(prompt_query)
-        
-        try:
-            result = self.chain.invoke(prompt)
-            questions = result.get("questions", [])
-            
-            if not questions and result.get("ask_question") == "no":
-                return {"clarifying_questions": [], "needs_clarification": False}
+                return []
                 
-            logger.info(f"Generated {len(questions)} clarifying questions")
-            return {"clarifying_questions": questions, "needs_clarification": len(questions) > 0}
-            
+            return questions
+
         except Exception as e:
-            logger.error(f"Error generating clarifying questions: {e}")
-            return {"clarifying_questions": [], "needs_clarification": False}
+            logger.error(f"[Planner] Clarification generation failed: {e}")
+            return []
 
     def request_feedback(self, state: AgentGraphState, topic: str) -> Dict[str, Any]:
         """
@@ -546,18 +505,77 @@ def planner_node(state: AgentGraphState, writer: StreamWriter = None) -> Dict[st
     return planner._generate_plan(state, writer)
 
 
-def clarification_node(state: AgentGraphState) -> Dict[str, Any]:
+def clarification_node(state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:
     """
-    LangGraph node wrapper for HITL clarification.
+    LangGraph node wrapper for Clarification Generation.
 
-    Generates mindset-probing questions, interrupts for user answers,
-    and accumulates Q&A pairs in clarification_answers.
+    Generates mindset-probing questions and saves them to state.
     """
     planner = Planner()
-    return planner._generate_clarification(state)
+    questions = planner.generate_clarification_questions(state, writer)
+    return {"clarification_questions": questions}
 
 
-def skill_selection_node(state: AgentGraphState) -> Dict[str, Any]:
+def human_clarification_node(state: AgentGraphState) -> Dict[str, Any]:
+    """
+    Node that interrupts for human clarification and processes answers.
+
+    After collecting answers, appends a compact system message to
+    chat_messages summarising the clarification exchange so downstream
+    nodes and future turns retain this context.
+    """
+    loop_count = state.get("clarification_loop_count", 0)
+    questions = state.get("clarification_questions", [])
+
+    if not questions:
+        return {"clarification_loop_count": loop_count + 1}
+
+    print("\n-------------------------------------------")
+    print(f"CLARIFICATION QUESTIONS (Round {loop_count + 1}):")
+    for idx, q in enumerate(questions):
+        print(f"  {idx + 1}. {q}")
+    print("-------------------------------------------\n")
+
+    user_response = interrupt({
+        "type": "clarification",
+        "questions": questions,
+        "loop_number": loop_count + 1,
+    })
+
+    answers_raw = user_response.get("answers", {})
+
+    new_qa_pairs: list = []
+    if isinstance(answers_raw, dict):
+        for q, a in answers_raw.items():
+            new_qa_pairs.append({"question": q, "answer": a})
+    elif isinstance(answers_raw, list):
+        for i, a in enumerate(answers_raw):
+            q = questions[i] if i < len(questions) else f"Question {i+1}"
+            new_qa_pairs.append({"question": q, "answer": a})
+
+    logger.info(
+        f"[Planner] Clarification round {loop_count + 1}: "
+        f"collected {len(new_qa_pairs)} answers"
+    )
+
+    summary_lines = [f"Q: {p['question']} → A: {p['answer']}" for p in new_qa_pairs]
+    clarification_msg = {
+        "message_id": str(uuid.uuid4()),
+        "role": "system",
+        "content": f"[User clarified (round {loop_count + 1})]\n" + "\n".join(summary_lines),
+        "timestamp": datetime.now().isoformat(),
+        "metadata": {"message_type": "clarification", "round": loop_count + 1},
+    }
+
+    return {
+        "clarification_answers": new_qa_pairs,
+        "clarification_loop_count": loop_count + 1,
+        "clarification_questions": [],
+        "chat_messages": [clarification_msg],
+    }
+
+
+def skill_selection_node(state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:
     """
     LangGraph node wrapper for research skill selection.
 
@@ -565,7 +583,43 @@ def skill_selection_node(state: AgentGraphState) -> Dict[str, Any]:
     based on user query and accumulated clarification context.
     """
     planner = Planner()
-    return planner._select_skills(state)
+    return planner._select_skills(state, writer)
+
+
+def report_style_node(state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:
+    """
+    LangGraph node wrapper for report style generation.
+
+    Generates a report style directive from user query, clarification answers,
+    and selected skills. Stored in report_style_skill state field and used by
+    all downstream prompts (answers, gaps, outline, chapters, CSS).
+    """
+    user_query = state.get("user_query", "")
+    clarification_answers = state.get("clarification_answers", [])
+    selected_skills = state.get("selected_skills", [])
+
+    if writer:
+        writer(create_event(
+            EventType.PLANNER_PROGRESS,
+            PhaseType.PLANNING,
+            payload={"message": "Determining report style and formatting..."}
+        ))
+
+    prompt = get_report_style_prompt(
+        user_query=user_query,
+        clarification_answers=clarification_answers,
+        selected_skill_names=selected_skills
+    )
+
+    try:
+        llm = LlmsHouse.google_model("gemini-2.5-flash")
+        response = llm.invoke(prompt)
+        style_directive = response.content if hasattr(response, 'content') else str(response)
+        logger.info(f"[ReportStyle] Generated style directive ({len(style_directive)} chars)")
+        return {"report_style_skill": style_directive.strip()}
+    except Exception as e:
+        logger.error(f"[ReportStyle] Style generation failed: {e}")
+        return {"report_style_skill": ""}
 
 
 def editor_node(state: AgentGraphState) -> Dict[str, Any]:

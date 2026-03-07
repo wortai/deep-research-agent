@@ -134,6 +134,19 @@ class StreamEmitter:
         )
         self._emit(event)
 
+    def emit_report(self, report_data: Dict[str, Any]) -> None:
+        """
+        Emit the final report directly to the frontend.
+        """
+        # Event type "report" is matched by useChat.ts
+        event = {
+            "type": "report",
+            "data": report_data,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+        self._emit(event)
+
+
 
     def emit_writer_progress(
         self,

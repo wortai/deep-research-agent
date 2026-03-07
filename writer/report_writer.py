@@ -30,6 +30,7 @@ from writer.prompts_utils.writer_prompts import (
     DesignSkillSelection,
     CssGenerationResult
 )
+from writer.writer_post_processing import post_process_section
 from llms import LlmsHouse
 import uuid
 from datetime import datetime
@@ -53,6 +54,7 @@ class Writer:
     def __init__(self, emitter: StreamEmitter = None):
         self.gemini_model = LlmsHouse().google_model('gemini-2.5-flash')
         self.css_model = LlmsHouse().google_model('gemini-3.1-pro-preview') # As requested by user
+        self.lower_gemini_model = LlmsHouse().google_model('gemini-2.0-flash')
         self._emitter = emitter
 
     def _emit_progress(self, percentage: int, current_step: str, metadata: dict = None) -> None:
@@ -150,7 +152,8 @@ class Writer:
         self,
         user_query: str,
         planner_queries: list,
-        sections: list
+        sections: list,
+        report_style_skill: str = ""
     ) -> dict:
         """
         Phase 1: Generates report outline with ToC, section mapping, abstract,
@@ -173,7 +176,8 @@ class Writer:
         optimized_prompt = await generate_outline_prompt(
             user_query=user_query,
             planner_queries=planner_queries,
-            sections=sections
+            sections=sections,
+            report_style_skill=report_style_skill
         )
 
         sections_block = "RESEARCH SECTIONS (full content with section_id):\n"
@@ -243,9 +247,9 @@ RULES:
         return {
             "table_of_contents": parsed.get("table_of_contents", {}),
             "report_outline": parsed.get("report_outline", {}),
-            "abstract": parsed.get("abstract", ""),
-            "introduction": parsed.get("introduction", ""),
-            "conclusion": parsed.get("conclusion", "")
+            "abstract": post_process_section(parsed.get("abstract", "")),
+            "introduction": post_process_section(parsed.get("introduction", "")),
+            "conclusion": post_process_section(parsed.get("conclusion", ""))
         }
 
     async def _generate_design_css(
@@ -253,7 +257,8 @@ RULES:
         user_query: str,
         table_of_contents: dict,
         abstract: str,
-        introduction: str
+        introduction: str,
+        report_style_skill: str = ""
     ) -> str:
         """
         Calls the LLM in a two-step process to generate custom scoped CSS:
@@ -305,7 +310,8 @@ RULES:
             user_query=user_query,
             table_of_contents=table_of_contents,
             selected_skill_name=selected_filename,
-            selected_skill_rules=selected_rules
+            selected_skill_rules=selected_rules,
+            report_style_skill=report_style_skill
         )
         
         try:
@@ -333,7 +339,8 @@ RULES:
         chapter_heading: str,
         section_ids: list,
         section_index: dict,
-        table_of_contents: dict
+        table_of_contents: dict,
+        report_style_skill: str = ""
     ) -> str:
         """
         Generates complete markdown content for one chapter/subchapter.
@@ -365,7 +372,8 @@ RULES:
         prompt = await generate_chapter_prompt(
             chapter_heading=chapter_heading,
             table_of_contents=table_of_contents,
-            sections_for_chapter=sections_for_chapter
+            sections_for_chapter=sections_for_chapter,
+            report_style_skill=report_style_skill
         )
 
         response = await self.gemini_model.ainvoke(prompt)
@@ -374,16 +382,17 @@ RULES:
         if not raw_text or not raw_text.strip():
             logger.error(f"[Writer] Chapter generation returned empty for: {chapter_heading}")
             fallback = "\n\n".join([s.get('section_content', '') for s in sections_for_chapter])
-            return f"## {chapter_heading}\n\n{fallback}\n"
+            return post_process_section(f"## {chapter_heading}\n\n{fallback}\n")
 
-        return raw_text.strip()
+        return post_process_section(raw_text.strip())
 
 
     async def _generate_report_body_sections(
         self,
         report_outline: dict,
         section_index: dict,
-        table_of_contents: dict
+        table_of_contents: dict,
+        report_style_skill: str = ""
     ) -> list:
         """
         Phase 2: Generates all chapters in parallel and returns ordered sections.
@@ -421,7 +430,8 @@ RULES:
                     chapter_heading=heading,
                     section_ids=section_ids,
                     section_index=section_index,
-                    table_of_contents=table_of_contents
+                    table_of_contents=table_of_contents,
+                    report_style_skill=report_style_skill
                 )
             )
 
@@ -505,13 +515,15 @@ RULES:
 
         user_query = state.get('user_query', 'Research Report')
         planner_queries = state.get('planner_query', [])
+        report_style_skill = state.get('report_style_skill', '')
 
         self._emit_progress(15, "Figuring out what our chapters should look like…")
 
         outline = await self._generate_outline_report(
             user_query=user_query,
             planner_queries=planner_queries,
-            sections=aggregated_sections
+            sections=aggregated_sections,
+            report_style_skill=report_style_skill
         )
 
         table_of_contents = outline["table_of_contents"]
@@ -529,7 +541,8 @@ RULES:
         report_body_sections = await self._generate_report_body_sections(
             report_outline=report_outline,
             section_index=section_index,
-            table_of_contents=table_of_contents
+            table_of_contents=table_of_contents,
+            report_style_skill=report_style_skill
         )
 
         self._emit_progress(85, "Designing and generating custom aesthetic CSS for the report…")
@@ -538,7 +551,8 @@ RULES:
             user_query=user_query,
             table_of_contents=table_of_contents,
             abstract=outline.get("abstract", ""),
-            introduction=outline.get("introduction", "")
+            introduction=outline.get("introduction", ""),
+            report_style_skill=report_style_skill
         )
 
         self._emit_progress(95, "Stitching everything together into the final report…")
@@ -580,6 +594,9 @@ async def writer_node(state: AgentState, writer: StreamWriter) -> dict:
         "css": result.get("css", ""),
         "timestamp": datetime.utcnow().isoformat()
     }
+
+    if emitter:
+        emitter.emit_report({"reports": [report_data]})
 
     return {"reports": [report_data]}
 

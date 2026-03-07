@@ -38,7 +38,12 @@ class ResponseComposer:
 
     def __init__(self):
         """Initialize with bare ChatGoogleGenerativeAI for streaming."""
-        self.llm = LlmsHouse.google_model("gemini-2.0-flash")
+        self.llm = LlmsHouse.google_model("gemini-2.5-flash",
+        temperature=1.0,
+        max_output_tokens=12000,
+        top_p=0.9,
+        top_k=40,
+     )
 
     def _create_chat_message(self, role: str, content: str) -> Dict:
         """Create a chat message dict for chat_messages state list."""
@@ -79,30 +84,49 @@ class ResponseComposer:
 
                 case "websearch":
                     websearch_results = state.get("websearch_results", [])
-                    latest_websearch = (
-                        websearch_results[-1].get("results", "")
-                        if websearch_results
-                        else "No websearch results found."
-                    )
+                    latest_data = websearch_results[-1] if websearch_results else {}
+                    latest_results = latest_data.get("results", [])
+                    latest_images = latest_data.get("images", [])
+
+                    formatted_results = ""
+                    if isinstance(latest_results, list):
+                        for i, res in enumerate(latest_results, 1):
+                            title = res.get("title", "No Title")
+                            url = res.get("url", "No URL")
+                            content = res.get("content", "No Content")
+
+                            formatted_results += f"--- SEARCH RESULT {i} ---\n"
+                            formatted_results += f"SOURCE TITLE: {title}\n"
+                            formatted_results += f"SOURCE URL: {url}\n"
+                            formatted_results += f"EXTRACTED CONTENT:\n{content}\n"
+                            formatted_results += "--------------------------------------------------------\n\n"
+                    else:
+                        formatted_results = str(latest_results)
+
+                    if latest_images:
+                        formatted_results += "\n=== IMAGES FOR REFERENCE ===\n"
+                        for idx, img in enumerate(latest_images, 1):
+                            img_title = img.get("title") or img.get("description") or "Image"
+                            img_url = img.get("url", "")
+                            img_desc = img.get("description", "")
+                            formatted_results += (
+                                f"IMAGE {idx}: ![{img_title}]({img_url})\n"
+                                f"  CONTEXT: {img_desc}\n"
+                            )
+                        formatted_results += "============================\n"
+
                     chat_messages = state.get("chat_messages", [])
                     chat_history = "\n".join(
                         f"{m.get('role', 'unknown')}: {m.get('content', '')}"
                         for m in chat_messages[-5:]
                     ) if chat_messages else "No prior conversation."
 
-                    raw_images = state.get("analyzed_images", [])
-                    images_block = "\n".join(
-                        f"- IMAGE: ![{img.get('title', img.get('description', 'image')[:40])}]({img.get('url', '')})\n"
-                        f"  CONTEXT: {img.get('description', 'No description')}"
-                        for img in raw_images
-                    ) if raw_images else "No images available."
                     skill = state.get("response_skill", "") or "Use clear prose with bold key facts. Lead with the direct answer."
-
+                    print("These are the Research Reulsts getting printend", formatted_results)
                     prompt = WEBSEARCH_RESPONSE_PROMPT.format(
                         user_query=user_query,
                         chat_history=chat_history,
-                        research_results=latest_websearch,
-                        analyzed_images=images_block,
+                        research_results=formatted_results or "No websearch results found.",
                         response_skill=skill,
                     )
 

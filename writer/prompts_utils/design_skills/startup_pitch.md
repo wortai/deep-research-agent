@@ -1,20 +1,21 @@
 # Startup Pitch & Product Launch Layout
 
-**Vibe**: "Apple Keynote", futuristic, gradients, glassmorphism, hyped, high conversion.
+**Vibe**: Premium modern startup, "Technical Minimalist", high conversion, sleek, and focused on clarity. No gradients or glassmorphism.
 **Colors**: 
-- Background: Very dark (`#000000` or `#0B0F19`).
-- Text: Off-white (`#E2E8F0`)
-- Headings: White (`#FFFFFF`) to transparent gradients (using `-webkit-background-clip: text`), or vivid neon accents (Cyan `#00F0FF` and Magenta `#FF003C`).
+- Background: 'Paper' (`#F7F7F5`) with a subtle solid or minimal SVG pattern.
+- Text: 'Forest' (`#1A3C2B`) or 'Grid' (`#3A3A38`).
+- Headings: 'Forest Green' (`#1A3C2B`).
+- Accents: 'Coral' (`#FF8C69`) for primary calls-to-action/alerts, 'Mint' (`#9EFFBF`) for positive highlights/growth metrics.
 
 **Typography**:
-- Font-Family: Wide, modern display fonts ('Space Grotesk', 'Outfit', 'Clash Display').
-- Headings are huge, bold, and track tightly horizontally.
+- Font-Family: 'Space Grotesk' for bold, tight-tracking headers. 'General Sans' for chat prose/body.
+- Metadata/Tags: 'JetBrains Mono' (`font-size: 10px-12px`, tracking: `0.1em`) for labels, stats, or small technical callouts.
 
 **Components**:
-- Sections fade or blur into one another (utilizing `backdrop-filter` if you create boxes).
-- `h1` & `h2`: Large, gradient text clips. Glow effects using `text-shadow`.
-- Callout Boxes (`blockquote` or sections): Glassmorphism (`background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; backdrop-filter: blur(10px);`).
-- Buttons/Links: Bright, glowing hover states, rounded pill shapes.
-- Images: Heavy, soft box-shadows simulating 3D lift colored with the glowing accent colors.
+- Sections are cleanly separated by 1px hairlines (`#3A3A38` at 20% opacity) or generous padding.
+- `h1` & `h2`: Large, flat text. No text-shadows or glow effects.
+- Callout Boxes: Flat color blocks (`#F7F7F5` or pale accents). 1px border. 0px or 2px (`sm`) border-radius. No backdrop-filters.
+- Buttons/Links: Flat shapes, snappy linear/ease-out hover states, 0-2px border radius.
+- Images: Sharp, `mix-blend-luminosity` with 90% opacity, shifting to full color on hover (great for product shots/founder portraits). No drop shadows.
 
-**Focus**: High aesthetic impact, wow-factor, scanning for key value props, dynamic energy.
+**Focus**: Clean aesthetic impact, scanning for key value props, dynamic professional energy using typography and layout instead of vibrant visual noise.

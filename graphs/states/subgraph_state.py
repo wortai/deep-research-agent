@@ -5,12 +5,34 @@ Includes:
 - Pydantic models for LLM structured output
 - ChatMessage for conversation history with tool calls
 - MemoryContext for memory system integration
+- Custom reducers for state channel management
 - Graph state definitions for main agent and subgraphs
 """
 
 from typing import TypedDict, List, Dict, Annotated, Optional, Literal, Any
 import operator
 from pydantic import BaseModel, Field, model_validator
+
+
+# ---------------------------------------------------------------------------
+# Custom Reducers
+# ---------------------------------------------------------------------------
+
+def chat_messages_reducer(existing: List[Dict], new: List[Dict]) -> List[Dict]:
+    """
+    Reducer for chat_messages that supports both append and full replacement.
+
+    Normal behavior: appends new messages (like operator.add).
+    When the first item in `new` carries ``_context_reset: True``,
+    the entire existing list is discarded and replaced with the
+    remaining items. This allows the memory compactor to swap old
+    messages for a compact summary without unbounded growth.
+    """
+    if not new:
+        return existing
+    if new[0].get("_context_reset"):
+        return [m for m in new if not m.get("_context_reset")]
+    return (existing or []) + new
 
 
 # --- Pydantic Models for Structured Output ---
@@ -170,6 +192,8 @@ class ResearchReviewData(TypedDict):
     current_reviews: List[str]
     iteration_count: int
     logs: Annotated[List[Dict], operator.add]
+    report_style_skill: str
+    clarification_context: List[Dict]
 
 
 
@@ -193,11 +217,18 @@ class ReportData(TypedDict):
     css: str
     timestamp: str
 
+class WebSearchItem(TypedDict):
+    """A single web search result with title, url, and content."""
+    title: str
+    url: str
+    content: str
+
 class WebSearchData(TypedDict):
-    """Results from a quick websearch run."""
+    """Results from a quick websearch run with top-level images."""
     run_id: str
     query: str
-    results: str
+    results: List[WebSearchItem]
+    images: List[Dict[str, str]]
     timestamp: str
 
 class AgentGraphState(TypedDict):
@@ -212,7 +243,8 @@ class AgentGraphState(TypedDict):
     user_id: str
     
     # --- Chat History (for short-term memory) ---
-    chat_messages: Annotated[List[Dict], operator.add]
+    # Uses custom reducer: append by default, full replace on _context_reset
+    chat_messages: Annotated[List[Dict], chat_messages_reducer ]
     
     # --- Memory Context (populated by memory system) ---
     memory_context: MemoryContext
@@ -244,6 +276,7 @@ class AgentGraphState(TypedDict):
     planner_query: List[PlannerQuery]
     
     # --- Clarification HITL (pre-plan) ---
+    clarification_questions: List[str]
     clarification_answers: Annotated[List[Dict], operator.add]
     clarification_loop_count: int
     
@@ -263,6 +296,9 @@ class AgentGraphState(TypedDict):
     
     # --- Image Analysis (from websearch agent) ---
     analyzed_images: Annotated[List[Dict], operator.add]
+    
+    # --- Report Style Skill (LLM-generated formatting/presentation directive) ---
+    report_style_skill: str
     
     # --- Response Skill (LLM-generated presentation instructions) ---
     response_skill: str

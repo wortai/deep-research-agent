@@ -14,7 +14,7 @@ import uuid
 
 from dotenv import load_dotenv
 from langchain_core.messages import BaseMessage
-from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+from langgraph.checkpoint.postgres.shallow import AsyncShallowPostgresSaver
 from langgraph.checkpoint.memory import MemorySaver
 from psycopg_pool import AsyncConnectionPool
 
@@ -63,9 +63,9 @@ class ShortTermMemory:
                     kwargs=conn_kwargs,
                     check=AsyncConnectionPool.check_connection
                 )
-                self._checkpointer = AsyncPostgresSaver(self._pool)
+                self._checkpointer = AsyncShallowPostgresSaver(self._pool)
                 self._is_async = True
-                logger.info("AsyncPostgresSaver instantiated (pending initialization)")
+                logger.info("AsyncShallowPostgresSaver instantiated (pending initialization)")
             except Exception as e:
                 logger.warning(f"Failed to configure PostgreSQL checkpointer: {e}. Using in-memory storage.")
                 self._checkpointer = MemorySaver()
@@ -90,17 +90,12 @@ class ShortTermMemory:
                 if self._db_uri:
                     import psycopg
                     async with await psycopg.AsyncConnection.connect(self._db_uri, autocommit=True) as conn:
-                        checkpointer = AsyncPostgresSaver(conn)
+                        checkpointer = AsyncShallowPostgresSaver(conn)
                         await checkpointer.setup()
-                        
-                logger.info("ShortTermMemory fully initialized with AsyncPostgresSaver")
+
+                logger.info("ShortTermMemory fully initialized with AsyncShallowPostgresSaver")
             except Exception as e:
-                logger.error(f"Failed to initialize PostgresSaver: {e}")
-                # Fallbact to MemorySaver if initialization fails? 
-                # Ideally we typically want to fail hard or fallback, but graph is already compiled.
-                # If we fail here, ainvoke will likely fail.
-                # Ideally we typically want to fail hard or fallback, but graph is already compiled.
-                # If we fail here, ainvoke will likely fail.
+                logger.error(f"Failed to initialize ShallowPostgresSaver: {e}")
                 raise e
 
     async def shutdown(self) -> None:

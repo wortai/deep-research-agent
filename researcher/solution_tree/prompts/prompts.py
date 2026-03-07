@@ -96,9 +96,27 @@ def get_vector_search_queries_prompt(query: str, num_queries: int) -> str:
     ```
     """
 
-def get_answers_prompt(main_query: str, context: str) -> str:
-    """Generates a prompt to synthesize answers from web search context with adaptive formatting and inline citations."""
+def get_answers_prompt(main_query: str, context: str, report_style_skill: str = "") -> str:
+    """Generates a prompt to synthesize answers from web search context with adaptive formatting and inline citations.
+    
+    Args:
+        main_query: The research question to answer.
+        context: Combined web search results with source URLs.
+        report_style_skill: Optional LLM-generated style directive for report formatting.
+    """
+    style_block = ""
+    if report_style_skill:
+        style_block = f"""
+
+=== REPORT STYLE DIRECTIVE (HIGHEST PRIORITY) ===
+The following style directive was generated from the user's preferences and must be followed for ALL formatting decisions. It OVERRIDES the default formatting guidelines below whenever they conflict.
+But keep the structure of the Hiearchy of the report as it is
+{report_style_skill}
+
+=== END STYLE DIRECTIVE ===
+"""
     return f"""You are an expert research analyst specializing in presenting information clearly and effectively. Your task is to synthesize a comprehensive, well-structured answer from the provided context.
+{style_block}
 
 **Main Query:**
 {main_query}
@@ -125,7 +143,21 @@ Write a comprehensive answer in **Markdown format** directly. DO NOT wrap your a
 - **Definitions/explanations**: Use clear headings with paragraphs and subparagraphs
 - **Historical/chronological**: Use timeline format or chronologically ordered sections
 - **Mixed content**: Combine multiple formats as appropriate
+
+
+
+
 - ** Just Numbered data like creating a Question If User trying to create a Question sheet to Practiced**
+
+
+- ** CLEANING OF UNECESSARY DATA **
+- We need to ignore the data that's not necessary and only adds repetition and noise.
+- Don't add too much new information that's not present in the context.
+- Your focus should be Precision and Accuracy and Completeness of the answer in Answering not in the length of the answer.
+- Our Answers Should be based on what Part/angle/perspective of the Main query  our Context from websearch trying to ask is trying to answer
+- Quality Over Quantity
+- It doesn't has to answer the whole main query at all , just answer the specific part of main query is trying to focus well
+
 
 **Structure Requirements:**
 
@@ -144,8 +176,7 @@ Write a comprehensive answer in **Markdown format** directly. DO NOT wrap your a
 
 **Citation Rules:**
 
-
-- Format: `[🔗](URL)` - the emoji itself becomes the clickable link
+- Format: `[source name](URL)` - the emoji itself becomes the clickable link
 - Place citations at the end of the sentence or paragraph they support
 - If multiple sources support a paragraph, include multiple citation links: `[🔗](URL1) [🔗](URL2)`
 - DO NOT create a separate "Sources" section at the end
@@ -157,7 +188,7 @@ Write a comprehensive answer in **Markdown format** directly. DO NOT wrap your a
 - **Comprehensiveness**: Cover all relevant aspects of the query found in the context and in depth 
 - **Clarity**: Use clear, concise language; avoid jargon unless necessary
 - **Completeness**: Ensure the answer can stand alone without needing additional context
-- **Relevance**: Focus strictly on answering the main query
+- **Relevance**: Focus strictly on answering the main query but only from the context provided
 
 
 
@@ -193,13 +224,13 @@ This approach finds hidden patterns in unlabeled data. [🔗](https://example.co
 | Use Case | Prediction | Pattern Discovery |
 | Complexity | Lower | Higher |
 
-[🔗](https://example.com/comparison)
+[Machine Learning](https://example.com/comparison)
 
 ## Key Takeaways
 
-- Machine learning automates decision-making processes [🔗](https://example.com/benefits)
-- Different approaches suit different problem types [🔗](https://example.com/selection)
-- Training data quality is critical for success [🔗](https://example.com/data-quality)
+- Machine learning automates decision-making processes [Machine Learning-deeplearning](https://example.com/benefits)
+- Different approaches suit different problem types [GeeksforGeeks](https://example.com/selection)
+- Training data quality is critical for success [Towards Data Science ](https://example.com/data-quality)
 """
 def get_plan_prompt(query: str) -> str:
     """
@@ -213,8 +244,7 @@ def get_plan_prompt(query: str) -> str:
 ---
 
 **Your Task:**
-
-Generate a JSON object with one key: "plan".
+Generate a structured research plan.
 
 **PLANNING METHODOLOGY:**
 
@@ -373,17 +403,36 @@ def get_clarifying_questions_prompt(query: str) -> str:
 
 
 
-def get_gaps_prompt(main_query: str, query_answers: dict, num_gaps: int) -> str:
+def get_gaps_prompt(main_query: str, query_answers: dict, num_gaps: int, clarification_context: list = None, report_style_skill: str = "") -> str:
     """
     Generates a depth-focused research gap prompt.
     Main query = user intent anchor.
     Subqueries + answers = current depth state.
     Output = next-level depth probes.
+    Incorporates user clarification to find style-aware and intent-aligned gaps.
+
+    Args:
+        main_query: Original user research query.
+        query_answers: Dict mapping subquery → answer text.
+        num_gaps: Number of gaps to generate.
+        clarification_context: Optional list of Q&A dicts from HITL clarification.
+        report_style_skill: Optional style directive for format-aware gap detection.
     """
 
     answers_str = ""
     for query, answer in query_answers.items():
         answers_str += f'### Subquery: "{query}"\nCurrent Answer:\n{answer}\n\n'
+
+    clarification_block = ""
+    if clarification_context:
+        clarification_block = "\n### 🗣️ User Clarifications (from HITL)\nThe user provided the following additional context about their intent:\n"
+        for qa in clarification_context:
+            clarification_block += f"Q: {qa.get('question', '')}\nA: {qa.get('answer', '')}\n"
+        clarification_block += "\nUse these clarifications to find gaps that align with what the user ACTUALLY wants.\n"
+
+    style_block = ""
+    if report_style_skill:
+        style_block = f"\n### 📐 Report Style Context\nThe final report will be formatted as:\n{report_style_skill[:300]}\n\nConsider what gaps are relevant for THIS type of output.\n"
 
     return f"""
 You are a **Depth-First Research Analyst Agent**.
@@ -391,7 +440,8 @@ You are a **Depth-First Research Analyst Agent**.
 Your mission is to determine what *additional depth* is needed to fully and rigorously answer the **Main Query**, using the **Subqueries and their Answers as your base reference layer**.
 
 ---
-
+{clarification_block}
+{style_block}
 ### 🧭 Anchors
 
 **Main Query (User Intent Anchor):**  
@@ -457,6 +507,13 @@ from pydantic import BaseModel, Field
 from typing import List
 
 
+class PlanResult(BaseModel):
+    """Structured output for the research plan."""
+    plan: List[str] = Field(
+        description="A list of 5-10 distinct queries to explore the topic. Each query MUST be between 30 and 120 words long."
+    )
+
+
 class SkillSelectionResult(BaseModel):
     """Structured output for selecting 1-4 research skills."""
     selected_skills: List[str] = Field(
@@ -475,7 +532,7 @@ def get_clarification_prompt(
     """
     Generates a prompt for the HITL clarification step.
 
-    Produces 2-3 genuine, mindset-probing questions that try to understand
+    Produces exactly 1-3 genuine, mindset-probing questions that try to understand
     the user's research angle, depth expectations, and focus areas.
     Avoids repeating questions already answered.
 
@@ -501,36 +558,31 @@ USER QUERY: "{user_query}"
 CLARIFICATION ROUND: {loop_number} of 3
 {previous_context}
 YOUR TASK:
-Generate 2-3 genuine questions that will help you understand:
+Generate exactly 1 to 3 genuine questions that will help you understand:
 
 1. **Research Angle** — Which perspective or lens does the user want? (theoretical vs. practical, academic vs. industry, historical vs. contemporary)
 2. **Depth Expectations** — How deep should the research go? (surface overview, intermediate understanding, expert-level deep dive)
 3. **Focus Area** — Which specific aspects of the topic matter most? (if the topic has multiple facets, which one to prioritize)
 4. **Clarity on Ambiguities** — Any part of the query that could be interpreted multiple ways
+5. **Style** — How should we present the report? (academic, Q&A, cheat sheet style, difficulty level, etc.)
 
 QUESTION QUALITY RULES:
-- Questions must be SPECIFIC to this query, not generic filler
-- Questions should uncover the user's MINDSET and research goals
-- If previous answers already covered an area, go DEEPER into unexplored angles
-- Each question should genuinely change how you would plan the research
-- Do NOT ask obvious questions the query already answers
-- If the query is already very clear and specific, you may return fewer questions or indicate no clarification needed
+- IMPORTANT: You MUST generate at least 1 question. NEVER assume the query is perfectly clear, especially regarding the 'Style' of the final report.
+- Limit to maximum 3 questions.
+- Questions must be SPECIFIC to this query, not generic filler.
+- Questions should uncover the user's MINDSET and research goals.
+- If previous answers already covered an area, go DEEPER into unexplored angles.
+- Each question should genuinely change how you would plan the research.
+- Do NOT ask obvious questions the query already answers.
 
 OUTPUT RULES:
 Return ONLY a valid JSON object:
 {{
-    "needs_more_clarification": true/false,
+    "needs_more_clarification": true,
     "questions": [
         "Question 1?",
-        "Question 2?",
-        "Question 3?"
+        "Question 2?"
     ]
-}}
-
-If the query is crystal clear and no clarification is needed, return:
-{{
-    "needs_more_clarification": false,
-    "questions": []
 }}
 """
 
@@ -669,8 +721,7 @@ Read them carefully and apply their field-detection steps, source priorities, qu
 ---
 
 **Your Task:**
-
-Generate a JSON object with one key: "plan".
+Generate a structured research plan.
 
 **PLANNING METHODOLOGY — ENHANCED WITH SKILLS:**
 
@@ -735,9 +786,81 @@ Create a research plan that follows this progression:
 
 - Generate 5-10 queries (use fewer for simple topics, more for complex ones)
 - Each query should be detailed and dense (30-120 words)
-- Output **ONLY** the JSON object — no explanations, no markdown fences
 - Number each query clearly: "1. ...", "2. ...", etc.
-- Ensure proper JSON formatting
-
-Output only the JSON object.
 """
+
+
+def get_report_style_prompt(
+    user_query: str,
+    clarification_answers: list,
+    selected_skill_names: list
+) -> str:
+    """
+    Generates a prompt that produces a report style directive.
+
+    The LLM analyzes user intent (from clarification answers), query nature,
+    and selected research skills to generate a concise presentation contract
+    that dictates how every section, chapter, and visual element should look.
+
+    Args:
+        user_query: Original user research query.
+        clarification_answers: List of Q&A dicts from HITL clarification.
+        selected_skill_names: List of selected skill filenames.
+
+    Returns:
+        Prompt string for the LLM to produce the style directive text.
+    """
+    clarification_block = ""
+    if clarification_answers:
+        clarification_block = "\nUSER CLARIFICATIONS (their exact intent, depth, and format preferences):\n"
+        for qa in clarification_answers:
+            clarification_block += f"Q: {qa.get('question', '')}\nA: {qa.get('answer', '')}\n"
+
+    skills_block = ", ".join(selected_skill_names) if selected_skill_names else "general_academic.md"
+
+    return f"""You are a Report Style Architect. Your task is to produce a REPORT STYLE DIRECTIVE — a concise contract (200-400 words) that tells every downstream prompt exactly how to format, structure, and present the research output.
+
+USER QUERY: "{user_query}"
+{clarification_block}
+SELECTED RESEARCH SKILLS: {skills_block}
+
+---
+
+YOUR TASK: Generate a REPORT STYLE DIRECTIVE that covers ALL of the following:
+
+1. **REPORT TYPE** — Name the report format explicitly:
+   - Academic paper (abstract, literature review, methodology, analysis, conclusion)
+   - Practice sheet / Question bank (numbered questions, difficulty levels, answer keys)
+   - Cheat sheet (condensed, high-density bullet points, tables, one-page reference)
+   - Financial briefing (executive summary, metrics, risk analysis, charts)
+   - Technical documentation (code examples, API references, step-by-step guides)
+   - News analysis (timeline, multi-source attribution, conflicting reports)
+   - Comparative analysis (feature matrices, side-by-side tables, pros/cons)
+   - Tutorial / How-to guide (sequential steps, examples, common mistakes)
+   - Or any other format that fits the query best
+
+2. **SECTION FORMATTING RULES** — For each section of the report, specify:
+   - What markdown elements to prioritize (tables, numbered lists, code blocks, blockquotes, bullet points, paragraphs)
+   - Heading depth (H1, H2, H3 usage patterns)
+   - Content density (concise vs. in-depth)
+   - Whether sections should have sub-questions, examples, worked solutions, or comparisons
+   - Most important this part as it completely change how each section looks it can turn into research report to practice sheet to questions and answers to practice to Coding/Techincal documentation , Financial analysis report , News analysis report , Historical in depth analysis report , Comparative analysis report , 
+
+3. **STRUCTURAL CONVENTIONS**:
+   - Should the report have chapters? Or flat sections?
+   - Does it need an abstract/introduction/conclusion, or just content?
+   - How should citations appear? (inline 🔗, footnotes, or reference list)
+   - Are there recurring patterns? (e.g., "every topic gets a definition → explanation → example → practice question")
+
+4. **PRESENTATION NOTES**:
+   - Tone (academic, conversational, technical, concise)
+   - Target audience (student, researcher, professional, general)
+   - Visual density (minimal text with heavy tables, or narrative-heavy with few tables)
+
+5. **EMPHASIS ON USER PREFERENCES**:
+   - If the user said "practice sheet" or "cheat sheet" or "just questions" in clarification → that OVERRIDES everything else
+   - User's stated preferences for format/style are THE HIGHEST PRIORITY
+
+OUTPUT: Write the directive as a clear, structured text block. NO JSON. Plain text with markdown formatting (bold, bullet points). This text will be injected verbatim into other prompts.
+"""
+
