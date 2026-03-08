@@ -3,6 +3,7 @@
 /papers
 _research
 .archive/
+.vscode/
 /gap_generator_logs
 
 ##### Standard Ignores #####

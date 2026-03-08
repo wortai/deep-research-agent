@@ -1,0 +1,465 @@
+/* Professional Research Report PDF Stylesheet */
+
+/* Page Setup with Footer */
+@page {
+    size: A4;
+    margin: 2.5cm 2cm 3cm 2cm;
+
+    @bottom-center {
+        content: counter(page);
+        font-size: 10pt;
+        color: #666;
+    }
+
+    @bottom-right {
+        content: "by Wort";
+        font-size: 9pt;
+        color: #888;
+        font-style: italic;
+    }
+}
+
+@page :first {
+    @bottom-center {
+        content: none;
+    }
+
+    @bottom-right {
+        content: none;
+    }
+}
+
+/* Base Typography */
+body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 11pt;
+    line-height: 1.7;
+    color: #1a1a1a;
+    text-align: justify;
+    orphans: 3;
+    widows: 3;
+}
+
+/* Headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    color: #1a365d;
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+    page-break-after: avoid;
+    break-after: avoid;
+}
+
+h1 {
+    font-size: 24pt;
+    font-weight: 700;
+    border-bottom: 3px solid #2c5282;
+    padding-bottom: 12px;
+    margin-top: 0;
+    page-break-before: always;
+}
+
+h1:first-of-type {
+    page-break-before: avoid;
+}
+
+h2 {
+    font-size: 18pt;
+    font-weight: 600;
+    color: #2c5282;
+    border-bottom: 1px solid #cbd5e0;
+    padding-bottom: 8px;
+}
+
+h3 {
+    font-size: 14pt;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+h4 {
+    font-size: 12pt;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+/* Paragraphs */
+p {
+    margin-bottom: 1em;
+    text-indent: 0;
+}
+
+/* Table of Contents Styling - Single Column for Reliability */
+.toc {
+    page-break-after: always;
+    break-after: page;
+}
+
+.toc h1,
+.toc h2 {
+    text-align: center;
+    border-bottom: none;
+    margin-bottom: 1em;
+    font-size: 18pt;
+    color: #1a1a1a;
+}
+
+.toc ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.toc li {
+    margin: 0.2em 0;
+    line-height: 1.3;
+}
+
+/* Main chapter entries in ToC - Black color */
+.toc>ul>li {
+    font-weight: 700;
+    font-size: 10pt;
+    color: #1a1a1a;
+    margin-top: 0.6em;
+    padding-left: 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.toc>ul>li:first-child {
+    margin-top: 0;
+}
+
+/* Sub-chapter entries in ToC - Blue color */
+.toc>ul>li>ul {
+    margin-top: 0.15em;
+    padding-left: 1em;
+}
+
+.toc>ul>li>ul>li {
+    font-weight: 400;
+    font-size: 9pt;
+    color: #2c5282;
+    margin: 0.15em 0;
+    padding-left: 0.3em;
+    border-left: 2px solid #cbd5e0;
+}
+
+/* Third-level ToC entries - Lighter blue */
+.toc>ul>li>ul>li>ul {
+    padding-left: 0.8em;
+}
+
+.toc>ul>li>ul>li>ul>li {
+    font-size: 8pt;
+    color: #4299e1;
+    border-left: 1px solid #e2e8f0;
+}
+
+/* ToC links */
+.toc a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.toc a:hover {
+    color: #2c5282;
+}
+
+/* Abstract Section */
+.abstract {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    padding: 20px 24px;
+    border-radius: 8px;
+    border-left: 5px solid #2c5282;
+    margin: 2em 0;
+    page-break-inside: avoid;
+}
+
+.abstract h2 {
+    font-style: normal;
+    margin-top: 0;
+    color: #1a365d;
+    border-bottom: none;
+}
+
+.abstract p {
+    font-style: italic;
+}
+
+/* Introduction Section */
+.introduction {
+    margin-top: 2em;
+}
+
+.introduction h2 {
+    color: #1a365d;
+}
+
+/* Lists */
+ul,
+ol {
+    margin: 1em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin-bottom: 0.5em;
+    line-height: 1.6;
+}
+
+ul li {
+    list-style-type: disc;
+}
+
+ul ul li {
+    list-style-type: circle;
+}
+
+ul ul ul li {
+    list-style-type: square;
+}
+
+/* Blockquotes */
+blockquote {
+    border-left: 4px solid #2c5282;
+    margin: 1.5em 0;
+    padding: 1em 1.5em;
+    background-color: #f7fafc;
+    font-style: italic;
+    color: #4a5568;
+    page-break-inside: avoid;
+}
+
+blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+/* Code Blocks */
+code {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    background-color: #edf2f7;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #2d3748;
+}
+
+pre {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1.5em 0;
+    font-size: 9pt;
+    line-height: 1.5;
+    page-break-inside: avoid;
+}
+
+pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+
+/* Math/LaTeX styling - for inline and display math */
+.math {
+    font-family: 'STIX Two Math', 'Cambria Math', 'Times New Roman', serif;
+    font-style: italic;
+}
+
+.math-display {
+    display: block;
+    margin: 1em 0;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+.math-inline {
+    display: inline;
+}
+
+/* Tables - Prevent breaking across pages */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+thead {
+    background-color: #2c5282;
+    color: white;
+    display: table-header-group;
+}
+
+th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    border: 1px solid #2c5282;
+}
+
+td {
+    padding: 10px 16px;
+    border: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+tr:nth-child(even) {
+    background-color: #f7fafc;
+}
+
+tr:hover {
+    background-color: #edf2f7;
+}
+
+/* Links */
+a {
+    color: #2c5282;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Show link indicator with emoji instead of full URL */
+@media print {
+    a[href^="http"]:after {
+        content: " 🔗";
+        font-size: 0.9em;
+        text-decoration: none;
+    }
+}
+
+/* Keep clickable link styling */
+a[href^="http"] {
+    cursor: pointer;
+    position: relative;
+}
+
+/* Methodology Section */
+.methodology {
+    background-color: #fffaf0;
+    padding: 20px 24px;
+    border-left: 5px solid #dd6b20;
+    margin: 1.5em 0;
+    border-radius: 0 8px 8px 0;
+    page-break-inside: avoid;
+}
+
+.methodology h2,
+.methodology h3 {
+    color: #c05621;
+    margin-top: 0;
+    border-bottom: none;
+}
+
+/* Conclusion Section */
+.conclusion {
+    background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+    padding: 24px 28px;
+    border-left: 5px solid #276749;
+    margin: 2em 0;
+    border-radius: 0 8px 8px 0;
+    page-break-inside: avoid;
+}
+
+.conclusion h2,
+.conclusion h1 {
+    color: #276749;
+    margin-top: 0;
+    border-bottom: none;
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+    page-break-inside: avoid;
+}
+
+figure {
+    margin: 1.5em 0;
+    page-break-inside: avoid;
+}
+
+figcaption {
+    text-align: center;
+    font-style: italic;
+    color: #718096;
+    font-size: 10pt;
+    margin-top: 0.5em;
+}
+
+/* Horizontal Rule */
+hr {
+    border: none;
+    border-top: 2px solid #e2e8f0;
+    margin: 2em 0;
+}
+
+/* Strong and Emphasis */
+strong,
+b {
+    font-weight: 700;
+    color: #1a202c;
+}
+
+em,
+i {
+    font-style: italic;
+}
+
+/* Prevent orphans and widows */
+p,
+li,
+blockquote {
+    orphans: 3;
+    widows: 3;
+}
+
+/* Avoid breaking inside important elements */
+table,
+figure,
+blockquote,
+pre,
+.abstract,
+.methodology,
+.conclusion {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+/* Chapter page breaks */
+.chapter {
+    page-break-before: always;
+    break-before: page;
+}
+
+/* References section styling */
+.references {
+    font-size: 10pt;
+}
+
+.references li {
+    margin-bottom: 0.75em;
+    text-indent: -2em;
+    padding-left: 2em;
+}

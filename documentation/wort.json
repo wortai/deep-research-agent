@@ -1,0 +1,274 @@
+//chat-events 
+
+
+[
+    {
+        "event_id": "8084f556-b014-4ca9-a719-45a9144874af",
+        "session_id": "61daa6ab-2177-4358-9423-8d870309322b",
+        "event_order": "1",
+        "event_type": "user_query",
+        "content": "Can you explain me the stock prices of apple , google , and other big company in todays market  ?",
+        "metadata": "{\"search_mode\": \"websearch\"}",
+        "created_at": "2026-02-27T00:41:22.704152Z"
+    },
+    {
+        "event_id": "71a72de6-420b-47e7-b427-3fd11c397a9e",
+        "session_id": "61daa6ab-2177-4358-9423-8d870309322b",
+        "event_order": "2",
+        "event_type": "router_thinking",
+        "content": "The user is asking a new research question about stock prices of Apple, Google, and other big companies. There is no existing report, and the query is not a follow-up, edit, clarification, or off-topic question. According to Rule 5, all new research questions should be classified as 'use_search_mode'.",
+        "metadata": "{\"intent_type\": \"websearch\"}",
+        "created_at": "2026-02-27T00:41:24.301641Z"
+    },
+    {
+        "event_id": "70a4a04f-dc53-4825-8595-2b8591b67e8f",
+        "session_id": "61daa6ab-2177-4358-9423-8d870309322b",
+        "event_order": "3",
+        "event_type": "assistant_response",
+        "content": "Here's a quick snapshot of how Apple, Google, and Microsoft stocks are performing in today's market based on the provided information:\n\n*   **Apple (AAPL):** Apple's stock (AAPL) is trading at **$273.16** with a market capitalization of **4.01T** [Robinhood]. It had a slight fall in share price after an upbeat [Youtube]. The price-to-earnings ratio is 34.70, and it yields dividends of 37.6% [Robinhood]. Google Finance indicates a 0.47% increase [Google Finance]. Recent prices include $266.18 on February 23, 2026, $264.58 on February 20, 2026, $260.58 on February 19, 2026 and $264.35 on February 18, 2026 [Apple Investor Relations].\n*   **Google (GOOGL):** Alphabet Inc Class A (GOOGL) is up by 1.76% [Google Finance].\n*   **Microsoft (MSFT):** Microsoft Corp (MSFT) is up by 0.28% [Google Finance].\n\nFor a more comprehensive understanding, I would need real-time stock market data to provide the most up-to-date stock prices.\n",
+        "metadata": "{}",
+        "created_at": "2026-02-27T00:41:28.468202Z"
+    },
+    {
+        "event_id": "96f53e56-3195-4c6c-9008-85a97efcddc4",
+        "session_id": "ff38ad07-159c-4c85-99ac-1488056fbfe6",
+        "event_order": "1",
+        "event_type": "user_query",
+        "content": "can you go more deep in this and explain me ",
+        "metadata": "{\"search_mode\": \"websearch\"}",
+        "created_at": "2026-02-27T00:49:17.86161Z"
+    },
+    {
+        "event_id": "9c383d73-cdc2-41f0-98bf-2d916fa71dae",
+        "session_id": "ff38ad07-159c-4c85-99ac-1488056fbfe6",
+        "event_order": "2",
+        "event_type": "router_thinking",
+        "content": "The user's query 'can you go more deep in this and explain me' asks for more information and explanation. However, the 'Current Report Exists' field is 'No report yet', meaning there is no existing report for the user to 'go more deep in' as per Rule 1. Since there is no prior context from the AI in the 'Conversation History' to which 'this' could refer, and no report exists, this request is treated as a new research question for which the topic ('this') is currently undefined. Therefore, Rule 5, 'For ALL NEW research questions... return 'use_search_mode'', is applied.",
+        "metadata": "{\"intent_type\": \"websearch\"}",
+        "created_at": "2026-02-27T00:49:26.201135Z"
+    },
+    {
+        "event_id": "c6780272-3bc2-4b2c-b7fc-1a244d944d8c",
+        "session_id": "ff38ad07-159c-4c85-99ac-1488056fbfe6",
+        "event_order": "3",
+        "event_type": "assistant_response",
+        "content": "It appears you're asking about the meaning of the phrase \"four man deep in this German.\" Based on the search results, this phrase originates from a song called \"4 Raws\" (likely a remix by The Chainsmokers) [2, 3].\n\nHere's a breakdown of what the search results suggest:\n\n*   **The lyric:** The lyric \"I'm four man deep in this German / And I'm whippin' it 'round the suburban\" appears in the song \"4 Raws\" [2, 3].\n*   **Possible interpretation:** The phrase seems to imply that there are four people inside a German car [3]. The lyrics then describe them \"whippin' it 'round the suburban,\" suggesting they are driving erratically or quickly.\n\nWithout more context from the song or artist, a deeper, more definitive explanation is difficult. More information about the song's overall theme or the artist's intention would be helpful.\n",
+        "metadata": "{}",
+        "created_at": "2026-02-27T00:49:29.826177Z"
+    },
+    {
+        "event_id": "80a92e2e-47de-4781-b62d-f84b4ea72268",
+        "session_id": "61daa6ab-2177-4358-9423-8d870309322b",
+        "event_order": "4",
+        "event_type": "user_query",
+        "content": "Give me best machine learning techniques and explain them ",
+        "metadata": "{\"search_mode\": \"websearch\"}",
+        "created_at": "2026-02-27T03:02:40.534257Z"
+    },
+    {
+        "event_id": "21d0cdc9-a6d9-43ec-a02f-d53c0c8c985e",
+        "session_id": "61daa6ab-2177-4358-9423-8d870309322b",
+        "event_order": "5",
+        "event_type": "router_thinking",
+        "content": "The user is asking a completely new research question about 'best machine learning techniques and an explanation of them'. This query is distinct from the previous conversation topic about stock prices and does not relate to any existing reports. Therefore, it falls under the 'ALL NEW distinct research questions' rule.",
+        "metadata": "{\"intent_type\": \"websearch\"}",
+        "created_at": "2026-02-27T03:02:42.250798Z"
+    },
+    {
+        "event_id": "209778ae-a729-4181-9ec5-31a0bc8e495d",
+        "session_id": "61daa6ab-2177-4358-9423-8d870309322b",
+        "event_order": "6",
+        "event_type": "assistant_response",
+        "content": "Machine learning algorithms allow computers to learn from data, identify patterns, and make predictions without explicit programming [2]. There are several types of machine learning techniques, the main ones being:\n\n*   **Supervised Learning:** This uses a full set of labeled data during training, making it more straightforward and easier to implement [1].\n*   **Unsupervised Learning:** This uses a data set without explicit instructions, so the machine learns organically [1]. It groups data based on similarities or relationships [1].\n*   **Semi-supervised learning:** Combines aspects of both supervised and unsupervised learning, using both labeled and unlabeled data for training [1, 2].\n\nSome common algorithms include Linear Regression, Logistic Regression, Decision Trees, and Random Forests [2].\n",
+        "metadata": "{}",
+        "created_at": "2026-02-27T03:02:45.128246Z"
+    },
+    {
+        "event_id": "b024a2ae-738f-49ce-be8c-8a9e386c1583",
+        "session_id": "61daa6ab-2177-4358-9423-8d870309322b",
+        "event_order": "7",
+        "event_type": "user_query",
+        "content": "explain more deep about it ",
+        "metadata": "{\"search_mode\": \"websearch\"}",
+        "created_at": "2026-02-27T03:03:17.446329Z"
+    },
+    {
+        "event_id": "513403c3-a05a-4926-8d7d-f7f1ca1401e8",
+        "session_id": "61daa6ab-2177-4358-9423-8d870309322b",
+        "event_order": "8",
+        "event_type": "router_thinking",
+        "content": "The user's query 'explain more deep about it' is a direct follow-up to the assistant's previous explanation about 'best machine learning techniques and explain them'. The user is asking for more details on the topic that was just introduced, which falls under rule 1: 'If the user asks a question that can be answered using details from ONE OF THE existing reports → 'follow_up''.",
+        "metadata": "{\"intent_type\": \"follow_up\"}",
+        "created_at": "2026-02-27T03:03:19.577943Z"
+    },
+    {
+        "event_id": "804c30cb-f09b-4a46-af07-ca0eef88d058",
+        "session_id": "61daa6ab-2177-4358-9423-8d870309322b",
+        "event_order": "9",
+        "event_type": "assistant_response",
+        "content": "Since no reports have been generated yet, there's nothing to explain more deeply. I need a report to provide a more in-depth explanation.\n",
+        "metadata": "{}",
+        "created_at": "2026-02-27T03:03:20.580733Z"
+    }
+]
+// sessions table:
+[
+    {
+        "session_id": "5e692e50-c8f3-4357-9ccc-683c7991f5c2",
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "title": "I want to know about top 5 companies to invest in , i am looking for long term i",
+        "search_mode": "websearch",
+        "intent_type": "websearch",
+        "has_report": "false",
+        "status": "active",
+        "created_at": "2026-02-27T15:17:11.95279Z",
+        "updated_at": "2026-02-27T15:17:14.676412Z"
+    },
+    {
+        "session_id": "ff38ad07-159c-4c85-99ac-1488056fbfe6",
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "title": "can you go more deep in this and explain me",
+        "search_mode": "websearch",
+        "intent_type": "websearch",
+        "has_report": "false",
+        "status": "completed",
+        "created_at": "2026-02-27T00:49:17.691197Z",
+        "updated_at": "2026-02-27T00:49:29.983303Z"
+    },
+    {
+        "session_id": "61daa6ab-2177-4358-9423-8d870309322b",
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "title": "Can you explain me the stock prices of apple , google , and other big company in",
+        "search_mode": "websearch",
+        "intent_type": "clarification",
+        "has_report": "false",
+        "status": "completed",
+        "created_at": "2026-02-27T00:41:22.541802Z",
+        "updated_at": "2026-02-27T03:08:06.766154Z"
+    },
+    {
+        "session_id": "e0140790-8440-4ab6-9266-4bd592cadc60",
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "title": "I want to know about top 5 companies to invest in , i am looking for long term i",
+        "search_mode": "websearch",
+        "intent_type": "websearch",
+        "has_report": "false",
+        "status": "completed",
+        "created_at": "2026-02-27T15:19:38.740075Z",
+        "updated_at": "2026-02-27T15:39:28.78422Z"
+    },
+    {
+        "session_id": "8b7653a9-4bae-4a62-9e15-bbd0e0e9631d",
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "title": "I want to know about top 5 companies to invest in , i am looking for long term i",
+        "search_mode": "websearch",
+        "intent_type": "websearch",
+        "has_report": "false",
+        "status": "completed",
+        "created_at": "2026-02-27T04:22:24.401074Z",
+        "updated_at": "2026-02-27T04:22:30.616337Z"
+    },
+    {
+        "session_id": "40c85ef7-ffb4-48da-a0e4-14aaa0d86256",
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "title": "I want to know about top 5 companies to invest in , i am looking for long term i",
+        "search_mode": "websearch",
+        "intent_type": "websearch",
+        "has_report": "false",
+        "status": "completed",
+        "created_at": "2026-02-27T04:01:46.285903Z",
+        "updated_at": "2026-02-27T04:23:44.597053Z"
+    },
+    {
+        "session_id": "0ba4a155-c1e0-4a97-a1ae-f7f7e0923714",
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "title": "I want to know about top 5 companies to invest in , i am looking for long term",
+        "search_mode": "websearch",
+        "intent_type": "websearch",
+        "has_report": "false",
+        "status": "completed",
+        "created_at": "2026-02-27T04:26:56.958755Z",
+        "updated_at": "2026-02-27T04:27:14.987317Z"
+    },
+    {
+        "session_id": "d5b29d6c-8369-490a-8986-88464092c75e",
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "title": "I want to know about top 5 companies to invest in , i am looking for long term i",
+        "search_mode": "websearch",
+        "intent_type": "websearch",
+        "has_report": "false",
+        "status": "completed",
+        "created_at": "2026-02-27T04:41:37.766021Z",
+        "updated_at": "2026-02-27T04:42:00.019596Z"
+    },
+    {
+        "session_id": "1d4551f7-1f04-4661-8c6f-75c06a051daa",
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "title": "I want to know about top 5 companies to invest in , i am looking for long term i",
+        "search_mode": "websearch",
+        "intent_type": "websearch",
+        "has_report": "false",
+        "status": "completed",
+        "created_at": "2026-02-27T05:00:00.036339Z",
+        "updated_at": "2026-02-27T05:00:24.526092Z"
+    },
+    {
+        "session_id": "38200760-1f7a-4e04-a167-ac518402d713",
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "title": "I want to know about top 5 companies to invest in , i am looking for long term i",
+        "search_mode": "websearch",
+        "intent_type": "websearch",
+        "has_report": "false",
+        "status": "completed",
+        "created_at": "2026-02-27T15:33:29.356623Z",
+        "updated_at": "2026-02-27T16:15:33.12361Z"
+    },
+    {
+        "session_id": "b13b522f-221b-410d-849c-5924c5252511",
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "title": "I want to know about top 5 companies to invest in , i am looking for long term i",
+        "search_mode": "websearch",
+        "intent_type": "websearch",
+        "has_report": "false",
+        "status": "completed",
+        "created_at": "2026-02-27T05:05:46.878584Z",
+        "updated_at": "2026-02-27T05:06:11.576261Z"
+    },
+    {
+        "session_id": "8c4947a1-d37f-417b-a728-4a0818cb0f83",
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "title": "I want to know about top 5 companies to invest in , i am looking for long term i",
+        "search_mode": "websearch",
+        "intent_type": "websearch",
+        "has_report": "false",
+        "status": "completed",
+        "created_at": "2026-02-27T05:21:46.814369Z",
+        "updated_at": "2026-02-27T05:22:20.372176Z"
+    },
+    {
+        "session_id": "efc40066-0351-49a7-b410-a4827464eff2",
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "title": "Explain how the human spine works",
+        "search_mode": "websearch",
+        "intent_type": "websearch",
+        "has_report": "false",
+        "status": "completed",
+        "created_at": "2026-02-27T15:52:52.929634Z",
+        "updated_at": "2026-02-27T16:22:25.284006Z"
+    }
+]
+// USERS 
+[
+    {
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "email": "default@example.com",
+        "display_name": "Default User",
+        "avatar_url": "",
+        "auth_provider": "email",
+        "auth_provider_id": "",
+        "wort_config": "",
+        "created_at": "2026-02-26T23:37:56.862199Z",
+        "updated_at": "2026-02-26T23:37:56.862199Z",
+        "is_active": "true"
+    }
+]

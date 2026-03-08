@@ -202,3 +202,125 @@ To help you understand the categories better, here are examples of planner promp
 </response_format>
 """
         return prompt_template
+
+
+# ---------------------------------------------------------------------------
+# Conversation summary prompt (for memory compactor)
+# ---------------------------------------------------------------------------
+
+CONVERSATION_SUMMARY_SYSTEM_INSTRUCTIONS = """
+You are summarizing a segment of an AI research assistant conversation for working memory.
+Your summary will be re-injected into context so the assistant can continue the thread without losing important information.
+
+<your_task>
+Produce a single, structured summary that preserves everything important. Do not skip facts, decisions, or tone.
+</your_task>
+
+<what_to_capture>
+1. **Tone & style**: How the user speaks (formal/casual), any stated preferences (e.g. "keep it short", "explain like I'm 5").
+2. **Facts**: Key facts the user or assistant stated (names, numbers, dates, topics, sources).
+3. **Decisions**: Any choices made (e.g. "user chose deep search", "focused on stocks").
+4. **Research context**: What the conversation is about (main question, sub-questions, reports generated, follow-ups).
+5. **Important quotes**: If the user said something critical verbatim, keep a short quote.
+</what_to_capture>
+
+<rules>
+- Be concise but complete. Prefer clear bullets or short paragraphs.
+- Do not omit important details to save space; omit only filler (greetings, "thanks", repeated phrasing).
+- If a previous summary is provided, merge it with the new content into one coherent summary—do not duplicate.
+- Write in third person or neutral (e.g. "User asked about X. Assistant explained Y.").
+- Keep total length under 400 words unless the conversation segment is very dense.
+</rules>
+
+<output_format>
+You MUST wrap your entire summary in exactly these tags so it can be parsed reliably:
+<summary>
+... your summary here ...
+</summary>
+Do not output anything outside the <summary></summary> tags.
+</output_format>
+"""
+
+
+MEMORY_CONSOLIDATION_SYSTEM_INSTRUCTIONS = """
+You are an AI memory curator. Your job is to review a user's long-term memory bank
+and produce a clean, deduplicated version that retains maximum information density.
+
+<your_task>
+Analyze every memory entry below. Identify duplicates, near-duplicates, overlapping
+facts, and outdated entries. Decide which to keep, which to merge, and which to delete.
+When merging, combine all useful detail from the source entries into one richer entry.
+</your_task>
+
+<decision_criteria>
+- KEEP: Unique, standalone memories that carry distinct information.
+- MERGE: Two or more entries that describe the same fact, preference, or event
+  from slightly different angles. The merged entry must preserve all non-redundant
+  detail from every source.
+- DELETE: Entries that are fully subsumed by another entry, clearly outdated by a
+  newer contradicting entry, or contain no actionable information.
+</decision_criteria>
+
+<rules>
+- Never discard information that might matter later; when in doubt, keep it.
+- If two entries contradict each other, keep the more recent or more specific one
+  and delete the other.
+- Merged content should read as a single, natural sentence or short paragraph —
+  not a concatenation of bullet points.
+- Preserve the original memory type of the first entry in a merge group.
+- Every memory number (1-based) must appear in exactly one of "keep", "merge"
+  (inside an indices list), or "delete". Do not leave any number unaccounted for.
+</rules>
+
+<output_format>
+Return ONLY a JSON object with exactly three keys:
+{
+  "keep": [list of memory numbers to keep unchanged],
+  "merge": [
+    {"indices": [numbers to merge], "merged_content": "single merged text"}
+  ],
+  "delete": [list of memory numbers to remove]
+}
+Do not output anything outside the JSON object.
+</output_format>
+"""
+
+
+def get_memory_consolidation_prompt(numbered_memories: str) -> str:
+    """
+    Builds the full prompt for memory consolidation.
+
+    Args:
+        numbered_memories: Pre-formatted string of numbered memory entries,
+            e.g. '1. [fact] User works at Google\\n2. [preference] Prefers short answers'
+
+    Returns:
+        Full prompt string ready for LLM invocation.
+    """
+    return (
+        f"{MEMORY_CONSOLIDATION_SYSTEM_INSTRUCTIONS.strip()}\n\n"
+        f"<memories>\n{numbered_memories}\n</memories>\n\n"
+        "Provide your analysis as a JSON object:"
+    )
+
+
+def get_conversation_summary_prompt(conversation_text: str, previous_summary: str = "") -> str:
+    """
+    Builds the full prompt for the conversation summarization LLM call.
+
+    Args:
+        conversation_text: Formatted conversation segment (roles and content).
+        previous_summary: Optional prior summary to merge in.
+
+    Returns:
+        Full prompt string.
+    """
+    parts = [CONVERSATION_SUMMARY_SYSTEM_INSTRUCTIONS.strip()]
+    parts.append("\n<conversation_segment>")
+    if previous_summary:
+        parts.append(f"\n[Previous summary to merge in]\n{previous_summary}\n")
+    parts.append("\nCurrent messages to summarize:\n")
+    parts.append(conversation_text)
+    parts.append("\n</conversation_segment>\n")
+    parts.append("\nProvide your summary inside <summary></summary> tags:")
+    return "\n".join(parts)

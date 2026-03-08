@@ -114,7 +114,7 @@ class AgentQLScraper:
 
 async def main():
     # Example using prompt
-    async with AgentQLScraper(url="https://www.goldavenue.com/en/gold-price/usd", prompt="Get me the current price of Gold.") as scraper:
+    async with AgentQLScraper(url="https://www.ajio.com/s/50-to-90-percent-off-5399-784712?query=%3Arelevance%3Agenderfilter%3AMen%3Al1l3nestedcategory%3AMen%20-%20Shirts%3Al1l3nestedcategory%3AWomen%20-%20Shirts&utm_source=google&utm_medium=cpc&utm_campaign=GSB_Brand_August2019&gad_source=1&gad_campaignid=6466890211&gbraid=0AAAAADP0Dvf834gG1iSi29h20sYOwnGjR&gclid=Cj0KCQjwgvnCBhCqARIsADBLZoIPLLG6z7zH4tcqIK062O4GytenrTOnB1onwodQq3CZjwv6_2xWCkQaAjt0EALw_wcB&curated=true&curatedid=50-to-90-percent-off-5399-784712&gridColumns=3&segmentIds=", prompt="Get me top rated mens shirts") as scraper:
         data = await scraper.extract_data()
         print(data)
 

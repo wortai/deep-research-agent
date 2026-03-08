@@ -35,7 +35,6 @@ class SerpApiClient:
 
     def get_api_key(self):
         try:
-            print(os.environ.get("SERP_API_KEY"))
             return os.environ.get("SERP_API_KEY")
         except KeyError:
             logging.error("SERP API key not found.") # Improved error message
@@ -54,8 +53,8 @@ class SerpApiClient:
         for key in optional_keys:
             if key in kwargs:
                 params[key] = kwargs[key]
-        
         return params
+
 
     def _build_youtube_params(self, **kwargs) -> dict:
         params = {}
@@ -175,14 +174,14 @@ class SerpApiClient:
     
 
 
-# if __name__ == "__main__":
-#     client = SerpApiClient()
-#     try:
-#         # Replace "your-search-term" with an actual query and adjust "start" as needed.
-#         results = client.search("google", q="your-search-term", start=5)
-#         urls = client.get_clean_urls(results)
-#         print("Extracted URLs:")
-#         for url in urls:
-#             print(url)
-#     except Exception as e:
-#         print(f"An error occurred: {e}")
+if __name__ == "__main__":
+    client = SerpApiClient()
+    try:
+        # Replace "your-search-term" with an actual query and adjust "start" as needed.
+        results = client.search("google", q="Top Selling Men's Shirts in Delhi", start=1)
+        urls = client.get_clean_urls(results)
+        print("Extracted URLs:")
+        for url in urls:
+            print(url)
+    except Exception as e:
+        print(f"An error occurred: {e}")

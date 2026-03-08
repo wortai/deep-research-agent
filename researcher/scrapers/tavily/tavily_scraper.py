@@ -57,28 +57,33 @@ class Tavily:
 
     # Performs a basic search and returns a list of dictionaries with URLs and content snippets.
     # return the url of webpage and content 
-    async def basic_search(self) -> List[Dict[str, str]]:
+    async def basic_search(self) -> Tuple[List[Dict[str, Any]], List[Dict[str, str]]]:
+        """Performs basic search returning (images, results) tuple."""
         if not self.query:
             logging.error("Query is required for basic_search.")
-            return []
+            return [], []
         try:
             response = await self.async_tavily_client.search(
                 query=self.query,
                 search_depth=self.depth,
                 topic=self.topic,
-                max_results=self.max_result
+                max_results=self.max_result,
+                include_images=True,
+                include_image_descriptions=True,
             )
+            images = response.get("images", [])
             extract = []
             if response and "results" in response:
                 for result in response["results"]:
-                    title = result.get("url")
+                    url = result.get("url")
+                    title = result.get("title")
                     content = result.get("content")
-                    if title and content:
-                        extract.append({"url": title, "content": content})
-            return extract
+                    if url and content:
+                        extract.append({"url": url, "title": title, "content": content})
+            return images, extract
         except Exception as e:
             logging.error(f"Error in basic search for query '{self.query}': {str(e)}")
-            return []
+            return [], []
 
     # Performs an advanced search and returns a tuple containing lists of images and search results.
     # return images and results
@@ -94,6 +99,7 @@ class Tavily:
                 topic=self.topic,
                 max_results=self.max_result,
                 include_images=self.include_images,
+                include_image_descriptions=True,
                 include_raw_content=self.include_raw_content,
             )
 
