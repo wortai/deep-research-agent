@@ -115,6 +115,7 @@ class UniversalLoader:
                 params = {
                     "requests_per_second": 2,
                     "continue_on_failure": True,
+                    "requests_kwargs": {"timeout": 15},
                     **loader_specific_kwargs
                 }
                 return WebBaseLoader(web_paths=[url], **params)
@@ -135,6 +136,8 @@ class UniversalLoader:
         try:
             loader = self.get_loader(url, loader_specific_kwargs)
             documents = loader.load()
+            if not documents:
+                return {"error": "No documents returned from loader"}
             documents = documents[0]
             # print({"metadata":documents.metadata , "content" :documents.page_content})
             return {"metadata":documents.metadata , "content" :documents.page_content}

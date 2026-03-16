@@ -33,7 +33,6 @@ class EventType(str, Enum):
     PLANNER_PROGRESS = "planner_progress"
     
     CLARIFICATION_STARTED = "clarification_started"
-    SKILL_SELECTION_COMPLETED = "skill_selection_completed"
     
     WRITER_PROGRESS = "writer_progress"
     PUBLISHER_PROGRESS = "publisher_progress"

@@ -52,12 +52,14 @@ class WebSearch:
         Args:
             urls (List[str]): List of URLs to scrape.
         Returns:
-            List[Dict[str, Any]]: Extracted data from the U """
+            List[Dict[str, Any]]: Extracted data from the URLs.
+        """
         extracted_data = []
         for url in urls:
             try:
-                data = self.universal_loader.load_data(url)
-                if data.get("content"):
+                # Run synchronous loader in a thread to prevent blocking event loop
+                data = await asyncio.to_thread(self.universal_loader.load_data, url)
+                if isinstance(data, dict) and data.get("content"):
                     extracted_data.append({"url": url, "content": data["content"]})
                     self.completed_urls.append(url)
             except Exception as e:
@@ -77,10 +79,13 @@ class WebSearch:
         extracted_data = []
         try:
             tavily_results = await self.tavily_scraper.multiple_extract_content(urls)
-            for res in tavily_results:
-                if res.get("content"):
-                    extracted_data.append({"url": res.get("url"), "content": res.get("content")})
-                    self.completed_urls.append(res.get("url"))
+            if isinstance(tavily_results, list):
+                for res in tavily_results:
+                    if isinstance(res, dict) and res.get("content"):
+                        extracted_data.append({"url": res.get("url"), "content": res.get("content")})
+                        self.completed_urls.append(res.get("url"))
+            else:
+                logging.error(f"Tavily returned an error instead of a list: {tavily_results}")
         except Exception as e:
             logging.error(f"Tavily search failed: {e}")
         return extracted_data

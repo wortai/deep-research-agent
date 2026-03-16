@@ -14,8 +14,10 @@ from langchain_core.exceptions import OutputParserException
 from llms import LlmsHouse
 from researcher.solution_tree.prompts import (
     get_web_search_queries_prompt,
-    get_answers_prompt,
-    get_gaps_prompt
+    get_answers_system_prompt,
+    get_answers_user_prompt,
+    get_gaps_system_prompt,
+    get_gaps_user_prompt
 )
 from researcher.web_search import WebSearch
 from researcher.solution_tree.utils import dump_query_solution
@@ -40,29 +42,20 @@ class Solver:
         num_web_queries: int = 1, 
         max_web_results: int = 2, 
         num_gaps_per_node: int = 2,
-        report_style_skill: str = "",
         clarification_context: list = None
     ):
         """
         Initialize the Solver.
 
-        Args:
-            query: The main research query.
-            num_web_queries: Number of web search queries to generate.
-            max_web_results: Maximum number of web results per query.
-            num_gaps_per_node: Number of gaps to identify per node.
-            report_style_skill: LLM-generated report style directive for formatting.
-            clarification_context: List of Q&A dicts from HITL clarification.
         """
         self.query = query
         self.num_web_queries = num_web_queries
         self.num_gaps_per_node = num_gaps_per_node
         self.max_results = max_web_results
-        self.report_style_skill = report_style_skill
         self.clarification_context = clarification_context or []
 
-        self.web_search_llm = LlmsHouse.google_model("gemini-2.0-flash")
-        self.analysis_llm = LlmsHouse.google_model("gemini-2.0-flash")
+        self.web_search_llm = LlmsHouse.deepseek_model("deepseek-chat", temperature=0.5)
+        self.analysis_llm = LlmsHouse.google_model("gemini-2.0-flash", temperature=0.7)
 
     async def create_web_search_queries(self) -> List[str]:
         """
@@ -85,12 +78,7 @@ class Solver:
     async def retrieve_web_content(self, web_search_queries: List[str]) -> List[Dict[str, str]]:
         """
         Retrieve content from web using WebSearch class.
-        
-        Args:
-            web_search_queries (List[str]): List of queries to search for.
-            
-        Returns:
-            List[Dict[str, str]]: List of dicts with 'url' and 'content' keys.
+
         """
         all_web_content = []
         
@@ -138,33 +126,37 @@ class Solver:
 
         combined_context = "\n\n---\n\n".join(context_parts)
 
-        answer_prompt = get_answers_prompt(
-            main_query=self.query,
-            context=combined_context,
-            report_style_skill=self.report_style_skill
-        )
-
+        from langchain_core.messages import SystemMessage, HumanMessage
         from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
-        
+
+        answer_messages = [
+            SystemMessage(content=get_answers_system_prompt()),
+            HumanMessage(content=get_answers_user_prompt(
+                main_query=self.query,
+                context=combined_context,
+            ))
+        ]
+
         if hasattr(self.analysis_llm, 'max_tokens'):
-            analysis_llm_configured = self.analysis_llm.bind(max_tokens=4096)
+            analysis_llm_configured = self.analysis_llm.bind(max_tokens=100000)
         else:
             analysis_llm_configured = self.analysis_llm
         
         answer_chain = analysis_llm_configured | StrOutputParser()
 
         try:
-            answer_text = await answer_chain.ainvoke(answer_prompt)
+            answer_text = await answer_chain.ainvoke(answer_messages)
             query_answers = {self.query: answer_text}
 
             if self.num_gaps_per_node > 0:
-                gaps_prompt = get_gaps_prompt(
-                    self.query, query_answers, self.num_gaps_per_node,
-                    clarification_context=self.clarification_context,
-                    report_style_skill=self.report_style_skill
-                )
                 gaps_chain = analysis_llm_configured | JsonOutputParser()
-                gaps_data = await gaps_chain.ainvoke(gaps_prompt)
+                gaps_data = await gaps_chain.ainvoke([
+                    SystemMessage(content=get_gaps_system_prompt()),
+                    HumanMessage(content=get_gaps_user_prompt(
+                        self.query, query_answers, self.num_gaps_per_node,
+                        clarification_context=self.clarification_context,
+                    )),
+                ])
                 gaps = gaps_data.get("gaps", [])
             else:
                 gaps = []
@@ -178,11 +170,6 @@ class Solver:
         """
         Main resolution pipeline using web search.
         Retrieves web content and feeds directly to LLM for analysis.
-        
-        Returns:
-            Tuple[List[str], Dict[str, str]]:
-                - List of gaps (new queries).
-                - Dictionary of answers.
         """
         web_search_queries = await self.create_web_search_queries()
         logger.info(f"[Solver] Web queries generated: {len(web_search_queries)} for '{self.query[:60]}'")

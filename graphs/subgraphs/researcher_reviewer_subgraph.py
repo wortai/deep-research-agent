@@ -55,7 +55,6 @@ async def researcher_node(state: ResearchReviewData, writer: StreamWriter) -> Di
         max_depth=2,
         num_gaps_per_node=2,
         query_num=query_num,
-        report_style_skill=state.get("report_style_skill", ""),
         clarification_context=state.get("clarification_context", [])
     )
     
@@ -184,7 +183,6 @@ async def resolve_node(state: ResearchReviewData, writer: StreamWriter) -> Dict[
         num_web_queries=1,
         max_web_results=2,
         num_gaps_per_node=0,
-        report_style_skill=state.get("report_style_skill", ""),
         clarification_context=state.get("clarification_context", [])
     )
     

@@ -1,0 +1,77 @@
+LLM MODEL PRICING (USD per 1M tokens)
+-------------------------------------
+
+DEEPSEEK MODELS
+---------------
+
+deepseek-chat (DeepSeek V3.x)  [Non-thinking]
+Input (cache miss): $0.28
+Input (cache hit):  $0.028
+Output:             $0.42
+Notes: general-purpose chat model
+Context: ~128K
+Source: DeepSeek API docs
+
+deepseek-reasoner (DeepSeek R1)  [Thinking / Reasoning]
+Input:  $0.55
+Output: $2.19
+Notes: reasoning tokens (chain-of-thought) counted as output
+Context: ~128K
+
+
+XAI GROK MODELS
+---------------
+
+grok-4.1-fast (Non-reasoning)
+Input:  $0.20
+Output: $0.50
+Notes: optimized for fast responses
+
+grok-4.1-fast-reasoning
+Input:  $0.20
+Output: $0.50
+Notes: reasoning mode enabled (thinking steps internally)
+
+
+GOOGLE GEMINI MODELS
+--------------------
+
+gemini-2.0-flash
+Input:  $0.10
+Output: $0.40
+Notes: low-cost high-speed model
+
+
+gemini-3-flash
+Input:  $0.50
+Output: $3.00
+Notes: newer Flash model with higher reasoning capability
+
+gemini-3.1-flash-lite
+Input:  $0.25
+Output: $1.50
+Notes: optimized high-volume model with configurable reasoning
+
+
+REFERENCE / RELATED MODELS
+--------------------------
+
+grok-4 (full model)
+Input:  $5.50
+Output: $27.50
+Notes: frontier reasoning model (much more expensive)
+
+gemini-1.5-pro
+Input:  $1.25
+Output: $5.00
+Notes: higher-quality model for complex reasoning
+
+
+GENERAL NOTES
+-------------
+
+- Prices are per 1,000,000 tokens.
+- Input tokens = prompt tokens.
+- Output tokens = generated tokens.
+- Reasoning models may generate extra "thinking tokens", increasing output cost.
+- Prices may vary by provider (OpenRouter, Vertex AI, etc.).

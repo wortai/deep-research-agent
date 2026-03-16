@@ -1,8 +1,8 @@
 """
-Intent types for router classification.
+Mode types for router orchestration.
 
-Defines all possible intents that the router node can classify,
-including search modes from frontend and detected intents from context.
+The router now orchestrates by mode (`search_mode`) rather than
+intent classification. `edit` remains as a reserved path.
 """
 
 from enum import Enum
@@ -16,29 +16,20 @@ class SearchMode(str, Enum):
     EXTREMESEARCH = "extremesearch"
 
 
-class IntentType(str, Enum):
-    """
-    All possible intents for routing.
-    
-    Search modes come from frontend, others are detected
-    by router from chat history context.
-    """
-    
+class RouteMode(str, Enum):
+    """Route targets supported by the main graph."""
+
     WEBSEARCH = "websearch"
     DEEPSEARCH = "deepsearch"
     EXTREMESEARCH = "extremesearch"
-    
-    FOLLOW_UP = "follow_up"
     EDIT = "edit"
-    CLARIFICATION = "clarification"
-    OFF_TOPIC = "off_topic"
 
 
-def is_research_mode(intent: IntentType) -> bool:
-    """Check if intent requires research workflow."""
-    return intent in (IntentType.WEBSEARCH, IntentType.DEEPSEARCH, IntentType.EXTREMESEARCH)
+def is_research_mode(mode: RouteMode) -> bool:
+    """True when the mode requires a research workflow."""
+    return mode in (RouteMode.WEBSEARCH, RouteMode.DEEPSEARCH, RouteMode.EXTREMESEARCH)
 
 
-def requires_full_report(intent: IntentType) -> bool:
-    """Check if intent requires full report generation."""
-    return intent in (IntentType.DEEPSEARCH, IntentType.EXTREMESEARCH)
+def requires_full_report(mode: RouteMode) -> bool:
+    """True when the mode requires full report generation."""
+    return mode in (RouteMode.DEEPSEARCH, RouteMode.EXTREMESEARCH)

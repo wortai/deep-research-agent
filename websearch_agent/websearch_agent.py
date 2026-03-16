@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 TOOL_LABELS = {
     "generate_search_queries": "Generating search queries",
     "tavily_basic_search": "Searching",
-    "tavily_advance_search": "Concisous Searching",
+    "tavily_advance_search": "Deep searching",
     "generate_response_skill": "Crafting response vibe",
 }
 
@@ -39,14 +39,14 @@ SYSTEM_PROMPT = """You are a web research agent. Search the web to gather inform
     - These queries should be 15 to 60 words max and each query should cover different angles of the subject.
     - Remember, we have to get the best URLs using these queries.
 - `tavily_basic_search` — Quick search, 1 credit per query. Returns top 2 results with snippets + images with descriptions. Use for simple facts and multiple queries.
-- `tavily_advance_search` — Deep search, 2 credits per query (expensive). Returns full raw content + described images. Use ONLY ONCE per request, only when deep detail is needed.
+- `tavily_advance_search` — Deep search, 2 credits per query (expensive). Returns full raw content + described images. Use only when deep detail is needed.
 - `generate_response_skill` — Generate formatting/tone instructions for the final response. Pass `user_query` and `search_context` (titles + key content snippets). Call this LAST before stopping.
 
 **Instructions**
 STEP 1. Call `generate_search_queries` first to generate queries to USE in Step 2.
 STEP 2. Call `tavily_basic_search` using the generated queries to gather information.
 - You can skip step 3 if you have enough information from step 2.
-STEP 3. Use `tavily_advance_search` at most twice if you need in-depth raw content on the most important query.
+STEP 3. Use `tavily_advance_search` at most once if you need in-depth raw content on the most important query.
 STEP 4. Call `generate_response_skill` as your FINAL tool — include titles, key findings, and short content excerpts so the skill understands the content type.
 STEP 5. Stop after generating the skill.
 
@@ -71,7 +71,10 @@ class WebSearchAgent:
         """
         self._emitter = emitter
         self._agent = create_agent(
-            model=LlmsHouse.google_model("gemini-2.0-flash", temperature=0.9),
+            model=LlmsHouse.grok_model(
+                model_name= "grok-4-1-fast-reasoning",
+                temperature=0.5,
+            ),
             tools=ALL_SEARCH_TOOLS,
             system_prompt=SYSTEM_PROMPT,
             middleware=[self._build_tool_middleware()],
@@ -120,11 +123,20 @@ class WebSearchAgent:
             return {"websearch_results": []}
 
         chat_context = self._format_chat_context(state.get("chat_messages", []))
+        memory_context = self._format_memory_context(state.get("memory_context", {}))
+        improve_instruction = self._normalize_improve_instruction(
+            state.get("improve_in_response", "")
+        )
 
         result = await self._agent.ainvoke({
             "messages": [{
                 "role": "user",
-                "content": f"Chat History:\n{chat_context}\n\nCurrent User Question: {user_query}",
+                "content": (
+                    f"Long-Term Memory Context:\n{memory_context}\n\n"
+                    f"Chat History:\n{chat_context}\n\n"
+                    f"Current User Question: {user_query}\n\n"
+                    f"Improve_in_response instruction:\n{improve_instruction}"
+                ),
             }]
         })
 
@@ -170,6 +182,44 @@ class WebSearchAgent:
             f"{m.get('role', 'unknown')}: {m.get('content', '')}"
             for m in chat_messages[-10:]
         )
+
+    @staticmethod
+    def _format_memory_context(memory_context: Dict[str, Any]) -> str:
+        """
+        Formats concise long-term memory snippets for websearch planning.
+        """
+        if not memory_context:
+            return "No long-term memory context."
+
+        semantic_memories = memory_context.get("semantic_memories", [])[:2]
+        user_profile = memory_context.get("user_profile") or {}
+
+        parts: List[str] = []
+        if semantic_memories:
+            parts.append("Top related memories:")
+            for idx, memory in enumerate(semantic_memories, start=1):
+                content = memory.get("content", "").strip()
+                mtype = memory.get("type", "fact")
+                if content:
+                    parts.append(f"{idx}. [{mtype}] {content}")
+
+        if user_profile:
+            profile_text = ", ".join(f"{k}: {v}" for k, v in user_profile.items())
+            parts.append(f"User profile: {profile_text}")
+
+        if not parts:
+            return "No long-term memory context."
+        return "\n".join(parts)
+
+    @staticmethod
+    def _normalize_improve_instruction(instruction: str) -> str:
+        """
+        Provides a stable improvement instruction for the websearch agent.
+        """
+        text = (instruction or "").strip()
+        if not text:
+            return "No need to improve in response, we are doing good."
+        return text
 
     def _parse_search_results(self, messages: list):
         """

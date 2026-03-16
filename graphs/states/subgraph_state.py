@@ -192,7 +192,6 @@ class ResearchReviewData(TypedDict):
     current_reviews: List[str]
     iteration_count: int
     logs: Annotated[List[Dict], operator.add]
-    report_style_skill: str
     clarification_context: List[Dict]
 
 
@@ -255,13 +254,10 @@ class AgentGraphState(TypedDict):
     # --- Run Tracking ---
     current_run_id: str
     
-    # --- Intent & Search Mode ---
-    search_mode: Literal["websearch", "deepsearch", "extremesearch"]
-    intent_type: Literal[
-        "websearch", "deepsearch", "extremesearch",
-        "follow_up", "edit", "clarification", "off_topic"
-    ]
+    # --- Search Mode Routing ---
+    search_mode: Literal["websearch", "deepsearch", "extremesearch", "edit"]
     router_thinking:str
+    improve_in_response: str
     # --- Progress Tracking ---
     total_agents: int
     completed_agents: int
@@ -280,9 +276,7 @@ class AgentGraphState(TypedDict):
     clarification_answers: Annotated[List[Dict], operator.add]
     clarification_loop_count: int
     
-    # --- Skill Selection ---
-    selected_skills: List[str]
-    
+
     # --- Human-in-the-Loop (plan approval) ---
     plan_feedback: str
     plan_approved: bool
@@ -298,7 +292,6 @@ class AgentGraphState(TypedDict):
     analyzed_images: Annotated[List[Dict], operator.add]
     
     # --- Report Style Skill (LLM-generated formatting/presentation directive) ---
-    report_style_skill: str
     
     # --- Response Skill (LLM-generated presentation instructions) ---
     response_skill: str

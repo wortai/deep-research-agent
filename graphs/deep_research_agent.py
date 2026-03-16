@@ -2,7 +2,7 @@
 Deep Research Agent - Main LangGraph.
 
 This module implements DeepResearchAgent class that orchestrates:
-1. Router Node: Classifies intent and routes to appropriate workflow
+1. Router Node: Uses search_mode and context to route workflow
 2. Planner Node: Generates research queries from user input
 3. Human Review Node: Pauses for user approval of the plan
 4. Parallel Research: Invokes researcher-reviewer subgraph for each query
@@ -19,21 +19,19 @@ import os
 from typing import Dict, Any, List, Optional
 
 from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.memory import MemorySaver
 from langgraph.types import Command
 import uuid
 from datetime import datetime
 
 from graphs.states.subgraph_state import AgentGraphState, ResearchReviewData, MemoryContext
 from graphs.subgraphs.researcher_reviewer_subgraph import build_researcher_reviewer_subgraph
-from graphs.events.frontend_events import create_event, EventType, PhaseType
-from planner.plan import planner_node, editor_node, clarification_node, human_clarification_node, skill_selection_node, report_style_node
+from planner.plan import planner_node, editor_node, clarification_node, human_clarification_node
 from writer.report_writer import writer_node
 from HITL.human_in_loop import human_review_node, HumanPlanReview
-from memory import MemoryFacade
 from router.intent_router import router_node
 from response.response_composer import response_node
 from websearch_agent import websearch_agent_node
+from memory import MemoryFacade
 from memory.memory_compactor import memory_node
 
 logging.basicConfig(level=logging.INFO)
@@ -70,45 +68,37 @@ class DeepResearchAgent:
         Builds the LangGraph workflow with all nodes and edges.
 
         Flow:
-            memory_node → router_node → [intent routing]
+            router_node → [search_mode routing]
                 ├── websearch → websearch_agent → response_node → END
-                ├── deepsearch/extremesearch → clarification_node ⟲(max 3) → skill_selection_node → planner_node → human_review_node → parallel_research_node → writer_node → response_node → END
-                ├── follow_up/off_topic → response_node → END
-                └── edit → editor_node → response_node → END
+                └── deepsearch/extremesearch → clarification_node ⟲(max 3) → planner_node → human_review_node → parallel_research_node → writer_node → response_node → END
 
         Returns:
             Compiled StateGraph with checkpointer for interrupt/resume.
         """
         workflow = StateGraph(AgentGraphState)
 
-        workflow.add_node("memory_node", memory_node)
         workflow.add_node("router_node", router_node)
         workflow.add_node("clarification_node", clarification_node)
         workflow.add_node("human_clarification_node", human_clarification_node)
-        workflow.add_node("skill_selection_node", skill_selection_node)
-        workflow.add_node("report_style_node", report_style_node)
         workflow.add_node("planner_node", planner_node)
         workflow.add_node("editor_node", editor_node)
-        workflow.add_node("human_review_node", human_review_node)
-        workflow.add_node("parallel_research_node", self._parallel_research_node)
         workflow.add_node("websearch_agent", websearch_agent_node)
         workflow.add_node("writer_node", writer_node)
         workflow.add_node("response_node", response_node)
+        workflow.add_node("memory_node", memory_node)
+        workflow.add_node("parallel_research_node", self._parallel_research_node)
+        workflow.add_node("human_review_node", human_review_node)
 
-        workflow.set_entry_point("memory_node")
-        workflow.add_edge("memory_node", "router_node")
+        workflow.set_entry_point("router_node")
 
         workflow.add_conditional_edges(
             "router_node",
-            self._route_by_intent,
+            self._route_by_mode,
             {
                 "websearch": "websearch_agent",
                 "deepsearch": "clarification_node",
                 "extremesearch": "clarification_node",
-                "follow_up": "response_node",
                 "edit": "editor_node",
-                "clarification": "clarification_node",
-                "off_topic": "response_node",
             }
         )
         
@@ -120,43 +110,42 @@ class DeepResearchAgent:
             self._route_after_clarification,
             {
                 "human_clarification_node": "human_clarification_node",
-                "skill_selection_node": "skill_selection_node"
+                "planner_node": "planner_node"
             }
         )
         
         # After human clarification, go back to clarification node to see if we need more
         workflow.add_edge("human_clarification_node", "clarification_node")
 
-        workflow.add_edge("skill_selection_node", "report_style_node")
-        workflow.add_edge("report_style_node", "planner_node")
         workflow.add_edge("planner_node", "human_review_node")
         workflow.add_conditional_edges(
             "human_review_node",
             self._route_after_review,
             {
                 "parallel_research_node": "parallel_research_node",
-                "planner_node": "planner_node"
+                "planner_node": "planner_node",
             }
         )
         workflow.add_edge("parallel_research_node", "writer_node")
         workflow.add_edge("writer_node", "response_node")
-        
         workflow.add_edge("editor_node", "response_node")
-    
-        workflow.add_edge("response_node", END)
+        
+        workflow.add_edge("response_node", "memory_node")
+        workflow.add_edge("memory_node", END)
 
         return workflow.compile(checkpointer=self._checkpointer)
 
-    def _route_by_intent(self, state: AgentGraphState) -> str:
+    def _route_by_mode(self, state: AgentGraphState) -> str:
         """
-        Routes based on classified intent from router_node.
+        Routes based on normalized search_mode from router_node.
 
         Returns:
-            Node name to route to based on intent_type.
+            Next node for web/deep/extreme/edit orchestration.
         """
-        intent = state.get("intent_type", "deepsearch")
-        # logger.info(f"[_route_by_intent] Routing to: {intent}")
-        return intent
+        mode = state.get("search_mode", "deepsearch")
+        if mode not in {"websearch", "deepsearch", "extremesearch", "edit"}:
+            return "deepsearch"
+        return mode
 
     def _route_after_clarification(self, state: AgentGraphState) -> str:
         """
@@ -164,10 +153,10 @@ class DeepResearchAgent:
 
         Continues looping to human_clarification_node if under the 3-loop max
         and the LLM indicated more clarification is needed (by providing questions). 
-        Otherwise proceeds to skill_selection_node.
+        Otherwise proceeds to planner_node.
 
         Returns:
-            'human_clarification_node' to ask user, or 'skill_selection_node' to proceed.
+            'human_clarification_node' to ask user, or 'planner_node' to proceed.
         """
         loop_count = state.get("clarification_loop_count", 0)
         questions = state.get("clarification_questions", [])
@@ -175,7 +164,7 @@ class DeepResearchAgent:
         if loop_count < 3 and questions:
             return "human_clarification_node"
         
-        return "skill_selection_node"
+        return "planner_node"
 
     def _route_after_review(self, state: AgentGraphState) -> str:
         """
@@ -227,7 +216,6 @@ class DeepResearchAgent:
                 "current_reviews": [],
                 "iteration_count": 0,
                 "logs": [],
-                "report_style_skill": state.get("report_style_skill", ""),
                 "clarification_context": state.get("clarification_answers", [])
             }
             result = await subgraph.ainvoke(initial_state)
@@ -241,31 +229,6 @@ class DeepResearchAgent:
         
         return {"research_review": list(results)}
 
-
-
-    def _display_plan_for_terminal(self, interrupt_data: Any) -> str:
-        """Extract plan display string from interrupt data"""
-        if isinstance(interrupt_data, tuple) and len(interrupt_data) > 0:
-            data = interrupt_data[0].value
-        elif isinstance(interrupt_data, list) and len(interrupt_data) > 0:
-            data = getattr(interrupt_data[0], "value", interrupt_data[0])
-        else:
-            data = interrupt_data
-            
-        if isinstance(data, dict):
-            return data.get("plan_display", str(data))
-        return str(data)
-
-    def _get_terminal_approval(self, plan_display: str) -> Dict[str, Any]:
-        """Ask user in terminal for plan approval"""
-        print("\n--- Plan Ready For Review ---")
-        print(plan_display)
-        print("-----------------------------\n")
-        val = input("Approve this plan? (y/n) [y]: ").strip().lower()
-        if val in ["", "y", "yes"]:
-            return {"approved": True, "feedback": ""}
-        feedback = input("Please provide feedback: ").strip()
-        return {"approved": False, "feedback": feedback}
 
     def _create_initial_state(
         self, 
@@ -294,6 +257,8 @@ class DeepResearchAgent:
             "timestamp": datetime.now().isoformat()
         }
         
+        normalized_mode = self._normalize_search_mode(search_mode)
+
         return {
             "thread_id": thread_id or str(uuid.uuid4()),
             "user_id": user_id or "00000000-0000-0000-0000-000000000000",
@@ -305,9 +270,9 @@ class DeepResearchAgent:
             ),
             "user_query": user_query,
             "current_run_id": str(uuid.uuid4()),
-            "search_mode": search_mode,
-            "intent_type": "",
+            "search_mode": normalized_mode,
             "router_thinking": "",
+            "improve_in_response": "",
             "total_agents": 0,
             "completed_agents": 0,
             "total_research_steps": 0,
@@ -317,7 +282,6 @@ class DeepResearchAgent:
             "clarification_questions": [],
             "clarification_answers": [],
             "clarification_loop_count": 0,
-            "selected_skills": [],
             "plan_feedback": "",
             "plan_approved": False,
             "research_review": [],
@@ -345,15 +309,29 @@ class DeepResearchAgent:
             "timestamp": datetime.now().isoformat()
         }
         
+        normalized_mode = self._normalize_search_mode(search_mode)
+
         return {
             "user_query": user_query,
             "current_run_id": str(uuid.uuid4()),
-            "search_mode": search_mode,
+            "search_mode": normalized_mode,
             "chat_messages": [new_message], # Appends due to operator.add
-            "intent_type": "", # Reset intent for new turn
             "current_phase": "routing", # Reset phase
             "user_id": user_id,
+            "improve_in_response": "",
         }
+
+    @staticmethod
+    def _normalize_search_mode(search_mode: str) -> str:
+        """Normalizes frontend mode strings to supported graph values."""
+        normalized = (search_mode or "").strip().lower()
+        if normalized in {"websearch", "web"}:
+            return "websearch"
+        if normalized in {"extremesearch", "extreme_search", "extreme"}:
+            return "extremesearch"
+        if normalized == "edit":
+            return "edit"
+        return "deepsearch"
 
     async def run(
         self, 
@@ -412,7 +390,8 @@ class DeepResearchAgent:
             memory_context = await self._memory.get_context_for_planner(
                 thread_id=thread_id,
                 user_id=initial_state["user_id"],
-                current_query=user_query
+                current_query=user_query,
+                search_mode=initial_state.get("search_mode", "deepsearch"),
             )
             initial_state["memory_context"] = memory_context
             
@@ -461,34 +440,7 @@ if __name__ == "__main__":
     import os
     from datetime import datetime
 
-    def format_report_markdown(result: Dict[str, Any], query: str) -> str:
-        """Format the research result as a complete markdown report."""
-        lines = []
-        lines.append(f"# Research Report: {query}\n")
-        lines.append(f"*Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*\n")
-        lines.append("---\n")
 
-        if result.get('report_abstract'):
-            lines.append("## Abstract\n")
-            lines.append(f"{result['report_abstract']}\n")
-            lines.append("---\n")
-
-        if result.get('report_introduction'):
-            lines.append("## Introduction\n")
-            lines.append(f"{result['report_introduction']}\n")
-            lines.append("---\n")
-
-        # Report Body (chapters and subchapters)
-        body_sections = result.get('report_body_sections', [])
-        for section in sorted(body_sections, key=lambda s: s.get('section_order', 0)):
-            lines.append(f"{section.get('section_content', '')}\n")
-        if body_sections:
-            lines.append("---\n")
-
-        if result.get('report_conclusion'):
-            lines.append(f"{result['report_conclusion']}\n")
-
-        return "\n".join(lines)
 
     async def main():
         if len(sys.argv) > 1:
@@ -512,32 +464,5 @@ if __name__ == "__main__":
 
         report_markdown = format_report_markdown(result, query)
 
-        output_dir = "reports"
-        os.makedirs(output_dir, exist_ok=True)
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        safe_query = "".join(c if c.isalnum() or c == ' ' else '_' for c in query[:50]).strip().replace(' ', '_')
-        file_path = f"{output_dir}/{timestamp}_{safe_query}.md"
-
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(report_markdown)
-
-        print("\n" + "=" * 80)
-        print("RESEARCH COMPLETE")
-        print("=" * 80)
-        print(f"\n📊 Stats:")
-        print(f"   - Planner Queries: {len(result.get('planner_query', []))}")
-        print(f"   - Research Reviews: {len(result.get('research_review', []))}")
-        print(f"   - Report Body Sections: {len(result.get('report_body_sections', []))}")
-        print(f"\n📄 Report saved to: {file_path}")
-        print("\n" + "=" * 80)
-        if result.get('report_body_sections'):
-            print("\n" + "=" * 80)
-            print("FULL REPORT")
-            print("=" * 80 + "\n")
-            print(report_markdown)
-        else:
-            print("\n" + "=" * 80)
-            print("SEARCH COMPLETE")
-            print("=" * 80 + "\n")
 
     asyncio.run(main())

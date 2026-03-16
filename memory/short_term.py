@@ -95,7 +95,7 @@ class ShortTermMemory:
 
                 logger.info("ShortTermMemory fully initialized with AsyncShallowPostgresSaver")
             except Exception as e:
-                logger.error(f"Failed to initialize ShallowPostgresSaver: {e}")
+                logger.error(f"Failed to initialize AsyncShallowPostgresSaver: {e}")
                 raise e
 
     async def shutdown(self) -> None:

@@ -1,9 +1,9 @@
 """
 Memory module for Deep Research Agent.
 
-Provides short-term (conversation) and long-term (semantic) memory
-management with PostgreSQL persistence, plus automatic compaction
-of chat context via MemoryCompactor.
+Provides short-term (conversation via LangGraph checkpointer) and
+long-term (semantic via Qdrant) memory management, plus automatic
+compaction of chat context via MemoryCompactor.
 """
 
 from memory.short_term import ShortTermMemory

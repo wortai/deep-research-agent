@@ -4,15 +4,14 @@ Response Composer for generating final user responses.
 Handles all response types:
 - websearch: Summarize quick search results
 - deepsearch/extremesearch: Report summary + PDF link
-- follow_up: Answer using report context
-- edit: Confirm changes + updated PDF
-- off_topic: Polite decline with capability explanation
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, List
+from urllib.parse import urlparse
 from llms import LlmsHouse
 from graphs.states.subgraph_state import AgentGraphState
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, SystemMessage
+from response.utils import _extract_citation_label, _build_citation_map 
 from datetime import datetime
 import logging
 
@@ -20,10 +19,9 @@ logger = logging.getLogger(__name__)
 
 
 from response.response_prompts import (
-    WEBSEARCH_RESPONSE_PROMPT,
+    WEBSEARCH_SYSTEM_PROMPT,
+    WEBSEARCH_HUMAN_TEMPLATE,
     REPORT_SUMMARY_PROMPT,
-    FOLLOW_UP_PROMPT,
-    OFF_TOPIC_RESPONSE,
 )
 
 
@@ -38,12 +36,13 @@ class ResponseComposer:
 
     def __init__(self):
         """Initialize with bare ChatGoogleGenerativeAI for streaming."""
-        self.llm = LlmsHouse.google_model("gemini-2.5-flash",
-        temperature=1.0,
-        max_output_tokens=12000,
-        top_p=0.9,
-        top_k=40,
-     )
+        self.llm = LlmsHouse.grok_model(
+            model_name="grok-4-1-fast-reasoning",
+            temperature=1.1,
+            max_output_tokens=12000,
+            top_p=0.9,
+            top_k=40,
+        )
 
     def _create_chat_message(self, role: str, content: str) -> Dict:
         """Create a chat message dict for chat_messages state list."""
@@ -55,6 +54,7 @@ class ResponseComposer:
             "message_type": "text"
         }
 
+
     async def compose(self, state: AgentGraphState) -> Dict[str, Any]:
         """
         Build the prompt for the current intent and invoke the LLM.
@@ -64,24 +64,21 @@ class ResponseComposer:
         so each token is emitted to the WebSocket automatically.
 
         Args:
-            state: Current graph state with intent_type, user_query, etc.
+            state: Current graph state with search_mode, user_query, etc.
 
         Returns:
             State update with final_response, chat_messages, current_phase.
         """
-        intent_type = state.get("intent_type", "off_topic")
+        search_mode = state.get("search_mode", "deepsearch")
         user_query = state.get("user_query", "")
 
-        logger.info(f"[ResponseComposer] Composing response for intent: {intent_type}")
+        logger.info(f"[ResponseComposer] Composing response for mode: {search_mode}")
 
         try:
             response = ""
             prompt = ""
 
-            match intent_type:
-                case "off_topic":
-                    response = OFF_TOPIC_RESPONSE
-
+            match search_mode:
                 case "websearch":
                     websearch_results = state.get("websearch_results", [])
                     latest_data = websearch_results[-1] if websearch_results else {}
@@ -89,6 +86,8 @@ class ResponseComposer:
                     latest_images = latest_data.get("images", [])
 
                     formatted_results = ""
+                    citation_entries: List[Dict[str, str]] = []
+
                     if isinstance(latest_results, list):
                         for i, res in enumerate(latest_results, 1):
                             title = res.get("title", "No Title")
@@ -98,8 +97,12 @@ class ResponseComposer:
                             formatted_results += f"--- SEARCH RESULT {i} ---\n"
                             formatted_results += f"SOURCE TITLE: {title}\n"
                             formatted_results += f"SOURCE URL: {url}\n"
+                            label = _extract_citation_label(title, url)
+                            formatted_results += f"CITATION_LABEL: {label}\n"
                             formatted_results += f"EXTRACTED CONTENT:\n{content}\n"
                             formatted_results += "--------------------------------------------------------\n\n"
+
+                            citation_entries.append({"label": label, "url": url})
                     else:
                         formatted_results = str(latest_results)
 
@@ -115,6 +118,8 @@ class ResponseComposer:
                             )
                         formatted_results += "============================\n"
 
+                    citation_map = _build_citation_map(citation_entries)
+
                     chat_messages = state.get("chat_messages", [])
                     chat_history = "\n".join(
                         f"{m.get('role', 'unknown')}: {m.get('content', '')}"
@@ -122,13 +127,35 @@ class ResponseComposer:
                     ) if chat_messages else "No prior conversation."
 
                     skill = state.get("response_skill", "") or "Use clear prose with bold key facts. Lead with the direct answer."
-                    print("These are the Research Reulsts getting printend", formatted_results)
-                    prompt = WEBSEARCH_RESPONSE_PROMPT.format(
+
+                    system_prompt = WEBSEARCH_SYSTEM_PROMPT
+                    human_prompt = WEBSEARCH_HUMAN_TEMPLATE.format(
                         user_query=user_query,
                         chat_history=chat_history,
+                        citation_map=citation_map,
                         research_results=formatted_results or "No websearch results found.",
                         response_skill=skill,
                     )
+
+                    prompt = None
+                    async for chunk in self.llm.astream([
+                        SystemMessage(content=system_prompt),
+                        HumanMessage(content=human_prompt),
+                    ]):
+                        response += chunk.content
+
+                    print(f"\n{'='*80}")
+                    print(f"[DEBUG] RAW WEBSEARCH LLM OUTPUT:")
+                    print(f"{'='*80}")
+                    print(response)
+                    print(f"{'='*80}\n")
+
+                    final_text = response.strip() or "I could not generate a response. Please try again."
+                    assistant_message = self._create_chat_message("assistant", final_text)
+                    return {
+                        "chat_messages": [assistant_message],
+                        "current_phase": "responding",
+                    }
 
                 case "deepsearch" | "extremesearch":
                     reports = state.get("reports", [])
@@ -148,39 +175,48 @@ class ResponseComposer:
                         pdf_path=pdf_path,
                     )
 
-                case "follow_up":
-                    reports = state.get("reports", [])
-                    if not reports:
-                        combined_body = "No reports have been generated yet to follow up on."
-                    else:
-                        latest_report = reports[-1]
-                        body_sections = latest_report.get("body_sections", [])
-                        combined_body = "\n\n".join(
-                            s.get("section_content", "")
-                            for s in sorted(body_sections, key=lambda s: s.get("section_order", 0))
-                        )
-                    prompt = FOLLOW_UP_PROMPT.format(
-                        user_query=user_query,
-                        report_body=combined_body[:30000],
-                    )
-
                 case "edit":
-                    response = "I've updated the report based on your request. The revised version is available."
+                    response = "I have applied your edit request to the report flow placeholder. Detailed edit behavior will be expanded next."
 
                 case _:
-                    response = "I apologize, but I couldn't process your request. Please try rephrasing your question."
+                    logger.warning(
+                        f"[ResponseComposer] Unknown search_mode '{search_mode}', using deepsearch summary path."
+                    )
+                    reports = state.get("reports", [])
+                    latest_report = reports[-1] if reports else {}
+                    prompt = REPORT_SUMMARY_PROMPT.format(
+                        user_query=user_query,
+                        abstract=latest_report.get("abstract", "")[:500],
+                        introduction=latest_report.get("introduction", "")[:500],
+                        pdf_path=state.get("pdf_s3_path") or state.get("final_report_path", ""),
+                    )
 
             if prompt:
                 async for chunk in self.llm.astream([HumanMessage(content=prompt)]):
                     response += chunk.content
 
-                assistant_message = self._create_chat_message("assistant", response)
-
-                logger.info(f"[ResponseComposer] Assistant response: {response}")
+                final_text = response.strip() or "I could not generate a response. Please try again."
+                assistant_message = self._create_chat_message("assistant", final_text)
                 return {
                     "chat_messages": [assistant_message],
                     "current_phase": "responding",
                 }
+
+            if response:
+                assistant_message = self._create_chat_message("assistant", response)
+                return {
+                    "chat_messages": [assistant_message],
+                    "current_phase": "responding",
+                }
+
+            fallback = self._create_chat_message(
+                "assistant",
+                "I could not generate a response. Please try again."
+            )
+            return {
+                "chat_messages": [fallback],
+                "current_phase": "responding",
+            }
 
         except Exception as e:
             logger.error(f"[ResponseComposer] Error composing response: {e}")

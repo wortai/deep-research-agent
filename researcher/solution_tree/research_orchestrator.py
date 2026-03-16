@@ -62,7 +62,6 @@ async def execute_research_tree(
     max_depth: int = 2, 
     num_gaps_per_node: int = 2,
     query_num: int = 0,
-    report_style_skill: str = "",
     clarification_context: list = None
 ) -> Dict[str, Any]:
     """
@@ -165,9 +164,10 @@ async def execute_research_tree(
                 return {"node": node, "gaps": [], "answer": {}, "success": True, "max_depth": True}
             
             try:
+                at_last_runnable_depth = node.depth >= max_depth - 1
                 solver = Solver(
-                    query=node.query, num_gaps_per_node=num_gaps_per_node,
-                    report_style_skill=report_style_skill,
+                    query=node.query,
+                    num_gaps_per_node=0 if at_last_runnable_depth else num_gaps_per_node,
                     clarification_context=clarification_context or []
                 )
                 gaps, answer = await solver.resolve()
@@ -227,16 +227,15 @@ async def execute_research_tree(
                 
                 all_gaps[node.query] = result["gaps"]
                 
-                # logger.info(f"Query resolved. Found {len(result['gaps'])} new child nodes (gaps).")
-                
                 for gap_query in result["gaps"]:
-                    child_node = Node(
-                        query=gap_query, 
-                        depth=node.depth + 1, 
-                        parent=node
-                    )
-                    node.children.append(child_node)
-                    queue.append(child_node)
+                    if node.depth + 1 < max_depth:
+                        child_node = Node(
+                            query=gap_query, 
+                            depth=node.depth + 1, 
+                            parent=node
+                        )
+                        node.children.append(child_node)
+                        queue.append(child_node)
             
     _emit_event(
         writer,

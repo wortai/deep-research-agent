@@ -1,151 +1,113 @@
 """
-Long-term memory system for cross-session user knowledge.
+Long-term memory backed by Qdrant.
 
 Stores durable user insights (facts, preferences, episodic events,
-procedural patterns, tone/style) in PostgreSQL via LangGraph's
-AsyncPostgresStore with OpenAI embeddings for semantic retrieval.
-
-Retrieval pipeline:
-  1. Semantic search via pgvector (dense embeddings)
+procedural patterns, tone/style) with hybrid retrieval:
+  1. Dense embedding (OpenAI text-embedding-3-small)
   2. CrossEncoder reranking for precision
-  3. Optional memory-type filtering
 
-User-scoped by namespace: each user's memories live under
-(user_id, "memories") so a single store table serves all users
-with full isolation.
+Inline dedup: before inserting a new memory, searches for similar
+existing ones and asks an LLM to merge or create new.
+
+Collection: wort-long-term-memory (multitenancy on user-id).
 """
 
+import json
 import logging
+import os
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
-from Prompts.prompt import get_memory_consolidation_prompt
+from dotenv import load_dotenv
 
+from memory.output_model import (
+    MemoryItem, ScoredMemory, InlineDedup,
+    ConsolidationAnalysis, MEMORY_TYPES,
+)
+
+load_dotenv()
 logger = logging.getLogger(__name__)
 
-MemoryType = Literal["fact", "preference", "episodic", "procedural", "style"]
-
-MEMORY_TYPES: List[str] = ["fact", "preference", "episodic", "procedural", "style"]
-
+COLLECTION_NAME = "wort-long-term-memory"
+DENSE_VECTOR_NAME = "dense-vector"
 DEFAULT_RERANKER_MODEL = "cross-encoder/ms-marco-MiniLM-L6-v2"
-DEFAULT_EMBEDDING_MODEL = "text-embedding-3-small"
-EMBEDDING_DIMS = 1536
-SEMANTIC_SEARCH_OVERSAMPLE = 20
-CONSOLIDATION_BATCH_LIMIT = 50
-
-
-class MemoryItem(BaseModel):
-    """Schema for a single long-term memory entry stored in the value JSONB."""
-
-    content: str
-    memory_type: MemoryType = "fact"
-    source_thread: str = ""
-    confidence: float = Field(default=1.0, ge=0.0, le=1.0)
-    access_count: int = 0
-    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
-    updated_at: str = Field(default_factory=lambda: datetime.now().isoformat())
-    metadata: Dict[str, Any] = Field(default_factory=dict)
-
-
-class ScoredMemory(BaseModel):
-    """A memory item annotated with retrieval and reranking scores."""
-
-    memory_id: str
-    content: str
-    memory_type: str
-    confidence: float = 1.0
-    semantic_score: float = 0.0
-    rerank_score: float = 0.0
-    created_at: str = ""
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+SIMILARITY_THRESHOLD = 0.75
 
 
 class LongTermMemory:
     """
-    Manages durable, cross-session user memories.
+    Manages durable, cross-session user memories via Qdrant.
 
-    Storage: LangGraph AsyncPostgresStore (pgvector for embeddings).
-    Retrieval: dense semantic search → CrossEncoder reranking.
-    Scoping: namespace tuple (user_id, "memories") isolates per user.
+    Storage: Qdrant with dense (OpenAI) vectors.
+    Retrieval: dense search → optional CrossEncoder reranking.
+    Dedup: before every insert, searches for overlapping memories
+    and uses an LLM to merge if appropriate.
     """
-
-    MEMORY_TYPES = MEMORY_TYPES
 
     def __init__(
         self,
-        db_uri: Optional[str] = None,
-        embedding_model: str = DEFAULT_EMBEDDING_MODEL,
-        reranker_model: str = DEFAULT_RERANKER_MODEL,
+        qdrant_url: Optional[str] = None,
+        qdrant_api_key: Optional[str] = None,
         reranker_enabled: bool = True,
     ):
-        self._db_uri = db_uri or self._load_db_uri()
-        self._embedding_model = embedding_model
-        self._reranker_model = reranker_model
+        self._qdrant_url = qdrant_url or os.getenv("QDRANT_URL")
+        self._qdrant_api_key = qdrant_api_key or os.getenv("QDRANT_API_KEY")
         self._reranker_enabled = reranker_enabled
 
-        self._store = None
-        self._store_cm = None
+        self._client = None
+        self._embedder = None
         self._reranker = None
-        self._fallback: Dict[str, Dict[str, Dict]] = {}
 
     async def initialize(self) -> None:
-        """Opens the AsyncPostgresStore connection and loads the reranker."""
-        await self._initialize_store()
+        """Opens Qdrant connection, loads embedder and reranker."""
+        self._initialize_client()
+        self._initialize_embedder()
         self._initialize_reranker()
 
     async def shutdown(self) -> None:
-        """Gracefully closes underlying connections."""
-        if self._store and hasattr(self._store, "pool"):
-            await self._store.pool.close()
-            logger.info("LongTermMemory store pool closed")
+        """Closes underlying Qdrant connection."""
+        if self._client:
+            self._client.close()
+            logger.info("LongTermMemory: Qdrant client closed")
 
     # ------------------------------------------------------------------
-    #  STORE
+    #  STORE (with inline dedup)
     # ------------------------------------------------------------------
 
     async def store_memory(
         self,
         user_id: str,
-        memory_type: MemoryType,
+        memory_type: str,
         content: str,
-        metadata: Optional[Dict[str, Any]] = None,
         source_thread: str = "",
-        confidence: float = 1.0,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> str:
         """
-        Persists a single memory for the user. Returns the generated memory_id.
+        Stores a memory after checking for similar existing ones.
+        If overlapping memories are found, asks an LLM to merge
+        or insert as new. Returns the stored/merged memory ID.
         """
-        self._validate_memory_type(memory_type)
+        if memory_type not in MEMORY_TYPES:
+            raise ValueError(f"memory_type must be one of {MEMORY_TYPES}, got '{memory_type}'")
 
-        memory_id = str(uuid.uuid4())
-        item = MemoryItem(
-            content=content,
-            memory_type=memory_type,
-            source_thread=source_thread,
-            confidence=confidence,
-            metadata=metadata or {},
+        if not self._client or not self._embedder:
+            logger.warning("LongTermMemory: not initialized, memory not persisted")
+            return ""
+
+        similar = await self.search(
+            user_id, content, memory_types=[memory_type], limit=10, rerank=False,
         )
+        high_similarity = [m for m in similar if m.semantic_score >= SIMILARITY_THRESHOLD]
 
-        if self._store:
-            try:
-                await self._store.aput(
-                    self._namespace(user_id),
-                    memory_id,
-                    item.model_dump(),
-                )
-                logger.info(
-                    f"Stored {memory_type} memory for user {user_id} "
-                    f"(id={memory_id[:8]}…)"
-                )
-            except Exception as exc:
-                logger.error(f"Failed to store memory: {exc}")
-                self._put_fallback(user_id, memory_id, item.model_dump())
-        else:
-            self._put_fallback(user_id, memory_id, item.model_dump())
+        if high_similarity:
+            merged_id = await self._try_inline_merge(
+                user_id, content, memory_type, high_similarity, source_thread, metadata,
+            )
+            if merged_id:
+                return merged_id
 
-        return memory_id
+        return await self._insert_point(user_id, content, memory_type, source_thread, metadata)
 
     async def store_batch(
         self,
@@ -153,27 +115,21 @@ class LongTermMemory:
         items: List[Dict[str, Any]],
         source_thread: str = "",
     ) -> List[str]:
-        """
-        Stores multiple memories in one pass.
-
-        Each dict in *items* must have at least "content" and "memory_type".
-        Returns list of generated memory_ids.
-        """
+        """Stores multiple memories with inline dedup per item."""
         ids: List[str] = []
         for entry in items:
             mid = await self.store_memory(
                 user_id=user_id,
                 memory_type=entry.get("memory_type", "fact"),
                 content=entry.get("content", ""),
-                metadata=entry.get("metadata"),
                 source_thread=source_thread,
-                confidence=entry.get("confidence", 1.0),
+                metadata=entry.get("metadata"),
             )
             ids.append(mid)
         return ids
 
     # ------------------------------------------------------------------
-    #  RETRIEVE
+    #  SEARCH
     # ------------------------------------------------------------------
 
     async def search(
@@ -185,56 +141,45 @@ class LongTermMemory:
         rerank: bool = True,
     ) -> List[ScoredMemory]:
         """
-        Retrieves memories relevant to *query* using the full pipeline:
-          1. Semantic (dense) search via pgvector
-          2. Memory-type filtering
-          3. CrossEncoder reranking (when enabled)
-
-        Returns up to *limit* ScoredMemory items sorted by rerank_score.
+        Retrieves memories via dense vector search with optional
+        memory-type filtering and CrossEncoder reranking.
         """
-        if not self._store:
-            return self._search_fallback(user_id, query, memory_types, limit)
-
-        try:
-            oversample = SEMANTIC_SEARCH_OVERSAMPLE if rerank else limit
-            filter_dict = self._build_type_filter(memory_types)
-
-            raw_results = await self._store.asearch(
-                self._namespace(user_id),
-                query=query,
-                filter=filter_dict,
-                limit=oversample,
-            )
-
-            candidates = self._results_to_scored(raw_results)
-
-            if memory_types and len(memory_types) > 1:
-                candidates = [c for c in candidates if c.memory_type in memory_types]
-
-            if rerank and self._reranker_enabled and self._reranker and len(candidates) > 1:
-                candidates = self._rerank(query, candidates)
-
-            return candidates[:limit]
-
-        except Exception as exc:
-            logger.error(f"Memory search failed: {exc}")
+        if not self._client or not self._embedder:
             return []
 
-    async def get_by_id(self, user_id: str, memory_id: str) -> Optional[ScoredMemory]:
-        """Fetches a single memory by its ID."""
-        if not self._store:
-            data = self._fallback.get(user_id, {}).get(memory_id)
-            if data:
-                return self._dict_to_scored(memory_id, data)
-            return None
+        from qdrant_client.models import Filter, FieldCondition, MatchValue
 
-        try:
-            item = await self._store.aget(self._namespace(user_id), memory_id)
-            if item:
-                return self._dict_to_scored(item.key, item.value)
-        except Exception as exc:
-            logger.error(f"Failed to get memory {memory_id}: {exc}")
-        return None
+        must_conditions = [FieldCondition(key="user-id", match=MatchValue(value=user_id))]
+        if memory_types and len(memory_types) == 1:
+            must_conditions.append(
+                FieldCondition(key="memory_type", match=MatchValue(value=memory_types[0]))
+            )
+
+        oversample = 20 if rerank else limit
+        dense_vector = self._embed_dense(query)
+
+        results = self._client.query_points(
+            collection_name=COLLECTION_NAME,
+            query=dense_vector,
+            using=DENSE_VECTOR_NAME,
+            query_filter=Filter(must=must_conditions),
+            limit=oversample,
+            with_payload=True,
+        )
+
+        candidates = self._results_to_scored(results.points)
+
+        if memory_types and len(memory_types) > 1:
+            candidates = [c for c in candidates if c.memory_type in memory_types]
+
+        if rerank and self._reranker_enabled and self._reranker and len(candidates) > 1:
+            candidates = self._rerank(query, candidates)
+
+        return candidates[:limit]
+
+    # ------------------------------------------------------------------
+    #  GET / DELETE
+    # ------------------------------------------------------------------
 
     async def get_all(
         self,
@@ -243,103 +188,61 @@ class LongTermMemory:
         limit: int = 100,
     ) -> List[ScoredMemory]:
         """Lists all memories for a user, optionally filtered by type."""
-        if not self._store:
-            return self._list_fallback(user_id, memory_type, limit)
-
-        try:
-            filter_dict = {"memory_type": memory_type} if memory_type else None
-            results = await self._store.asearch(
-                self._namespace(user_id),
-                filter=filter_dict,
-                limit=limit,
-            )
-            return self._results_to_scored(results)
-        except Exception as exc:
-            logger.error(f"Failed to list memories: {exc}")
+        if not self._client:
             return []
 
-    # ------------------------------------------------------------------
-    #  UPDATE / DELETE
-    # ------------------------------------------------------------------
+        from qdrant_client.models import Filter, FieldCondition, MatchValue
 
-    async def update_memory(
-        self,
-        user_id: str,
-        memory_id: str,
-        content: Optional[str] = None,
-        metadata_updates: Optional[Dict[str, Any]] = None,
-        confidence: Optional[float] = None,
-    ) -> bool:
-        """
-        Partially updates an existing memory. Only provided fields are changed.
-        Re-embeds automatically because aput replaces the value JSONB.
-        """
-        if not self._store:
-            return self._update_fallback(user_id, memory_id, content, metadata_updates, confidence)
+        must_conditions = [FieldCondition(key="user-id", match=MatchValue(value=user_id))]
+        if memory_type:
+            must_conditions.append(
+                FieldCondition(key="memory_type", match=MatchValue(value=memory_type))
+            )
 
-        try:
-            existing = await self._store.aget(self._namespace(user_id), memory_id)
-            if not existing:
-                return False
+        results, _ = self._client.scroll(
+            collection_name=COLLECTION_NAME,
+            scroll_filter=Filter(must=must_conditions),
+            limit=limit,
+            with_payload=True,
+        )
 
-            data = existing.value
-            if content is not None:
-                data["content"] = content
-            if metadata_updates:
-                data.setdefault("metadata", {}).update(metadata_updates)
-            if confidence is not None:
-                data["confidence"] = confidence
-            data["updated_at"] = datetime.now().isoformat()
-
-            await self._store.aput(self._namespace(user_id), memory_id, data)
-            logger.info(f"Updated memory {memory_id[:8]}…")
-            return True
-        except Exception as exc:
-            logger.error(f"Failed to update memory: {exc}")
-            return False
+        return [
+            ScoredMemory(
+                memory_id=str(pt.id),
+                content=pt.payload.get("content", ""),
+                memory_type=pt.payload.get("memory_type", "fact"),
+                created_at=pt.payload.get("created_at", ""),
+                metadata=pt.payload.get("metadata", {}),
+            )
+            for pt in results
+        ]
 
     async def delete_memory(self, user_id: str, memory_id: str) -> bool:
-        """Deletes a single memory."""
-        if not self._store:
-            return self._delete_fallback(user_id, memory_id)
-
-        try:
-            await self._store.adelete(self._namespace(user_id), memory_id)
-            logger.info(f"Deleted memory {memory_id[:8]}…")
-            return True
-        except Exception as exc:
-            logger.error(f"Failed to delete memory: {exc}")
+        """Deletes a single memory point by ID."""
+        if not self._client:
             return False
 
-    async def clear_user_memories(
-        self,
-        user_id: str,
-        memory_type: Optional[str] = None,
-    ) -> int:
-        """Removes all memories for a user, optionally scoped to a type."""
-        memories = await self.get_all(user_id, memory_type)
-        deleted = 0
-        for mem in memories:
-            if await self.delete_memory(user_id, mem.memory_id):
-                deleted += 1
-        logger.info(f"Cleared {deleted} memories for user {user_id}")
-        return deleted
+        from qdrant_client.models import PointIdsList
+
+        self._client.delete(
+            collection_name=COLLECTION_NAME,
+            points_selector=PointIdsList(points=[memory_id]),
+        )
+        logger.info(f"Deleted memory {memory_id[:8]}…")
+        return True
 
     # ------------------------------------------------------------------
-    #  CONSOLIDATION (LLM-driven deduplication / merge)
+    #  CONSOLIDATION (LLM-driven batch cleanup)
     # ------------------------------------------------------------------
 
-    async def consolidate(
-        self,
-        user_id: str,
-        llm: Any = None,
-    ) -> Dict[str, int]:
+    async def consolidate(self, user_id: str, llm: Any = None) -> Dict[str, int]:
         """
-        Uses an LLM to identify and merge duplicate or overlapping memories.
+        Batch cleanup of all memories using LLM-driven dedup.
+        Newer timestamps take priority over older ones.
 
-        Returns a summary dict: {"merged": N, "deleted": N, "kept": N}.
+        Returns: {"merged": N, "deleted": N, "kept": N}.
         """
-        memories = await self.get_all(user_id, limit=CONSOLIDATION_BATCH_LIMIT)
+        memories = await self.get_all(user_id)
         if len(memories) < 5:
             return {"merged": 0, "deleted": 0, "kept": len(memories)}
 
@@ -347,8 +250,10 @@ class LongTermMemory:
             from llms.llms import LlmsHouse
             llm = LlmsHouse.google_model("gemini-2.0-flash")
 
+        from Prompts.memory_prompts import get_memory_consolidation_prompt
+
         numbered = "\n".join(
-            f"{i + 1}. [{m.memory_type}] {m.content}"
+            f"{i + 1}. [{m.memory_type}] (created: {m.created_at}) {m.content}"
             for i, m in enumerate(memories)
         )
 
@@ -357,209 +262,239 @@ class LongTermMemory:
         try:
             response = await llm.ainvoke(prompt)
             raw = response.content if hasattr(response, "content") else str(response)
-            raw = self._strip_code_fences(raw)
-
-            import json
-            analysis = json.loads(raw)
-
-            merged_count, deleted_count = 0, 0
-
-            for group in analysis.get("merge", []):
-                indices = group.get("indices", [])
-                merged_text = group.get("merged_content", "")
-                if len(indices) >= 2 and merged_text:
-                    source_type = memories[indices[0] - 1].memory_type
-                    await self.store_memory(user_id, source_type, merged_text)
-                    merged_count += 1
-                    for idx in indices:
-                        if 0 < idx <= len(memories):
-                            await self.delete_memory(user_id, memories[idx - 1].memory_id)
-                            deleted_count += 1
-
-            for idx in analysis.get("delete", []):
-                if 0 < idx <= len(memories):
-                    await self.delete_memory(user_id, memories[idx - 1].memory_id)
-                    deleted_count += 1
-
-            kept = len(analysis.get("keep", []))
-            logger.info(
-                f"Consolidation for {user_id}: merged={merged_count}, "
-                f"deleted={deleted_count}, kept={kept}"
-            )
-            return {"merged": merged_count, "deleted": deleted_count, "kept": kept}
+            analysis = ConsolidationAnalysis.model_validate_json(self._strip_code_fences(raw))
+            return await self._apply_consolidation(user_id, memories, analysis)
 
         except Exception as exc:
             logger.error(f"Consolidation failed: {exc}")
             return {"merged": 0, "deleted": 0, "kept": len(memories)}
 
-    # ------------------------------------------------------------------
-    #  USER PROFILE (convenience namespace)
-    # ------------------------------------------------------------------
+    async def _apply_consolidation(
+        self,
+        user_id: str,
+        memories: List[ScoredMemory],
+        analysis: ConsolidationAnalysis,
+    ) -> Dict[str, int]:
+        """Executes the merge/delete/keep actions from the LLM analysis."""
+        merged_count, deleted_count = 0, 0
 
-    async def store_user_profile(self, user_id: str, profile: Dict[str, Any]) -> None:
-        """Stores or replaces the user profile under a dedicated namespace."""
-        data = {
-            "content": str(profile),
-            "profile": profile,
-            "updated_at": datetime.now().isoformat(),
-        }
-        if self._store:
-            try:
-                await self._store.aput((user_id, "profile"), "user_profile", data)
-            except Exception as exc:
-                logger.error(f"Failed to store profile: {exc}")
-        else:
-            self._fallback.setdefault(user_id, {})["__profile__"] = data
+        for group in analysis.merge:
+            if len(group.indices) >= 2 and group.merged_content:
+                source_type = memories[group.indices[0] - 1].memory_type
+                await self._insert_point(user_id, group.merged_content, source_type)
+                merged_count += 1
+                for idx in group.indices:
+                    if 0 < idx <= len(memories):
+                        await self.delete_memory(user_id, memories[idx - 1].memory_id)
+                        deleted_count += 1
+
+        for idx in analysis.delete:
+            if 0 < idx <= len(memories):
+                await self.delete_memory(user_id, memories[idx - 1].memory_id)
+                deleted_count += 1
+
+        kept = len(analysis.keep)
+        logger.info(
+            f"Consolidation for {user_id}: merged={merged_count}, "
+            f"deleted={deleted_count}, kept={kept}"
+        )
+        return {"merged": merged_count, "deleted": deleted_count, "kept": kept}
+
+    # ------------------------------------------------------------------
+    #  USER PROFILE
+    # ------------------------------------------------------------------
 
     async def get_user_profile(self, user_id: str) -> Optional[Dict[str, Any]]:
-        """Retrieves the user profile if it exists."""
-        if self._store:
-            try:
-                item = await self._store.aget((user_id, "profile"), "user_profile")
-                if item:
-                    return item.value.get("profile", item.value)
-            except Exception as exc:
-                logger.error(f"Failed to get profile: {exc}")
-                return None
-        else:
-            entry = self._fallback.get(user_id, {}).get("__profile__")
-            if entry:
-                return entry.get("profile")
-        return None
+        """Retrieves all profile-type memories as a combined profile dict."""
+        if not self._client:
+            return None
+
+        from qdrant_client.models import Filter, FieldCondition, MatchValue
+
+        results, _ = self._client.scroll(
+            collection_name=COLLECTION_NAME,
+            scroll_filter=Filter(must=[
+                FieldCondition(key="user-id", match=MatchValue(value=user_id)),
+                FieldCondition(key="memory_type", match=MatchValue(value="profile")),
+            ]),
+            limit=10,
+            with_payload=True,
+        )
+
+        if not results:
+            return None
+
+        profile_entries = [pt.payload.get("content", "") for pt in results]
+        return {"profile_facts": profile_entries}
 
     async def update_user_profile(self, user_id: str, updates: Dict[str, Any]) -> None:
-        """Merges *updates* into the existing user profile."""
-        current = await self.get_user_profile(user_id) or {}
-        current.update(updates)
-        await self.store_user_profile(user_id, current)
+        """
+        Stores a profile update as a memory with memory_type='profile'.
+        Inline dedup will merge it with existing profile entries if similar.
+        """
+        content = ", ".join(f"{k}: {v}" for k, v in updates.items())
+        await self.store_memory(user_id, "profile", content)
 
-    # ==================================================================
+    # ------------------------------------------------------------------
+    #  PRIVATE — Inline dedup
+    # ------------------------------------------------------------------
+
+    async def _try_inline_merge(
+        self,
+        user_id: str,
+        new_content: str,
+        memory_type: str,
+        similar_memories: List[ScoredMemory],
+        source_thread: str = "",
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Optional[str]:
+        """
+        Asks LLM if the new memory should merge with similar existing ones.
+        Returns the merged memory ID if merged, None if the LLM says "new".
+        """
+        from llms.llms import LlmsHouse
+        from Prompts.memory_prompts import get_inline_dedup_prompt
+
+        llm = LlmsHouse.google_model("gemini-2.0-flash")
+
+        existing_formatted = "\n".join(
+            f"ID: {m.memory_id} | Type: {m.memory_type} | Created: {m.created_at} | Content: {m.content}"
+            for m in similar_memories
+        )
+
+        prompt = get_inline_dedup_prompt(new_content, existing_formatted)
+
+        try:
+            response = await llm.ainvoke(prompt)
+            raw = response.content if hasattr(response, "content") else str(response)
+            decision = InlineDedup.model_validate_json(self._strip_code_fences(raw))
+
+            if decision.action == "merge" and decision.merged_content:
+                for old_id in decision.replace_ids:
+                    await self.delete_memory(user_id, old_id)
+
+                merged_id = await self._insert_point(
+                    user_id, decision.merged_content, memory_type, source_thread, metadata,
+                )
+                logger.info(
+                    f"Inline merged {len(decision.replace_ids)} memories → {merged_id[:8]}…"
+                )
+                return merged_id
+
+            return None
+
+        except Exception as exc:
+            logger.warning(f"Inline dedup failed ({exc}), inserting as new")
+            return None
+
+    async def _insert_point(
+        self,
+        user_id: str,
+        content: str,
+        memory_type: str,
+        source_thread: str = "",
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """Raw insert of a single point into Qdrant without dedup checks."""
+        memory_id = str(uuid.uuid4())
+        item = MemoryItem(
+            content=content,
+            memory_type=memory_type,
+            source_thread=source_thread,
+            metadata=metadata or {},
+        )
+
+        dense_vector = self._embed_dense(content)
+
+        from qdrant_client.models import PointStruct
+
+        point = PointStruct(
+            id=memory_id,
+            vector={DENSE_VECTOR_NAME: dense_vector},
+            payload={
+                "user-id": user_id,
+                "content": item.content,
+                "memory_type": item.memory_type,
+                "source_thread": item.source_thread,
+                "created_at": item.created_at,
+                "metadata": item.metadata,
+            },
+        )
+
+        self._client.upsert(COLLECTION_NAME, points=[point])
+        logger.info(f"Stored {memory_type} memory for user {user_id} (id={memory_id[:8]}…)")
+        return memory_id
+
+    # ------------------------------------------------------------------
     #  PRIVATE — Initialization
-    # ==================================================================
+    # ------------------------------------------------------------------
 
-    @staticmethod
-    def _load_db_uri() -> Optional[str]:
-        import os
-        from dotenv import load_dotenv
-        load_dotenv()
-        return os.getenv("DATABASE_URL")
-
-    async def _initialize_store(self) -> None:
-        if not self._db_uri:
-            logger.info("LongTermMemory running in fallback (in-memory) mode")
+    def _initialize_client(self) -> None:
+        if not self._qdrant_url:
+            logger.info("LongTermMemory: no QDRANT_URL; store unavailable")
             return
 
         try:
-            from langgraph.store.postgres import AsyncPostgresStore
-            from langchain_openai import OpenAIEmbeddings
+            from qdrant_client import QdrantClient
 
-            embeddings = OpenAIEmbeddings(model=self._embedding_model)
-
-            self._store_cm = AsyncPostgresStore.from_conn_string(
-                self._db_uri,
-                index={
-                    "embed": embeddings,
-                    "dims": EMBEDDING_DIMS,
-                    "fields": ["content"],
-                },
+            self._client = QdrantClient(
+                url=self._qdrant_url,
+                api_key=self._qdrant_api_key,
             )
-            self._store = await self._store_cm.__aenter__()
-
-            if hasattr(self._store, "setup"):
-                await self._store.setup()
-
-            logger.info("LongTermMemory initialized with AsyncPostgresStore")
+            logger.info("LongTermMemory initialized with Qdrant")
         except Exception as exc:
-            logger.warning(f"Failed to connect to PostgreSQL store: {exc}. Using fallback.")
-            self._store = None
+            logger.warning(f"Failed to connect to Qdrant: {exc}")
+            self._client = None
+
+    def _initialize_embedder(self) -> None:
+        try:
+            from langchain_openai import OpenAIEmbeddings
+            self._embedder = OpenAIEmbeddings(model="text-embedding-3-small")
+        except Exception as exc:
+            logger.warning(f"OpenAI embeddings unavailable: {exc}")
+            self._embedder = None
 
     def _initialize_reranker(self) -> None:
         if not self._reranker_enabled:
             return
         try:
             from sentence_transformers import CrossEncoder
-            self._reranker = CrossEncoder(self._reranker_model)
-            logger.info(f"CrossEncoder reranker loaded: {self._reranker_model}")
+            self._reranker = CrossEncoder(DEFAULT_RERANKER_MODEL)
+            logger.info(f"CrossEncoder reranker loaded: {DEFAULT_RERANKER_MODEL}")
         except Exception as exc:
             logger.warning(f"CrossEncoder unavailable ({exc}); reranking disabled")
             self._reranker = None
             self._reranker_enabled = False
 
-    # ==================================================================
-    #  PRIVATE — Namespace & Validation
-    # ==================================================================
+    # ------------------------------------------------------------------
+    #  PRIVATE — Embedding & Reranking
+    # ------------------------------------------------------------------
 
-    @staticmethod
-    def _namespace(user_id: str) -> Tuple[str, str]:
-        return (user_id, "memories")
-
-    @staticmethod
-    def _validate_memory_type(memory_type: str) -> None:
-        if memory_type not in MEMORY_TYPES:
-            raise ValueError(
-                f"memory_type must be one of {MEMORY_TYPES}, got '{memory_type}'"
-            )
-
-    @staticmethod
-    def _build_type_filter(memory_types: Optional[List[str]]) -> Optional[Dict[str, Any]]:
-        """
-        AsyncPostgresStore supports $eq/$ne/$gt/$gte/$lt/$lte but not $in.
-        For a single type we can filter server-side; for multiple types
-        we skip the filter and do client-side post-filtering.
-        """
-        if not memory_types or len(memory_types) != 1:
-            return None
-        return {"memory_type": memory_types[0]}
-
-    # ==================================================================
-    #  PRIVATE — Reranking
-    # ==================================================================
+    def _embed_dense(self, text: str) -> List[float]:
+        """Generates dense embedding via OpenAI."""
+        return self._embedder.embed_query(text)
 
     def _rerank(self, query: str, candidates: List[ScoredMemory]) -> List[ScoredMemory]:
         pairs = [(query, c.content) for c in candidates]
         scores = self._reranker.predict(pairs)
-
         for i, candidate in enumerate(candidates):
             candidate.rerank_score = float(scores[i])
-
         candidates.sort(key=lambda m: m.rerank_score, reverse=True)
         return candidates
 
-    # ==================================================================
-    #  PRIVATE — Result Mapping
-    # ==================================================================
-
     @staticmethod
-    def _results_to_scored(results: List) -> List[ScoredMemory]:
-        scored: List[ScoredMemory] = []
-        for item in results:
-            val = item.value
-            scored.append(
-                ScoredMemory(
-                    memory_id=item.key,
-                    content=val.get("content", ""),
-                    memory_type=val.get("memory_type", "fact"),
-                    confidence=val.get("confidence", 1.0),
-                    semantic_score=getattr(item, "score", 0.0) or 0.0,
-                    rerank_score=0.0,
-                    created_at=val.get("created_at", ""),
-                    metadata=val.get("metadata", {}),
-                )
+    def _results_to_scored(points: list) -> List[ScoredMemory]:
+        return [
+            ScoredMemory(
+                memory_id=str(pt.id),
+                content=pt.payload.get("content", ""),
+                memory_type=pt.payload.get("memory_type", "fact"),
+                semantic_score=pt.score if hasattr(pt, "score") else 0.0,
+                created_at=pt.payload.get("created_at", ""),
+                metadata=pt.payload.get("metadata", {}),
             )
-        return scored
-
-    @staticmethod
-    def _dict_to_scored(memory_id: str, data: Dict) -> ScoredMemory:
-        return ScoredMemory(
-            memory_id=memory_id,
-            content=data.get("content", ""),
-            memory_type=data.get("memory_type", "fact"),
-            confidence=data.get("confidence", 1.0),
-            semantic_score=0.0,
-            rerank_score=0.0,
-            created_at=data.get("created_at", ""),
-            metadata=data.get("metadata", {}),
-        )
+            for pt in points
+        ]
 
     @staticmethod
     def _strip_code_fences(text: str) -> str:
@@ -571,69 +506,3 @@ class LongTermMemory:
         if text.endswith("```"):
             text = text.rsplit("```", 1)[0]
         return text.strip()
-
-    # ==================================================================
-    #  PRIVATE — In-memory fallback (dev / test only)
-    # ==================================================================
-
-    def _put_fallback(self, user_id: str, memory_id: str, data: Dict) -> None:
-        self._fallback.setdefault(user_id, {})[memory_id] = data
-
-    def _search_fallback(
-        self,
-        user_id: str,
-        query: str,
-        memory_types: Optional[List[str]],
-        limit: int,
-    ) -> List[ScoredMemory]:
-        query_lower = query.lower()
-        matches: List[ScoredMemory] = []
-        for key, val in self._fallback.get(user_id, {}).items():
-            if key.startswith("__"):
-                continue
-            if memory_types and val.get("memory_type") not in memory_types:
-                continue
-            if query_lower in val.get("content", "").lower():
-                matches.append(self._dict_to_scored(key, val))
-        return matches[:limit]
-
-    def _list_fallback(
-        self,
-        user_id: str,
-        memory_type: Optional[str],
-        limit: int,
-    ) -> List[ScoredMemory]:
-        results: List[ScoredMemory] = []
-        for key, val in self._fallback.get(user_id, {}).items():
-            if key.startswith("__"):
-                continue
-            if memory_type and val.get("memory_type") != memory_type:
-                continue
-            results.append(self._dict_to_scored(key, val))
-        return results[:limit]
-
-    def _update_fallback(
-        self,
-        user_id: str,
-        memory_id: str,
-        content: Optional[str],
-        metadata_updates: Optional[Dict[str, Any]],
-        confidence: Optional[float],
-    ) -> bool:
-        data = self._fallback.get(user_id, {}).get(memory_id)
-        if not data:
-            return False
-        if content is not None:
-            data["content"] = content
-        if metadata_updates:
-            data.setdefault("metadata", {}).update(metadata_updates)
-        if confidence is not None:
-            data["confidence"] = confidence
-        data["updated_at"] = datetime.now().isoformat()
-        return True
-
-    def _delete_fallback(self, user_id: str, memory_id: str) -> bool:
-        if user_id in self._fallback and memory_id in self._fallback[user_id]:
-            del self._fallback[user_id][memory_id]
-            return True
-        return False

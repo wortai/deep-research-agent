@@ -5,10 +5,37 @@ from response.response_composer import response_node
 
 async def main():
     state: AgentGraphState = {
+        "thread_id": "test_thread_1",
+        "user_id": "test_user_1",
         "user_query": "painting styles",
         "chat_messages": [],
-        "intent_type": "websearch",
+        "memory_context": {
+            "semantic_memories": [],
+            "user_profile": None,
+            "conversation_summary": None,
+        },
         "current_run_id": "test_run_1",
+        "search_mode": "websearch",
+        "router_thinking": "",
+        "improve_in_response": "",
+        "total_agents": 0,
+        "completed_agents": 0,
+        "total_research_steps": 0,
+        "completed_research_steps": 0,
+        "current_phase": "routing",
+        "planner_query": [],
+        "clarification_questions": [],
+        "clarification_answers": [],
+        "clarification_loop_count": 0,
+        "plan_feedback": "",
+        "plan_approved": False,
+        "research_review": [],
+        "reports": [],
+        "websearch_results": [],
+        "analyzed_images": [],
+        "response_skill": "",
+        "final_response": "",
+        "edit_instructions": None,
     }
     
     # 1. Run Websearch Agent

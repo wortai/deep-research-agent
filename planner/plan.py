@@ -12,13 +12,10 @@ from langchain_core.exceptions import OutputParserException
 from langgraph.types import StreamWriter, interrupt
 from llms.llms import LlmsHouse
 from researcher.solution_tree.prompts.prompts import (
-    get_plan_prompt,
     get_clarifying_questions_prompt,
     get_clarification_prompt,
-    get_skill_selection_prompt,
+    get_clarification_prompt,
     get_enhanced_plan_prompt,
-    get_report_style_prompt,
-    SkillSelectionResult,
     PlanResult
 )
 from graphs.states.subgraph_state import AgentGraphState, PlannerQuery, MemoryContext
@@ -45,55 +42,67 @@ class Planner:
     def __init__(self, memory_facade: Optional[Any] = None):
         """
         Initialize the Planner with LLM and optional memory facade.
-        
-        Args:
-            memory_facade: Optional MemoryFacade for context retrieval.
         """
-        self.llm = LlmsHouse.google_model("gemini-2.5-flash")
-        self._memory = memory_facade
-        self._skills_dir = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "skills"
-        )
+        self.llm = LlmsHouse.grok_model("grok-4-1-fast-reasoning", temperature=1.25)
 
-    def _build_context_prompt(self, state: AgentGraphState) -> str:
+
+    def _build_chat_memory(self, state: AgentGraphState) -> str:
         """
-        Builds context string from memory_context for LLM prompt.
-        
-        Formats semantic memories, user profile, and conversation summary
-        into a readable context block for the planning prompt.
-        
+        Builds context string from long-term memory and recent conversation history.
+
+        Long-term memory (user profile + semantic memories) comes from
+        state['memory_context'], populated upstream by MemoryFacade.get_context_for_planner
+        which performs semantic search with cross-encoder reranking.
+
+        Short-term memory is the last 10 chat_messages from state, providing
+        immediate conversational context without overwhelming the prompt.
+
         Args:
-            state: Current state containing memory_context.
-            
+            state: Current state containing memory_context and chat_messages.
+
         Returns:
-            Formatted context string or empty string if no context.
+            Formatted context string or empty string if no context available.
         """
-        memory_context = state.get("memory_context")
-        if not memory_context:
-            return ""
-            
+        MAX_RECENT_MESSAGES = 10
         sections = []
-        
-        user_profile = memory_context.get("user_profile")
-        if user_profile:
-            profile_items = [f"{k}: {v}" for k, v in user_profile.items()]
-            sections.append(f"[User Profile]\n{', '.join(profile_items)}")
-            
-        semantic_memories = memory_context.get("semantic_memories", [])
-        if semantic_memories:
-            memory_lines = [f"- {m.get('content', '')}" for m in semantic_memories if m.get('content')]
-            if memory_lines:
-                sections.append("[Known User Facts]\n" + "\n".join(memory_lines))
-                
-        conversation_summary = memory_context.get("conversation_summary")
-        if conversation_summary:
-            sections.append(f"[Previous Context]\n{conversation_summary}")
-            
+
+        memory_context = state.get("memory_context")
+        if memory_context:
+            user_profile = memory_context.get("user_profile")
+            if user_profile:
+                profile_items = [f"{k}: {v}" for k, v in user_profile.items()]
+                sections.append(f"[User Profile]\n{', '.join(profile_items)}")
+
+            semantic_memories = memory_context.get("semantic_memories", [])
+            if semantic_memories:
+                memory_lines = [f"- {m.get('content', '')}" for m in semantic_memories if m.get('content')]
+                if memory_lines:
+                    sections.append("[Relevant Memories]\n" + "\n".join(memory_lines))
+
+            conversation_summary = memory_context.get("conversation_summary")
+            if conversation_summary:
+                sections.append(f"[Conversation Summary]\n{conversation_summary}")
+
+        chat_messages = state.get("chat_messages", [])
+        recent_messages = chat_messages[-MAX_RECENT_MESSAGES:] if chat_messages else []
+        if recent_messages:
+            formatted_msgs = []
+            for msg in recent_messages:
+                role = msg.get("role", "unknown")
+                content = msg.get("content", "")
+                if content and role in ("user", "assistant"):
+                    formatted_msgs.append(f"  {role}: {content[:300]}")
+            if formatted_msgs:
+                sections.append("[Recent Conversation]\n" + "\n".join(formatted_msgs))
+
         if not sections:
             return ""
-            
+
         return "\n\n".join(sections)
 
+    
+    
+    
     def _generate_plan(self, state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:
         """
         Generates a comprehensive research plan using query and memory context.
@@ -115,7 +124,7 @@ class Planner:
             logger.warning("User query not found in state.")
             return {"planner_query": []}
 
-        context_prompt = self._build_context_prompt(state)
+        context_prompt = self._build_chat_memory(state)
 
         
         plan_feedback = state.get("plan_feedback", "")
@@ -134,26 +143,14 @@ class Planner:
         if context_prompt:
             complete_query = f"{context_prompt}\n\n[User Query]\n{complete_query}"
 
-        # Use skill-enhanced planning if skills were selected
-        selected_skills = state.get("selected_skills", [])
         clarification_answers = state.get("clarification_answers", [])
 
-        if selected_skills:
-            skill_contents = self._load_available_skills()
-            merged_instructions = "\n\n".join(
-                f"=== SKILL: {s} ===\n{skill_contents[s]}"
-                for s in selected_skills if s in skill_contents
-            )
-            prompt = get_enhanced_plan_prompt(
-                query=complete_query,
-                skill_instructions=merged_instructions,
-                clarification_context=clarification_answers
-            
-            )
-            logger.info(f"Using skill-enhanced plan with skills: {selected_skills}")
-        else:
-            prompt = get_plan_prompt(complete_query)
-            logger.info("Using standard plan prompt (no skills selected)")
+        prompt = get_enhanced_plan_prompt(
+            query=complete_query,
+            skill_instructions="",
+            clarification_context=clarification_answers
+        )
+        logger.info("Using standard plan prompt")
 
         def _to_numbered_queries(plan_list: list) -> list:
             """Convert plain query list to PlannerQuery format with query_num."""
@@ -178,7 +175,7 @@ class Planner:
                 "tool_calls": None,
                 "tool_results": None,
                 "message_type": "plan",
-                "metadata": {"raw_plan": plan, "skills_used": selected_skills}
+                "metadata": {"raw_plan": plan}
             }
             
             return {
@@ -190,97 +187,14 @@ class Planner:
             logger.error(f"Error generating plan: {e}")
             return {"planner_query": _to_numbered_queries([query])}
 
-    def _load_available_skills(self) -> Dict[str, str]:
-        """
-        Reads all .md skill files from the planner/skills/ directory.
 
-        Returns:
-            Dict mapping skill filename (e.g. 'coding_tech.md') to
-            the full markdown content of that file.
-        """
-        skills = {}
-        if not os.path.isdir(self._skills_dir):
-            logger.warning(f"[Planner] Skills directory not found: {self._skills_dir}")
-            return skills
 
-        for filename in sorted(os.listdir(self._skills_dir)):
-            if filename.endswith(".md"):
-                filepath = os.path.join(self._skills_dir, filename)
-                with open(filepath, "r", encoding="utf-8") as f:
-                    skills[filename] = f.read()
 
-        logger.info(f"[Planner] Loaded {len(skills)} research skills: {list(skills.keys())}")
-        return skills
 
-    def _select_skills(self, state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:
-        """
-        Uses LLM with structured output to select 1-4 skills for the query.
 
-        Reads user_query and clarification_answers from state, loads all
-        available skills, invokes get_skill_selection_prompt with
-        SkillSelectionResult structured output, and returns selected filenames.
-        Emits SKILL_SELECTION_COMPLETED event via StreamWriter.
 
-        Args:
-            state: Current state containing user_query and clarification_answers.
-            writer: Optional StreamWriter for emitting frontend events.
 
-        Returns:
-            State update with 'selected_skills' list of filenames.
-        """
-        user_query = state.get("user_query", "")
-        clarification_answers = state.get("clarification_answers", [])
-        available_skills = self._load_available_skills()
 
-        if not available_skills:
-            logger.warning("[Planner] No skills available, skipping selection")
-            return {"selected_skills": []}
-
-        if writer:
-            writer(create_event(
-                EventType.PLANNER_PROGRESS,
-                PhaseType.PLANNING,
-                payload={"message": "Analyzing query to select research skills..."}
-            ))
-
-        prompt = get_skill_selection_prompt(
-            user_query=user_query,
-            clarification_context=clarification_answers,
-            available_skills=available_skills
-        )
-
-        try:
-            structured_llm = self.llm.with_structured_output(SkillSelectionResult)
-            result = structured_llm.invoke(prompt)
-
-            valid_skills = [
-                s for s in result.selected_skills
-                if s in available_skills
-            ][:4]
-
-            if not valid_skills:
-                logger.warning("[Planner] LLM returned no valid skill names, using general_academic.md")
-                valid_skills = ["general_academic.md"]
-
-            logger.info(f"[Planner] Selected skills: {valid_skills} — Reasoning: {result.reasoning}")
-
-            if writer:
-                skill_labels = [s.replace('.md', '').replace('_', ' ').title() for s in valid_skills]
-                writer(create_event(
-                    EventType.SKILL_SELECTION_COMPLETED,
-                    PhaseType.PLANNING,
-                    payload={
-                        "skills": valid_skills,
-                        "skill_labels": skill_labels,
-                        "reasoning": result.reasoning
-                    }
-                ))
-
-            return {"selected_skills": valid_skills}
-
-        except Exception as e:
-            logger.error(f"[Planner] Skill selection failed: {e}")
-            return {"selected_skills": ["general_academic.md"]}
 
     def generate_clarification_questions(self, state: AgentGraphState, writer: StreamWriter = None) -> List[str]:
         """
@@ -292,6 +206,11 @@ class Planner:
         user_query = state.get("user_query", "")
         previous_answers = state.get("clarification_answers", [])
         loop_count = state.get("clarification_loop_count", 0)
+        context_prompt = self._build_chat_memory(state)
+
+        contextual_query = user_query
+        if context_prompt:
+            contextual_query = f"{context_prompt}\n\n[User Query]\n{user_query}"
 
         if writer:
             writer(create_event(
@@ -301,7 +220,7 @@ class Planner:
             ))
 
         prompt = get_clarification_prompt(
-            user_query=user_query,
+            user_query=contextual_query,
             previous_answers=previous_answers,
             loop_number=loop_count + 1
         )
@@ -330,6 +249,13 @@ class Planner:
             logger.error(f"[Planner] Clarification generation failed: {e}")
             return []
 
+   
+   
+   
+   
+   
+   
+   
     def request_feedback(self, state: AgentGraphState, topic: str) -> Dict[str, Any]:
         """
         Generates a feedback request for user on a specific topic.
@@ -381,6 +307,12 @@ Return JSON with:
                 }
             }
 
+   
+   
+   
+   
+   
+   
     def validate_plan_scope(self, state: AgentGraphState) -> Dict[str, Any]:
         """
         Validates if the generated plan scope is appropriate.
@@ -415,6 +347,12 @@ Return JSON with:
             
         return {"scope_valid": True, "scope_feedback": "Plan scope is appropriate"}
 
+   
+   
+   
+   
+   
+   
     def editor(self, state: AgentGraphState) -> Dict[str, Any]:
         """
         Edits existing report based on user instructions.
@@ -516,6 +454,10 @@ def clarification_node(state: AgentGraphState, writer: StreamWriter = None) -> D
     return {"clarification_questions": questions}
 
 
+
+
+
+
 def human_clarification_node(state: AgentGraphState) -> Dict[str, Any]:
     """
     Node that interrupts for human clarification and processes answers.
@@ -575,51 +517,6 @@ def human_clarification_node(state: AgentGraphState) -> Dict[str, Any]:
     }
 
 
-def skill_selection_node(state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:
-    """
-    LangGraph node wrapper for research skill selection.
-
-    Uses structured LLM output to pick 1-4 domain-specific skills
-    based on user query and accumulated clarification context.
-    """
-    planner = Planner()
-    return planner._select_skills(state, writer)
-
-
-def report_style_node(state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:
-    """
-    LangGraph node wrapper for report style generation.
-
-    Generates a report style directive from user query, clarification answers,
-    and selected skills. Stored in report_style_skill state field and used by
-    all downstream prompts (answers, gaps, outline, chapters, CSS).
-    """
-    user_query = state.get("user_query", "")
-    clarification_answers = state.get("clarification_answers", [])
-    selected_skills = state.get("selected_skills", [])
-
-    if writer:
-        writer(create_event(
-            EventType.PLANNER_PROGRESS,
-            PhaseType.PLANNING,
-            payload={"message": "Determining report style and formatting..."}
-        ))
-
-    prompt = get_report_style_prompt(
-        user_query=user_query,
-        clarification_answers=clarification_answers,
-        selected_skill_names=selected_skills
-    )
-
-    try:
-        llm = LlmsHouse.google_model("gemini-2.5-flash")
-        response = llm.invoke(prompt)
-        style_directive = response.content if hasattr(response, 'content') else str(response)
-        logger.info(f"[ReportStyle] Generated style directive ({len(style_directive)} chars)")
-        return {"report_style_skill": style_directive.strip()}
-    except Exception as e:
-        logger.error(f"[ReportStyle] Style generation failed: {e}")
-        return {"report_style_skill": ""}
 
 
 def editor_node(state: AgentGraphState) -> Dict[str, Any]:

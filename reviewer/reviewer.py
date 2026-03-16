@@ -39,6 +39,13 @@ class Reviewer:
         self.num_review_queries = num_review_queries
         self.review_llm = LlmsHouse.google_model("gemini-2.0-flash")
 
+
+
+
+
+
+
+
     def _build_review_prompt(self, original_query: str, content_summary: str) -> str:
         """
         Build the prompt for generating review queries.
@@ -94,6 +101,16 @@ Example:
 }}
 """
 
+
+
+
+
+
+
+
+
+
+
     def _format_content_as_summary(self, content: List[Dict[str, Any]]) -> str:
         """
         Format a content dictionary into a readable summary string.
@@ -112,6 +129,9 @@ Example:
             formatted_parts.append(f"Sub Query that we trying to answer: {entry['query']}")
             formatted_parts.append(f"Answer we got so far for above query: {entry['answer']}\n")
         return "\n".join(formatted_parts)
+
+
+
 
     def generate_reviews(self, original_query: str, content: List[Dict[str, Any]]) -> List[str]:
         """

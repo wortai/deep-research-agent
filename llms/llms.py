@@ -37,7 +37,8 @@ from langchain_deepseek import ChatDeepSeek
 from langchain_qwq import ChatQwQ
 from langchain_mistralai import ChatMistralAI
 from langchain_community.chat_models import ChatPerplexity
-from langchain_anthropic import ChatAnthropic  
+from langchain_anthropic import ChatAnthropic
+from langchain_xai import ChatXAI
 
 # To install these libraries, run the following commands:
 
@@ -155,6 +156,22 @@ class LlmsHouse:
             pplx_api_key=kwargs.get('pplx_api_key', os.getenv('PERPLEXITY_API_KEY')),
         )
 
+
+    @staticmethod
+    def grok_model(model_name: str, temperature: float = 0.7, **kwargs) -> ChatXAI:
+        """
+        xAI Grok models — High-performance reasoning and generation.
+        Supports: grok-4-1-fast-reasoning, grok-3-latest, etc.
+        """
+        LlmsHouse._ensure_api_key("GROK_API_KEY")
+        return ChatXAI(
+            model=model_name,
+            temperature=temperature,
+            max_tokens=kwargs.get('max_tokens', None),
+            timeout=kwargs.get('timeout', None),
+            max_retries=kwargs.get('max_retries', 2),
+            xai_api_key=kwargs.get('xai_api_key', os.getenv('GROK_API_KEY')),
+        )
 
     @staticmethod
     def coding_model(**kwargs):

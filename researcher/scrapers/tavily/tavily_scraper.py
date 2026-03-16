@@ -171,7 +171,12 @@ class Tavily:
 
            
                 # Extract content from the first result
-                results = extracted_data["results"][0]
+                results_list = extracted_data.get("results", [])
+                if not results_list:
+                    logging.warning(f"Tavily returned no results for URL '{url}' (might be blocked, rate limited, or unextractable)")
+                    return {"url": url, "content": None, "error": "No results returned"}
+                
+                results = results_list[0]
                 extracted_url = results.get("url")
                 content_text = results.get("raw_content")
                 images = results.get("images")
