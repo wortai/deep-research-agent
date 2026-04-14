@@ -82,17 +82,8 @@ Step 5 → Cited Synthesis       Compose the final response with inline [source]
 
 Every response includes a **citation map** linking each source label to the exact URL it came from. Relevant images with descriptions are pulled directly from search results and embedded in the answer. The agent retains full conversation context so follow up questions feel natural and continuous.
 
-```python
-# The agent autonomously decides which tools to call and in what order.
-# No hardcoded pipeline — the LLM reasons about the best strategy per query.
 
-self._agent = create_agent(
-    model=LlmsHouse.grok_model("grok-4-1-fast-reasoning", temperature=0.5),
-    tools=ALL_SEARCH_TOOLS,
-    system_prompt=SYSTEM_PROMPT,
-    middleware=[self._build_tool_middleware()],  # Real time streaming to frontend
-)
-```
+
 
 <br/>
 
@@ -310,8 +301,8 @@ WORT does not produce walls of plain text. Reports are fully styled HTML documen
 
 ```bash
 # Clone the repository
-git clone https://github.com/madhvantyagi/WORT.git
-cd WORT/deep-research-agent
+git clone https://github.com/wortai/deep-research-agent.git
+cd deep-research-agent/deep-research-agent
 
 # Create virtual environment
 python -m venv venv
