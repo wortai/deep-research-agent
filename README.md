@@ -27,6 +27,8 @@
 
 <br/>
 
+<div style="font-family: 'JetBrains Mono', monospace;">
+
 ## What is WORT
 
 WORT is an open source AI research agent that fundamentally rethinks how we extract knowledge from the internet. Instead of relying on a single model call to produce a generic summary, WORT spawns **parallel sub agents** that independently traverse the web using a **Breadth First Search (BFS)** strategy. Each agent researches one dimension of your query while a **Reviewer agent** continuously evaluates the quality of findings, identifies gaps, and reroutes depth until the research is genuinely complete.
@@ -172,7 +174,7 @@ You control how deep this tree goes through the **analysis level** you select:
 
 <br/>
 
-### `03` Extreme Research · Autonomous VM *(Coming Soon)*
+### `03` Extreme Research · The Final Sandbox
 
 Extreme Research represents the next frontier. It spins up a **secure live Virtual Machine** to execute real code, browse the web identically like a human, and analyze deeply technical research that requires computation. It creates dynamic simulations and visualizations directly in chat and can output any file format from PDFs to presentations.
 
