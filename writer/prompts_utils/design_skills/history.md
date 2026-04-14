@@ -63,6 +63,31 @@ Multiple styles based on source type:
 - CSS grids for empire comparisons showing territorial extent.
 - Arrow overlays showing invasion routes, migration patterns, trade paths.
 
+### SVG Construction Standards
+- **viewBox**: `viewBox="0 0 800 400"` for wide diagrams (timelines, trade route maps, battle formations); `viewBox="0 0 400 400"` for square diagrams (territorial maps, coat of arms, seal representations).
+- **Font sizing**: `font-family` must match body font (Merriweather/Georgia). Labels 12px, titles 14px, annotations 11px.
+- **Stroke widths**: 1.5px for grid/guide lines, 2px for borders and route lines, 2.5px for timeline spines and major borders, 1px for decorative elements.
+- **Color application**: Use the exact history palette — Burgundy (#800020), Old Gold (#B8860B), Forest (#228B22), Dark Navy (#000080), Burnt Sienna (#A0522D), Warm Sienna (#8B4513). No arbitrary colors.
+- **Accessibility**: Every SVG must have `<title>` (e.g., "Trade routes of the Silk Road, 1st-14th century CE") and `<desc>` (describe all regions, routes, and historical context).
+- **Background**: Transparent or archival cream (#FAF8F5) to match the page.
+- **Text elements**: Use `<text>` with `text-anchor="start|middle|end"` — never `<foreignObject>`. Historical dates use `<tspan font-weight="bold">`.
+- **Domain-specific SVG patterns**:
+  - *Timeline*: Horizontal `<line>` spine, `<circle>` event nodes, `<text>` date labels above, `<text>` descriptions below. Turning points use larger circles.
+  - *Territorial map*: `<path>` shapes for regions with distinct fills, `<text>` labels, `<path>` arrows for invasion/migration routes.
+  - *Battle formation*: `<circle>` or `<rect>` unit markers, `<path>` movement arrows, `<text>` commander names and unit types.
+  - *Trade route map*: `<path>` curved routes with `<text>` city labels, `<circle>` node markers for key cities.
+
+### Charts.css Decision Guide
+- IF comparing categories (armies, rulers, civilizations) → horizontal bar chart
+- IF comparing time periods (decades, centuries, reigns) → column chart
+- IF showing trend over continuous time (population growth, territory expansion) → line chart
+- IF showing composition (army makeup, trade goods, demographic shifts) → stacked bar chart
+- IF showing part-to-whole (land control, population distribution) → percentage bar
+- IF comparing multiple series (empire A vs. empire B, before vs. after) → grouped bar chart
+- Always include: `class="charts-css [type]" show-labels show-data show-headings`
+- Caption placement: `<caption>` below chart with date range and source
+- Do NOT use Charts.css when: fewer than 3 data points (use a table), purely narrative content (use prose + timeline), or data is better shown as a map
+
 ### Comparison Tables
 - **Opposing forces**: Resources, armies, leadership, strategies — tabular comparison.
 - **Treaty terms**: Parties, conditions, outcomes in clean table format.
@@ -94,6 +119,14 @@ Multiple styles based on source type:
 ### Artifact & Document Callouts
 - When referencing a specific historical document (Magna Carta, Declaration of Independence), give it a special styled container — heavier border, slightly different typography — suggesting a physical artifact.
 
+### Edge Cases & Adaptations
+- **No quantitative data**: For purely narrative history (e.g., biography, cultural history), use timelines, primary source quotations, and cause-effect diagrams. Skip Charts.css entirely.
+- **Too much data**: For topics spanning centuries with hundreds of events, use era-level timelines with nested `<details>` for detailed sub-timelines. Show representative charts for key periods.
+- **Mixed content**: When narrative dominates with occasional statistics, embed key numbers inline and use charts only for sections with 3+ comparable data points.
+- **Contradictory sources**: When historians disagree, present competing interpretations side-by-side with source attribution. Note the historiographical school each represents.
+- **Variable chapter length**: Short topics (single event) get timeline + primary sources + analysis. Long topics (era/civilization) use the complete toolkit with biographical panels and era containers.
+- **Default format mismatch**: If the history topic is data-heavy (e.g., "Economic History of the Roman Empire"), borrow finance-style data tables. If it's philosophical (e.g., "Enlightenment Ideas"), borrow philosophy quotation patterns.
+
 ## Citation Style — Historical Sources
 - Use inline author-date for secondary sources: (Hobsbawm, 1962, p. 47).
 - For primary sources: "(Lincoln, Gettysburg Address, 1863)" or "(Treaty of Versailles, Article 231, 1919)."
@@ -101,6 +134,11 @@ Multiple styles based on source type:
 - Source links: `<a href="URL">National Archives</a>` or the digitized primary source.
 - Full bibliography at chapter end — Chicago Manual of Style format (preferred for history).
 - Primary vs. secondary sources should be visually or structurally distinguishable in the reference list.
+- **Multiple formats**: Use author-date for scholarly claims, descriptive citations for primary sources, and source blocks for archival materials.
+- **No URL available**: Cite as "Author, *Title*, Publisher, Year, p. XX" for books; "Archive Name, Collection, Box X, Folder Y" for archival materials.
+- **Multiple sources for same claim**: List chronologically: "(Smith, 1990; Jones, 2005; Williams, 2018)" — showing the historiographical evolution.
+- **Beautiful citations**: Style the bibliography as a clean list with primary sources in a separate section (warm border accent) from secondary sources. Use italics for titles, small caps for author names.
+- **Source credibility hierarchy**: Primary source (eyewitness, document, artifact) > peer-reviewed historical monograph > academic journal article > reputable popular history > general reference. Always prefer primary sources.
 
 ## Typography & Color — The History Palette
 
@@ -122,6 +160,11 @@ Multiple styles based on source type:
 - **Dividers**: Muted warm gray (#BCAAA4).
 - **Line height**: 1.8.
 - **Max width**: 750px — wide enough for timelines, narrow enough for narrative.
+- **Extended chart palette** (7+ colors): Burgundy (#800020), Old Gold (#B8860B), Forest (#228B22), Dark Navy (#000080), Burnt Sienna (#A0522D), Olive (#6B8E23), Rust (#B7410E). All WCAG AA compliant on cream background.
+- **Semantic color rules**: Burgundy = primary/emphasis series. Old Gold = secondary/wealth/trade data. Forest = growth/population. Dark Navy = military/power metrics. Burnt Sienna = territorial/geographic data. Olive = agricultural/economic base. Rust = conflict/casualty data.
+- **Hover/interaction**: On hover, chart elements increase opacity to 1.0 while others dim to 0.6.
+- **Print-friendly**: All warm colors maintain ≥ 3:1 contrast on cream in grayscale. Burgundy and navy provide strongest print contrast.
+- **WCAG AA compliance**: All text ≥ 4.5:1 contrast ratio on cream (#FAF8F5). Chart colors ≥ 3:1 against cream. The warm palette is colorblind-safe.
 
 ## Adaptive Instructions — How the LLM Should Use This Skill
 - **Never sacrifice content for layout.** If the research covers 200 years, build a longer timeline. If there are 12 primary sources, quote all 12 — vary the quote styling to avoid monotony.
@@ -129,6 +172,8 @@ Multiple styles based on source type:
 - **Build new containers for unique content.** If the research demands a "Dynastic Succession Chart" or a "Trade Route Map," build it. The toolkit describes common patterns, not limitations.
 - **Scale the timeline to the scope.** A report on "The French Revolution (1789-1799)" needs a detailed month-by-month timeline. A report on "The Fall of Rome" needs a century-scale timeline with different granularity.
 - **Let primary sources breathe.** A powerful speech deserves a full blockquote, not a one-line excerpt. If the source material is rich, let the voices of the past speak at length.
+- Never presents historical events without a timeline visualization. If the research contains chronological data, you MUST create at least one SVG timeline or period map.
+- **Visual diversity is mandatory.** Every chapter MUST include at least 3 different visual types from the toolkit (e.g., timeline SVG + primary source quote + period map, or chronology table + cause-effect diagram + legacy analysis). A chapter with only tables and prose is insufficient — it fails to leverage the full visual toolkit and creates a monotonous reading experience. Spread visuals across pages — do not cluster all visuals on one page.
 
 ### What This Report NEVER Does
 - Never presents events out of chronological order without explicit justification
@@ -138,3 +183,7 @@ Multiple styles based on source type:
 - Never uses bullet points for historical narrative — prose tells the story
 - Never shows a sequence of events without timeline or date structure
 - Never treats all primary sources identically — a letter and a treaty look different
+- Never uses Charts.css without a date range in the caption
+- Never presents a single historical interpretation as the only truth
+- Never uses modern bright colors that clash with the archival aesthetic
+- Never skips SVG visualizations when the data supports them — at least one SVG timeline or period map is mandatory per chapter. If the research contains chronological data, you MUST create at least one SVG timeline or period map.

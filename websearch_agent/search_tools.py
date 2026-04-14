@@ -16,6 +16,7 @@ from websearch_agent.web_prompts import (
     QUERY_GENERATION_PROMPT,
     SKILL_GENERATION_PROMPT,
 )
+from prompt_datetime import now_utc_for_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +117,7 @@ async def generate_search_queries(user_query: str, chat_history: str) -> str:
     try:
         llm = LlmsHouse.google_model("gemini-2.0-flash", temperature=0.9)
         prompt = QUERY_GENERATION_PROMPT.format(
+            current_datetime=now_utc_for_prompt(),
             user_query=user_query,
             chat_history=chat_history or "No prior conversation.",
         )
@@ -135,6 +137,7 @@ async def generate_response_skill(user_query: str, search_context: str) -> str:
     try:
         llm = LlmsHouse.google_model("gemini-2.5-flash", temperature=0.8)
         prompt = SKILL_GENERATION_PROMPT.format(
+            current_datetime=now_utc_for_prompt(),
             user_query=user_query,
             search_titles=search_context or "No context available.",
         )

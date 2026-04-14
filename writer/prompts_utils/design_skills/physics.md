@@ -58,6 +58,31 @@ Every concept involving direction, motion, fields, or spatial relationships shou
 - **Grouped bars**: Control vs. experimental, theoretical vs. measured.
 - Use physically meaningful colors: warm (red/orange) for energy/heat, cool (blue) for cold/potential, green for equilibrium.
 
+### SVG Construction Standards
+- **viewBox**: `viewBox="0 0 800 400"` for wide plots (waveforms, spectra, I-V curves); `viewBox="0 0 400 400"` for square diagrams (free-body, vector decomposition, orbital paths).
+- **Font sizing**: `font-family` must match body font (EB Garamond/Georgia). Axis labels 12px, diagram titles 14px, data point labels 11px.
+- **Stroke widths**: 1.5px for grid lines, 2px for data lines/field lines, 2.5px for axes, 1px for construction lines (dashed projections).
+- **Color application**: Use the exact diagram palette — no arbitrary colors. Red (#E53E3E) for force/energy, blue (#3182CE) for fields/potential, green (#38A169) for equilibrium, orange (#DD6B20) for kinetic energy, purple (#805AD5) for magnetic/quantum.
+- **Accessibility**: Every SVG must have `<title>` (e.g., "Free-body diagram of block on incline") and `<desc>` (detailed description of all elements and their physical meaning).
+- **Background**: Transparent — physics diagrams overlay on white pages. Use `fill="none"` for backgrounds.
+- **Text elements**: Use `<text>` with `text-anchor="start|middle|end"` — never `<foreignObject>`. All labels use `<tspan>` for multi-line text.
+- **Domain-specific SVG patterns**:
+  - *Force diagram*: Object as `<rect>` or `<circle>`, force vectors as `<line>` with `<polygon>` arrowheads, labels via `<text>` near arrow tips.
+  - *Field lines*: `<path>` with smooth curves (`C` or `Q` commands), arrowheads at intervals, density proportional to field strength.
+  - *Energy level*: Horizontal `<line>` elements at y-positions proportional to energy, transition arrows as diagonal `<line>` with labeled ΔE.
+  - *Wave plot*: `<path>` with sine approximation using many `L` commands, axes as `<line>`, amplitude/wavelength annotations with `<text>` and dashed `<line>` guides.
+
+### Charts.css Decision Guide
+- IF comparing categories (materials, conditions, experiments) → horizontal bar chart
+- IF comparing time periods (quarterly measurements, yearly data) → column chart
+- IF showing trend over continuous time (temperature vs. time, decay) → line chart
+- IF showing composition (energy breakdown, particle channels) → stacked bar chart
+- IF showing part-to-whole (material composition, efficiency) → percentage bar
+- IF comparing multiple series (theory vs. experiment, control vs. treatment) → grouped bar chart
+- Always include: `class="charts-css [type]" show-labels show-data show-headings`
+- Caption placement: `<caption>` below chart, numbered "Figure N:" with descriptive text
+- Do NOT use Charts.css when: fewer than 3 data points (use a table), purely qualitative descriptions (use prose), or data requires error bars (use SVG)
+
 ### Data Tables
 - Experimental measurements with units in headers, right-aligned numbers.
 - Uncertainty values (±) where applicable.
@@ -93,6 +118,14 @@ Every concept involving direction, motion, fields, or spatial relationships shou
 - **Purple**: Magnetic fields, quantum states.
 - Consistent within a chapter so the reader develops color-physics associations.
 
+### Edge Cases & Adaptations
+- **No quantitative data**: For purely theoretical/conceptual physics (e.g., philosophy of QM), use SVG concept diagrams and analogy layouts instead of charts. Emphasize equations-as-language and thought experiments.
+- **Too much data**: For datasets with hundreds of points (e.g., particle collision data), summarize with statistical aggregates in tables and show representative SVG plots. Use `<details>` for full data.
+- **Mixed content**: When prose dominates but some numbers exist, embed key metrics as inline callouts and use small SVG diagrams for physical intuition. Reserve Charts.css for sections with 3+ comparable data points.
+- **Contradictory sources**: Present competing experimental results side-by-side in a comparison table with methodology notes. Discuss systematic errors and confidence intervals.
+- **Variable chapter length**: Short topics (single law) get a compact equation + diagram + example. Long topics (full theory) use the full toolkit with collapsible derivations.
+- **Default format mismatch**: If the physics topic is historical (e.g., "Discovery of the Electron"), borrow timeline patterns from the history skill. If it's computational, borrow code block patterns from the coding skill.
+
 ## Citation Style — Physics Sources
 - Use inline numerical citations: [1], [2] — matching physics journal conventions (Physical Review style).
 - Numbered reference list at the end of the chapter.
@@ -100,6 +133,11 @@ Every concept involving direction, motion, fields, or spatial relationships shou
 - For textbooks: Author, *Title*, Publisher, Edition, Year, Chapter.
 - For experimental data: cite the original experiment or NIST database with URL.
 - For simulations or computational results: cite the method and software.
+- **Multiple formats**: Use inline [n] for journal claims, superscript-style footnote numbers for textbook references, and source blocks for datasets.
+- **No URL available**: Cite as `[n] Author(s), "Title," Journal, Volume, Pages, Year. [DOI: xxx]` — DOI serves as permanent identifier.
+- **Multiple sources for same claim**: Use range notation [1–3] or list all: [1, 4, 7]. Order by credibility: primary experiment > review article > textbook.
+- **Beautiful citations**: Style the reference list as a clean table with numbered rows, clickable links, and subtle alternating backgrounds. Primary sources get a small green dot indicator.
+- **Source credibility hierarchy**: Peer-reviewed journal (Physical Review, Nature Physics) > arXiv preprint > textbook > lecture notes > popular science. Always prefer primary experimental data over secondary summaries.
 
 ## Typography & Color — The Physics Palette
 
@@ -119,6 +157,11 @@ Every concept involving direction, motion, fields, or spatial relationships shou
 - **Warning/limiting cases**: Amber fill (#FFFAF0), amber border (#ED8936).
 - **Diagram palette**: Blue (#3182CE), Crimson (#E53E3E), Forest (#38A169), Orange (#DD6B20), Purple (#805AD5).
 - **Line height**: 1.7.
+- **Extended chart palette** (7+ colors for complex charts): Blue (#3182CE), Teal (#319795), Crimson (#E53E3E), Forest (#38A169), Orange (#DD6B20), Purple (#805AD5), Gold (#D69E2E), Steel (#4A5568). All WCAG AA compliant on white (contrast ≥ 4.5:1 for text elements).
+- **Semantic color rules**: Use blue as the default/neutral series. Red for energy/heat/positive charge. Green for equilibrium/stable states. Orange for kinetic/warning values. Purple for magnetic/quantum phenomena. Teal for secondary data series. Gold for reference/benchmark values.
+- **Hover/interaction**: On hover, data series opacity increases to 1.0 while others dim to 0.5. Use CSS `:hover` on chart elements.
+- **Print-friendly**: All colors maintain ≥ 3:1 contrast on white when printed in grayscale. Avoid red/green-only differentiation — use patterns (solid vs. dashed) as secondary encoding.
+- **WCAG AA compliance**: All text elements meet 4.5:1 minimum. Chart colors meet 3:1 against white backgrounds. Test with colorblind simulators — the palette is deuteranopia-safe.
 
 ## Adaptive Instructions — How the LLM Should Use This Skill
 - **Never sacrifice content for layout.** If the research contains 8 different measurements, put them all in a table. If there are 5 concepts to compare, build a 5-column comparison. Don't truncate data to fit a template.
@@ -126,6 +169,8 @@ Every concept involving direction, motion, fields, or spatial relationships shou
 - **Scale formality to audience.** A report for a general audience on "How do magnets work?" uses fewer formal equations and more diagrams and analogies. A report on "Quantum Decoherence" uses full Dirac notation and density matrices.
 - **Invent new visual containers.** If the content demands a "Phase Space Portrait" or an "Energy Budget Table," build it. The toolkit is a starting point, not a limitation.
 - **Respect dimensional analysis.** Every number must have units. Every equation must be dimensionally consistent. This is a non-negotiable physics requirement.
+- Never describes a physical phenomenon without an SVG diagram. If the research contains forces, fields, waves, energy levels, or spatial relationships, you MUST create at least one SVG diagram (force diagram, field visualization, wave plot, or energy level diagram).
+- **Visual diversity is mandatory.** Every chapter MUST include at least 3 different visual types from the toolkit (e.g., equation block + force diagram SVG + worked example, or energy level diagram + experimental data table + limiting case callout). A chapter with only tables and prose is insufficient — it fails to leverage the full visual toolkit and creates a monotonous reading experience. Spread visuals across pages — do not cluster all visuals on one page.
 
 ### What This Report NEVER Does
 - Never presents an equation without defining every variable and its unit
@@ -134,3 +179,7 @@ Every concept involving direction, motion, fields, or spatial relationships shou
 - Never skips showing the calculation work
 - Never uses decorative gradients or non-functional visual elements
 - Never presents conflicting experimental results without discussing the tension
+- Never uses arbitrary colors in diagrams — every color maps to a physical quantity
+- Never shows a chart without labeled axes, units, and a figure caption
+- Never presents a physical constant without its uncertainty value
+- Never skips SVG visualizations when the data supports them — at least one SVG diagram is mandatory per chapter. If the research contains forces, fields, waves, energy levels, or spatial relationships, you MUST create at least one SVG diagram (force diagram, field visualization, wave plot, or energy level diagram).

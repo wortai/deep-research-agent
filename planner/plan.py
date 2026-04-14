@@ -14,12 +14,13 @@ from llms.llms import LlmsHouse
 from researcher.solution_tree.prompts.prompts import (
     get_clarifying_questions_prompt,
     get_clarification_prompt,
-    get_clarification_prompt,
     get_enhanced_plan_prompt,
-    PlanResult
+    PlanResult,
 )
 from graphs.states.subgraph_state import AgentGraphState, PlannerQuery, MemoryContext
 from graphs.events.frontend_events import create_event, EventType, PhaseType
+from planner.query_validator import QueryValidator
+from utils.errors import LLMCatchError
 import logging
 import uuid
 import os
@@ -32,7 +33,7 @@ logger = logging.getLogger(__name__)
 class Planner:
     """
     Planner Node that uses memory context for informed plan generation.
-    
+
     Responsibilities:
     1. Generate step-by-step research plans using user query and memory context.
     2. Ask clarifying questions when query is ambiguous.
@@ -44,7 +45,7 @@ class Planner:
         Initialize the Planner with LLM and optional memory facade.
         """
         self.llm = LlmsHouse.grok_model("grok-4-1-fast-reasoning", temperature=1.25)
-
+        self.fallback_llm = LlmsHouse.get_fallback_model(temperature=1.25)
 
     def _build_chat_memory(self, state: AgentGraphState) -> str:
         """
@@ -75,7 +76,11 @@ class Planner:
 
             semantic_memories = memory_context.get("semantic_memories", [])
             if semantic_memories:
-                memory_lines = [f"- {m.get('content', '')}" for m in semantic_memories if m.get('content')]
+                memory_lines = [
+                    f"- {m.get('content', '')}"
+                    for m in semantic_memories
+                    if m.get("content")
+                ]
                 if memory_lines:
                     sections.append("[Relevant Memories]\n" + "\n".join(memory_lines))
 
@@ -100,22 +105,21 @@ class Planner:
 
         return "\n\n".join(sections)
 
-    
-    
-    
-    def _generate_plan(self, state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:
+    def _generate_plan(
+        self, state: AgentGraphState, writer: StreamWriter = None
+    ) -> Dict[str, Any]:
         """
         Generates a comprehensive research plan using query and memory context.
-        
+
         Incorporates user's memory context (preferences, past research, profile)
         to generate more personalized and relevant research plans.
         If plan_feedback is present (from HITL rejection), incorporates
         feedback for refined plan generation.
-        
+
         Args:
             state: Current state containing user_query and memory_context.
             writer: Optional LangGraph writer for streaming events.
-            
+
         Returns:
             State update with 'planner_query' list populated.
         """
@@ -126,9 +130,8 @@ class Planner:
 
         context_prompt = self._build_chat_memory(state)
 
-        
         plan_feedback = state.get("plan_feedback", "")
-        
+
         if plan_feedback:
             complete_query = (
                 f"User Original Query: {query}\n\n"
@@ -139,7 +142,7 @@ class Planner:
             logger.info(f"Regenerating plan with user feedback: {plan_feedback}")
         else:
             complete_query = query
-            
+
         if context_prompt:
             complete_query = f"{context_prompt}\n\n[User Query]\n{complete_query}"
 
@@ -148,25 +151,22 @@ class Planner:
         prompt = get_enhanced_plan_prompt(
             query=complete_query,
             skill_instructions="",
-            clarification_context=clarification_answers
+            clarification_context=clarification_answers,
         )
         logger.info("Using standard plan prompt")
 
+        validator = QueryValidator()
+
         def _to_numbered_queries(plan_list: list) -> list:
-            """Convert plain query list to PlannerQuery format with query_num."""
             return [{"query_num": i + 1, "query": q} for i, q in enumerate(plan_list)]
 
-        logger.info(f"Generating plan for query: {query[:100]}...")
-
-        try:
-            structured_llm = self.llm.with_structured_output(PlanResult)
-            result = structured_llm.invoke(prompt)
-            
-            plan = result.plan
-            logger.info(f"Generated plan with {len(plan)} steps.")
-            numbered_plan = _to_numbered_queries(plan)
-            plan_content = "Research Plan:\n" + "\n".join([f"{q['query_num']}. {q['query']}" for q in numbered_plan])
-            
+        def _build_state_update(raw_plan: list) -> Dict[str, Any]:
+            validated = validator.validate_and_fix(raw_plan, query)
+            numbered = _to_numbered_queries(validated)
+            plan_content = "Tasks:\n\n" + "\n\n".join(
+                f"Agent_{q['query_num'] // 10}_{q['query_num'] % 10} Subagent's task: {q['query']}"
+                for q in numbered
+            )
             plan_message = {
                 "message_id": str(uuid.uuid4()),
                 "role": "assistant",
@@ -175,28 +175,43 @@ class Planner:
                 "tool_calls": None,
                 "tool_results": None,
                 "message_type": "plan",
-                "metadata": {"raw_plan": plan}
+                "metadata": {"raw_plan": validated},
             }
-            
-            return {
-                "planner_query": numbered_plan,
-                "chat_messages": [plan_message]
-            }
+            return {"planner_query": numbered, "chat_messages": [plan_message]}
+
+        logger.info(f"Generating plan for query: {query[:100]}...")
+
+        try:
+            structured_llm = self.llm.with_structured_output(PlanResult)
+            result = structured_llm.invoke(prompt)
+            logger.info(f"Generated plan with {len(result.plan)} steps.")
+            return _build_state_update(result.plan)
 
         except Exception as e:
             logger.error(f"Error generating plan: {e}")
-            return {"planner_query": _to_numbered_queries([query])}
 
+            if self.fallback_llm:
+                try:
+                    logger.info("[Planner] Retrying plan generation with fallback model")
+                    structured_llm = self.fallback_llm.with_structured_output(PlanResult)
+                    result = structured_llm.invoke(prompt)
+                    logger.info(f"Generated plan with fallback ({len(result.plan)} steps).")
+                    return _build_state_update(result.plan)
+                except Exception as fb_err:
+                    error_msg = f"[Planner] Fallback plan generation also failed: {fb_err}"
+                    logger.error(error_msg)
+                    raise LLMCatchError(
+                        message=error_msg,
+                        error_details="Both main and fallback LLM failed to generate a valid plan."
+                    )
 
+            # If no fallback llm exists
+            error_msg = f"Error generating plan: {e}"
+            raise LLMCatchError(message=error_msg, error_details="Main LLM failed and no fallback available.")
 
-
-
-
-
-
-
-
-    def generate_clarification_questions(self, state: AgentGraphState, writer: StreamWriter = None) -> List[str]:
+    def generate_clarification_questions(
+        self, state: AgentGraphState, writer: StreamWriter = None
+    ) -> List[str]:
         """
         Generates clarification questions using LLM without interruption.
 
@@ -213,65 +228,88 @@ class Planner:
             contextual_query = f"{context_prompt}\n\n[User Query]\n{user_query}"
 
         if writer:
-            writer(create_event(
-                EventType.CLARIFICATION_STARTED,
-                PhaseType.CLARIFYING,
-                payload={"message": "Analyzing research deep context...", "loop_number": loop_count + 1}
-            ))
+            writer(
+                create_event(
+                    EventType.CLARIFICATION_STARTED,
+                    PhaseType.CLARIFYING,
+                    payload={
+                        "message": "Analyzing research deep context...",
+                        "loop_number": loop_count + 1,
+                    },
+                )
+            )
 
         prompt = get_clarification_prompt(
             user_query=contextual_query,
             previous_answers=previous_answers,
-            loop_number=loop_count + 1
+            loop_number=loop_count + 1,
         )
 
         from pydantic import BaseModel, Field
         from typing import List
 
         class ClarificationResult(BaseModel):
-            needs_more_clarification: bool = Field(description="Whether clarification from the user is needed.")
-            questions: List[str] = Field(description="List of clarification questions to ask.")
+            needs_more_clarification: bool = Field(
+                description="Whether clarification from the user is needed."
+            )
+            questions: List[str] = Field(
+                description="List of clarification questions to ask."
+            )
 
         try:
             structured_llm = self.llm.with_structured_output(ClarificationResult)
             result = structured_llm.invoke(prompt)
-            
+
             questions = result.questions
             needs_more = result.needs_more_clarification
 
             if not questions or not needs_more:
                 logger.info("[Planner] No clarification needed, proceeding")
                 return []
-                
+
             return questions
 
         except Exception as e:
             logger.error(f"[Planner] Clarification generation failed: {e}")
+
+            if self.fallback_llm:
+                try:
+                    logger.info("[Planner] Retrying clarification with fallback model")
+                    structured_llm = self.fallback_llm.with_structured_output(
+                        ClarificationResult
+                    )
+                    result = structured_llm.invoke(prompt)
+                    questions = result.questions
+                    needs_more = result.needs_more_clarification
+                    if not questions or not needs_more:
+                        logger.info(
+                            "[Planner] Fallback: no clarification needed, proceeding"
+                        )
+                        return []
+                    return questions
+                except Exception as fb_err:
+                    logger.error(
+                        f"[Planner] Fallback clarification also failed: {fb_err}"
+                    )
+
             return []
 
-   
-   
-   
-   
-   
-   
-   
     def request_feedback(self, state: AgentGraphState, topic: str) -> Dict[str, Any]:
         """
         Generates a feedback request for user on a specific topic.
-        
+
         Used when the planner needs user input on a specific aspect
         of the research plan or query interpretation.
-        
+
         Args:
             state: Current state.
             topic: The topic or aspect to request feedback on.
-            
+
         Returns:
             Dict with 'feedback_request' containing the formatted request.
         """
         query = state.get("user_query", "")
-        
+
         prompt = f"""Given the user's research query: "{query}"
 
 Generate a clear, concise feedback request about: {topic}
@@ -286,15 +324,17 @@ Return JSON with:
 - "feedback_question": the question to ask
 - "options": list of suggested options (can be empty)
 """
-        
+
         try:
             result = self.chain.invoke(prompt)
             logger.info(f"Generated feedback request for topic: {topic}")
             return {
                 "feedback_request": {
                     "topic": result.get("feedback_topic", topic),
-                    "question": result.get("feedback_question", f"Please provide feedback on: {topic}"),
-                    "options": result.get("options", [])
+                    "question": result.get(
+                        "feedback_question", f"Please provide feedback on: {topic}"
+                    ),
+                    "options": result.get("options", []),
                 }
             }
         except Exception as e:
@@ -303,139 +343,49 @@ Return JSON with:
                 "feedback_request": {
                     "topic": topic,
                     "question": f"Please provide feedback on: {topic}",
-                    "options": []
+                    "options": [],
                 }
             }
 
-   
-   
-   
-   
-   
-   
     def validate_plan_scope(self, state: AgentGraphState) -> Dict[str, Any]:
         """
         Validates if the generated plan scope is appropriate.
-        
+
         Checks if the plan is too broad, too narrow, or well-scoped
         for the user's query and available context.
-        
+
         Args:
             state: Current state with planner_query.
-            
+
         Returns:
             Dict with 'scope_valid' bool and 'scope_feedback' string.
         """
         plan_queries = state.get("planner_query", [])
         query = state.get("user_query", "")
-        
+
         if not plan_queries:
             return {"scope_valid": False, "scope_feedback": "No plan generated"}
-            
+
         num_queries = len(plan_queries)
-        
+
         if num_queries > 15:
             return {
                 "scope_valid": False,
-                "scope_feedback": f"Plan has {num_queries} queries, consider narrowing scope"
+                "scope_feedback": f"Plan has {num_queries} queries, consider narrowing scope",
             }
         elif num_queries < 2:
             return {
-                "scope_valid": False, 
-                "scope_feedback": "Plan may be too narrow, consider expanding research areas"
+                "scope_valid": False,
+                "scope_feedback": "Plan may be too narrow, consider expanding research areas",
             }
-            
+
         return {"scope_valid": True, "scope_feedback": "Plan scope is appropriate"}
-
-   
-   
-   
-   
-   
-   
-    def editor(self, state: AgentGraphState) -> Dict[str, Any]:
-        """
-        Edits existing report based on user instructions.
-        
-        Reads edit_instructions and current report sections, uses LLM
-        to apply targeted edits. Concatenates report_body_sections
-        for LLM context, then returns updated sections.
-        
-        Args:
-            state: State with edit_instructions and current report sections.
-            
-        Returns:
-            State update with modified report sections.
-        """
-        edit_instructions = state.get("edit_instructions", "")
-        if not edit_instructions:
-            logger.warning("[Editor] No edit instructions provided")
-            return {}
-        
-        body_sections = state.get("report_body_sections", [])
-        combined_body = "\n\n".join(
-            s.get("section_content", "") for s in sorted(body_sections, key=lambda s: s.get("section_order", 0))
-        )
-        report_abstract = state.get("report_abstract", "")
-        report_introduction = state.get("report_introduction", "")
-        report_conclusion = state.get("report_conclusion", "")
-        
-        prompt = f"""You are editing an existing research report.
-
-## Edit Instructions
-{edit_instructions}
-
-## Current Report Sections
-
-### Abstract
-{report_abstract}
-
-### Introduction
-{report_introduction}
-
-### Body
-{combined_body}
-
-### Conclusion
-{report_conclusion}
-
-Apply the requested edits to the appropriate sections. Return JSON with only the sections that need changes:
-{{
-    "report_abstract": "updated abstract or null if no changes",
-    "report_introduction": "updated intro or null if no changes",
-    "report_body": "updated body or null if no changes",
-    "report_conclusion": "updated conclusion or null if no changes"
-}}
-"""
-        
-        try:
-            result = self.chain.invoke(prompt)
-            updates = {}
-            
-            for key in ["report_abstract", "report_introduction", "report_conclusion"]:
-                if result.get(key) and result[key] != "null":
-                    updates[key] = result[key]
-            
-            if result.get("report_body") and result["report_body"] != "null":
-                import uuid as _uuid
-                updates["report_body_sections"] = [{
-                    "section_id": str(_uuid.uuid4()),
-                    "section_order": 1,
-                    "section_content": result["report_body"]
-                }]
-            
-            logger.info(f"[Editor] Applied edits to {len(updates)} sections")
-            return updates
-            
-        except Exception as e:
-            logger.error(f"[Editor] Error applying edits: {e}")
-            return {}
 
 
 def planner_node(state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:
     """
     LangGraph node wrapper for Planner.
-    
+
     Reads user_query and memory_context from state, generates
     planner_query (list of research queries) using context-aware planning.
     """
@@ -443,7 +393,9 @@ def planner_node(state: AgentGraphState, writer: StreamWriter = None) -> Dict[st
     return planner._generate_plan(state, writer)
 
 
-def clarification_node(state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:
+def clarification_node(
+    state: AgentGraphState, writer: StreamWriter = None
+) -> Dict[str, Any]:
     """
     LangGraph node wrapper for Clarification Generation.
 
@@ -452,10 +404,6 @@ def clarification_node(state: AgentGraphState, writer: StreamWriter = None) -> D
     planner = Planner()
     questions = planner.generate_clarification_questions(state, writer)
     return {"clarification_questions": questions}
-
-
-
-
 
 
 def human_clarification_node(state: AgentGraphState) -> Dict[str, Any]:
@@ -478,11 +426,13 @@ def human_clarification_node(state: AgentGraphState) -> Dict[str, Any]:
         print(f"  {idx + 1}. {q}")
     print("-------------------------------------------\n")
 
-    user_response = interrupt({
-        "type": "clarification",
-        "questions": questions,
-        "loop_number": loop_count + 1,
-    })
+    user_response = interrupt(
+        {
+            "type": "clarification",
+            "questions": questions,
+            "loop_number": loop_count + 1,
+        }
+    )
 
     answers_raw = user_response.get("answers", {})
 
@@ -492,7 +442,7 @@ def human_clarification_node(state: AgentGraphState) -> Dict[str, Any]:
             new_qa_pairs.append({"question": q, "answer": a})
     elif isinstance(answers_raw, list):
         for i, a in enumerate(answers_raw):
-            q = questions[i] if i < len(questions) else f"Question {i+1}"
+            q = questions[i] if i < len(questions) else f"Question {i + 1}"
             new_qa_pairs.append({"question": q, "answer": a})
 
     logger.info(
@@ -504,7 +454,8 @@ def human_clarification_node(state: AgentGraphState) -> Dict[str, Any]:
     clarification_msg = {
         "message_id": str(uuid.uuid4()),
         "role": "system",
-        "content": f"[User clarified (round {loop_count + 1})]\n" + "\n".join(summary_lines),
+        "content": f"[User clarified (round {loop_count + 1})]\n"
+        + "\n".join(summary_lines),
         "timestamp": datetime.now().isoformat(),
         "metadata": {"message_type": "clarification", "round": loop_count + 1},
     }
@@ -515,17 +466,3 @@ def human_clarification_node(state: AgentGraphState) -> Dict[str, Any]:
         "clarification_questions": [],
         "chat_messages": [clarification_msg],
     }
-
-
-
-
-def editor_node(state: AgentGraphState) -> Dict[str, Any]:
-    """
-    LangGraph node wrapper for report editing.
-    
-    Reads edit_instructions and current report sections,
-    applies targeted edits using LLM.
-    """
-    planner = Planner()
-    return planner.editor(state)
-

@@ -23,9 +23,17 @@ from langgraph.types import Command
 import uuid
 from datetime import datetime
 
-from graphs.states.subgraph_state import AgentGraphState, ResearchReviewData, MemoryContext
-from graphs.subgraphs.researcher_reviewer_subgraph import build_researcher_reviewer_subgraph
-from planner.plan import planner_node, editor_node, clarification_node, human_clarification_node
+from graphs.states.subgraph_state import (
+    AgentGraphState,
+    ResearchReviewData,
+    MemoryContext,
+)
+from graphs.subgraphs.researcher_reviewer_subgraph import (
+    build_researcher_reviewer_subgraph,
+)
+from planner.plan import planner_node, clarification_node, human_clarification_node
+from planner.query_validator import MAX_PLAN_QUERIES
+from editor.editor_node import editor_node
 from writer.report_writer import writer_node
 from HITL.human_in_loop import human_review_node, HumanPlanReview
 from router.intent_router import router_node
@@ -41,25 +49,27 @@ logger = logging.getLogger(__name__)
 class DeepResearchAgent:
     """
     Main agent orchestrating the deep research workflow.
-    
+
     Coordinates planner, human review, parallel research, and report writing
     through a LangGraph state machine with interrupt/resume support.
     """
 
-    def __init__(self, db_uri: Optional[str] = None, memory: Optional[MemoryFacade] = None):
+    def __init__(
+        self, db_uri: Optional[str] = None, memory: Optional[MemoryFacade] = None
+    ):
         """
         Initialize agent with memory system and build the compiled graph.
-        
+
         Args:
             db_uri: PostgreSQL connection string for memory persistence.
             memory: Optional existing MemoryFacade instance for shared state.
         """
         self._db_uri = db_uri or os.getenv("DATABASE_URL")
-        
+
         # Use provided memory or create new one (which handles DB or in-memory)
         self._memory = memory or MemoryFacade(self._db_uri)
         self._checkpointer = self._memory.checkpointer
-        
+
         self._graph = self._build_graph()
         self._plan_formatter = HumanPlanReview()
 
@@ -99,21 +109,21 @@ class DeepResearchAgent:
                 "deepsearch": "clarification_node",
                 "extremesearch": "clarification_node",
                 "edit": "editor_node",
-            }
+            },
         )
-        
+
         workflow.add_edge("websearch_agent", "response_node")
-        
+
         # Clarification loop: loops back up to 3 times, then proceeds to skill selection
         workflow.add_conditional_edges(
             "clarification_node",
             self._route_after_clarification,
             {
                 "human_clarification_node": "human_clarification_node",
-                "planner_node": "planner_node"
-            }
+                "planner_node": "planner_node",
+            },
         )
-        
+
         # After human clarification, go back to clarification node to see if we need more
         workflow.add_edge("human_clarification_node", "clarification_node")
 
@@ -124,12 +134,12 @@ class DeepResearchAgent:
             {
                 "parallel_research_node": "parallel_research_node",
                 "planner_node": "planner_node",
-            }
+            },
         )
         workflow.add_edge("parallel_research_node", "writer_node")
         workflow.add_edge("writer_node", "response_node")
         workflow.add_edge("editor_node", "response_node")
-        
+
         workflow.add_edge("response_node", "memory_node")
         workflow.add_edge("memory_node", END)
 
@@ -152,7 +162,7 @@ class DeepResearchAgent:
         Routes after a clarification round.
 
         Continues looping to human_clarification_node if under the 3-loop max
-        and the LLM indicated more clarification is needed (by providing questions). 
+        and the LLM indicated more clarification is needed (by providing questions).
         Otherwise proceeds to planner_node.
 
         Returns:
@@ -160,10 +170,10 @@ class DeepResearchAgent:
         """
         loop_count = state.get("clarification_loop_count", 0)
         questions = state.get("clarification_questions", [])
-        
+
         if loop_count < 3 and questions:
             return "human_clarification_node"
-        
+
         return "planner_node"
 
     def _route_after_review(self, state: AgentGraphState) -> str:
@@ -184,8 +194,12 @@ class DeepResearchAgent:
         Takes planner_query list from state, creates one subgraph invocation per query,
         executes all in parallel using asyncio.gather, and accumulates results.
 
+        The active analysis_level is resolved to concrete (depth, max_reviews) values
+        and injected into every subgraph initial state so the researcher and reviewer
+        nodes behave according to the user-selected mode.
+
         Args:
-            state: Current state containing planner_query list.
+            state: Current state containing planner_query list and analysis_level.
 
         Returns:
             State update with research_review list populated.
@@ -196,14 +210,36 @@ class DeepResearchAgent:
             logger.warning("[parallel_research_node] No queries from planner")
             return {"research_review": []}
 
-        # logger.info(f"[parallel_research_node] Starting parallel research for {len(queries)} queries")
+        if len(queries) > MAX_PLAN_QUERIES:
+            raise ValueError(
+                f"[parallel_research_node] BLOCKED: plan contains {len(queries)} queries "
+                f"which exceeds the hard limit of {MAX_PLAN_QUERIES}. "
+                "The QueryValidator should have caught this earlier."
+            )
 
         subgraph = build_researcher_reviewer_subgraph()
 
         current_run_id = state.get("current_run_id", "")
+        analysis_level = state.get("analysis_level", "low")
+
+        # Map analysis_level to concrete research parameters.
+        # Defined locally — the mapping is only meaningful here where subgraphs
+        # are spawned, so it doesn't belong as a class-level constant.
+        level_params = {
+            "low": {"depth": 2, "max_reviews": 2},
+            "mid": {"depth": 2, "max_reviews": 3},
+            "high": {"depth": 3, "max_reviews": 2},
+        }
+        params = level_params.get(analysis_level, level_params["low"])
+
+        logger.info(
+            f"[parallel_research_node] analysis_level={analysis_level!r} → "
+            f"depth={params['depth']}, max_reviews={params['max_reviews']} "
+            f"for {len(queries)} queries"
+        )
 
         async def invoke_subgraph(planner_query: dict) -> ResearchReviewData:
-            """Invoke subgraph for a single query with query_num tracking."""
+            """Invoke subgraph for a single query with analysis parameters injected."""
             query = planner_query["query"]
             query_num = planner_query["query_num"]
 
@@ -216,61 +252,68 @@ class DeepResearchAgent:
                 "current_reviews": [],
                 "iteration_count": 0,
                 "logs": [],
-                "clarification_context": state.get("clarification_answers", [])
+                "clarification_context": state.get("clarification_answers", []),
+                "depth": params["depth"],
+                "max_reviews": params["max_reviews"],
             }
             result = await subgraph.ainvoke(initial_state)
-            # logger.info(f"[parallel_research_node] Completed research for query #{query_num}: {query[:50]}...")
             return result
 
         tasks = [invoke_subgraph(q) for q in queries]
         results = await asyncio.gather(*tasks)
 
-        # logger.info(f"[parallel_research_node] All {len(results)} research tasks complete")
-        
         return {"research_review": list(results)}
 
+    # -------------------------------------------------------------------------
+    # State factory helpers
+    # -------------------------------------------------------------------------
 
     def _create_initial_state(
-        self, 
+        self,
         user_query: str,
         search_mode: str = "deepsearch",
         thread_id: Optional[str] = None,
-        user_id: Optional[str] = None
+        user_id: Optional[str] = None,
+        analysis_level: str = "low",
+        api_keys: Optional[Dict[str, str]] = None,
+        model_selections: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """
         Creates initial state dictionary for graph invocation.
-        
+
         Args:
             user_query: The research question to investigate.
             search_mode: Search mode from frontend (websearch/deepsearch/extremesearch).
             thread_id: Optional conversation thread ID. Auto-generated if None.
             user_id: Optional user ID for long-term memory. Defaults to 'default_user'.
-            
+            analysis_level: Deep analysis intensity ('low', 'mid', or 'high').
+
         Returns:
             Initial state with all fields set to defaults including memory context.
         """
-        # Create new user message
         new_message = {
             "message_id": str(uuid.uuid4()),
             "role": "user",
             "content": user_query,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
         normalized_mode = self._normalize_search_mode(search_mode)
+        safe_level = (analysis_level or "low").strip().lower()
+        if safe_level not in {"low", "mid", "high"}:
+            safe_level = "low"
 
         return {
             "thread_id": thread_id or str(uuid.uuid4()),
             "user_id": user_id or "00000000-0000-0000-0000-000000000000",
             "chat_messages": [new_message],
             "memory_context": MemoryContext(
-                semantic_memories=[],
-                user_profile=None,
-                conversation_summary=None
+                semantic_memories=[], user_profile=None, conversation_summary=None
             ),
             "user_query": user_query,
             "current_run_id": str(uuid.uuid4()),
             "search_mode": normalized_mode,
+            "analysis_level": safe_level,
             "router_thinking": "",
             "improve_in_response": "",
             "total_agents": 0,
@@ -288,7 +331,8 @@ class DeepResearchAgent:
             "reports": [],
             "websearch_results": [],
             "final_response": "",
-            "edit_instructions": None
+            "api_keys": api_keys or {},
+            "model_selections": model_selections or {},
         }
 
     def _create_update_state(
@@ -296,29 +340,40 @@ class DeepResearchAgent:
         user_query: str,
         search_mode: str,
         thread_id: str,
-        user_id: str = "00000000-0000-0000-0000-000000000000"
+        user_id: str = "00000000-0000-0000-0000-000000000000",
+        analysis_level: str = "low",
+        api_keys: Optional[Dict[str, str]] = None,
+        model_selections: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """
         Creates a partial state update for existing threads.
-        Only updates fields that change per-turn, preserving report_body_sections/etc.
+
+        Only updates fields that change per-turn, preserving report_body_sections
+        and other accumulated data across follow-up questions.
         """
         new_message = {
             "message_id": str(uuid.uuid4()),
             "role": "user",
             "content": user_query,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
         normalized_mode = self._normalize_search_mode(search_mode)
+        safe_level = (analysis_level or "low").strip().lower()
+        if safe_level not in {"low", "mid", "high"}:
+            safe_level = "low"
 
         return {
             "user_query": user_query,
             "current_run_id": str(uuid.uuid4()),
             "search_mode": normalized_mode,
-            "chat_messages": [new_message], # Appends due to operator.add
-            "current_phase": "routing", # Reset phase
+            "analysis_level": safe_level,
+            "chat_messages": [new_message],  # Appends due to operator.add
+            "current_phase": "routing",  # Reset phase for new turn
             "user_id": user_id,
             "improve_in_response": "",
+            "api_keys": api_keys or {},
+            "model_selections": model_selections or {},
         }
 
     @staticmethod
@@ -334,10 +389,10 @@ class DeepResearchAgent:
         return "deepsearch"
 
     async def run(
-        self, 
-        user_query: str, 
+        self,
+        user_query: str,
         search_mode: str = "deepsearch",
-        thread_id: Optional[str] = None
+        thread_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Execute deep research with HITL interrupt loop.
@@ -357,13 +412,11 @@ class DeepResearchAgent:
         thread_id = thread_id or str(uuid.uuid4())
         config = {"configurable": {"thread_id": thread_id}}
         initial_state = self._create_initial_state(
-            user_query, 
-            search_mode=search_mode,
-            thread_id=thread_id
-        ) 
+            user_query, search_mode=search_mode, thread_id=thread_id
+        )
 
         # logger.info(f"[run] Starting research for: {user_query}")
-        
+
         # Check if state exists to decide between Init vs Update
         current_state = await self._graph.aget_state(config)
         state_exists = bool(current_state.values)
@@ -371,21 +424,17 @@ class DeepResearchAgent:
         if state_exists:
             # logger.info(f"[run] Thread {thread_id} exists - updating state")
             initial_state = self._create_update_state(
-                user_query, 
-                search_mode=search_mode, 
-                thread_id=thread_id
+                user_query, search_mode=search_mode, thread_id=thread_id
             )
         else:
             # logger.info(f"[run] Thread {thread_id} new - initializing full state")
             initial_state = self._create_initial_state(
-                user_query, 
-                search_mode=search_mode, 
-                thread_id=thread_id
+                user_query, search_mode=search_mode, thread_id=thread_id
             )
-        
+
         if self._memory:
             await self._memory.initialize()
-            
+
             # Populate memory context for the planner
             memory_context = await self._memory.get_context_for_planner(
                 thread_id=thread_id,
@@ -394,7 +443,7 @@ class DeepResearchAgent:
                 search_mode=initial_state.get("search_mode", "deepsearch"),
             )
             initial_state["memory_context"] = memory_context
-            
+
         result = await self._graph.ainvoke(initial_state, config=config)
 
         while "__interrupt__" in result:
@@ -402,7 +451,9 @@ class DeepResearchAgent:
             if interrupt_data:
                 plan_display = self._display_plan_for_terminal(interrupt_data)
                 resume_value = self._get_terminal_approval(plan_display)
-                result = await self._graph.ainvoke(Command(resume=resume_value), config=config)
+                result = await self._graph.ainvoke(
+                    Command(resume=resume_value), config=config
+                )
             else:
                 break
 
@@ -410,14 +461,11 @@ class DeepResearchAgent:
         return result
 
 
-
-
-
 async def run_deep_research(
-    user_query: str, 
+    user_query: str,
     search_mode: str = "deepsearch",
     thread_id: Optional[str] = None,
-    memory: Optional[MemoryFacade] = None
+    memory: Optional[MemoryFacade] = None,
 ) -> Dict[str, Any]:
     """
     Convenience function to execute deep research.
@@ -440,8 +488,6 @@ if __name__ == "__main__":
     import os
     from datetime import datetime
 
-
-
     async def main():
         if len(sys.argv) > 1:
             query = " ".join(sys.argv[1:])
@@ -451,18 +497,17 @@ if __name__ == "__main__":
         # Example of persistent thread with shared memory
         thread_id = str(uuid.uuid4())
         print(f"Starting research with thread_id: {thread_id}")
-        
+
         # Create shared memory instance
         memory = MemoryFacade()
         await memory.initialize()
-        
+
         # First turn
         result = await run_deep_research(query, "deepsearch", thread_id, memory)
-        
+
         # Simulate follow-up in same thread (memory persistence)
         # follow_up = await run_deep_research("What about transformers?", "follow_up", thread_id, memory)
 
         report_markdown = format_report_markdown(result, query)
-
 
     asyncio.run(main())

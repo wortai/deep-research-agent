@@ -1,0 +1,1142 @@
+# Planner Test Report — 50 Diverse User Queries
+
+**Generated:** 2026-04-06 15:14:30
+**Model:** gemini-2.0-flash | **Temperature:** 1.25
+**Total queries tested:** 50
+
+## Summary
+
+| Metric | Value |
+|---|---|
+| Total queries | 50 |
+| Successful | 50 |
+| Errors | 0 |
+| Count in range (1-10) | 50/50 |
+| All words 20-100 | 50/50 |
+| Fully passing | 50/50 |
+| Avg plan queries | 4.9 |
+| Avg query word count | 60.6 |
+| Min query word count | 35 |
+| Max query word count | 86 |
+
+## Plan Size Distribution
+
+| # Queries in Plan | Count |
+|---|---|
+| 3 | 2 |
+| 4 | 12 |
+| 5 | 26 |
+| 6 | 8 |
+| 7 | 2 |
+
+## Intent Type Distribution
+
+| Intent | Count | Avg Plan Size |
+|---|---|---|
+| Comparative | 9 | 5.0 |
+| Evaluative | 8 | 5.0 |
+| Exploratory | 7 | 5.4 |
+| Lookup | 16 | 4.9 |
+| Mechanistic | 4 | 4.2 |
+| Strategic | 6 | 4.5 |
+
+## Domain Breakdown
+
+| Domain | Count | Avg Plan Size | All Words OK |
+|---|---|---|---|
+| AI/Technology | 1 | 6.0 | 1/1 |
+| Art/Film | 1 | 4.0 | 1/1 |
+| Art/History | 1 | 4.0 | 1/1 |
+| Art/Music | 1 | 5.0 | 1/1 |
+| Art/Photography | 1 | 5.0 | 1/1 |
+| Biology/Evolution | 1 | 6.0 | 1/1 |
+| Biology/Genetics | 1 | 5.0 | 1/1 |
+| Biology/Neuroscience | 1 | 5.0 | 1/1 |
+| Coding/DevOps | 1 | 3.0 | 1/1 |
+| Coding/Machine Learning | 1 | 4.0 | 1/1 |
+| Coding/Open Source | 1 | 5.0 | 1/1 |
+| Coding/Security | 1 | 6.0 | 1/1 |
+| Coding/System Design | 1 | 7.0 | 1/1 |
+| Coding/Web Development | 1 | 4.0 | 1/1 |
+| Cooking/Cuisine | 1 | 3.0 | 1/1 |
+| Cooking/Fermentation | 1 | 5.0 | 1/1 |
+| Cooking/Meal Prep | 1 | 5.0 | 1/1 |
+| Cooking/Technique | 1 | 5.0 | 1/1 |
+| Finance/Crypto | 1 | 5.0 | 1/1 |
+| Finance/Investment | 1 | 5.0 | 1/1 |
+| Finance/Stock Market | 1 | 5.0 | 1/1 |
+| Finance/Taxes | 1 | 5.0 | 1/1 |
+| General/Career | 1 | 6.0 | 1/1 |
+| General/Education | 1 | 5.0 | 1/1 |
+| General/Productivity | 1 | 5.0 | 1/1 |
+| General/Travel | 1 | 5.0 | 1/1 |
+| Health/Fitness | 1 | 4.0 | 1/1 |
+| Health/Gut Microbiome | 1 | 5.0 | 1/1 |
+| Health/Longevity | 1 | 6.0 | 1/1 |
+| Health/Mental Health | 1 | 5.0 | 1/1 |
+| Health/Nutrition | 1 | 4.0 | 1/1 |
+| Health/Sleep | 1 | 5.0 | 1/1 |
+| Investment/ETFs | 1 | 5.0 | 1/1 |
+| Investment/Real Estate | 1 | 5.0 | 1/1 |
+| Math/Cryptography | 1 | 4.0 | 1/1 |
+| Math/Education | 1 | 4.0 | 1/1 |
+| Math/Statistics | 1 | 5.0 | 1/1 |
+| News/AI Regulation | 1 | 7.0 | 1/1 |
+| News/Climate | 1 | 6.0 | 1/1 |
+| News/Geopolitics | 1 | 4.0 | 1/1 |
+| Niche/Mycology | 1 | 4.0 | 1/1 |
+| Niche/Philosophy | 1 | 4.0 | 1/1 |
+| Niche/Psychology | 1 | 5.0 | 1/1 |
+| Niche/Urban Planning | 1 | 6.0 | 1/1 |
+| Physics | 1 | 5.0 | 1/1 |
+| Physics/Cosmology | 1 | 5.0 | 1/1 |
+| Physics/Quantum Computing | 1 | 5.0 | 1/1 |
+| STEM/Materials Science | 1 | 5.0 | 1/1 |
+| STEM/Renewable Energy | 1 | 6.0 | 1/1 |
+| STEM/Space | 1 | 4.0 | 1/1 |
+
+---
+
+## Detailed Results
+
+### ✅ Query #1 — Finance/Investment [Evaluative]
+
+> **User Query** (56 words):
+> I'm 28 years old and just started my first real job making about 75k a year. I want to start investing but I have no idea where to begin. Should I go with index funds or try picking individual stocks? Also is it too early to think about retirement accounts like a 401k or Roth IRA?
+
+**Plan Size:** 5 queries
+**Word Counts:** [76, 61, 63, 54, 57] (range: 54-76)
+**Words in 20-100 range:** 5/5
+
+**1.** [76w ✅] Explain what index funds are, how they work, and why they are considered a good starting point for new investors. Focus on broad market index funds like the S&P 500. What are the expense ratios typically associated with index funds, and how do these fees impact long-term returns? What are the tax implications of investing in index funds versus other investment vehicles? What is dollar-cost averaging, and how does it apply to investing in index funds?
+
+**2.** [61w ✅] Describe individual stocks and the process of selecting them for investment. Focus on fundamental analysis, including evaluation of financial statements, key performance indicators (KPIs), and industry trends. What are the risks and potential rewards of investing in individual stocks compared to index funds? What are some key metrics to consider when evaluating the financial health and growth potential of a company?
+
+**3.** [63w ✅] Compare and contrast index funds and individual stocks, outlining the advantages and disadvantages of each for a beginner investor with a long-term investment horizon. Focus on risk tolerance, time commitment, and potential returns. What are some common mistakes beginner investors make when choosing between index funds and individual stocks? What are some resources available to help beginner investors learn more about both strategies?
+
+**4.** [54w ✅] Explain the basics of retirement accounts, specifically 401(k)s and Roth IRAs. What are the contribution limits and tax advantages associated with each type of account? What are the differences between traditional and Roth accounts? How do these accounts fit into a broader long-term financial plan, and why is it important to start saving early?
+
+**5.** [57w ✅] Provide a step-by-step guide to opening and managing a Roth IRA, including selecting a brokerage firm, funding the account, and choosing appropriate investments. Focus on low-cost index funds and ETFs suitable for long-term growth. What are the tax implications of withdrawals in retirement? What are some common strategies for maximizing Roth IRA contributions and growth over time?
+
+---
+
+### ✅ Query #2 — Coding/Web Development [Evaluative]
+
+> **User Query** (46 words):
+> I've been learning Python for about 6 months and I want to transition into web development. Should I learn Django or FastAPI for building backend APIs? I eventually want to build a SaaS product so I need something that scales well and is maintainable long term.
+
+**Plan Size:** 4 queries
+**Word Counts:** [49, 38, 39, 38] (range: 38-49)
+**Words in 20-100 range:** 4/4
+
+**1.** [49w ✅] What are the foundational concepts behind both Django and FastAPI frameworks for Python web development? Explain the Model-View-Template (MVT) architecture in Django and the asynchronous capabilities in FastAPI. What are the core design philosophies that differentiate them? Focus on their architecture and basic features, excluding deployment or scaling aspects.
+
+**2.** [38w ✅] How do Django and FastAPI handle routing and request handling? Describe Django's URL dispatcher and ORM. Detail FastAPI's dependency injection system and data validation using Pydantic. Compare their approaches to building APIs and handling different types of requests.
+
+**3.** [39w ✅] What are the primary scalability considerations when choosing between Django and FastAPI for building a SaaS product? Research horizontal scaling, database interactions, and asynchronous task processing in both frameworks. Focus on architectural limitations and performance benchmarks in high-load scenarios.
+
+**4.** [38w ✅] Compare the maintainability and long-term support aspects of Django and FastAPI. Explore the maturity of each framework, community support, available documentation, and upgrade paths. Consider the impact of architectural choices on code maintainability and technical debt over time.
+
+---
+
+### ✅ Query #3 — Health/Nutrition [Exploratory]
+
+> **User Query** (48 words):
+> I've been feeling really sluggish and tired all the time for the past few months despite sleeping 7-8 hours. My diet is pretty bad honestly, mostly takeout and fast food. What are the most impactful dietary changes I can make to improve my energy levels throughout the day?
+
+**Plan Size:** 4 queries
+**Word Counts:** [75, 62, 70, 65] (range: 62-75)
+**Words in 20-100 range:** 4/4
+
+**1.** [75w ✅] What are the key macronutrients (proteins, carbohydrates, and fats) and micronutrients (vitamins and minerals) that are most commonly deficient in people with diets heavy in takeout and fast food? Focus on nutrients that directly impact energy levels and fatigue. What role do these nutrients play in energy production and metabolic processes? How do deficiencies in these nutrients manifest physically and psychologically? What are the best food sources for each of these nutrients beyond processed foods?
+
+**2.** [62w ✅] How does the consistent consumption of processed foods and fast food impact blood sugar levels and insulin sensitivity? Focus on the glycemic index and glycemic load. What are the immediate and long-term effects of blood sugar fluctuations on energy levels and mood? What are the mechanisms by which processed foods contribute to insulin resistance? What dietary changes can help stabilize blood sugar?
+
+**3.** [70w ✅] What specific dietary changes—replacing certain foods with others, or adding new foods—can most effectively combat fatigue and improve energy levels throughout the day, based on the identified nutrient deficiencies and blood sugar impacts? Provide examples of meal plans and snack options incorporating these changes. How quickly might someone expect to see improvements in energy levels after implementing these changes? How can portion control and meal timing contribute to sustained energy?
+
+**4.** [65w ✅] Beyond specific foods, what broader dietary strategies can someone implement to maintain higher energy levels? Focus on aspects such as meal frequency, hydration, and mindful eating. How does dehydration impact energy levels and cognitive function? What are the benefits of eating smaller, more frequent meals versus larger, less frequent meals? How can mindful eating practices improve energy levels and prevent overeating or unhealthy food choices?
+
+---
+
+### ✅ Query #4 — Physics [Lookup]
+
+> **User Query** (42 words):
+> Can someone explain quantum entanglement in a way that actually makes sense? I keep reading that measuring one particle instantly affects another one far away but that sounds like faster than light communication which shouldn't be possible. What's really going on here?
+
+**Plan Size:** 5 queries
+**Word Counts:** [64, 59, 46, 49, 57] (range: 46-64)
+**Words in 20-100 range:** 5/5
+
+**1.** [64w ✅] Explain the foundational concepts of quantum entanglement, including the superposition of states and the measurement problem. Focus on the properties of entangled particles like photons or electrons. How does entanglement arise, and what are the roles of 'spin' and other quantum characteristics? What is a Bell state and how does it relate to entanglement? This query sets the stage for understanding the phenomenon itself.
+
+**2.** [59w ✅] Detail the mechanism of quantum entanglement, addressing how the measurement of one entangled particle instantaneously influences the state of the other, regardless of distance. Clarify the implications of 'spooky action at a distance' and its relation to Einstein's critique. Explain Bell's theorem and the experimental tests confirming entanglement. What are the key mathematical formalisms used to describe this process?
+
+**3.** [46w ✅] Address the misconception that quantum entanglement enables faster-than-light communication. Explain why, although correlations are instantaneous, no usable signal can be transmitted. What role does decoherence play in preventing superluminal communication? What are the limitations on extracting information from entangled states? Focus on disentangling correlation from communication.
+
+**4.** [49w ✅] Explore current and potential applications of quantum entanglement in technologies like quantum computing and quantum cryptography. Describe how entanglement is utilized in quantum key distribution protocols like BB84. How does entanglement enhance the capabilities of quantum computers compared to classical computers? Provide examples of real-world implementations or experimental setups.
+
+**5.** [57w ✅] Discuss the major challenges and open questions surrounding quantum entanglement, including its role in quantum gravity and the interpretation of quantum mechanics. What are the ongoing debates regarding the completeness of quantum mechanics and the nature of reality? What experimental efforts are underway to further probe the limits of entanglement and its potential violations of established physics?
+
+---
+
+### ✅ Query #5 — Cooking/Technique [Lookup]
+
+> **User Query** (48 words):
+> I want to learn how to properly cook steak at home like a restaurant quality sear. I've tried a few times but it always turns out either overcooked or lacking a good crust. What's the best method, pan searing with butter or reverse sear in the oven first?
+
+**Plan Size:** 5 queries
+**Word Counts:** [61, 64, 55, 49, 46] (range: 46-64)
+**Words in 20-100 range:** 5/5
+
+**1.** [61w ✅] Explain the Maillard reaction, a crucial chemical process responsible for the browned crust and savory flavors in seared steak. Detail the specific amino acids and reducing sugars involved, and how heat accelerates the reaction. What temperatures are optimal for Maillard reaction? What factors inhibit or enhance it? How does it contribute to the overall taste and aroma profile of cooked steak?
+
+**2.** [64w ✅] Describe the pan-searing method for cooking steak, focusing on achieving a restaurant-quality crust. What types of pans are best suited for searing (cast iron, stainless steel)? What kind of oil or fat should be used, and why? How do you properly preheat the pan? Detail the process of creating a good sear without overcooking the inside, including the importance of patting the steak dry.
+
+**3.** [55w ✅] Explain the reverse sear method for cooking steak, including the oven temperature and target internal temperature. What are the benefits of reverse searing compared to traditional pan searing? How long should the steak rest before searing? How does reverse searing affect the crust formation, and what techniques can maximize crust development after the oven stage?
+
+**4.** [49w ✅] Compare and contrast the pan searing and reverse sear methods for cooking steak, considering factors like crust development, internal evenness, cooking time, and ease of execution. Which method is better for different cuts of steak (e.g., ribeye, filet mignon, New York strip)? Which method is more forgiving for beginners?
+
+**5.** [46w ✅] What are some common mistakes people make when cooking steak at home, and how can they be avoided? Discuss issues such as uneven cooking, poor crust formation, overcooking or undercooking, improper seasoning, and inadequate resting time. Provide specific tips and troubleshooting advice for achieving consistent results.
+
+---
+
+### ✅ Query #6 — AI/Technology [Exploratory]
+
+> **User Query** (46 words):
+> I keep hearing about AI agents and how they're going to change everything in 2025 and 2026. What exactly are AI agents, how are they different from regular chatbots like ChatGPT, and what are the most useful things people are actually building with them right now?
+
+**Plan Size:** 6 queries
+**Word Counts:** [50, 53, 54, 61, 53, 63] (range: 50-63)
+**Words in 20-100 range:** 6/6
+
+**1.** [50w ✅] Provide a clear definition of "AI agents" in the context of software and artificial intelligence. How do they differ from traditional software programs? What are the key characteristics that define an AI agent (e.g., autonomy, reactivity, pro-activeness, social ability)? What are some examples of basic AI agents in use today?
+
+**2.** [53w ✅] Explain the core architectural components of AI agents. Detail the roles of perception, reasoning, planning, and action within an AI agent. How do these components interact to enable an agent to achieve its goals? What are the common frameworks or architectures used for building AI agents, such as BDI (Belief-Desire-Intention) or subsumption architecture?
+
+**3.** [54w ✅] Compare and contrast AI agents with traditional chatbots like ChatGPT. What are the fundamental differences in their design, capabilities, and applications? How do AI agents extend beyond the capabilities of chatbots in terms of autonomy, task execution, and environmental interaction? What are the limitations of chatbots compared to AI agents in complex problem-solving scenarios?
+
+**4.** [61w ✅] Describe several real-world applications of AI agents that are currently being developed or deployed in 2025-2026. Focus on specific examples across various sectors such as healthcare, finance, logistics, and customer service. For each application, explain the specific tasks the AI agent performs, the benefits it provides, and the challenges in its implementation. What are some examples of successful AI agent deployments?
+
+**5.** [53w ✅] Analyze the potential challenges and limitations in the development and deployment of AI agents. Discuss the technical challenges related to robustness, scalability, and security. What are the ethical considerations surrounding AI agents, such as bias, transparency, and accountability? How can these challenges be addressed to ensure responsible and beneficial use of AI agents?
+
+**6.** [63w ✅] Discuss the future trends and potential advancements in AI agent technology. What are the emerging research areas in AI agent development, such as multi-agent systems, reinforcement learning, and explainable AI? How might AI agents evolve to become more sophisticated, adaptable, and integrated into various aspects of human life in the coming years? What are the potential long-term societal impacts of advanced AI agents?
+
+---
+
+### ✅ Query #7 — Biology/Genetics [Lookup]
+
+> **User Query** (46 words):
+> How does CRISPR gene editing actually work at the molecular level? I understand it can cut DNA but how does it know where to cut and how do scientists control what changes get made? Also what are the current real world applications beyond just lab experiments?
+
+**Plan Size:** 5 queries
+**Word Counts:** [85, 78, 73, 79, 68] (range: 68-85)
+**Words in 20-100 range:** 5/5
+
+**1.** [85w ✅] Explain the molecular mechanism of CRISPR-Cas systems, focusing on Cas9. Describe the structure of the Cas9 protein and guide RNA complex, and how it recognizes and binds to specific DNA sequences via Watson-Crick base pairing. Detail the process of DNA cleavage by Cas9, including the role of the HNH and RuvC nuclease domains. What are the key PAM sequences for commonly used Cas9 orthologs, and how do they contribute to target specificity? This query should focus on the core mechanism; applications will be covered separately.
+
+**2.** [78w ✅] How do scientists design and control CRISPR-mediated gene editing outcomes? Detail the design of guide RNAs to target specific genomic loci. Explain the difference between homology-directed repair (HDR) and non-homologous end joining (NHEJ) pathways, and how researchers can influence which pathway is utilized. Describe methods for delivering CRISPR-Cas components into cells, including plasmids, viral vectors, and ribonucleoprotein complexes. What are the factors that influence the efficiency and specificity of CRISPR editing, and how can off-target effects be minimized?
+
+**3.** [73w ✅] What are the current real-world applications of CRISPR-Cas gene editing technology beyond basic lab research? Describe specific examples of CRISPR applications in human therapeutics, including gene therapy for genetic diseases and cancer immunotherapy. Explain the use of CRISPR in agriculture for crop improvement, such as enhancing yield, disease resistance, and nutritional content. What are other notable applications of CRISPR in areas like diagnostics, biomanufacturing, and environmental remediation? Focus on applications with demonstrated impact.
+
+**4.** [79w ✅] What are the major challenges and limitations associated with CRISPR-Cas gene editing? Discuss the issue of off-target effects and potential strategies for improving specificity, such as high-fidelity Cas9 variants and computational tools for guide RNA design. Detail challenges related to delivery of CRISPR components to target cells and tissues, including immunogenicity and limitations of different delivery methods. What are the ethical considerations surrounding CRISPR gene editing, particularly in germline editing and enhancement applications, and how are these being addressed?
+
+**5.** [68w ✅] What are the future directions and potential advancements in CRISPR gene editing technology? Describe emerging CRISPR-based technologies beyond Cas9, such as base editing, prime editing, and CRISPRa/i for gene regulation. Explain how CRISPR is being combined with other technologies, such as artificial intelligence and synthetic biology, to create new applications and solutions. What are the potential long-term impacts of CRISPR gene editing on society, medicine, and the environment?
+
+---
+
+### ✅ Query #8 — Art/History [Comparative]
+
+> **User Query** (48 words):
+> Why is modern art so controversial? I went to a contemporary art museum recently and honestly I couldn't tell the difference between some of the art and random objects. What's the history behind the modern art movement and what should I actually be looking for to appreciate it?
+
+**Plan Size:** 4 queries
+**Word Counts:** [59, 60, 60, 61] (range: 59-61)
+**Words in 20-100 range:** 4/4
+
+**1.** [59w ✅] Explain the historical context and philosophical underpinnings of modern art. Focus on movements like Impressionism, Cubism, and Surrealism, and philosophers such as Nietzsche and Freud who influenced them. What were the key motivations behind the shift away from representational art? How did societal changes and technological advancements contribute to this evolution? What are the defining characteristics of modern art?
+
+**2.** [60w ✅] Describe the key aesthetic principles and conceptual frameworks used to evaluate modern art. Delve into concepts like formalism, abstraction, and the artist's intent. How do these principles differ from those used to assess traditional art? What role does context play in interpreting modern artworks? How can viewers move beyond subjective reactions to engage with the art on a deeper level?
+
+**3.** [60w ✅] Discuss the major controversies and criticisms surrounding modern art. Explore the debates over its accessibility, skill requirements, and cultural value, referencing specific examples like Duchamp's "Fountain" or Warhol's "Brillo Boxes." Why does modern art often provoke strong reactions? How have artists and critics responded to these criticisms? What are the key arguments for and against the value of modern art?
+
+**4.** [61w ✅] What is the legacy and influence of modern art on contemporary art and visual culture? Consider how modern art movements have shaped subsequent artistic practices and broader cultural trends. How have digital media and globalization further transformed the art world? What are some of the key challenges and opportunities facing artists today? How is the definition of art continuing to evolve?
+
+---
+
+### ✅ Query #9 — News/Geopolitics [Lookup]
+
+> **User Query** (39 words):
+> What's actually happening with the US-China trade tensions right now in 2026? I see headlines about tariffs and semiconductor restrictions but I don't really understand the full picture. How does this affect regular consumers and what's the likely outcome?
+
+**Plan Size:** 4 queries
+**Word Counts:** [69, 64, 60, 64] (range: 60-69)
+**Words in 20-100 range:** 4/4
+
+**1.** [69w ✅] What are the key characteristics of the US-China trade relationship in 2026, including specific trade agreements, major import/export categories, and the overall trade volume? Focus on the current state of affairs and avoid delving into historical context. What are the primary goods and services traded between the US and China? What are the current tariff levels on these goods? How has the overall trade volume changed in recent years?
+
+**2.** [64w ✅] How do US semiconductor restrictions impact China's technology sector and what strategies are Chinese companies employing to mitigate these restrictions? Focus on the technological and economic effects, excluding geopolitical analysis. What specific restrictions are in place regarding semiconductor technology? How are Chinese companies adapting to these restrictions through domestic production, alternative suppliers, or technological innovation? What is the overall impact on China's technological advancement?
+
+**3.** [60w ✅] In what specific ways do current US-China trade tensions affect regular consumers in both countries? Concentrate on the impact on prices, availability of goods, and consumer behavior. How have tariffs on Chinese goods affected prices for American consumers? Conversely, how have restrictions on US exports impacted Chinese consumers? Are consumers changing their purchasing habits in response to these trade tensions?
+
+**4.** [64w ✅] What are the potential future scenarios for US-China trade relations, considering factors like ongoing negotiations, technological competition, and geopolitical shifts? Focus on the next 3-5 years. What are the possible outcomes of current trade negotiations between the US and China? How might technological competition in areas like AI and quantum computing influence trade policy? What geopolitical factors could further escalate or de-escalate trade tensions?
+
+---
+
+### ✅ Query #10 — Math/Education [Mechanistic]
+
+> **User Query** (45 words):
+> I'm struggling to understand calculus, specifically the concept of limits and derivatives. Every resource I find either goes way too deep into proofs or just gives me formulas to memorize. Can someone explain what derivatives actually mean conceptually and why they matter in real life?
+
+**Plan Size:** 4 queries
+**Word Counts:** [50, 54, 51, 44] (range: 44-54)
+**Words in 20-100 range:** 4/4
+
+**1.** [50w ✅] Explain the foundational concepts of limits in calculus. Focus on intuitive understanding rather than formal proofs. What are limits, and why are they important for understanding calculus? How do you determine the limit of a function? What are common techniques for evaluating limits, such as direct substitution, factoring, and rationalizing?
+
+**2.** [54w ✅] Describe the conceptual meaning of a derivative. Avoid complex mathematical notation and focus on how derivatives represent rates of change. What does the derivative of a function at a point tell you? How does this relate to the slope of a curve? What are some everyday examples that illustrate the concept of a derivative?
+
+**3.** [51w ✅] Explain how derivatives are used to solve real-world problems. Provide specific examples from various fields. How are derivatives used in physics to calculate velocity and acceleration? How are they used in economics to optimize production or minimize costs? How are they used in other fields like engineering, computer science, or biology?
+
+**4.** [44w ✅] Discuss the limitations of derivatives and potential challenges in applying them. What are some common pitfalls to avoid when using derivatives? What types of functions are difficult or impossible to differentiate? How does numerical differentiation compare to analytical differentiation, and when is it necessary?
+
+---
+
+### ✅ Query #11 — Niche/Urban Planning [Comparative]
+
+> **User Query** (40 words):
+> Why do some cities feel walkable and pleasant while others feel like they were designed exclusively for cars? I'm curious about the urban planning principles that make cities like Amsterdam or Tokyo so pedestrian friendly compared to most American cities.
+
+**Plan Size:** 6 queries
+**Word Counts:** [40, 48, 35, 48, 35, 51] (range: 35-51)
+**Words in 20-100 range:** 6/6
+
+**1.** [40w ✅] What are the key principles of pedestrian-oriented urban design, contrasting it with car-centric planning? Define terms like 'walkability,' 'complete streets,' 'density,' and 'mixed-use development.' What metrics are used to assess walkability? What are the historical origins of pedestrian-focused urban planning?
+
+**2.** [48w ✅] How do specific design elements such as street width, sidewalk design, building setbacks, landscaping, and traffic calming measures contribute to or detract from walkability? Explain the role of street connectivity, block size, and intersection design. Focus on the impact of these design choices on pedestrian safety and comfort.
+
+**3.** [35w ✅] How do land use policies, zoning regulations, and transportation planning strategies influence walkability? Discuss the impact of single-use zoning, parking requirements, and public transportation accessibility. Include examples of policies that promote or hinder pedestrian-friendly environments.
+
+**4.** [48w ✅] Compare and contrast the urban planning approaches of Amsterdam and Tokyo with those commonly found in most American cities. What specific policies, design features, or cultural factors contribute to the higher levels of walkability in Amsterdam and Tokyo? What historical factors shaped the urban landscapes of these cities?
+
+**5.** [35w ✅] What are the social, economic, and environmental benefits of walkable cities? Discuss the impact on public health, community building, local economies, and carbon emissions. What are the potential drawbacks or challenges associated with prioritizing walkability?
+
+**6.** [51w ✅] What are the current trends and emerging strategies in urban planning that aim to enhance walkability in existing cities and new developments? Discuss concepts like '15-minute cities,' 'tactical urbanism,' and 'smart city' technologies that support pedestrian-friendly environments. What are the key challenges and opportunities for implementing these strategies in different contexts?
+
+---
+
+### ✅ Query #12 — Finance/Crypto [Exploratory]
+
+> **User Query** (46 words):
+> Is Bitcoin still a good investment in 2026 or has the ship sailed? I missed the early days and now I'm wondering if putting a small portion of my savings into crypto makes sense. What are the actual use cases beyond speculation that justify Bitcoin's value?
+
+**Plan Size:** 5 queries
+**Word Counts:** [52, 53, 58, 54, 58] (range: 52-58)
+**Words in 20-100 range:** 5/5
+
+**1.** [52w ✅] Explain the foundational concepts behind Bitcoin. Define the key terms such as blockchain, cryptocurrency, decentralization, mining, and public/private keys. Detail Bitcoin's origin, including the 2008 whitepaper by Satoshi Nakamoto, the motivations behind its creation, and its initial goals. What problem was Bitcoin designed to solve? Focus on the technical and economic foundations.
+
+**2.** [53w ✅] Describe the mechanisms by which Bitcoin transactions are verified and added to the blockchain. Explain the proof-of-work consensus mechanism and its energy consumption. Detail the roles of miners, nodes, and the Bitcoin network. What are the typical transaction fees? This query focuses on how Bitcoin technically operates, not its economic or social implications.
+
+**3.** [58w ✅] Outline the current real-world use cases of Bitcoin beyond simple speculation and investment. Investigate its adoption as a medium of exchange, a store of value, and a unit of account in various industries and regions. What merchants currently accept Bitcoin? How is Bitcoin used in remittances or international transactions? Focus on actual usage scenarios, not potential future applications.
+
+**4.** [54w ✅] Analyze the primary risks and challenges associated with Bitcoin as an investment in 2026. Evaluate its price volatility, regulatory uncertainty, scalability limitations (such as the block size debate), and competition from other cryptocurrencies. How do these risks compare to traditional investments? This query focuses on the downsides and potential pitfalls of investing in Bitcoin.
+
+**5.** [58w ✅] Discuss the potential future trajectory of Bitcoin and its long-term viability as a mainstream cryptocurrency. Explore emerging trends such as layer-2 scaling solutions (e.g., Lightning Network), institutional adoption, and central bank digital currencies (CBDCs). How might these trends impact Bitcoin's value and adoption in the coming years? What are the major unresolved challenges that could hinder Bitcoin's success?
+
+---
+
+### ✅ Query #13 — Coding/DevOps [Mechanistic]
+
+> **User Query** (44 words):
+> I'm a junior developer and I keep hearing about Docker and Kubernetes but I don't really understand what problems they solve. My apps run fine locally. Can someone explain what containerization is, why companies use it, and how I should start learning it practically?
+
+**Plan Size:** 3 queries
+**Word Counts:** [55, 62, 70] (range: 55-70)
+**Words in 20-100 range:** 3/3
+
+**1.** [55w ✅] Explain what containerization is using Docker, focusing on the underlying technology and its benefits over traditional virtual machines. Include details on Docker images, containers, and the Dockerfile. What are Docker images and how are they created? How do containers differ from virtual machines? What are the advantages of using Docker for application deployment and management?
+
+**2.** [62w ✅] Describe the core problems that Kubernetes solves in managing containerized applications, focusing on orchestration, scaling, and high availability. Explain how Kubernetes manages deployments, handles scaling, and ensures application uptime. What are the key components of Kubernetes, such as Pods, Deployments, and Services? How does Kubernetes handle scaling and load balancing? What strategies does Kubernetes use to ensure high availability and fault tolerance?
+
+**3.** [70w ✅] Outline practical steps a junior developer should take to learn Docker and Kubernetes, including specific tools, tutorials, and projects to start with. Focus on hands-on learning. What are some recommended online tutorials and courses for learning Docker and Kubernetes? What are some simple projects a beginner can undertake to gain practical experience with Docker and Kubernetes? How can a developer set up a local development environment for Docker and Kubernetes?
+
+---
+
+### ✅ Query #14 — Health/Mental Health [Strategic]
+
+> **User Query** (46 words):
+> I've been dealing with anxiety for a while now and therapy is too expensive for me. What are evidence-based techniques I can practice on my own to manage daily anxiety? I've heard about CBT and mindfulness but I don't really know where to start with either.
+
+**Plan Size:** 5 queries
+**Word Counts:** [64, 64, 71, 63, 72] (range: 63-72)
+**Words in 20-100 range:** 5/5
+
+**1.** [64w ✅] What is Cognitive Behavioral Therapy (CBT)? Describe its core principles, including the roles of thoughts, feelings, and behaviors. Focus on its application to anxiety management. What are common CBT techniques used to address anxiety, such as cognitive restructuring and behavioral experiments? How does CBT differ from other therapeutic approaches for anxiety? Provide real-world examples of how CBT can be applied to specific anxiety triggers.
+
+**2.** [64w ✅] What is mindfulness and how can it be applied to manage daily anxiety? Explain the key elements of mindfulness, such as present moment awareness and non-judgmental observation. What specific mindfulness exercises, like mindful breathing and body scans, are effective for reducing anxiety symptoms? How does mindfulness interact with the physiological stress response in the body? What are the limitations of mindfulness-based approaches for anxiety?
+
+**3.** [71w ✅] How can individuals implement CBT techniques on their own to manage anxiety? Detail specific steps for identifying and challenging negative thoughts using techniques like thought records. How can someone gradually expose themselves to anxiety-provoking situations (exposure therapy) in a safe and controlled manner? What are some self-help resources, such as workbooks and apps, that can guide individuals through CBT exercises? Focus on practical tips for maintaining consistency and overcoming common challenges.
+
+**4.** [63w ✅] What are some practical strategies for incorporating mindfulness into a daily routine to reduce anxiety? Describe specific ways to cultivate present moment awareness during common activities. How can one use mindfulness to manage anxious thoughts and physical sensations as they arise? What are common obstacles to practicing mindfulness and how can they be overcome? Focus on actionable techniques applicable in various daily settings.
+
+**5.** [72w ✅] What are the limitations and potential drawbacks of using self-guided CBT and mindfulness techniques for anxiety? When is professional therapy or medical intervention necessary? What are the ethical considerations of self-treating anxiety, especially in cases of severe or co-occurring mental health conditions? How effective are self-help approaches compared to professional treatment for different types of anxiety disorders? What are the signs that someone needs to seek professional help despite using self-guided techniques?
+
+---
+
+### ✅ Query #15 — STEM/Space [Comparative]
+
+> **User Query** (40 words):
+> What's the current status of SpaceX's Starship program and when is NASA actually planning to send astronauts back to the Moon under the Artemis program? Also how does Starship compare to the SLS rocket in terms of capability and cost?
+
+**Plan Size:** 4 queries
+**Word Counts:** [51, 56, 51, 59] (range: 51-59)
+**Words in 20-100 range:** 4/4
+
+**1.** [51w ✅] Provide a detailed overview of SpaceX's Starship program, focusing on its design, development, and testing phases. Include key milestones achieved and upcoming tests. What are the main technical innovations of Starship? What are the different planned versions of Starship? What are the major challenges SpaceX is currently facing in Starship's development?
+
+**2.** [56w ✅] When is NASA planning to send astronauts back to the Moon under the Artemis program? Detail the planned timeline for the Artemis missions, specifically focusing on Artemis III and any subsequent crewed missions. What are the specific objectives of each Artemis mission? What are the potential challenges and delays that could impact the Artemis program's timeline?
+
+**3.** [51w ✅] Compare the capabilities of SpaceX's Starship and NASA's SLS (Space Launch System) rocket, focusing on payload capacity, range, and intended mission profiles. What are the key differences in the technologies used in Starship and SLS? What are the advantages and disadvantages of each rocket in terms of performance and mission versatility?
+
+**4.** [59w ✅] Analyze and compare the estimated costs associated with SpaceX's Starship and NASA's SLS rocket programs, including development, manufacturing, and launch costs. How does SpaceX aim to reduce Starship's launch costs through reusability and other strategies? How do the funding models and contractual agreements differ between the Starship and SLS programs? What are the long-term cost implications for space exploration?
+
+---
+
+### ✅ Query #16 — Cooking/Cuisine [Strategic]
+
+> **User Query** (47 words):
+> I want to learn how to cook authentic Thai food at home. What are the essential ingredients I need to stock up on, and what are 3-4 beginner-friendly Thai dishes I should master first? I live near an Asian grocery store so I can get most ingredients.
+
+**Plan Size:** 3 queries
+**Word Counts:** [63, 54, 59] (range: 54-63)
+**Words in 20-100 range:** 3/3
+
+**1.** [63w ✅] What are the foundational ingredients of authentic Thai cuisine, focusing on those readily available in Asian grocery stores? Please provide specific names (e.g., galangal, Thai basil) and explain their culinary roles. What are suitable substitutes if these are unavailable? How do these ingredients contribute to the distinct flavors of Thai dishes? This query should focus on ingredients and their roles rather than recipes.
+
+**2.** [54w ✅] What are three to four classic, beginner-friendly Thai dishes that are easily prepared at home? For each dish (e.g., Pad Thai, Green Curry), list the essential ingredients, basic cooking steps, and expected flavor profiles. What are the most common mistakes beginners make when preparing these dishes? Focus on readily available ingredients and simple techniques.
+
+**3.** [59w ✅] What are some key techniques used in authentic Thai cooking that contribute to its unique flavors and textures? Explain concepts like stir-frying, steaming, grilling, and deep-frying in the context of Thai dishes. How do ingredients and techniques interact to create distinct culinary outcomes? What are the best practices for balancing flavors in Thai cuisine (sweet, sour, salty, spicy, bitter)?
+
+---
+
+### ✅ Query #17 — Biology/Evolution [Lookup]
+
+> **User Query** (41 words):
+> How do new species actually form? I understand natural selection favors certain traits but I don't understand how one species splits into two separate ones that can't interbreed. What's the evidence for speciation and how long does the process typically take?
+
+**Plan Size:** 6 queries
+**Word Counts:** [62, 49, 53, 54, 48, 53] (range: 48-62)
+**Words in 20-100 range:** 6/6
+
+**1.** [62w ✅] Explain the biological definition of a species, covering the concept of reproductive isolation and the various pre- and post-zygotic mechanisms that prevent interbreeding. Define key terms like allopatric and sympatric speciation. How does the biological definition of species differ from other definitions (e.g., morphological or phylogenetic)? What are the limitations of the biological species concept? Focus on the core principles and definitions.
+
+**2.** [49w ✅] Describe the processes of allopatric and sympatric speciation, detailing the geographic or ecological factors that drive reproductive isolation. Include specific examples like the Galapagos finches (allopatric) and apple maggot flies (sympatric). What genetic changes typically accumulate during speciation? How do these processes relate to natural selection and genetic drift?
+
+**3.** [53w ✅] What is the evidence supporting the occurrence of speciation in nature? Discuss examples of observed speciation events in both laboratory settings (e.g., fruit flies) and natural populations (e.g., ring species). How do scientists use genetic data, fossil records, and comparative anatomy to reconstruct speciation histories? What are some challenges in directly observing speciation?
+
+**4.** [54w ✅] Investigate the typical timescales involved in speciation, from initial divergence to complete reproductive isolation. What factors influence the rate of speciation (e.g., strength of selection, population size, mutation rate)? Are there examples of rapid speciation events (e.g., polyploidy in plants)? How does the timescale of speciation relate to the generation time of the organism?
+
+**5.** [48w ✅] Explore the role of hybridization in speciation, focusing on concepts like hybrid zones and reinforcement. Can hybridization lead to the formation of new, stable species? What genomic mechanisms facilitate or prevent successful hybridization? How common is hybrid speciation in different groups of organisms, such as plants and animals?
+
+**6.** [53w ✅] What are some current challenges and open questions in the study of speciation? What are the implications of speciation for understanding biodiversity and conservation? How does speciation relate to the process of macroevolution and the origin of higher taxa? What new research areas hold promise for advancing our understanding of how species arise?
+
+---
+
+### ✅ Query #18 — Art/Music [Evaluative]
+
+> **User Query** (45 words):
+> I want to learn music production as a hobby, making beats and electronic music. What software should I start with, Ableton or FL Studio? And what basic music theory do I actually need to know to start making decent sounding tracks without spending years studying?
+
+**Plan Size:** 5 queries
+**Word Counts:** [48, 43, 49, 53, 48] (range: 43-53)
+**Words in 20-100 range:** 5/5
+
+**1.** [48w ✅] What is music production software, also known as a digital audio workstation (DAW)? Include a brief history of DAWs. What are the core functionalities of music production software? What are some common DAWs besides Ableton and FL Studio? What are the typical workflows and creative possibilities within DAWs?
+
+**2.** [43w ✅] Compare and contrast Ableton Live and FL Studio for beginners. Focus on their interfaces, workflows, strengths, and weaknesses. What types of music is each DAW best suited for? How do their pricing models differ? Include specific details about session view vs. pattern-based sequencing.
+
+**3.** [49w ✅] What fundamental music theory concepts are essential for beginners using DAWs like Ableton or FL Studio? Cover scales, chords, rhythm, and basic song structure (verse, chorus, bridge). How can these concepts be applied practically within the software? What are some techniques to quickly learn and internalize these theoretical concepts?
+
+**4.** [53w ✅] What are some effective strategies for learning music production as a hobby, specifically using Ableton Live or FL Studio? Focus on free resources, online tutorials, and communities. How can a beginner create a practice plan? What are common pitfalls to avoid? What are some ways to stay motivated and track progress over time?
+
+**5.** [48w ✅] What are the future trends in music production software and electronic music creation, specifically regarding AI-assisted composition, virtual collaboration, and accessibility for hobbyists? How might Ableton and FL Studio evolve to meet these trends? What emerging technologies could disrupt or enhance the music production process for amateur musicians?
+
+---
+
+### ✅ Query #19 — General/Productivity [Mechanistic]
+
+> **User Query** (43 words):
+> I have a terrible habit of procrastinating on everything important. I'll spend hours on my phone instead of doing work that matters. What actually works to overcome chronic procrastination? Not generic advice like 'just do it' but real strategies backed by psychology research.
+
+**Plan Size:** 5 queries
+**Word Counts:** [63, 60, 55, 64, 67] (range: 55-67)
+**Words in 20-100 range:** 5/5
+
+**1.** [63w ✅] What are the psychological theories that explain procrastination? Focus on behavioral, cognitive, and emotional regulation perspectives, explicitly referencing concepts like temporal discounting, self-efficacy, fear of failure, and impulsivity. Exclude neurological explanations. What are the core tenets of each theory? How do these theories explain why people procrastinate, despite knowing the negative consequences? What are the key differences and overlaps between these theoretical frameworks?
+
+**2.** [60w ✅] What are specific, evidence-based strategies for overcoming procrastination derived from cognitive behavioral therapy (CBT)? Focus on techniques like cognitive restructuring, exposure therapy, and behavioral activation, linking each to the procrastination theories. How can cognitive restructuring address negative thoughts related to procrastination? How does exposure therapy help reduce anxiety associated with tasks? How does behavioral activation increase motivation and task engagement?
+
+**3.** [55w ✅] What role does habit formation play in chronic procrastination, and how can habit-based interventions help? Focus on the use of habit stacking, implementation intentions, and cue-routine-reward loops. How does procrastination become a habitual response? How can individuals identify the cues that trigger procrastination? How can they replace procrastination with more productive habits, reinforcing desired behaviors?
+
+**4.** [64w ✅] How can time management techniques, specifically those incorporating urgency and importance (Eisenhower Matrix), realistically reduce procrastination? What is the Eisenhower Matrix and how is it applied? How can Parkinson's Law and the Pomodoro Technique be used to improve focus and minimize wasted time on distracting activities? What are the limitations of these techniques in addressing the underlying psychological factors that contribute to chronic procrastination?
+
+**5.** [67w ✅] What are the potential future research directions for understanding and treating chronic procrastination, including the use of technology and personalized interventions? What role could artificial intelligence play in identifying procrastination patterns and providing tailored support? What are the ethical considerations of using technology to address procrastination? What types of longitudinal studies are needed to better understand the long-term effects of procrastination and the effectiveness of different interventions?
+
+---
+
+### ✅ Query #20 — Physics/Cosmology [Lookup]
+
+> **User Query** (44 words):
+> What happened before the Big Bang? I know time itself started with the Big Bang but that answer feels like a cop-out. What do current theories in physics and cosmology say about what existed before our universe, if anything? Are multiverse theories taken seriously?
+
+**Plan Size:** 5 queries
+**Word Counts:** [80, 72, 80, 77, 70] (range: 70-80)
+**Words in 20-100 range:** 5/5
+
+**1.** [80w ✅] What are the primary scientific theories attempting to explain the conditions, if any, that existed 'before' the Big Bang, focusing on concepts like the multiverse, cyclic universes, and quantum fluctuations as potential precursors to our universe? Include details about the theoretical frameworks, such as inflationary cosmology and string theory, and their implications for the origin of time. What are the key supporting arguments and major criticisms of each theory? What observable evidence might support or refute these pre-Big Bang scenarios?
+
+**2.** [72w ✅] Explore the concept of the multiverse, focusing on different multiverse models (e.g., Level I, Level II, Level III, and Level IV multiverses as defined by Max Tegmark) and their theoretical foundations in physics, such as eternal inflation and M-theory. How do these models propose the existence of other universes, and what are the possible interactions or lack thereof between them? What are the scientific arguments for and against the existence of multiverses?
+
+**3.** [80w ✅] Investigate the concept of a cyclic universe, also known as oscillatory universe theory, detailing how it proposes the universe undergoes cycles of expansion and contraction, with the Big Bang being just one phase in an infinite series. Describe the Ekpyrotic and Conformal Cyclic Cosmology (CCC) models as prominent examples. What mechanisms drive these cycles, and how do they address the initial singularity problem of the Big Bang theory? What are the main challenges and supporting evidence for cyclic universe models?
+
+**4.** [77w ✅] Analyze the philosophical implications and scientific limitations of investigating what, if anything, existed 'before' the Big Bang, considering the nature of time and causality. How do these investigations challenge or expand our understanding of the universe's origins and the laws of physics? What are the epistemological constraints in probing conditions outside our observable universe, and how do physicists attempt to overcome them? What are the alternative interpretations of the Big Bang that do not require a 'before'?
+
+**5.** [70w ✅] Assess the current standing and acceptance of pre-Big Bang theories and multiverse hypotheses within the scientific community. To what extent are these ideas considered mainstream, speculative, or fringe? How has the discussion around these concepts evolved over time, and what are the key ongoing debates and areas of active research? What are the prospects for future observational or experimental tests of these theories, and what impact would these tests have?
+
+---
+
+### ✅ Query #21 — Investment/Real Estate [Lookup]
+
+> **User Query** (48 words):
+> Is buying a house still a better financial decision than renting in 2026 given the current interest rates and housing market? I live in a mid-size US city and I'm trying to decide if I should keep renting or buy my first property. What factors should I consider?
+
+**Plan Size:** 5 queries
+**Word Counts:** [64, 56, 58, 50, 56] (range: 50-64)
+**Words in 20-100 range:** 5/5
+
+**1.** [64w ✅] What are the primary factors that determine whether buying a house is a better financial decision than renting in 2026, specifically considering interest rates, property taxes, insurance, and potential appreciation versus rental costs? Focus on establishing a baseline understanding before considering specific market conditions. Include calculations of total costs for both renting and owning over a 5-10 year period and the impact of inflation.
+
+**2.** [56w ✅] How have interest rates and housing market trends in mid-size US cities evolved over the past 5 years (2021-2026), and what are the projected forecasts for the next 5 years (2026-2031)? Focus on identifying key economic indicators and their influence on housing affordability. Consider the impact of remote work trends and migration patterns on housing demand.
+
+**3.** [58w ✅] What are the specific financial advantages and disadvantages of buying a home versus renting in 2026, considering factors like building equity, tax deductions, maintenance costs, and resale value, in the context of mid-sized US city real estate? Consider the opportunity cost of investing the down payment in other assets. Explicitly analyze scenarios where renting might be financially superior.
+
+**4.** [50w ✅] What non-financial factors, such as lifestyle preferences, community ties, and personal priorities, should individuals consider when deciding between buying a house and renting an apartment in a mid-size US city in 2026? Focus on the psychological and social aspects of homeownership versus renting. Explore the trade-offs between flexibility and stability.
+
+**5.** [56w ✅] Given the current economic climate and housing market predictions, what are the potential long-term financial implications and risks associated with both buying and renting in a mid-size US city, and what strategies can individuals use to mitigate these risks? Address various economic scenarios (e.g., recession, inflation) and their potential effects on property values and rental rates.
+
+---
+
+### ✅ Query #22 — Coding/Machine Learning [Evaluative]
+
+> **User Query** (47 words):
+> I want to get into machine learning but I'm overwhelmed by all the options. Should I start with Andrew Ng's courses, fast.ai, or just build projects and learn as I go? How much math do I realistically need to know before I can build useful ML models?
+
+**Plan Size:** 4 queries
+**Word Counts:** [57, 52, 61, 61] (range: 52-61)
+**Words in 20-100 range:** 4/4
+
+**1.** [57w ✅] What are the key differences in pedagogical approach, content coverage, and learning outcomes between Andrew Ng's Coursera courses and fast.ai's deep learning courses? Focus on the practical skills and theoretical understanding each pathway develops. How do the teaching styles and community support differ? What are the prerequisites for each, and what level of mathematical background is assumed?
+
+**2.** [52w ✅] What are the advantages and disadvantages of a project-based, learn-as-you-go approach to learning machine learning, compared to structured courses like those offered by Andrew Ng and fast.ai? Focus on time investment, breadth vs. depth of knowledge, and ability to tackle complex problems. How does self-directed learning impact long-term retention and skill development?
+
+**3.** [61w ✅] What is the minimum amount of linear algebra, calculus, statistics, and probability required to understand and implement common machine learning algorithms effectively? Focus on practical application rather than theoretical rigor. What specific concepts from each area are most important (e.g., matrix operations, gradient descent, hypothesis testing)? What resources are best for learning these mathematical concepts in the context of machine learning?
+
+**4.** [61w ✅] What are some example machine learning projects that a beginner can undertake to solidify their understanding of fundamental concepts and gain practical experience? Focus on projects that utilize datasets readily available online (e.g., UCI Machine Learning Repository, Kaggle) and that cover classification, regression, and clustering tasks. What are the key steps involved in each project, from data preprocessing to model evaluation?
+
+---
+
+### ✅ Query #23 — Health/Fitness [Lookup]
+
+> **User Query** (50 words):
+> I'm a complete beginner to strength training. I want to build muscle and get stronger but the gym is intimidating and I don't want to hire a personal trainer. What's a simple beginner workout routine I can follow 3 days a week, and how do I know if I'm progressing?
+
+**Plan Size:** 4 queries
+**Word Counts:** [60, 61, 78, 60] (range: 60-78)
+**Words in 20-100 range:** 4/4
+
+**1.** [60w ✅] What are the fundamental principles of strength training for beginners, focusing on hypertrophy and progressive overload? Explain the role of muscle fiber damage and repair in muscle growth. What are the key differences between compound and isolation exercises, and which are more effective for building overall strength and muscle mass in a beginner? Provide examples of each type of exercise.
+
+**2.** [61w ✅] What is a suitable beginner strength training routine to follow 3 days a week, incorporating compound exercises like squats, deadlifts, bench press, and overhead press? Detail the recommended sets, reps, and rest times for each exercise, and explain the importance of proper form and technique to prevent injuries. What are some effective warm-up and cool-down exercises to include in each workout?
+
+**3.** [78w ✅] How can a beginner track their progress in strength training to ensure they are building muscle and getting stronger? Explain how to measure and monitor key metrics such as weight lifted, reps performed, and overall workout volume. What are some signs that a beginner is progressing too quickly or too slowly, and what adjustments should they make to their routine accordingly? How can bodyweight exercises and visual cues (e.g., the mirror) be used to track and reinforce progress?
+
+**4.** [60w ✅] What are common mistakes that beginners make in strength training, and how can they avoid them? Discuss the importance of proper nutrition, hydration, and sleep for muscle growth and recovery. How can beginners overcome the intimidation factor of going to the gym, and what are some strategies for staying motivated and consistent with their training routine over the long term?
+
+---
+
+### ✅ Query #24 — Niche/Psychology [Exploratory]
+
+> **User Query** (39 words):
+> Why do people believe in conspiracy theories even when presented with strong evidence against them? I'm not trying to mock anyone, I genuinely want to understand the psychology behind it. What cognitive biases and social factors drive conspiracy thinking?
+
+**Plan Size:** 5 queries
+**Word Counts:** [64, 48, 60, 63, 51] (range: 48-64)
+**Words in 20-100 range:** 5/5
+
+**1.** [64w ✅] What are conspiracy theories, and what are the common characteristics that define them? Define key concepts such as 'confirmation bias,' 'cognitive dissonance,' and 'illusory correlation' as they relate to the formation and maintenance of conspiracy beliefs. Provide historical examples of conspiracy theories and how they gained traction. Focus on the basic elements of a conspiracy theory; avoid psychological explanations, which will be covered later.
+
+**2.** [48w ✅] What are the primary cognitive biases that contribute to belief in conspiracy theories? Explore biases such as the Dunning-Kruger effect, the backfire effect, and pattern-seeking tendencies. How do these biases affect the processing of information related to conspiracy theories? What role do heuristics play in reinforcing these beliefs?
+
+**3.** [60w ✅] What social and emotional needs do conspiracy theories fulfill for believers? How do factors like a need for control, a desire for uniqueness, and feelings of alienation or distrust in institutions contribute to conspiracy thinking? Explore the role of group dynamics, online communities, and social identity in promoting and reinforcing these beliefs. Focus on how social factors amplify individual vulnerabilities.
+
+**4.** [63w ✅] How do specific personality traits, such as low trust, high anxiety, and schizotypy, correlate with susceptibility to conspiracy theories? Explore the relationship between these traits and cognitive styles that favor intuitive thinking over analytical reasoning. How do people scoring high on these traits process conflicting information, and how might that contribute to conspiracy beliefs? Focus on studies that link personality to conspiracy belief.
+
+**5.** [51w ✅] What are the most effective strategies for debunking conspiracy theories and reducing belief in them? Examine the role of evidence-based communication, fact-checking initiatives, and critical thinking education. How can trusted sources and influencers be leveraged to counter misinformation? What are the ethical considerations in addressing conspiracy theories without further alienating believers?
+
+---
+
+### ✅ Query #25 — Finance/Taxes [Evaluative]
+
+> **User Query** (44 words):
+> I just started freelancing full time after years of being a W2 employee. What do I need to know about quarterly estimated taxes, self-employment tax, and legitimate business deductions? I want to minimize my tax burden legally without getting in trouble with the IRS.
+
+**Plan Size:** 5 queries
+**Word Counts:** [58, 54, 56, 56, 60] (range: 54-60)
+**Words in 20-100 range:** 5/5
+
+**1.** [58w ✅] Explain the self-employment tax, including how it differs from employment taxes (Social Security and Medicare). Cover the calculation of self-employment tax, including the adjusted gross income (AGI) and the deduction for one-half of self-employment tax. What are the current self-employment tax rates and thresholds? What forms are used to report and pay this tax? Focus on federal taxes.
+
+**2.** [54w ✅] Describe quarterly estimated taxes for self-employed individuals. Explain who is required to pay them and how to determine the amount to pay, including the use of Form 1040-ES. Detail the different payment methods (mail, EFTPS, credit card, etc.). What are the penalties for underpayment, and how can they be avoided? Focus on federal taxes.
+
+**3.** [56w ✅] Outline common legitimate business deductions for freelancers and self-employed individuals, such as home office deductions (including simplified options), business expenses, travel expenses, education expenses, and deductions for health insurance premiums. What are the requirements for substantiating these deductions? Are there any deductions that are frequently missed or misunderstood? Focus on the eligibility criteria and record-keeping requirements.
+
+**4.** [56w ✅] What constitutes ordinary and necessary business expenses for tax deduction purposes? Define 'ordinary' and 'necessary' in the context of IRS guidelines. Provide examples of expenses that are commonly questioned or disallowed by the IRS, and explain why. How does the IRS determine the legitimacy of a business expense, and what documentation is required to support it?
+
+**5.** [60w ✅] Describe strategies for legally minimizing self-employment taxes and estimated taxes, such as maximizing deductions, choosing the right business structure (sole proprietorship, LLC, S-corp), and utilizing retirement plans (SEP IRA, solo 401(k)). What are the pros and cons of each strategy in terms of tax savings, complexity, and administrative burden? What are the potential red flags to avoid when minimizing taxes?
+
+---
+
+### ✅ Query #26 — News/Climate [Exploratory]
+
+> **User Query** (41 words):
+> What are the most promising carbon capture and climate mitigation technologies being developed right now? I'm skeptical that planting trees alone can solve climate change. What are the realistic technological solutions and how close are we to deploying them at scale?
+
+**Plan Size:** 6 queries
+**Word Counts:** [67, 67, 70, 70, 65, 65] (range: 65-70)
+**Words in 20-100 range:** 6/6
+
+**1.** [67w ✅] What are the leading methods of carbon capture currently under development, such as direct air capture (DAC), pre- and post-combustion capture, and oxy-fuel combustion? Characterize each method in terms of its underlying chemical or physical processes, energy requirements, and technological maturity. What are the key differences in their applications (e.g., power plants vs. industrial facilities)? What are the main technical challenges hindering wider adoption of each method?
+
+**2.** [67w ✅] How does direct air capture (DAC) technology work, focusing on the chemical processes involved in capturing CO2 from the atmosphere using both solid sorbents and liquid solvents? What are the energy requirements and potential environmental impacts associated with DAC deployment, including land use and water consumption? How do different DAC technologies (e.g., those from Climeworks, Carbon Engineering, Global Thermostat) compare in terms of efficiency, cost, and scalability?
+
+**3.** [70w ✅] What are the primary methods for carbon sequestration or utilization once it has been captured? Describe geological storage, enhanced oil recovery (EOR), and mineralization. What are the potential environmental risks associated with geological storage, such as leakage and induced seismicity? How can captured carbon be used in the production of valuable products such as building materials or synthetic fuels, and what are the economic and environmental implications of these approaches?
+
+**4.** [70w ✅] What are the economic costs and benefits associated with deploying carbon capture and storage (CCS) technologies at scale? Analyze the capital expenditures (CAPEX) and operational expenditures (OPEX) for different CCS technologies. What policy mechanisms, such as carbon pricing, tax credits (e.g., 45Q in the US), or regulations, are most effective in incentivizing CCS deployment? How do the costs of CCS compare to other climate mitigation strategies, like renewable energy deployment?
+
+**5.** [65w ✅] What are the major challenges and limitations facing widespread deployment of carbon capture technologies? Discuss the energy penalty associated with CCS, the high capital costs, and the limited availability of suitable geological storage sites. How do public perception and social acceptance influence the deployment of CCS projects? What are the potential risks of carbon leakage and how can these be mitigated through monitoring and verification?
+
+**6.** [65w ✅] What innovations are on the horizon for carbon capture and storage technologies, such as new materials for CO2 capture, improved energy efficiency, and novel sequestration methods? How might advancements in nanotechnology, biotechnology, or artificial intelligence contribute to the development of more effective and affordable CCS solutions? What are the long-term research priorities for advancing CCS technology and enabling its widespread deployment to achieve net-zero emissions?
+
+---
+
+### ✅ Query #27 — Math/Statistics [Evaluative]
+
+> **User Query** (50 words):
+> I keep seeing studies reported in the news saying things like 'X increases risk of Y by 50%' but then I find out the actual numbers are tiny. How should I properly interpret statistical claims and scientific studies as a non-expert? What are common statistical tricks to watch out for?
+
+**Plan Size:** 5 queries
+**Word Counts:** [72, 66, 73, 63, 76] (range: 63-76)
+**Words in 20-100 range:** 5/5
+
+**1.** [72w ✅] Explain the fundamental concepts of statistical significance, p-values, confidence intervals, and effect size. Focus on providing definitions and illustrating their basic interpretations, especially for non-experts. What does it mean for a result to be statistically significant? How should one interpret a p-value of 0.05? What information does a confidence interval provide, and how does it relate to statistical significance? How is effect size measured, and what does it tell you beyond significance?
+
+**2.** [66w ✅] Describe common statistical fallacies and misinterpretations frequently encountered in news reports and scientific studies. Focus on the base rate fallacy, the prosecutor's fallacy, confusing correlation with causation, and interpreting relative vs. absolute risk. How does the base rate fallacy skew interpretation of results? How can relative risk increases exaggerate the perception of actual risk? How does correlation differ from causation, and why is this distinction important?
+
+**3.** [73w ✅] Outline strategies for critically evaluating statistical claims and scientific studies as a non-expert. Focus on assessing the source of information, understanding the study design and sample size, considering potential biases and confounding factors, and checking for replication of results. What are red flags that suggest a statistical claim may be misleading? How do you determine the credibility of the source reporting the information? How does sample size affect the reliability of study results?
+
+**4.** [63w ✅] Discuss the role of transparency and open science practices in improving the trustworthiness and interpretability of scientific studies. Focus on pre-registration of studies, data sharing, and replication efforts. Why is pre-registration important in reducing bias and increasing confidence in results? How does access to raw data facilitate independent verification and reanalysis? How can the scientific community promote greater transparency and reproducibility in research?
+
+**5.** [76w ✅] What are some emerging approaches to communicate statistical information more effectively to non-experts, promoting accurate interpretation and informed decision-making? Focus on using visual aids, providing context and comparisons, and avoiding technical jargon. How can graphical representations of data enhance understanding and reduce misinterpretation? How can the media and scientific community work together to improve statistical literacy and promote responsible reporting of scientific findings? What resources are available to help non-experts better understand statistical concepts and claims?
+
+---
+
+### ✅ Query #28 — Art/Photography [Lookup]
+
+> **User Query** (44 words):
+> I want to get into photography as a serious hobby. Should I start with a mirrorless camera or is my smartphone good enough for learning the basics? What are the fundamental concepts I should master first, and what's a reasonable budget for beginner gear?
+
+**Plan Size:** 5 queries
+**Word Counts:** [60, 50, 54, 53, 50] (range: 50-60)
+**Words in 20-100 range:** 5/5
+
+**1.** [60w ✅] What are the fundamental concepts in photography that beginners should master, such as aperture, shutter speed, ISO, white balance, and composition techniques like the rule of thirds? Explain how each of these elements impacts the final image. Focus on the technical aspects of exposure and image creation rather than post-processing techniques. What are common beginner mistakes related to these concepts?
+
+**2.** [50w ✅] Compare and contrast smartphone cameras and mirrorless cameras for learning photography. What are the advantages and disadvantages of each in terms of image quality, manual control, lens options, and overall learning experience? Focus on models readily available to beginners. What are the limitations of using a smartphone for serious photography?
+
+**3.** [54w ✅] Assuming a beginner chooses a mirrorless camera, what constitutes a reasonable budget for entry-level equipment? What are some specific camera models and lenses that offer good value for money? Include recommendations for essential accessories like SD cards, camera bags, and tripods. What are the pros and cons of buying used gear to save money?
+
+**4.** [53w ✅] What are some effective ways for a beginner to practice and improve their photography skills using a mirrorless camera? Discuss techniques like shooting in manual mode, experimenting with different lenses and focal lengths, and seeking feedback on their work. Where can they find inspiration, and what types of projects would help them learn?
+
+**5.** [50w ✅] What are the next steps for a serious photography hobbyist after mastering the basics with a mirrorless camera? What additional equipment, such as advanced lenses, lighting gear, or editing software, might they consider investing in? What are some pathways to further develop their skills and explore different genres of photography?
+
+---
+
+### ✅ Query #29 — STEM/Materials Science [Comparative]
+
+> **User Query** (38 words):
+> What are the latest breakthroughs in battery technology? I keep seeing headlines about solid-state batteries and new lithium alternatives but it seems like nothing actually reaches consumers. What's the realistic timeline for next-generation batteries in EVs and phones?
+
+**Plan Size:** 5 queries
+**Word Counts:** [54, 57, 54, 55, 61] (range: 54-61)
+**Words in 20-100 range:** 5/5
+
+**1.** [54w ✅] What are solid-state batteries? Explain their basic components (electrolyte, electrodes), material composition (ceramic, glass, polymers, sulfides), and key advantages over traditional lithium-ion batteries, such as increased energy density and safety. What are the main types of solid electrolytes being researched? What are the primary challenges currently preventing widespread adoption? Focus on the materials science.
+
+**2.** [57w ✅] How do solid-state batteries work at a fundamental level? Explain the ion transport mechanisms within different solid electrolyte materials (e.g., grain boundary conduction). What are the key factors affecting ionic conductivity and electrochemical stability? Describe the interface challenges between the solid electrolyte and electrodes. Focus on the mechanistic chemistry, not on specific battery designs or manufacturing processes.
+
+**3.** [54w ✅] What are the leading companies and research institutions currently developing solid-state battery technology for electric vehicles and smartphones? What specific battery designs and electrolyte materials are they focused on? What are their stated performance goals (energy density, cycle life, charging times)? Focus on specific partnerships and publicly announced progress, not just general industry trends.
+
+**4.** [55w ✅] What are the primary hurdles to mass production and commercialization of solid-state batteries? Address material costs, manufacturing scalability, and long-term reliability issues, including dendrite formation and interfacial resistance. What are the most promising manufacturing techniques being explored to overcome these challenges (e.g., thin-film deposition, sintering)? What are the projected cost reductions as production scales up?
+
+**5.** [61w ✅] What is the projected timeline for solid-state batteries to appear in electric vehicles and smartphones, considering current technological limitations and ongoing research? Address different market segments (e.g., high-end EVs first, then mass-market). What milestones must be achieved in terms of energy density, cycle life, and cost to make them commercially viable? How will solid-state batteries impact the future of energy storage?
+
+---
+
+### ✅ Query #30 — Cooking/Meal Prep [Strategic]
+
+> **User Query** (50 words):
+> I work long hours and end up ordering delivery most nights which is destroying my budget. How do I meal prep efficiently for a full work week? I need practical strategies, not just recipes. How do I plan, shop, and cook 5 days of lunches and dinners on a Sunday?
+
+**Plan Size:** 5 queries
+**Word Counts:** [64, 60, 68, 58, 67] (range: 58-68)
+**Words in 20-100 range:** 5/5
+
+**1.** [64w ✅] Explain the core principles of efficient meal prepping for a full work week. Focus on time management and resource optimization strategies applicable to preparing 5 days of lunches and dinners. What are the key benefits of efficient meal prepping beyond cost savings? What are common mistakes to avoid when beginning a meal prep routine? How does batch cooking fit into a meal prepping strategy?
+
+**2.** [60w ✅] Detail a practical approach to weekly meal planning, tailored for individuals with limited time on Sundays. Focus on selecting meals with overlapping ingredients and efficient cooking techniques. What are effective methods for planning balanced and varied meals? How can online tools or apps assist in meal planning and recipe organization? What role does dietary consideration play in meal plan creation?
+
+**3.** [68w ✅] Describe effective grocery shopping strategies to minimize costs and time spent while ensuring all ingredients needed for the weekly meal plan are acquired. Focus on inventory management and bulk-buying techniques. How do you create a shopping list based on a meal plan? What are the best ways to store ingredients to maximize freshness and prevent spoilage? How can you compare prices and find deals on meal prep staples?
+
+**4.** [58w ✅] Outline batch cooking and ingredient pre-processing techniques that can significantly reduce cooking time during the work week. Focus on practical methods for preparing food in advance. What are the best practices for safely storing and reheating pre-cooked meals? What ingredients are best suited for batch cooking? How do you maintain ingredient freshness when preparing components ahead of time?
+
+**5.** [67w ✅] What are the best storage solutions for prepped meals to maintain freshness and quality throughout the work week, and how should they be safely reheated? Focus on different container types and reheating methods. How do different foods hold up in the refrigerator versus the freezer? What are the food safety guidelines for storing and reheating prepped meals? What types of containers are most suitable for meal prepping?
+
+---
+
+### ✅ Query #31 — Health/Sleep [Comparative]
+
+> **User Query** (50 words):
+> My sleep quality has been terrible lately. I fall asleep fine but I wake up at 3 or 4 AM and can't get back to sleep. What does the science say about improving sleep maintenance? Are supplements like melatonin or magnesium actually helpful or is it mostly about sleep hygiene?
+
+**Plan Size:** 5 queries
+**Word Counts:** [61, 59, 59, 50, 59] (range: 50-61)
+**Words in 20-100 range:** 5/5
+
+**1.** [61w ✅] What are the primary biological mechanisms that govern sleep maintenance, specifically after the initial sleep cycle? Focus on the roles of adenosine, cortisol, orexin, and the suprachiasmatic nucleus (SCN). What are the typical sleep architecture changes that occur in the early morning hours? What physiological factors contribute to premature awakening and difficulty returning to sleep? How does age affect sleep maintenance?
+
+**2.** [59w ✅] What are the key principles of sleep hygiene and how do they specifically address sleep maintenance issues like early morning awakenings? Investigate the effects of consistent sleep schedules, light exposure, evening meals, and exercise on sleep quality after the initial fall-asleep phase. How effective are sleep hygiene practices in isolation for chronic sleep maintenance insomnia? What are the limitations?
+
+**3.** [59w ✅] What is the scientific evidence for the effectiveness of melatonin and magnesium supplements in improving sleep maintenance, specifically in cases of early morning awakening? Focus on the different forms of magnesium (e.g., glycinate, citrate) and melatonin dosages. What are the potential side effects and contraindications of these supplements? How do these supplements interact with other sleep aids or medications?
+
+**4.** [50w ✅] What are the alternative or less common treatments for sleep maintenance insomnia, including cognitive behavioral therapy for insomnia (CBT-I) techniques tailored for sleep maintenance, paradoxical intention, relaxation techniques, and mindfulness practices? How effective are these therapies compared to pharmacological interventions? What are the advantages and disadvantages of these non-pharmacological approaches?
+
+**5.** [59w ✅] What are the potential underlying medical or psychological conditions that can manifest as sleep maintenance insomnia and early morning awakenings? Research the relationship between sleep maintenance and conditions such as sleep apnea, restless legs syndrome, depression, anxiety, and chronic pain. How does addressing these underlying conditions affect sleep maintenance? What diagnostic tests are available to determine any related causes?
+
+---
+
+### ✅ Query #32 — General/Education [Comparative]
+
+> **User Query** (45 words):
+> Is a master's degree still worth it in 2026 or is the job market shifting towards skills and experience over formal education? I'm considering going back to school for computer science but I'm not sure if the time and cost justify the career benefits anymore.
+
+**Plan Size:** 5 queries
+**Word Counts:** [69, 63, 67, 64, 68] (range: 63-69)
+**Words in 20-100 range:** 5/5
+
+**1.** [69w ✅] What are the typical skills, knowledge, and abilities gained from a computer science master's degree program in 2026, including both technical skills (e.g., specific programming languages, software development methodologies, algorithm design, data analysis) and soft skills (e.g., project management, teamwork, communication)? Focus on the current curriculum trends and expectations for graduates entering the job market. Also, consider how these skills might differ from those gained through alternative educational paths.
+
+**2.** [63w ✅] What are the current (2026) trends in employer hiring preferences for computer science roles? Research the prevalence of skills-based hiring versus degree-based hiring, considering factors like company size, industry, and specific job function. Provide examples of companies that have shifted towards skills-based hiring and what specific skills they prioritize. What are the relative weights that employers assign to formal education versus practical experience?
+
+**3.** [67w ✅] How does the salary and career progression potential differ between computer science professionals with a master's degree versus those with a bachelor's degree or equivalent experience in 2026? Analyze current salary data, promotion rates, and leadership opportunities. Consider the impact of specialization within computer science (e.g., AI, cybersecurity, data science) on these outcomes. Also, factor in the time and financial costs associated with pursuing a master's degree.
+
+**4.** [64w ✅] What are the potential challenges and limitations of relying solely on skills and experience versus obtaining a master's degree in computer science, considering career growth, adaptability, and long-term career prospects? Research areas where a master's degree provides a distinct advantage, such as advanced research, specialized knowledge, or career advancement in certain industries or roles. How can professionals without a master's degree mitigate these limitations?
+
+**5.** [68w ✅] What future trends in the computer science job market (2026-2030) could impact the value of a master's degree? Consider factors like automation, AI-driven development, the evolving demand for specific skills, and the emergence of alternative credentials and micro-degrees. Will the demand for advanced specializations increase or decrease the importance of a master's degree? How might continuous learning and professional development influence the long-term value of a master's degree?
+
+---
+
+### ✅ Query #33 — Coding/Security [Strategic]
+
+> **User Query** (45 words):
+> How do websites and apps actually get hacked? Not looking to learn anything malicious, I just want to understand the most common vulnerability types like SQL injection, XSS, and phishing so I can protect my own web applications. What security practices should every developer follow?
+
+**Plan Size:** 6 queries
+**Word Counts:** [56, 50, 58, 61, 67, 72] (range: 50-72)
+**Words in 20-100 range:** 6/6
+
+**1.** [56w ✅] Explain the fundamental concepts of web application security vulnerabilities, focusing on common types like SQL injection, Cross-Site Scripting (XSS), and phishing. Detail how these vulnerabilities are exploited by attackers, including specific examples. Clarify the potential impact of these attacks on web applications and their users. What are the key differences between these three types of attacks?
+
+**2.** [50w ✅] Describe the technical mechanisms behind SQL injection attacks, including the use of malicious SQL code to manipulate database queries. Detail how different types of SQL injection, such as in-band, blind, and out-of-band, are executed. Provide examples of vulnerable code and corresponding exploits. Focus on MySQL, PostgreSQL, and Microsoft SQL Server.
+
+**3.** [58w ✅] Explain how Cross-Site Scripting (XSS) vulnerabilities work, differentiating between reflected, stored, and DOM-based XSS. Detail how attackers inject malicious scripts into web pages viewed by other users. Include specific examples of XSS exploits and their impact, focusing on how they can steal cookies or redirect users to malicious sites. How do different browser security policies mitigate XSS attacks?
+
+**4.** [61w ✅] Detail how phishing attacks are conducted against web application users, including the use of deceptive emails, websites, and other communication channels. Explain how attackers craft phishing campaigns to steal user credentials and sensitive information. Focus on techniques such as spear phishing and whaling, and provide examples of successful phishing attacks targeting web applications. How can users identify and avoid phishing attempts?
+
+**5.** [67w ✅] Outline the essential security practices that every web application developer should follow to mitigate vulnerabilities like SQL injection, XSS, and phishing. Emphasize secure coding techniques, input validation, output encoding, and proper authentication/authorization mechanisms. Address the importance of regular security audits, penetration testing, and staying up-to-date with the latest security threats and best practices. What role does a Web Application Firewall (WAF) play in protecting against these attacks?
+
+**6.** [72w ✅] Discuss the emerging trends and future challenges in web application security, focusing on the evolving threat landscape and the need for proactive security measures. Address the impact of new technologies, such as cloud computing, mobile devices, and the Internet of Things (IoT), on web application security. What innovative security techniques and technologies are being developed to address these challenges? How are AI and machine learning being applied to enhance web application security?
+
+---
+
+### ✅ Query #34 — Biology/Neuroscience [Comparative]
+
+> **User Query** (50 words):
+> How does memory actually work in the brain? I find it fascinating that I can remember a song from 15 years ago but forget what I had for lunch yesterday. What's the difference between short-term and long-term memory, and why does the brain decide to keep or discard certain information?
+
+**Plan Size:** 5 queries
+**Word Counts:** [62, 50, 55, 53, 58] (range: 50-62)
+**Words in 20-100 range:** 5/5
+
+**1.** [62w ✅] Explain the fundamental difference between short-term memory (STM) and long-term memory (LTM) at a neurobiological level. Detail the encoding, storage, and retrieval processes involved in both. What are the different types of LTM (e.g., declarative/explicit vs. non-declarative/implicit), and how are they processed in distinct brain regions such as the hippocampus and amygdala? Focus on the mechanisms; avoid clinical applications of memory disorders.
+
+**2.** [50w ✅] Describe the process of memory consolidation, including the roles of the hippocampus, neocortex, and sleep in transferring memories from short-term to long-term storage. What molecular and cellular mechanisms are involved in synaptic plasticity during consolidation, such as long-term potentiation (LTP) and long-term depression (LTD)? How does reconsolidation affect existing memories?
+
+**3.** [55w ✅] Investigate the various factors influencing the encoding and retrieval of memories, including attention, emotion, context, and interference. How do these factors affect the likelihood of a memory being stored or recalled accurately? What is the role of memory cues and retrieval pathways in accessing stored information? How does the encoding specificity principle affect memory retrieval?
+
+**4.** [53w ✅] Analyze the mechanisms behind forgetting, including decay, interference, and retrieval failure. What are the different theories of forgetting, and how do they explain why certain memories are lost over time? How do factors like stress, trauma, and aging affect forgetting processes, and what are the roles of specific brain structures in these processes?
+
+**5.** [58w ✅] Explore current research and future directions in memory enhancement and intervention, including pharmacological approaches, cognitive training techniques, and neural stimulation methods. What are the ethical considerations surrounding memory manipulation and enhancement technologies? How might future research lead to improved treatments for memory disorders like Alzheimer's disease and PTSD, as well as strategies for optimizing memory in healthy individuals?
+
+---
+
+### ✅ Query #35 — Niche/Philosophy [Lookup]
+
+> **User Query** (46 words):
+> What is the hard problem of consciousness and why haven't neuroscientists and philosophers been able to solve it? I've read that we can explain how the brain processes information but not why it feels like something to be conscious. What are the leading theories about this?
+
+**Plan Size:** 4 queries
+**Word Counts:** [54, 53, 53, 61] (range: 53-61)
+**Words in 20-100 range:** 4/4
+
+**1.** [54w ✅] What is the hard problem of consciousness? Explain its central claim that subjective experience (qualia) cannot be reduced to physical processes. Define qualia and its key characteristics. How does the hard problem differ from the 'easy problems' of consciousness, such as sensory processing, and what are some prominent philosophical objections to the hard problem?
+
+**2.** [53w ✅] What are the major philosophical and neuroscientific theories attempting to address the hard problem of consciousness? Focus on Integrated Information Theory (IIT), Global Workspace Theory (GWT), and higher-order theories (HOT). How do these theories attempt to explain subjective experience? What are the key criticisms and limitations of each theory in accounting for qualia?
+
+**3.** [53w ✅] What specific neural correlates of consciousness (NCCs) have been identified through experiments? Discuss the experimental methods used to identify NCCs, such as fMRI and EEG. How do NCCs relate to different conscious experiences? To what extent do NCCs explain subjective experience, or do they simply correlate with it, without solving the explanatory gap?
+
+**4.** [61w ✅] What are the major criticisms of current approaches to studying consciousness, and what are the proposed alternative research directions? Focus on the limitations of reductionist approaches and the potential for integrating subjective reports with objective measurements. What role might altered states of consciousness play in revealing the nature of subjective experience, and what ethical considerations arise in this type of research?
+
+---
+
+### ✅ Query #36 — Finance/Stock Market [Lookup]
+
+> **User Query** (50 words):
+> What's driving the stock market in 2026? I see the S&P 500 is at record highs but I also read warnings about a potential crash. What economic indicators should I actually pay attention to, and is market timing ever a good strategy or should I just keep dollar cost averaging?
+
+**Plan Size:** 5 queries
+**Word Counts:** [66, 71, 63, 61, 84] (range: 61-84)
+**Words in 20-100 range:** 5/5
+
+**1.** [66w ✅] What are the major factors currently influencing the S&P 500's record highs in 2026? Focus on economic indicators, investor sentiment, and global events. Exclude detailed analysis of individual company performance. What are the roles of inflation, interest rates, and unemployment in shaping market trends? How are technological advancements and geopolitical tensions affecting investor confidence? What historical parallels can inform our understanding of the current bull market?
+
+**2.** [71w ✅] What are the primary economic indicators to monitor for signs of a potential stock market correction or crash in 2026? Focus on leading indicators and macroeconomic data. Exclude technical analysis of market charts. How do indicators like the yield curve, consumer confidence, and manufacturing indices signal changes in market direction? What levels or thresholds of these indicators typically precede a downturn? How reliable are these indicators in the current economic climate?
+
+**3.** [63w ✅] What are the arguments for and against market timing as an investment strategy in 2026? Focus on academic research and empirical evidence. Exclude personal anecdotes and opinions. What are the transaction costs and tax implications of frequent trading? How does market volatility affect the success of timing strategies? What is the opportunity cost of missing potential market gains while waiting for a downturn?
+
+**4.** [61w ✅] What is dollar-cost averaging (DCA), and how does it compare to lump-sum investing in the stock market of 2026? Focus on long-term investment outcomes and risk management. Exclude discussion of other investment strategies. How does DCA mitigate the impact of market volatility? Under what market conditions does DCA outperform lump-sum investing? What are the behavioral advantages of DCA for individual investors?
+
+**5.** [84w ✅] Considering the current economic environment and market conditions in 2026, what is a balanced approach to investing in the stock market for long-term growth, combining the principles of dollar-cost averaging and risk management? Focus on diversification and asset allocation. Exclude specific stock recommendations. How can investors adjust their asset allocation based on their risk tolerance and investment goals? What role do bonds and other asset classes play in a diversified portfolio? How should investors rebalance their portfolios periodically to maintain their desired asset allocation?
+
+---
+
+### ✅ Query #37 — Physics/Quantum Computing [Comparative]
+
+> **User Query** (41 words):
+> Is quantum computing actually going to break internet encryption like some articles claim? How far are we from practical quantum computers and what would the implications be for cybersecurity? Also what's the difference between a quantum computer and a regular supercomputer?
+
+**Plan Size:** 5 queries
+**Word Counts:** [65, 49, 64, 57, 61] (range: 49-65)
+**Words in 20-100 range:** 5/5
+
+**1.** [65w ✅] What are quantum computers? Explain their fundamental principles using concepts like superposition and entanglement, contrasting them with classical bits and gates. Focus on the underlying physics and mathematical models such as qubits and quantum gates. How do quantum circuits function? What are the key differences in architecture and processing compared to classical computers? What are the different types of quantum computers (e.g., trapped ion, superconducting)?
+
+**2.** [49w ✅] Explain Shor's algorithm and its implications for breaking RSA and ECC encryption. Detail how quantum computers could efficiently factor large numbers. What is Grover's algorithm and its potential impact on symmetric key cryptography? What are the limitations of these algorithms and the computational resources required to execute them effectively?
+
+**3.** [64w ✅] How far along is the development of practical quantum computers? What are the current limitations in qubit count, coherence, and error correction? What are the major companies and research institutions involved in quantum computing development (e.g., Google, IBM, Rigetti)? What are the different approaches to building scalable and fault-tolerant quantum computers? What are the projected timelines for achieving quantum supremacy and practical quantum computation?
+
+**4.** [57w ✅] What cryptographic methods are believed to be resistant to quantum computer attacks? Explain the principles behind post-quantum cryptography (PQC) and lattice-based cryptography. What are the leading PQC algorithms being standardized by NIST (e.g., CRYSTALS-Kyber, CRYSTALS-Dilithium, Falcon, SPHINCS+)? How can existing systems and protocols be migrated to PQC algorithms? What are the performance and security tradeoffs of PQC?
+
+**5.** [61w ✅] What are the potential long-term impacts of quantum computing on cybersecurity beyond encryption? How might quantum computers be used for code breaking or developing novel offensive cybersecurity tools? Conversely, how could quantum technologies enhance defensive cybersecurity measures, such as quantum key distribution (QKD) or quantum-enhanced sensing for anomaly detection? What are the broader societal and geopolitical implications of quantum computing dominance?
+
+---
+
+### ✅ Query #38 — Art/Film [Strategic]
+
+> **User Query** (42 words):
+> I want to understand why certain films are considered masterpieces while others with bigger budgets are forgettable. What are the key elements of cinematography, pacing, and storytelling that separate a great film from an average one? Any resources for learning film analysis?
+
+**Plan Size:** 4 queries
+**Word Counts:** [66, 61, 58, 66] (range: 58-66)
+**Words in 20-100 range:** 4/4
+
+**1.** [66w ✅] What are the foundational elements of film cinematography that contribute to a film's aesthetic quality and emotional impact? Explore the roles of shot composition (rule of thirds, leading lines), camera movement (pans, tilts, zooms), lighting (chiaroscuro, three-point lighting), and color palettes (monochromatic, complementary) in creating memorable scenes. How do these elements guide the viewer's eye and enhance storytelling? What are some iconic examples of masterful cinematography?
+
+**2.** [61w ✅] How does pacing influence a film's ability to engage and retain an audience? Examine different pacing techniques (slow burn, fast-paced action) and their effects on viewer experience. Analyze how editing (montage, cross-cutting) and scene length contribute to the overall rhythm of a film. What are some examples of films with particularly effective or ineffective pacing, and what lessons can be learned?
+
+**3.** [58w ✅] What storytelling techniques distinguish highly acclaimed films from more conventional ones? Focus on narrative structure (linear vs. non-linear), character development (archetypes, motivations), theme (underlying messages, symbolism), and dialogue (naturalism, wit). How do plot twists, subplots, and narrative voice contribute to a film's impact? Analyze examples of films celebrated for their storytelling prowess versus those criticized for weak narratives.
+
+**4.** [66w ✅] What resources are available for learning and practicing film analysis? Explore online courses (Coursera, edX), books on film theory and criticism (e.g., 'Understanding Movies' by Louis Giannetti), film schools and workshops, and online communities for film enthusiasts. How can one develop critical viewing skills and improve their ability to articulate insightful observations about film? What are the key concepts and vocabulary used in academic film criticism?
+
+---
+
+### ✅ Query #39 — Health/Gut Microbiome [Evaluative]
+
+> **User Query** (42 words):
+> I keep reading that gut health affects everything from your mood to your immune system. How legit is the science behind the gut-brain connection and the microbiome? What dietary changes and probiotics are actually supported by research versus just being marketing hype?
+
+**Plan Size:** 5 queries
+**Word Counts:** [78, 73, 78, 86, 80] (range: 73-86)
+**Words in 20-100 range:** 5/5
+
+**1.** [78w ✅] What is the gut microbiome? Define the term "gut microbiome" and its composition, including bacteria, fungi, viruses, and other microorganisms. Explain the factors that influence its composition, such as diet, genetics, and environment. What are the major functions of the gut microbiome, focusing on digestion, nutrient absorption, immune system regulation, and the production of essential compounds like vitamins and short-chain fatty acids (SCFAs)? What are the key differences between a healthy and an unhealthy gut microbiome, including dysbiosis?
+
+**2.** [73w ✅] How does the gut-brain axis work? Describe the bidirectional communication pathways between the gut microbiome and the brain, including the vagus nerve, the enteric nervous system, the immune system, and the circulatory system. Explain how the gut microbiome can influence brain function and behavior through the production of neurotransmitters, hormones, and other signaling molecules. How do factors like stress, diet, and antibiotics impact the gut-brain axis? What are the known mechanisms of action?
+
+**3.** [78w ✅] What specific mental health conditions and neurological disorders are linked to gut health and the gut-brain axis? Examine the scientific evidence linking gut dysbiosis and inflammation to conditions like anxiety, depression, autism spectrum disorder (ASD), Alzheimer's disease, and Parkinson's disease. Focus on studies using animal models and human clinical trials. What are the proposed mechanisms by which the gut microbiome may contribute to the development or progression of these disorders? What are the limitations of the current research?
+
+**4.** [86w ✅] What dietary changes are supported by scientific evidence for improving gut health and mental well-being? Investigate the role of specific foods and nutrients, such as fiber, prebiotics, probiotics, fermented foods, and polyphenols, in modulating the gut microbiome and influencing the gut-brain axis. What are the recommended dietary guidelines for promoting a healthy gut microbiome? Are there specific diets, such as the Mediterranean diet or the low-FODMAP diet, that have been shown to be particularly beneficial? What are the potential drawbacks or limitations of these dietary interventions?
+
+**5.** [80w ✅] What specific probiotic strains and formulations have demonstrated efficacy in clinical trials for improving gut health and mental well-being? Focus on randomized, controlled trials (RCTs) that have investigated the effects of probiotics on conditions like anxiety, depression, and irritable bowel syndrome (IBS). What are the optimal dosages, durations, and delivery methods for these probiotics? Are there any potential side effects or risks associated with probiotic supplementation? How do different probiotic strains vary in their mechanisms of action and target populations?
+
+---
+
+### ✅ Query #40 — General/Career [Exploratory]
+
+> **User Query** (48 words):
+> I've been at the same company for 4 years and I feel stuck. My salary has barely increased despite good performance reviews. Is it true that job hopping every 2-3 years is the best way to increase your salary, or does loyalty to one company still have value?
+
+**Plan Size:** 6 queries
+**Word Counts:** [56, 53, 50, 64, 55, 58] (range: 50-64)
+**Words in 20-100 range:** 6/6
+
+**1.** [56w ✅] Explain the concept of 'salary compression' in the context of long-term employment at a single company. Define what salary compression is, how it manifests (e.g., new hires earning similar or higher salaries than experienced employees), and its causes. What internal and external factors contribute to salary compression? How is it measured or identified within a company?
+
+**2.** [53w ✅] Research the prevalence and impact of job hopping (changing jobs every 2-3 years) on salary growth. Quantify typical salary increases associated with job hopping compared to staying at one company. What industries or job functions see the biggest salary jumps from changing companies? What are the potential risks associated with frequent job changes?
+
+**3.** [50w ✅] Analyze the potential benefits and drawbacks of long-term employment (4+ years) at a single company. What non-monetary benefits might accrue with loyalty (e.g., increased responsibility, internal promotions, deeper relationships, better benefits)? Are there specific career paths where long-term employment is viewed more favorably? How does company culture play a role?
+
+**4.** [64w ✅] Compare and contrast the salary growth trajectories of employees who stay at one company versus those who job hop. Using data from compensation surveys, analyze how salary increases typically vary based on tenure. What factors, beyond tenure and job hopping, influence salary growth (e.g., performance reviews, skill development, industry demand)? How do different compensation structures (e.g., bonuses, stock options) impact the overall financial picture?
+
+**5.** [55w ✅] Investigate strategies for negotiating salary increases within a company to avoid salary stagnation. What are the most effective techniques for demonstrating value and justifying a higher salary? How should an employee prepare for a salary negotiation (e.g., researching market rates, documenting achievements)? What recourse does an employee have if their salary expectations are not met?
+
+**6.** [58w ✅] Explore the future of work and the evolving relationship between employers and employees. How might trends like remote work, automation, and the gig economy impact employee loyalty and compensation models? Are there emerging strategies that companies are using to retain talent and ensure fair compensation? What are the potential long-term consequences of prioritizing short-term gains over employee retention?
+
+---
+
+### ✅ Query #41 — Coding/Open Source [Mechanistic]
+
+> **User Query** (49 words):
+> How do I start contributing to open source projects? I'm a decent Python developer but I look at big projects on GitHub and feel totally lost. Where do I find beginner-friendly issues, how does the PR process work, and how do I get maintainers to actually review my contributions?
+
+**Plan Size:** 5 queries
+**Word Counts:** [65, 59, 62, 70, 66] (range: 59-70)
+**Words in 20-100 range:** 5/5
+
+**1.** [65w ✅] Explain the typical workflow for contributing to open source projects on platforms like GitHub. Focus on the steps involved after finding a project, including forking, branching, making changes, creating pull requests (PRs), and addressing code review feedback. What are common best practices for commit messages and PR descriptions? How do you handle merge conflicts? What are the typical response times to expect at each stage?
+
+**2.** [59w ✅] How can a beginner find suitable open source projects and 'beginner-friendly' issues to contribute to? Describe strategies for identifying projects aligned with one's Python skillset and experience level. Where can you find issues labeled 'good first issue' or 'easy'? What are the characteristics of a well-defined beginner-friendly issue? How do coding standards and project guidelines factor into issue selection?
+
+**3.** [62w ✅] Detail the process of getting code contributions reviewed and accepted by open source project maintainers. What strategies can a contributor employ to increase the likelihood of a positive review? How important is code quality, test coverage, and documentation? What are common reasons for pull request rejection, and how can contributors avoid these? What are the expected communication norms when interacting with maintainers?
+
+**4.** [70w ✅] What are some effective strategies for new open source contributors to engage with the community beyond submitting code? Describe ways to participate in discussions, provide support to other users, and contribute to documentation or other non-code tasks. Where are the primary communication channels for different open source projects, such as mailing lists, forums, or chat platforms like Discord or Slack? How can a contributor build a reputation within the community?
+
+**5.** [66w ✅] Discuss common pitfalls and challenges faced by newcomers to open source, and offer solutions for overcoming these obstacles. How should a new contributor handle negative feedback or criticism? What steps can be taken if a pull request remains unreviewed for an extended period? How can contributors deal with the complexities of large codebases or unfamiliar technologies? What are the ethical considerations involved in open source contributions?
+
+---
+
+### ✅ Query #42 — STEM/Renewable Energy [Comparative]
+
+> **User Query** (40 words):
+> Can the world actually run on 100% renewable energy or is that unrealistic? What are the biggest technical challenges with solar and wind, specifically around energy storage and grid stability? How are countries like Germany and Denmark handling these issues?
+
+**Plan Size:** 6 queries
+**Word Counts:** [78, 75, 80, 81, 85, 82] (range: 75-85)
+**Words in 20-100 range:** 6/6
+
+**1.** [78w ✅] What is the potential for renewable energy sources like solar and wind to fully power the world? Research current global energy consumption, the theoretical maximum energy generation from renewables, and differing projections for future energy needs and renewable energy adoption rates. Focus on realistic, peer-reviewed assessments. Sub-questions: What are the most optimistic and pessimistic projections for 100% renewable energy? What are the main factors determining the feasibility of this transition? What are the major barriers, beyond technological limitations?
+
+**2.** [75w ✅] What are the primary technical challenges associated with large-scale solar and wind energy deployment, specifically related to energy storage? Focus on the limitations of current battery technologies, pumped hydro storage, and alternative storage methods like compressed air energy storage (CAES) and hydrogen production. What are the cost and efficiency tradeoffs for each storage solution? How does energy storage affect the intermittency of solar and wind power? How can smart grids contribute to overcoming storage limitations?
+
+**3.** [80w ✅] How does the intermittent nature of solar and wind energy impact grid stability, and what technologies and strategies can mitigate these effects? Investigate techniques such as demand-side management, smart grids, high-voltage direct current (HVDC) transmission lines, and advanced forecasting methods. Focus on frequency regulation, voltage control, and overall grid resilience. Sub-questions: What are the main grid stability challenges posed by intermittent renewables? How effective are current grid stabilization technologies? What are the future directions in grid management for high-penetration renewables?
+
+**4.** [81w ✅] How have Germany and Denmark, as leading adopters of renewable energy, addressed the challenges of energy storage and grid stability? Investigate specific policies, grid infrastructure investments, and technological deployments in these countries. Focus on lessons learned and best practices that can be applied elsewhere. What specific grid stabilization technologies and energy storage solutions have these countries implemented? How have these strategies affected their energy security and reliability? What are the key policy differences between the two countries regarding renewable energy integration?
+
+**5.** [85w ✅] What are the economic and social implications of transitioning to 100% renewable energy, considering factors like job creation, energy affordability, and supply chain dependencies? Analyze the costs and benefits of renewable energy compared to fossil fuels, including externalities like pollution and climate change. How would a 100% renewable energy transition affect energy prices for consumers and industries? What new industries and jobs would be created, and what existing industries might be displaced? How secure and reliable are the supply chains for critical renewable energy components?
+
+**6.** [82w ✅] What are the potential future innovations in energy storage, grid management, and renewable energy technologies that could further enhance the feasibility of a 100% renewable energy system? Explore research and development trends in areas like advanced battery technologies (e.g., solid-state, lithium-sulfur), grid-scale energy storage, smart grids, and alternative renewable energy sources (e.g., enhanced geothermal, wave energy). What are the most promising emerging technologies? How far away are these technologies from commercial viability? How could these innovations overcome existing limitations of renewable energy?
+
+---
+
+### ✅ Query #43 — Cooking/Fermentation [Lookup]
+
+> **User Query** (48 words):
+> I want to start making my own sourdough bread from scratch. How do I create and maintain a sourdough starter, and what's the basic process from start to finish? I don't have any fancy equipment, just a regular home oven. What are the most common mistakes beginners make?
+
+**Plan Size:** 5 queries
+**Word Counts:** [55, 55, 46, 51, 56] (range: 46-56)
+**Words in 20-100 range:** 5/5
+
+**1.** [55w ✅] Explain the fundamental process of creating a sourdough starter from scratch, emphasizing the symbiotic relationship between the bacteria and yeast involved. Focus on the initial flour and water mixture, the feeding schedule, and how environmental factors like temperature influence its development. What are the key signs of a healthy, active starter versus an unhealthy one?
+
+**2.** [55w ✅] Describe the chemical processes that occur during sourdough fermentation, including the production of lactic and acetic acids. Focus on how different ratios of bacteria and yeast impact the final flavor profile of the bread. What are the roles of amylases and proteases in sourdough fermentation, and how do they affect the dough's texture and structure?
+
+**3.** [46w ✅] Detail the basic steps involved in making sourdough bread using a mature starter. Explain the importance of autolyse, bulk fermentation, proofing, and scoring. Focus on techniques that can be accomplished with standard home kitchen equipment. What are the key factors influencing oven spring and crust development?
+
+**4.** [51w ✅] What are the most common mistakes that beginners make when creating and maintaining a sourdough starter, and what problems do these mistakes cause? Focus on issues like improper hydration, contamination, inconsistent feeding schedules, and using the starter too early. What are some troubleshooting techniques for reviving a sluggish or moldy starter?
+
+**5.** [56w ✅] Discuss strategies for maintaining a sourdough starter in the long term. Cover topics such as long-term storage (refrigeration), drying, and freezing the starter. How does long-term storage affect the starter's viability and activity, and how should it be reactivated for baking? What are best practices for preventing contamination and maintaining a stable microbial balance over time?
+
+---
+
+### ✅ Query #44 — News/AI Regulation [Lookup]
+
+> **User Query** (44 words):
+> What's happening with AI regulation globally? I know the EU passed the AI Act but what about the US and other countries? Are there actual enforceable rules around AI development or is it mostly voluntary guidelines? How are tech companies responding to all this?
+
+**Plan Size:** 7 queries
+**Word Counts:** [69, 56, 70, 71, 73, 65, 80] (range: 56-80)
+**Words in 20-100 range:** 7/7
+
+**1.** [69w ✅] Provide an overview of AI regulation efforts worldwide, focusing on major legislative actions and proposed frameworks. What are the key differences between the EU AI Act, the US's AI Risk Management Framework, and China's regulations on AI? What specific aspects of AI development and deployment are targeted by these regulations? How are international collaborations, such as those within the G7 or OECD, shaping the global landscape of AI governance?
+
+**2.** [56w ✅] Examine the specific enforceable rules within the EU AI Act and their implications for AI developers and deployers. What are the prohibited AI practices and high-risk AI systems as defined by the Act? What conformity assessment procedures and ongoing monitoring mechanisms are required? How does the EU AI Act define liability and enforcement mechanisms for non-compliance?
+
+**3.** [70w ✅] Analyze the current state of AI regulation in the United States, differentiating between federal and state-level initiatives. What specific agencies, like NIST, are involved in developing AI risk management frameworks? What are the key areas of focus in US AI policy, such as bias detection, data privacy, and national security? What legislative proposals are under consideration at the federal level, and what challenges do they face in terms of enactment?
+
+**4.** [71w ✅] Investigate the AI regulatory landscape in countries beyond the EU and US, including but not limited to China, the UK, Canada, and Brazil. What are the key regulatory priorities and approaches being adopted in these countries? To what extent are these regulations influenced by or aligned with the EU AI Act or other international standards? How do these regulations address issues such as data localization, algorithmic transparency, and cross-border data flows?
+
+**5.** [73w ✅] Assess how major tech companies are responding to the increasing regulatory scrutiny of AI, including investments in compliance, ethical AI initiatives, and lobbying efforts. How are companies adapting their AI development processes to align with emerging regulations and guidelines? What are the key concerns and arguments being raised by tech companies regarding the potential impact of AI regulation on innovation and competitiveness? How are companies engaging with policymakers to shape the regulatory landscape?
+
+**6.** [65w ✅] Explore the practical challenges and potential unintended consequences of AI regulation, including the impact on innovation, competitiveness, and accessibility. What are the key challenges in enforcing AI regulations effectively, given the rapid pace of technological development? How can regulations be designed to balance innovation with ethical considerations and societal risks? What are the potential implications for small and medium-sized enterprises (SMEs) and open-source AI development?
+
+**7.** [80w ✅] Examine the future trajectory of AI regulation globally, considering the potential for greater international harmonization and the emergence of new regulatory approaches. What are the potential scenarios for AI governance in the coming years, ranging from fragmented national regulations to more coordinated global frameworks? How can international cooperation and standards-setting bodies, such as ISO and IEEE, contribute to shaping the future of AI regulation? What new ethical and societal challenges related to AI may require regulatory attention in the future?
+
+---
+
+### ✅ Query #45 — Math/Cryptography [Lookup]
+
+> **User Query** (42 words):
+> How does end-to-end encryption actually work in apps like WhatsApp and Signal? I understand the basic idea that messages are scrambled but how do two phones agree on a secret key without anyone intercepting it? What's the math behind public key cryptography?
+
+**Plan Size:** 4 queries
+**Word Counts:** [65, 71, 62, 64] (range: 62-71)
+**Words in 20-100 range:** 4/4
+
+**1.** [65w ✅] Explain the fundamental principles of end-to-end encryption (E2EE). Detail the mathematical concepts that underpin E2EE, such as symmetric and asymmetric cryptography, and the role of keys. Focus on providing a clear understanding of how E2EE ensures only the sender and receiver can read messages. What are the core mathematical concepts involved? How do these concepts ensure confidentiality? What are the limitations of these mathematical approaches?
+
+**2.** [71w ✅] Describe how Diffie-Hellman key exchange (or a similar protocol) enables secure key agreement in E2EE messaging apps like WhatsApp and Signal. Explain how this process allows two parties to establish a shared secret key over an insecure channel without prior communication. Focus on the mechanism of key exchange. How does Diffie-Hellman prevent eavesdroppers from intercepting the key? What are the limitations of Diffie-Hellman? How does this differ from traditional key exchange?
+
+**3.** [62w ✅] Detail the specific implementation of end-to-end encryption in WhatsApp and Signal. What cryptographic protocols do they use (e.g., Signal Protocol)? How are keys managed, rotated, and stored on devices? Explain how message authenticity and integrity are ensured. Focus on the technical specifics and differences. What are the key features of the Signal Protocol? How do these apps handle compromised keys or devices?
+
+**4.** [64w ✅] Analyze the security strengths and weaknesses of E2EE in modern messaging apps. What are the known vulnerabilities? How effective is E2EE against different types of attacks (e.g., man-in-the-middle, metadata analysis, endpoint compromise)? Focus on the practical security implications. What types of attacks are E2EE most vulnerable to? What are the trade-offs between security and usability in E2EE implementations? How does metadata relate to E2EE?
+
+---
+
+### ✅ Query #46 — Niche/Mycology [Strategic]
+
+> **User Query** (43 words):
+> I've been getting interested in mushroom foraging and cultivation. What are the safest mushrooms for beginners to identify in the wild, and what equipment do I need to start growing gourmet mushrooms at home? Also how big is the legal risk of misidentification?
+
+**Plan Size:** 4 queries
+**Word Counts:** [65, 64, 67, 69] (range: 64-69)
+**Words in 20-100 range:** 4/4
+
+**1.** [65w ✅] What are the key characteristics that define "beginner-friendly" wild mushrooms for foraging? Focus on easily identifiable features, common habitats, and potential look-alikes to avoid. What are some specific examples of safe, easily identifiable mushrooms for beginners in North America and Europe, such as puffballs (Calvatia species), chanterelles (Cantharellus cibarius), and oyster mushrooms (Pleurotus ostreatus)? What are the most important rules for ethical and safe foraging?
+
+**2.** [64w ✅] What specific equipment and supplies are needed to start growing gourmet mushrooms at home? Focus on substrate preparation, sterilization techniques, and environmental control. What are the most beginner-friendly gourmet mushroom species to cultivate at home, such as oyster mushrooms (Pleurotus spp.), shiitake (Lentinula edodes), and wine cap mushrooms (Stropharia rugosoannulata)? What are the ideal growing conditions, including temperature, humidity, and lighting, for these species?
+
+**3.** [67w ✅] What are the potential legal risks associated with misidentifying wild mushrooms? Focus on laws related to foraging on private vs. public land, and the potential for legal liability if misidentified mushrooms cause harm. What are the typical penalties for violating foraging laws, and how can foragers ensure they are operating within legal boundaries? What resources exist to help identify wild mushrooms and verify their safety for consumption?
+
+**4.** [69w ✅] What are the best practices for safely identifying wild mushrooms to minimize the risk of poisoning? Focus on using multiple identification resources, conducting spore prints, and consulting with experienced mycologists. What are the key characteristics to examine when identifying mushrooms, including cap shape, gill attachment, stem features, and odor? What are the most common poisonous mushrooms to be aware of, and how can they be distinguished from edible species?
+
+---
+
+### ✅ Query #47 — Investment/ETFs [Lookup]
+
+> **User Query** (53 words):
+> I have about 10k saved up and I want to invest it in ETFs for long term growth. Should I just put it all in VOO or should I diversify across different ETFs like international and bond funds? What's a good simple portfolio allocation for someone who doesn't want to actively manage things?
+
+**Plan Size:** 5 queries
+**Word Counts:** [58, 62, 53, 61, 57] (range: 53-62)
+**Words in 20-100 range:** 5/5
+
+**1.** [58w ✅] What is the Vanguard S&P 500 ETF (VOO)? Define its investment objective, expense ratio, and historical performance relative to the S&P 500 index. What are the primary holdings and sector allocations within VOO? How does its structure as an ETF impact its tradability and tax efficiency? Focus on providing a foundational understanding of VOO for a beginner investor.
+
+**2.** [62w ✅] What are the main benefits and drawbacks of investing solely in VOO for long-term growth, compared to diversifying across multiple ETFs? Analyze potential risks associated with concentration in the S&P 500, such as sector imbalances and sensitivity to the U.S. economy. What are the opportunity costs of not diversifying into international equities or bonds? Consider both historical data and potential future scenarios.
+
+**3.** [53w ✅] What are some popular ETFs for diversifying a portfolio beyond the S&P 500? Include examples of international equity ETFs (e.g., VXUS), bond ETFs (e.g., AGG), and potentially sector-specific ETFs. For each, specify their investment objective, expense ratio, and correlation to VOO. What is the typical asset allocation for a passively managed diversified portfolio?
+
+**4.** [61w ✅] Based on a $10,000 investment, what is a sample portfolio allocation across VOO and other ETFs suitable for long-term growth and minimal active management? Suggest a specific allocation percentage for each ETF (e.g., VOO, VXUS, AGG). What are the expected returns and risk characteristics of this sample portfolio, based on historical data and projections? How frequently should this portfolio be rebalanced?
+
+**5.** [57w ✅] What are some simple methods for rebalancing a portfolio of ETFs, and how often should rebalancing occur? Explain the concept of 'drift' in portfolio allocation and its impact on risk and return. Should rebalancing be based on time intervals (e.g., annually) or allocation thresholds? What are the tax implications of rebalancing a portfolio in a taxable account?
+
+---
+
+### ✅ Query #48 — General/Travel [Lookup]
+
+> **User Query** (49 words):
+> I want to take a 3-week trip through Japan but I have no idea how to plan it. What's the best route to see both Tokyo and Kyoto, how does the rail pass work, and what's a realistic daily budget? I'm interested in both tourist highlights and off-the-beaten-path experiences.
+
+**Plan Size:** 5 queries
+**Word Counts:** [55, 66, 62, 64, 68] (range: 55-68)
+**Words in 20-100 range:** 5/5
+
+**1.** [55w ✅] Provide an overview of planning a 3-week trip to Japan, focusing on popular destinations like Tokyo and Kyoto. What are the key considerations for transportation, accommodation, and cultural experiences? What are some recommended itineraries for first-time visitors, balancing tourist hotspots and lesser-known attractions? What are some tips for navigating cultural differences and etiquette in Japan?
+
+**2.** [66w ✅] Explain how the Japan Rail Pass works and whether it's a cost-effective option for a 3-week trip covering Tokyo and Kyoto. What types of passes are available, and what are their coverage areas and validity periods? What are the advantages and disadvantages of purchasing a Japan Rail Pass versus individual tickets, considering factors like travel style and itinerary? How can the pass be activated and used?
+
+**3.** [62w ✅] Estimate a realistic daily budget for a 3-week trip to Japan, considering different travel styles (budget, mid-range, luxury). What are the average costs for accommodation, transportation, food, and activities in Tokyo and Kyoto? How can travelers save money on expenses like food and accommodation without compromising on quality or experience? What are some hidden costs or unexpected expenses to be aware of?
+
+**4.** [64w ✅] Identify some off-the-beaten-path experiences and lesser-known attractions in Tokyo and Kyoto that would appeal to travelers seeking unique and authentic cultural experiences. What are some recommended day trips from Tokyo and Kyoto to explore surrounding regions and rural areas? What are some opportunities to interact with locals and participate in traditional activities? How can travelers discover these hidden gems and avoid crowded tourist spots?
+
+**5.** [68w ✅] Analyze the best routes for traveling between Tokyo and Kyoto, considering different modes of transportation like the Shinkansen (bullet train), domestic flights, and overnight buses. What are the pros and cons of each option in terms of speed, cost, comfort, and accessibility? What are some scenic routes or stopover destinations along the way that would enhance the travel experience? How do I make seat reservations on the Shinkansen?
+
+---
+
+### ✅ Query #49 — Health/Longevity [Exploratory]
+
+> **User Query** (44 words):
+> What does the latest research actually say about extending human lifespan and healthspan? I see a lot of hype around NMN, resveratrol, and intermittent fasting for anti-aging. Which of these interventions have solid evidence behind them and which are mostly speculation at this point?
+
+**Plan Size:** 6 queries
+**Word Counts:** [60, 51, 54, 52, 56, 63] (range: 51-63)
+**Words in 20-100 range:** 6/6
+
+**1.** [60w ✅] What is the current scientific understanding of the aging process at the cellular and molecular level? Focus on established hallmarks of aging such as telomere shortening, genomic instability, epigenetic alterations, loss of proteostasis, mitochondrial dysfunction, cellular senescence, stem cell exhaustion, and altered intercellular communication. What are the key mechanisms driving these processes, and how do they contribute to overall aging?
+
+**2.** [51w ✅] How do NMN (Nicotinamide Mononucleotide) and resveratrol purportedly impact aging and healthspan? Focus on their proposed mechanisms of action, including NAD+ enhancement and SIRT1 activation, respectively. What is the current evidence from preclinical studies (cell cultures and animal models) supporting these claims, specifically regarding lifespan extension and improvement in age-related biomarkers?
+
+**3.** [54w ✅] What does the current human clinical trial data say about the efficacy of NMN and resveratrol for anti-aging and healthspan extension? Focus specifically on randomized, placebo-controlled trials. What are the reported effects on relevant biomarkers such as NAD+ levels, glucose metabolism, inflammation, and physical performance? What are the known side effects and safety concerns?
+
+**4.** [52w ✅] What are the different types of intermittent fasting (IF) protocols (e.g., 16/8, 5:2, alternate-day fasting) and how are they proposed to influence aging and healthspan? Focus on the underlying mechanisms, including autophagy, reduced IGF-1 signaling, and improved insulin sensitivity. What is the evidence from preclinical studies regarding lifespan extension and health benefits?
+
+**5.** [56w ✅] What does the current human clinical trial data show regarding the impact of intermittent fasting on aging-related outcomes? Focus on studies examining effects on weight management, metabolic health, cognitive function, and cardiovascular health. What are the potential risks and drawbacks associated with different IF protocols, and are there specific populations for whom IF is not recommended?
+
+**6.** [63w ✅] Based on current research, what are the most promising and evidence-backed interventions for extending human healthspan, considering both pharmaceutical and lifestyle approaches? Synthesize findings from previous queries, weighing the strength of evidence for each intervention (NMN, resveratrol, intermittent fasting, and others). What are the critical gaps in current research, and what future studies are needed to validate these interventions and optimize their use?
+
+---
+
+### ✅ Query #50 — Coding/System Design [Evaluative]
+
+> **User Query** (45 words):
+> I have a technical interview coming up that includes a system design round. How should I approach designing a large-scale system like a chat application or a URL shortener? What are the key concepts I need to understand like load balancing, caching, and database sharding?
+
+**Plan Size:** 7 queries
+**Word Counts:** [57, 53, 55, 59, 66, 61, 59] (range: 53-66)
+**Words in 20-100 range:** 7/7
+
+**1.** [57w ✅] Explain the fundamental principles behind load balancing in distributed systems, including different algorithms like round robin, least connections, and consistent hashing. What are the key metrics to monitor when evaluating load balancer performance, such as throughput and latency? Focus on layer 4 and layer 7 load balancing. How do these algorithms distribute traffic and maintain session persistence?
+
+**2.** [53w ✅] Describe the concept of caching in distributed systems, focusing on different caching strategies like write-through, write-back, and cache invalidation. How do Content Delivery Networks (CDNs) leverage caching to improve performance? What are the trade-offs between different cache eviction policies such as LRU, LFU, and FIFO? Detail common cache implementations like Redis and Memcached.
+
+**3.** [55w ✅] Outline the techniques for database sharding in large-scale systems, including horizontal and vertical sharding. What are the key considerations when choosing a sharding key? Explain the challenges associated with sharding, such as data rebalancing and cross-shard transactions. How does consistent hashing aid in managing shards? What are the pros and cons of different sharding architectures?
+
+**4.** [59w ✅] Apply these concepts to the design of a large-scale chat application. How would you use load balancing to distribute traffic across multiple chat servers? Where would you implement caching to reduce database load? How would you shard the database to handle a large number of users and messages? Discuss the architectural considerations for real-time message delivery and presence management.
+
+**5.** [66w ✅] Alternatively, apply these concepts to the design of a URL shortening service like TinyURL. How would you use load balancing to handle a high volume of requests? What caching strategies would be most effective for storing and retrieving shortened URLs? How would you design the database schema and sharding strategy to handle billions of URLs? What are the trade-offs between different approaches to generating short URLs?
+
+**6.** [61w ✅] What are the common challenges and potential bottlenecks in scaling large-scale systems, such as chat applications or URL shorteners? Discuss the impact of network latency, database contention, and single points of failure. How can these challenges be mitigated through techniques like asynchronous processing, message queues, and circuit breakers? What are the important considerations for monitoring and alerting in a distributed environment?
+
+**7.** [59w ✅] Explore the future trends and emerging technologies in system design for large-scale applications. How are serverless computing and edge computing impacting system architecture? What role does AI and machine learning play in optimizing performance and improving scalability? Discuss the implications of microservices and containerization on system design. How can we balance performance, scalability, and security in these evolving environments?
+
+---

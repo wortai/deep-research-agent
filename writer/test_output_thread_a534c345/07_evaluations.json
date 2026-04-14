@@ -1,0 +1,243 @@
+[
+  {
+    "chapter_heading": "Section 1",
+    "html_length": 4641,
+    "metrics": {
+      "has_report_chapter": true,
+      "has_report_page": true,
+      "page_count": 6,
+      "svg_count": 0,
+      "has_charts_css": false,
+      "table_count": 0,
+      "inline_style_count": 9,
+      "citation_count": 0,
+      "paragraph_count": 3,
+      "total_words": 453,
+      "visual_types": []
+    },
+    "issues": [
+      "MISMATCH: 7 opening <div> vs 8 closing </div>"
+    ],
+    "warnings": [
+      "No citations/links found",
+      "LOW CONTENT: 453 words - may not fill pages",
+      "LOW VISUAL VARIETY: Only 0 visual type(s)"
+    ],
+    "passes": [
+      "OK: 6 report-page containers"
+    ],
+    "file": "06_chapter_01_e22815b8.html",
+    "section_order": 1
+  },
+  {
+    "chapter_heading": "Section 2",
+    "html_length": 11791,
+    "metrics": {
+      "has_report_chapter": true,
+      "has_report_page": true,
+      "page_count": 3,
+      "svg_count": 0,
+      "has_charts_css": false,
+      "table_count": 0,
+      "inline_style_count": 23,
+      "citation_count": 0,
+      "paragraph_count": 12,
+      "total_words": 566,
+      "visual_types": []
+    },
+    "issues": [],
+    "warnings": [
+      "No citations/links found",
+      "LOW CONTENT: 566 words - may not fill pages",
+      "LOW VISUAL VARIETY: Only 0 visual type(s)"
+    ],
+    "passes": [
+      "OK: 3 report-page containers",
+      "OK: All divs properly closed (4 pairs)"
+    ],
+    "file": "06_chapter_02_ea1765e0.html",
+    "section_order": 2
+  },
+  {
+    "chapter_heading": "Section 3",
+    "html_length": 14141,
+    "metrics": {
+      "has_report_chapter": true,
+      "has_report_page": true,
+      "page_count": 4,
+      "svg_count": 0,
+      "has_charts_css": false,
+      "table_count": 2,
+      "inline_style_count": 68,
+      "citation_count": 8,
+      "paragraph_count": 8,
+      "total_words": 461,
+      "visual_types": [
+        "Table",
+        "Citation"
+      ]
+    },
+    "issues": [],
+    "warnings": [
+      "LOW CONTENT: 461 words - may not fill pages"
+    ],
+    "passes": [
+      "OK: 4 report-page containers",
+      "OK: 8 citation(s)",
+      "OK: All divs properly closed (7 pairs)",
+      "OK: 2 visual types: Table, Citation"
+    ],
+    "file": "06_chapter_03_454aef10.html",
+    "section_order": 3
+  },
+  {
+    "chapter_heading": "Section 4",
+    "html_length": 16159,
+    "metrics": {
+      "has_report_chapter": true,
+      "has_report_page": true,
+      "page_count": 3,
+      "svg_count": 0,
+      "has_charts_css": false,
+      "table_count": 1,
+      "inline_style_count": 55,
+      "citation_count": 3,
+      "paragraph_count": 22,
+      "total_words": 820,
+      "visual_types": [
+        "Table",
+        "Citation"
+      ]
+    },
+    "issues": [],
+    "warnings": [],
+    "passes": [
+      "OK: 3 report-page containers",
+      "OK: 3 citation(s)",
+      "OK: All divs properly closed (5 pairs)",
+      "OK: 820 words of prose content",
+      "OK: 2 visual types: Table, Citation"
+    ],
+    "file": "06_chapter_04_2cd1a623.html",
+    "section_order": 4
+  },
+  {
+    "chapter_heading": "Section 5",
+    "html_length": 12184,
+    "metrics": {
+      "has_report_chapter": true,
+      "has_report_page": true,
+      "page_count": 2,
+      "svg_count": 0,
+      "has_charts_css": false,
+      "table_count": 2,
+      "inline_style_count": 55,
+      "citation_count": 12,
+      "paragraph_count": 12,
+      "total_words": 816,
+      "visual_types": [
+        "Table",
+        "Citation"
+      ]
+    },
+    "issues": [],
+    "warnings": [],
+    "passes": [
+      "OK: 2 report-page containers",
+      "OK: 12 citation(s)",
+      "OK: All divs properly closed (5 pairs)",
+      "OK: 816 words of prose content",
+      "OK: 2 visual types: Table, Citation"
+    ],
+    "file": "06_chapter_05_ee8fc270.html",
+    "section_order": 5
+  },
+  {
+    "chapter_heading": "Section 6",
+    "html_length": 6378,
+    "metrics": {
+      "has_report_chapter": true,
+      "has_report_page": true,
+      "page_count": 1,
+      "svg_count": 0,
+      "has_charts_css": false,
+      "table_count": 0,
+      "inline_style_count": 13,
+      "citation_count": 0,
+      "paragraph_count": 10,
+      "total_words": 748,
+      "visual_types": []
+    },
+    "issues": [
+      "FAIL: Only 1 page(s), minimum is 2",
+      "MISMATCH: 2 opening <div> vs 0 closing </div>"
+    ],
+    "warnings": [
+      "No citations/links found",
+      "LOW VISUAL VARIETY: Only 0 visual type(s)"
+    ],
+    "passes": [
+      "OK: 748 words of prose content"
+    ],
+    "file": "06_chapter_06_0313d6c3.html",
+    "section_order": 6
+  },
+  {
+    "chapter_heading": "Section 7",
+    "html_length": 8122,
+    "metrics": {
+      "has_report_chapter": true,
+      "has_report_page": true,
+      "page_count": 2,
+      "svg_count": 0,
+      "has_charts_css": false,
+      "table_count": 0,
+      "inline_style_count": 28,
+      "citation_count": 0,
+      "paragraph_count": 8,
+      "total_words": 466,
+      "visual_types": []
+    },
+    "issues": [],
+    "warnings": [
+      "No citations/links found",
+      "LOW CONTENT: 466 words - may not fill pages",
+      "LOW VISUAL VARIETY: Only 0 visual type(s)"
+    ],
+    "passes": [
+      "OK: 2 report-page containers",
+      "OK: All divs properly closed (3 pairs)"
+    ],
+    "file": "06_chapter_07_544c2f8b.html",
+    "section_order": 7
+  },
+  {
+    "chapter_heading": "Section 8",
+    "html_length": 9226,
+    "metrics": {
+      "has_report_chapter": true,
+      "has_report_page": true,
+      "page_count": 5,
+      "svg_count": 0,
+      "has_charts_css": false,
+      "table_count": 0,
+      "inline_style_count": 30,
+      "citation_count": 0,
+      "paragraph_count": 11,
+      "total_words": 485,
+      "visual_types": []
+    },
+    "issues": [],
+    "warnings": [
+      "No citations/links found",
+      "LOW CONTENT: 485 words - may not fill pages",
+      "LOW VISUAL VARIETY: Only 0 visual type(s)"
+    ],
+    "passes": [
+      "OK: 5 report-page containers",
+      "OK: All divs properly closed (6 pairs)"
+    ],
+    "file": "06_chapter_08_308419ca.html",
+    "section_order": 8
+  }
+]

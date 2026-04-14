@@ -3,6 +3,9 @@ INTENT_CLASSIFICATION_PROMPT = """You are an intent classifier for a research as
 
 Given the user's query and conversation context, classify the intent.
 
+## Current date and time (UTC)
+{current_datetime}
+
 ## User Query
 {user_query}
 

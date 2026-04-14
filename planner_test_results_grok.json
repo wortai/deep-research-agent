@@ -1,0 +1,357 @@
+[
+  {
+    "query_id": 1,
+    "domain": "Finance / Fact",
+    "complexity": "Narrow",
+    "expected_range": "1-2",
+    "user_query": "What is the current price of Bitcoin and what factors are driving it?",
+    "num_queries": 3,
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide the current price of Bitcoin in USD as of April 5, 2026, around 15:12 UTC. Include 24-hour percentage change, 7-day performance, market capitalization, 24-hour trading volume across major exchanges like Binance, Coinbase, and Kraken, and its position relative to all-time high and recent lows. Source from reliable real-time data aggregators like CoinMarketCap or CoinGecko.",
+        "word_count": 55
+      },
+      {
+        "num": 2,
+        "text": "Summarize the most recent news events, market sentiment indicators (like fear & greed index), whale movements, and short-term technical analysis (RSI, moving averages) influencing Bitcoin's price volatility over the past week as of April 5, 2026.",
+        "word_count": 36
+      },
+      {
+        "num": 3,
+        "text": "Analyze the primary factors driving Bitcoin's current price, including macroeconomic influences (interest rates, inflation, stock market correlations), regulatory developments (SEC actions, ETF approvals), institutional adoption (corporate treasuries, funds), network metrics (hash rate, transaction volume), and halvings or upgrades.",
+        "word_count": 38
+      }
+    ]
+  },
+  {
+    "query_id": 2,
+    "domain": "Coding / Comparison",
+    "complexity": "Moderate",
+    "expected_range": "2-4",
+    "user_query": "Compare React and Vue for building interactive dashboards",
+    "num_queries": 3,
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a detailed overview of React for building interactive dashboards: cover its component-based architecture, state management options like Hooks or Redux, virtual DOM for efficient updates, key libraries for data visualization (e.g., Recharts, Victory, D3.js integration), performance characteristics, and examples of real-world dashboards like those in Netflix or Airbnb admin panels.",
+        "word_count": 51
+      },
+      {
+        "num": 2,
+        "text": "Provide a detailed overview of Vue.js for building interactive dashboards: explain its reactive data binding, single-file components, state management with Pinia or Vuex, progressive framework nature, integration with charting libraries (e.g., Vue Chart.js, ECharts for Vue), scalability features, and examples of dashboards in apps like GitLab or Alibaba.",
+        "word_count": 48
+      },
+      {
+        "num": 3,
+        "text": "Compare React and Vue head-to-head for interactive dashboard development as of 2026: assess learning curve and DX, bundle size and performance benchmarks, ecosystem maturity for data viz and UI components, ease of handling real-time data and complex interactions, community/support trends, migration paths, and recommendations based on team expertise, project scale, and maintenance needs.",
+        "word_count": 53
+      }
+    ]
+  },
+  {
+    "query_id": 3,
+    "domain": "AI / Technical",
+    "complexity": "Broad",
+    "expected_range": "4-6",
+    "user_query": "How do large language models work and what are their limitations?",
+    "num_queries": 5,
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a foundational overview of large language models (LLMs): define them, list key characteristics like scale and capabilities, major examples such as GPT-4 or later models as of 2026, and their role in natural language processing tasks.",
+        "word_count": 37
+      },
+      {
+        "num": 2,
+        "text": "Explain the transformer architecture central to LLMs, detailing self-attention mechanisms, multi-head attention, positional encodings, feed-forward layers, and how encoder-decoder or decoder-only variants process input sequences.",
+        "word_count": 25
+      },
+      {
+        "num": 3,
+        "text": "Describe the training process of LLMs, covering pre-training on vast unlabeled datasets with objectives like masked language modeling or next-token prediction, fine-tuning methods including supervised fine-tuning and RLHF, data requirements, and computational challenges.",
+        "word_count": 33
+      },
+      {
+        "num": 4,
+        "text": "Outline how LLMs operate during inference to generate responses: autoregressive token prediction, context windows, sampling techniques like top-k or nucleus sampling, beam search, and factors affecting output quality and speed.",
+        "word_count": 30
+      },
+      {
+        "num": 5,
+        "text": "Identify and analyze key limitations of LLMs, including hallucinations and factual inaccuracies, lack of genuine reasoning or understanding, biases from training data, high inference costs, vulnerability to adversarial attacks, ethical concerns, and scalability issues as of 2026.",
+        "word_count": 37
+      }
+    ]
+  },
+  {
+    "query_id": 4,
+    "domain": "History",
+    "complexity": "Broad",
+    "expected_range": "4-7",
+    "user_query": "Tell me about the rise and fall of the Roman Empire",
+    "num_queries": 6,
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a detailed overview of the origins of ancient Rome, including legendary founding by Romulus and Remus in 753 BC, the period of the Roman kings until 509 BC, the establishment of the Roman Republic with its key institutions like the Senate, assemblies, consuls, and patrician-plebeian conflicts leading to initial stability and expansion in central Italy.",
+        "word_count": 56
+      },
+      {
+        "num": 2,
+        "text": "Summarize the major expansions of the Roman Republic, focusing on the three Punic Wars (264-146 BC) against Carthage with Hannibal's campaigns, conquest of Greece and the Hellenistic East, reforms by the Gracchi, Marius, and Sulla, culminating in the rise of powerful generals and the strains of empire.",
+        "word_count": 47
+      },
+      {
+        "num": 3,
+        "text": "Detail the fall of the Republic and birth of the Empire: civil wars between Marius and Sulla, rise of Julius Caesar and his conquests, assassination in 44 BC, Second Triumvirate, Battle of Actium, and Octavian's transformation into Augustus establishing the Principate in 27 BC.",
+        "word_count": 44
+      },
+      {
+        "num": 4,
+        "text": "Describe the height of the Roman Empire during the Pax Romana (27 BC-180 AD), territorial extent reaching 5 million sq km, achievements under emperors like Trajan (greatest extent), Hadrian (wall), Antoninus Pius, Marcus Aurelius in law (Twelve Tables evolution), engineering (aqueducts, roads), economy, and culture.",
+        "word_count": 45
+      },
+      {
+        "num": 5,
+        "text": "Outline the Crisis of the Third Century (235-284 AD): rapid turnover of 26 emperors, civil wars, barbarian invasions (Goths, Sassanids), hyperinflation, plagues, military anarchy, and stabilizing reforms by Diocletian (tetrarchy, price edicts) and Constantine (Constantinople founding, Christianity favoritism).",
+        "word_count": 38
+      },
+      {
+        "num": 6,
+        "text": "Analyze the final decline and fall of the Western Roman Empire: division by Theodosius I in 395 AD, 5th-century invasions (Visigoths sacking Rome 410 AD, Vandals 455 AD), ineffective emperors like Honorius, deposition of Romulus Augustulus by Odoacer in 476 AD, causes including economic collapse, barbarian integration failures, and legacy in law, language, Christianity's spread, and Eastern Byzantine continuation.",
+        "word_count": 59
+      }
+    ]
+  },
+  {
+    "query_id": 5,
+    "domain": "Finance / Strategy",
+    "complexity": "Moderate",
+    "expected_range": "3-5",
+    "user_query": "What are the best investment strategies for beginners in 2025?",
+    "num_queries": 6,
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a comprehensive overview of fundamental investing principles for absolute beginners, including key concepts like compound interest, risk vs. reward, time horizon, and essential steps to start investing such as setting financial goals, building an emergency fund, and choosing a brokerage account.",
+        "word_count": 42
+      },
+      {
+        "num": 2,
+        "text": "Identify the most accessible investment options for beginners, such as index funds, ETFs, mutual funds, bonds, robo-advisors, and low-cost stocks, explaining their characteristics, minimum investments, fees, and suitability for novices with limited capital.",
+        "word_count": 33
+      },
+      {
+        "num": 3,
+        "text": "Outline proven, low-risk investment strategies ideal for beginners, including dollar-cost averaging, buy-and-hold with index funds, target-date funds, and value averaging, with historical performance data and rationale for why they outperform active trading for most novices.",
+        "word_count": 35
+      },
+      {
+        "num": 4,
+        "text": "Summarize key financial market conditions, economic trends, and regulatory changes in 2025 that impact beginner investors, such as interest rates, inflation levels, major asset class performances (stocks, bonds, crypto, real estate), and new tax incentives or platforms launched that year.",
+        "word_count": 40
+      },
+      {
+        "num": 5,
+        "text": "Detail common risks and pitfalls for beginner investors, including market volatility, emotional decision-making, fees erosion, over-diversification, and scams, plus practical mitigation strategies like asset allocation rules, stop-loss orders, and education resources specific to 2025 threats.",
+        "word_count": 35
+      },
+      {
+        "num": 6,
+        "text": "Synthesize the best overall investment strategies for beginners entering or active in 2025, ranking top 3-5 personalized portfolios based on risk tolerance (conservative, moderate, aggressive), incorporating current trends, diversification principles, monitoring tools, and long-term projections into 2026 and beyond.",
+        "word_count": 39
+      }
+    ]
+  },
+  {
+    "query_id": 6,
+    "domain": "Biology / Ethics",
+    "complexity": "Broad",
+    "expected_range": "4-6",
+    "user_query": "Explain how CRISPR gene editing works and its ethical implications",
+    "num_queries": 4,
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide an overview of CRISPR gene editing: define it, explain its origins as a bacterial immune system discovered by scientists like Jennifer Doudna and Emmanuelle Charpentier, key milestones in its development into a genome editing tool, and basic components like Cas enzymes and guide RNA.",
+        "word_count": 45
+      },
+      {
+        "num": 2,
+        "text": "Detail the step-by-step mechanism of CRISPR-Cas9 gene editing: describe how guide RNA (gRNA) targets specific DNA sequences, Cas9 nuclease binds and cuts the DNA, and cellular repair mechanisms like non-homologous end joining (NHEJ) or homology-directed repair (HDR) enable insertions, deletions, or replacements.",
+        "word_count": 42
+      },
+      {
+        "num": 3,
+        "text": "Summarize real-world applications of CRISPR gene editing, including successes in medical therapies (e.g., sickle cell disease treatments), agricultural improvements (e.g., disease-resistant crops), research tools, and ongoing clinical trials or regulatory approvals as of 2026.",
+        "word_count": 34
+      },
+      {
+        "num": 4,
+        "text": "Analyze the ethical implications of CRISPR gene editing, covering concerns like germline editing risks, potential for designer babies, off-target mutations, equitable access, biosecurity threats, and major debates, guidelines (e.g., from WHO, national academies), and calls for moratoriums.",
+        "word_count": 37
+      }
+    ]
+  },
+  {
+    "query_id": 7,
+    "domain": "News / Current Events",
+    "complexity": "Broad",
+    "expected_range": "4-7",
+    "user_query": "What are the major developments in the Ukraine-Russia conflict this year?",
+    "num_queries": 6,
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a chronological timeline of the major developments in the Ukraine-Russia conflict during 2026 up to April 2026, highlighting key events such as significant battles, territorial gains or losses, leadership statements, and pivotal incidents that shaped the year's trajectory.",
+        "word_count": 39
+      },
+      {
+        "num": 2,
+        "text": "Detail the primary military strategies, operations, and technological advancements used by Russian and Ukrainian forces in the 2026 phase of the conflict, including major offensives, defensive lines, weapon systems deployed, and outcomes of key battles.",
+        "word_count": 35
+      },
+      {
+        "num": 3,
+        "text": "Outline the key diplomatic initiatives, ceasefire talks, international summits, and official statements related to the Ukraine-Russia conflict in 2026, specifying involved parties like Ukraine, Russia, the US, EU leaders, and UN mediators.",
+        "word_count": 32
+      },
+      {
+        "num": 4,
+        "text": "Describe the roles and contributions of international actors in the 2026 Ukraine-Russia conflict, including military aid from NATO countries, sanctions imposed by global powers, neutral stances of China and India, and any proxy involvements.",
+        "word_count": 34
+      },
+      {
+        "num": 5,
+        "text": "Evaluate the humanitarian consequences, civilian casualties, displacement figures, infrastructure damage, and economic impacts including sanctions effects on Russia and Ukraine from the 2026 conflict developments.",
+        "word_count": 25
+      },
+      {
+        "num": 6,
+        "text": "Analyze the current military, political, and territorial status of the Ukraine-Russia conflict as of April 2026, along with expert assessments of potential future escalations, negotiation breakthroughs, or resolution paths.",
+        "word_count": 29
+      }
+    ]
+  },
+  {
+    "query_id": 8,
+    "domain": "Science / Comprehensive",
+    "complexity": "Very Broad",
+    "expected_range": "7-10",
+    "user_query": "Explain everything about quantum computing \u2014 from basics to current state to future applications",
+    "num_queries": 9,
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a comprehensive beginner's guide to quantum computing: define it, explain how it fundamentally differs from classical computing, and introduce core concepts including qubits versus bits, superposition, entanglement, interference, and measurement collapse. Include simple analogies for accessibility. (38 words)",
+        "word_count": 39
+      },
+      {
+        "num": 2,
+        "text": "Trace the complete history of quantum computing from inception to 2026: key figures like Richard Feynman, David Deutsch, Peter Shor; pivotal papers, milestones such as first qubit demonstrations, quantum supremacy experiments, and evolution toward scalable systems. Highlight funding and institutional drivers. (47 words)",
+        "word_count": 43
+      },
+      {
+        "num": 3,
+        "text": "Detail the foundational principles enabling quantum computing: qubit states and representations, quantum gates (Hadamard, CNOT, Pauli), quantum circuits, density matrices, and how superposition, entanglement, and coherence amplify parallelism beyond classical limits. Explain mathematical basics without advanced prerequisites. (41 words)",
+        "word_count": 39
+      },
+      {
+        "num": 4,
+        "text": "Describe landmark quantum algorithms and their impacts: Shor's for integer factorization and cryptography threats, Grover's for unstructured search, quantum approximate optimization (QAOA), variational quantum eigensolvers (VQE), and HHL for linear systems. Compare time complexities to classical equivalents. (42 words)",
+        "word_count": 39
+      },
+      {
+        "num": 5,
+        "text": "Survey dominant quantum hardware platforms as of 2026: superconducting qubits (IBM Quantum, Google Sycamore), trapped-ion systems (IonQ, Honeywell), photonic approaches (PsiQuantum, Xanadu), neutral atoms (QuEra), and topological qubits (Microsoft). Detail coherence times, gate fidelities, qubit counts, and scalability trade-offs. (50 words)",
+        "word_count": 41
+      },
+      {
+        "num": 6,
+        "text": "Assess the current state of quantum computing in 2026: leading players (IBM, Google, Rigetti, Amazon Braket, national labs), highest qubit achievements, verified quantum advantage demonstrations, NISQ applications in industry, commercial access via cloud platforms, investment trends, and recent breakthroughs. (45 words)",
+        "word_count": 41
+      },
+      {
+        "num": 7,
+        "text": "Analyze key challenges and limitations of quantum computing as of 2026: decoherence and noise, error correction codes (surface code, cat codes), scalability barriers, cryogenic requirements, readout fidelity, and paths to fault-tolerance. Include benchmark metrics like logical qubit targets. (42 words)",
+        "word_count": 40
+      },
+      {
+        "num": 8,
+        "text": "Explore real-world and prospective applications of quantum computing: breaking classical cryptography, molecular simulations for drug discovery, portfolio optimization in finance, materials design, climate modeling, machine learning enhancements, and supply chain problems. Cite early successes and scaled potential. (40 words",
+        "word_count": 39
+      },
+      {
+        "num": 9,
+        "text": "Forecast the future trajectory of quantum computing post-2026: roadmaps to 1 million qubits, timelines for fault-tolerant universal quantum computers, economic impacts (trillions in value), geopolitical implications, standardization efforts, ethical concerns, and expert predictions from roadmaps like IBM's and EU Quantum Flagship. (46 words)",
+        "word_count": 43
+      }
+    ]
+  },
+  {
+    "query_id": 9,
+    "domain": "General / Business",
+    "complexity": "Moderate",
+    "expected_range": "3-5",
+    "user_query": "What are the benefits and drawbacks of remote work for employees and companies?",
+    "num_queries": 4,
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a detailed overview of the key benefits of remote work for employees, including improved work-life balance, flexibility, reduced commuting costs and time, higher job satisfaction, and productivity gains. Support with recent studies, statistics, and real-world examples from 2020-2026.",
+        "word_count": 39
+      },
+      {
+        "num": 2,
+        "text": "Outline the main drawbacks of remote work for employees, such as feelings of isolation, blurred work-life boundaries, home office setup challenges, career advancement limitations, and mental health impacts like burnout. Include evidence from surveys, research papers, and employee testimonials up to 2026.",
+        "word_count": 42
+      },
+      {
+        "num": 3,
+        "text": "Detail the primary advantages of remote work for companies, covering cost savings on office space and utilities, access to a global talent pool, enhanced employee retention, scalability, and potential productivity boosts. Cite data from business reports, case studies, and analyses from 2020 onwards.",
+        "word_count": 43
+      },
+      {
+        "num": 4,
+        "text": "Describe the significant challenges remote work poses for companies, including difficulties in team collaboration and culture-building, communication barriers, performance monitoring issues, cybersecurity risks, and higher turnover in some cases. Reference recent studies, corporate experiences, and expert insights through 2026.",
+        "word_count": 39
+      }
+    ]
+  },
+  {
+    "query_id": 10,
+    "domain": "Writing / How-to",
+    "complexity": "Moderate-Broad",
+    "expected_range": "3-6",
+    "user_query": "How do I write a compelling novel? Cover structure, character development, and publishing",
+    "num_queries": 5,
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a step-by-step guide to the foundational steps of writing a compelling novel, including idea generation, outlining the story, establishing theme and genre, and tips from expert authors on creating a strong premise that hooks readers from the start.",
+        "word_count": 39
+      },
+      {
+        "num": 2,
+        "text": "Explain proven novel structure models like the three-act structure, hero's journey, or Save the Cat beat sheet, with examples from bestselling novels, and practical advice on pacing, rising action, climax, and resolution to build tension and emotional payoff.",
+        "word_count": 38
+      },
+      {
+        "num": 3,
+        "text": "Detail methods for creating compelling characters, covering protagonist, antagonist, and supporting cast: backstory development, character arcs, motivations, flaws, dialogue quirks, and techniques like character questionnaires or profiles used by successful writers.",
+        "word_count": 31
+      },
+      {
+        "num": 4,
+        "text": "Outline essential writing techniques for a novel beyond structure and characters, including world-building, vivid descriptions, authentic dialogue, point-of-view choices, show-vs-tell principles, and strategies for maintaining reader engagement through voice and style.",
+        "word_count": 31
+      },
+      {
+        "num": 5,
+        "text": "Describe the full publishing process for a debut novel, comparing traditional vs. self-publishing paths: querying agents, writing synopses, beta readers, editing phases, finding publishers, marketing, and current industry trends for new authors in 2026.",
+        "word_count": 34
+      }
+    ]
+  }
+]

@@ -59,6 +59,7 @@ class PhaseType(str, Enum):
     WRITING = "writing"
     PUBLISHING = "publishing"
     RESPONDING = "responding"
+    COMPLETED = "completed"
 
 # Alias for backward compatibility or clarity in agent contexts
 AgentPhase = PhaseType

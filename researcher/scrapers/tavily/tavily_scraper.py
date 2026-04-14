@@ -139,6 +139,7 @@ class Tavily:
                         topic=self.topic,
                         max_results=self.max_result,
                         include_images=self.include_images,
+                        include_image_descriptions=True,
                         include_raw_content=self.include_raw_content,
                     )
                     

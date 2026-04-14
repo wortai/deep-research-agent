@@ -1,0 +1,418 @@
+[
+  {
+    "query_id": 1,
+    "domain": "Finance / Factual",
+    "complexity": "Simple",
+    "expected_range": "1",
+    "user_query": "What is the current price of Bitcoin?",
+    "num_queries": 1,
+    "elapsed_seconds": 5.2,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Determine the current price of Bitcoin (BTC) in USD as of April 5, 2026, from reliable sources like CoinMarketCap, Coinbase, Binance, and TradingView. Report the spot price, 24-hour low/high range, percentage change over the past 24 hours, total market capitalization, and 24-hour trading volume across major exchanges. Specify the timestamp of the latest data and note any significant recent price movements or news influencing the price.",
+        "word_count": 66
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": 2,
+    "domain": "Finance / Two-dimensional",
+    "complexity": "Simple",
+    "expected_range": "2",
+    "user_query": "What is the price of Bitcoin and what factors are driving it right now?",
+    "num_queries": 2,
+    "elapsed_seconds": 8.6,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide the current price of Bitcoin as of April 5, 2026, in USD from major exchanges like Coinbase, Binance, and Kraken. Include market capitalization, 24-hour trading volume, circulating supply, 24-hour price change percentage, 7-day price change percentage, and current all-time high comparison. Detail the spot price versus futures price, Bitcoin dominance index, and short-term volatility metrics like the 30-day historical volatility.",
+        "word_count": 61
+      },
+      {
+        "num": 2,
+        "text": "Identify and analyze the key factors driving Bitcoin's price as of April 5, 2026. Cover macroeconomic influences including US Federal Reserve interest rates, inflation data (CPI), stock market correlations (S&amp;P 500, Nasdaq), and geopolitical events. Discuss crypto-specific drivers such as spot Bitcoin ETF inflows/outflows (e.g., BlackRock IBIT, Fidelity FBTC), institutional adoption (MicroStrategy holdings, corporate treasuries), regulatory developments (SEC approvals, global crypto policies), post-2024 halving supply dynamics, on-chain metrics (active addresses, hash rate, whale transactions), and market sentiment indicators (fear &amp; greed index, funding rates).",
+        "word_count": 84
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": 3,
+    "domain": "Coding / Comparison",
+    "complexity": "Moderate",
+    "expected_range": "3",
+    "user_query": "Compare React and Vue for building interactive dashboards",
+    "num_queries": 3,
+    "elapsed_seconds": 8.9,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a detailed overview of React for building interactive dashboards. Cover its core architecture (component-based, virtual DOM, hooks like useState and useEffect), key libraries and tools specifically for dashboards (e.g., Recharts, Victory, Nivo, Ant Design Charts, TanStack Table for data grids), state management solutions (Redux Toolkit, Zustand, Recoil), integration with data visualization (D3.js via hooks), performance optimization techniques (React.memo, useMemo, code-splitting with React.lazy), and real-world examples of React-based dashboards like those in Superset or Grafana forks.",
+        "word_count": 76
+      },
+      {
+        "num": 2,
+        "text": "Provide a detailed overview of Vue.js for building interactive dashboards. Cover its core architecture (component-based with Options API and Composition API, reactivity system with proxies), key libraries and tools specifically for dashboards (e.g., Vuetify, Quasar, Vue ApexCharts, Chart.js with vue-chartjs, AG-Grid Vue for tables), state management solutions (Pinia, Vuex), integration with data visualization (ECharts Vue wrapper, D3.js in Vue components), performance optimization (Vue's built-in reactivity, Teleport, Suspense), and real-world examples like those in Cube.js or Vue-based BI tools.",
+        "word_count": 78
+      },
+      {
+        "num": 3,
+        "text": "Compare React and Vue for building interactive dashboards across key dimensions: development speed and learning curve (boilerplate, DX with Vite for both), performance benchmarks (rendering speed, bundle size, hydration in SSR for dashboards), ecosystem maturity and library support (npm packages for charts/tables like AG-Grid React vs Vue, community adoption in dashboard tools), scalability for large datasets (virtual scrolling, virtualization libs like react-window vs vue-virtual-scroller), developer experience (hot reload, TypeScript integration, debugging), real-world case studies (e.g., Airbnb vs Alibaba dashboards), and recommendations based on team size, project complexity, and maintenance costs.",
+        "word_count": 90
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": 4,
+    "domain": "General / Multi-perspective",
+    "complexity": "Moderate",
+    "expected_range": "4",
+    "user_query": "Benefits and drawbacks of remote work for employees and companies",
+    "num_queries": 4,
+    "elapsed_seconds": 14.5,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Research the key benefits of remote work specifically for employees, focusing on 2020-2026 data and studies. Cover: (1) improved work-life balance and flexibility (e.g., flexible hours, no commute saving 1-2 hours daily per Stanford studies); (2) cost savings (commute, attire, meals, quantified in Buffer State of Remote Work reports); (3) higher job satisfaction and retention (Gallup polls showing 20-30% boosts); (4) access to personalized workspaces and reduced exposure to office illnesses. Include metrics, named studies, and employee testimonials from sources like Owl Labs or FlexJobs.",
+        "word_count": 85
+      },
+      {
+        "num": 2,
+        "text": "Research the key drawbacks of remote work specifically for employees, drawing from post-COVID analyses 2020-2026. Cover: (1) social isolation and loneliness (Microsoft Work Trend Index findings on weakened networks); (2) blurred work-life boundaries leading to burnout (WHO reports linking it to 50% higher exhaustion rates); (3) hindered career advancement due to visibility loss (promotability studies by McKinsey); (4) home distractions and ergonomic issues (productivity dips in home setups per Harvard Business Review). Use specific data, surveys, and expert quotes.",
+        "word_count": 79
+      },
+      {
+        "num": 3,
+        "text": "Research the primary benefits of remote work for companies, based on 2020-2026 enterprise data. Focus on: (1) reduced overhead costs (office space savings of 20-50% per CBRE reports); (2) expanded talent pool (global hiring without relocation, e.g., GitLab model); (3) boosted productivity in asynchronous setups (China study showing 13% gains via Stanford); (4) higher employee retention lowering turnover costs (up to $20K per employee per SHRM). Cite case studies from companies like Automattic, Dell, and metrics from Gartner or Deloitte.",
+        "word_count": 80
+      },
+      {
+        "num": 4,
+        "text": "Research the main drawbacks of remote work for companies, using 2020-2026 business analyses. Detail: (1) collaboration and innovation challenges (Zoom fatigue, serendipity loss per Harvard studies); (2) cybersecurity vulnerabilities (rising breaches by 300% per Verizon DBIR); (3) management and oversight difficulties (tracking performance without micromanagement, per Gallup); (4) team culture erosion (onboarding issues, per Culture Amp surveys). Include quantifiable impacts, named examples like Twitter's hybrid struggles, and recommendations from McKinsey or Forrester.",
+        "word_count": 72
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": 5,
+    "domain": "Finance / Strategy",
+    "complexity": "Moderate-Broad",
+    "expected_range": "4-5",
+    "user_query": "What are the best investment strategies for beginners in 2025?",
+    "num_queries": 5,
+    "elapsed_seconds": 13.4,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Define the foundational principles for beginner investors in 2025, including assessing personal risk tolerance via questionnaires and metrics like Sharpe ratio and standard deviation, understanding key asset classes (equities, fixed income, cash equivalents), the power of diversification through modern portfolio theory (efficient frontier), compound interest mechanics with formulas, and prerequisites like building an emergency fund covering 3-6 months expenses and paying off high-interest debt.",
+        "word_count": 64
+      },
+      {
+        "num": 2,
+        "text": "Explain the operational mechanics of top passive investment strategies ideal for beginners, such as index fund investing tracking benchmarks like S&P 500 (e.g., VOO ETF) or total market (VTI), exchange-traded funds (ETFs) construction and rebalancing, dollar-cost averaging implementation with monthly contributions and volatility smoothing effects, and low-cost target-date funds adjusting glide paths automatically.",
+        "word_count": 53
+      },
+      {
+        "num": 3,
+        "text": "Survey the real-world applications and performance of best beginner strategies in the 2025 economic landscape, covering Vanguard Total Stock Market ETF (VTI), iShares Core S&P 500 (IVV), bond ETFs like BND amid Fed rate cuts, robo-advisors such as Betterment or Wealthfront with tax-loss harvesting, and sector-specific tilts toward AI/tech amid productivity boom post-2024 data.",
+        "word_count": 54
+      },
+      {
+        "num": 4,
+        "text": "Compare and analyze the trade-offs among leading beginner investment strategies using quantitative metrics: passive index funds vs. robo-advisors (fees under 0.25%, alpha generation), ETFs vs. mutual funds (bid-ask spreads, liquidity), dollar-cost averaging vs. lump-sum investing backtests (historical 68% outperformance), tax-advantaged accounts (Roth IRA contribution limits, 401(k) matching), and platform costs on Fidelity, Schwab, Robinhood.",
+        "word_count": 54
+      },
+      {
+        "num": 5,
+        "text": "Outline the primary risks, behavioral pitfalls, and mitigation strategies for beginner investors in 2025, including sequence of returns risk in early retirement drawdowns (Monte Carlo simulations), inflation erosion countered by TIPS funds, market timing fallacies and loss aversion biases, regulatory shifts like SEC T+1 settlement or crypto ETF approvals, geopolitical volatility from US-China tensions, and disciplined annual rebalancing with 4% safe withdrawal rate adjustments.",
+        "word_count": 64
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": 6,
+    "domain": "Biology / Technical",
+    "complexity": "Broad",
+    "expected_range": "4-5",
+    "user_query": "Explain how CRISPR gene editing works and its ethical implications",
+    "num_queries": 4,
+    "elapsed_seconds": 15.9,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "What is CRISPR-Cas9 gene editing? Define the key components including Cas9 endonuclease, guide RNA (gRNA), protospacer adjacent motif (PAM) sequence, and explain their molecular interactions. Describe the origin of CRISPR from the adaptive bacterial immune system against bacteriophages, including CRISPR loci, spacers, and repeat sequences.",
+        "word_count": 45
+      },
+      {
+        "num": 2,
+        "text": "Detail the step-by-step molecular mechanism of CRISPR-Cas9 gene editing: guide RNA design and complex formation with Cas9, target DNA recognition via base-pairing and PAM verification, Cas9-mediated double-strand break induction, and subsequent cellular DNA repair pathways such as non-homologous end joining (NHEJ) for insertions/deletions or homology-directed repair (HDR) for precise edits. Cover precision enhancements like base editing and prime editing.",
+        "word_count": 59
+      },
+      {
+        "num": 3,
+        "text": "Outline major real-world applications of CRISPR gene editing as of 2026: in medicine (e.g., FDA-approved Casgevy for sickle cell disease and beta-thalassemia, ongoing trials for cancer immunotherapies like CAR-T enhancements), agriculture (e.g., non-browning mushrooms, pest-resistant crops via gene drives), and research (e.g., genome-wide knockout screens, functional genomics). Provide specific examples with development status and outcomes.",
+        "word_count": 55
+      },
+      {
+        "num": 4,
+        "text": "Analyze the ethical implications of CRISPR gene editing, focusing on germline vs. somatic editing debates, the therapy-enhancement distinction (e.g., treating diseases vs. creating designer babies), equity/access issues in global health, and risks like off-target effects or ecological impacts. Discuss landmark cases like He Jiankui's CRISPR babies, international regulations (e.g., WHO guidelines, national bans), and ongoing ethical frameworks.",
+        "word_count": 57
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": 7,
+    "domain": "History",
+    "complexity": "Broad",
+    "expected_range": "5-6",
+    "user_query": "Tell me about the rise and fall of the Roman Empire",
+    "num_queries": 6,
+    "elapsed_seconds": 16.6,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Origins and early development of Rome: Cover the founding myths (Romulus and Remus), the period of the Roman Kings (753-509 BCE) including key rulers like Numa Pompilius and Tarquin the Proud, transition to the Republic (509 BCE), establishment of republican institutions (Senate, consuls, assemblies), and early expansions in Italy against Etruscans, Samnites, and Latin League up to the early 3rd century BCE.",
+        "word_count": 62
+      },
+      {
+        "num": 2,
+        "text": "Republican expansion and rise to Mediterranean power: Detail the Punic Wars (First: 264-241 BCE, Second: 218-201 BCE, Third: 149-146 BCE) with Hannibal, Scipio Africanus, destruction of Carthage; conquests in Greece, Macedonia (Philip V, Perseus), Asia Minor (Seleucids), Gaul, and Spain; political crises of late Republic including Gracchi reforms, Marius-Sulla civil wars, rise of Pompey, Crassus, Julius Caesar, and Caesar's dictatorship and assassination in 44 BCE.",
+        "word_count": 65
+      },
+      {
+        "num": 3,
+        "text": "Transition to Empire and the Golden Age (Pax Romana): Explain Augustus's Principate (27 BCE onward), reforms (army, administration, succession), Julio-Claudian and Flavian emperors (Tiberius, Claudius, Nero, Vespasian, Domitian); peak under Nerva-Trajan-Hadrian-Antonine dynasty (96-192 CE) including territorial maximum under Trajan, engineering feats (aqueducts, roads, Colosseum), cultural flourishing, and stability of Pax Romana until Commodus.",
+        "word_count": 53
+      },
+      {
+        "num": 4,
+        "text": "Internal factors contributing to decline: Analyze economic issues (inflation, debasement of currency, trade disruptions), social problems (slave economy decline, urban decay, plague of Cyprian 250-270 CE), political instability (3rd century crisis with dozens of emperors, Praetorian Guard interference, civil wars), military weakening (professional army loyalty issues, recruitment shortages), and administrative overstretch in the 3rd-4th centuries CE.",
+        "word_count": 56
+      },
+      {
+        "num": 5,
+        "text": "External pressures and barbarian invasions: Describe Sassanid Persian threats (wars under Valerian, Shapur I), Germanic migrations and invasions (Goths, Vandals, Alemanni in 3rd-5th centuries), Hunnic incursions under Attila (450s CE), key events like Battle of Adrianople (378 CE), sack of Rome by Visigoths (410 CE) and Vandals (455 CE), and pressures on both Western and Eastern Roman Empires.",
+        "word_count": 58
+      },
+      {
+        "num": 6,
+        "text": "Fall of the Western Roman Empire and legacy: Cover Diocletian's reforms and division (Tetrarchy, 284-305 CE), Constantine's role (Milan Edict 313 CE, Constantinople founding 330 CE), final Western emperors (Honorius, Valentinian III, Romulus Augustulus deposed 476 CE by Odoacer); survival of Eastern Empire (Byzantium); enduring legacies in law (Justinian Code), language, Christianity, architecture, governance, and influence on Europe and Western civilization.",
+        "word_count": 61
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": 8,
+    "domain": "AI / Technical",
+    "complexity": "Broad",
+    "expected_range": "4-5",
+    "user_query": "How do large language models work and what are their limitations?",
+    "num_queries": 4,
+    "elapsed_seconds": 17.3,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "What are large language models (LLMs)? Provide a foundational overview including their definition as scaled-up transformer-based neural networks trained on massive text corpora, historical evolution from RNNs and LSTMs to GPT-1 through GPT-4, key architectural choices like decoder-only transformers versus encoder-decoder, typical scale (billions to trillions of parameters), and vocabulary size via subword tokenization methods such as BPE.",
+        "word_count": 58
+      },
+      {
+        "num": 2,
+        "text": "Explain the core internal mechanisms of LLMs, focusing on the transformer architecture: input tokenization and embeddings, positional encodings (absolute vs relative), multi-head self-attention computations (query-key-value matrices, scaled dot-product attention), feed-forward layers with activation functions (GELU or SwiGLU), layer normalization, residual connections, and the autoregressive decoding process during inference using techniques like beam search or sampling.",
+        "word_count": 55
+      },
+      {
+        "num": 3,
+        "text": "Describe how LLMs are trained and optimized: pre-training objectives (causal language modeling with next-token prediction, masked language modeling), massive datasets (CommonCrawl, The Pile), optimization via AdamW with learning rate schedules, instruction fine-tuning (SFT), reinforcement learning from human feedback (RLHF using PPO and reward models), quantization and pruning for efficiency, and scaling laws relating model size, data, and compute (Kaplan, Chinchilla hypotheses).",
+        "word_count": 61
+      },
+      {
+        "num": 4,
+        "text": "What are the key limitations of LLMs? Cover hallucinations and lack of factual grounding, inability to perform genuine reasoning beyond pattern matching (evident in tasks like modular arithmetic or ARC benchmarks), amplification of training data biases leading to fairness issues, high inference latency and energy costs, vulnerability to adversarial attacks and jailbreaks, context window constraints causing needle-in-haystack failures, and challenges in long-term coherence and safety alignment.",
+        "word_count": 66
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": 9,
+    "domain": "News / Current Events",
+    "complexity": "Broad",
+    "expected_range": "5-7",
+    "user_query": "What are the major developments in the Ukraine-Russia conflict this year?",
+    "num_queries": 7,
+    "elapsed_seconds": 24.0,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a detailed overview of the Ukraine-Russia conflict's status as of January 1, 2026, including major frontline positions (e.g., Donbas, Kharkiv, Zaporizhzhia), control of territories like Crimea and annexed regions, ongoing objectives of both sides, recent ceasefire attempts or escalations from 2025, and key military capabilities such as drone usage, artillery, and air defenses.",
+        "word_count": 54
+      },
+      {
+        "num": 2,
+        "text": "Detail the major military developments in the Ukraine-Russia conflict from January to April 5, 2026, focusing on key battles or offensives (e.g., advances in specific fronts like Avdiivka or Kursk), use of new weaponry (hypersonic missiles, F-16 jets, North Korean troops), casualty estimates from verified sources, and shifts in territorial control with maps or timelines if available.",
+        "word_count": 57
+      },
+      {
+        "num": 3,
+        "text": "Summarize international responses to the Ukraine-Russia conflict in 2026 up to April 5, including specific aid packages from NATO countries (e.g., US ATACMS, German Taurus missiles), sanctions updates on Russia (oil price caps, SWIFT exclusions), involvement of third parties like China or North Korea, and UN or G7 resolutions passed this year.",
+        "word_count": 52
+      },
+      {
+        "num": 4,
+        "text": "Analyze the humanitarian impact of the Ukraine-Russia conflict in 2026 up to April 5, covering civilian casualties from verified reports (UN, HRW), refugee and IDP numbers, destruction of infrastructure (e.g., energy grid attacks), food insecurity in affected regions, and efforts by NGOs like Red Cross for aid delivery.",
+        "word_count": 48
+      },
+      {
+        "num": 5,
+        "text": "Examine the economic consequences of the Ukraine-Russia conflict in 2026 up to April 5, including effects on global energy prices (Russian gas cuts), Ukraine's reconstruction costs, Russia's war economy metrics (GDP impact, ruble stability), Western sanctions enforcement (secondary sanctions on China), and commodity disruptions (Ukrainian grain exports).",
+        "word_count": 47
+      },
+      {
+        "num": 6,
+        "text": "Review diplomatic efforts in the Ukraine-Russia conflict during 2026 up to April 5, highlighting peace talks or negotiations (e.g., Istanbul format, US-Russia backchannels), statements from key leaders (Zelenskyy, Putin, Macron, Xi), mediation attempts by Turkey or India, and any prisoner exchanges or humanitarian corridors established.",
+        "word_count": 45
+      },
+      {
+        "num": 7,
+        "text": "Provide an analysis of trends, challenges, and future outlook for the Ukraine-Russia conflict as of April 5, 2026, including potential escalation risks (nuclear rhetoric, Black Sea naval clashes), war fatigue in Russia/Ukraine/politics, impact of US elections or NATO summits, predictions from think tanks (ISW, RAND), and scenarios for resolution or stalemate.",
+        "word_count": 51
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": 10,
+    "domain": "Science / Comprehensive",
+    "complexity": "Very Broad (explicit 'everything')",
+    "expected_range": "8-10",
+    "user_query": "Explain everything about quantum computing from basics to current state to future applications",
+    "num_queries": 10,
+    "elapsed_seconds": 16.6,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "What are the foundational principles of quantum computing? Define qubits versus classical bits, explain superposition, entanglement, interference, and measurement collapse at the quantum mechanical level. Cover historical development from Feynman and Deutsch to the first quantum algorithms, including key milestones like Shor's algorithm proposal. Specify core mathematical formalism using Dirac notation, Hilbert spaces, and tensor products for multi-qubit states.",
+        "word_count": 59
+      },
+      {
+        "num": 2,
+        "text": "Detail the physical realizations of qubits in quantum computers. Describe superconducting transmon qubits (Josephson junctions, flux and charge noise), trapped ion qubits (laser manipulation, motional states), neutral atom qubits (Rydberg states, optical tweezers), photonic qubits (polarization, time-bin encoding), and topological qubits (Majorana zero modes). Include coherence times, gate fidelities, and scalability challenges for each platform as of 2026.",
+        "word_count": 58
+      },
+      {
+        "num": 3,
+        "text": "Explain quantum logic gates and circuits. Cover single-qubit gates (Hadamard for superposition, Pauli-X/Y/Z rotations, phase gates), two-qubit entangling gates (CNOT, CZ, iSWAP), and universal gate sets. Describe circuit model with quantum Fourier transform (QFT) examples. Use unitary operators U = e^{-iHt/ℏ}, Bloch sphere visualization, and circuit depth/width metrics without overlapping hardware implementations.",
+        "word_count": 52
+      },
+      {
+        "num": 4,
+        "text": "Survey key quantum algorithms and their mathematical mechanisms. Detail Shor's algorithm for integer factorization (QFT for period finding), Grover's search (amplitude amplification, oracle queries), Variational Quantum Eigensolver (VQE) for ground states, Quantum Approximate Optimization Algorithm (QAOA) for combinatorial optimization, and HHL for linear systems. Specify complexity advantages over classical algorithms.",
+        "word_count": 50
+      },
+      {
+        "num": 5,
+        "text": "Analyze the current state of quantum computing hardware and software ecosystems as of April 2026. Report leading vendors (IBM Quantum, Google Quantum AI, IonQ, Rigetti, Quantinuum), highest qubit counts with error rates, quantum volume benchmarks, cloud access platforms (Qiskit, Cirq, Pennylane), and notable demonstrations of quantum advantage or utility.",
+        "word_count": 49
+      },
+      {
+        "num": 6,
+        "text": "Describe quantum error correction codes and fault-tolerant quantum computing. Explain the quantum threshold theorem, surface code architecture (toric code, lattice surgery), stabilizer codes, and logical qubits. Cover fault-tolerant gate implementations, overhead costs (thousands of physical qubits per logical), and progress in demonstrating error-corrected qubits on NISQ devices.",
+        "word_count": 47
+      },
+      {
+        "num": 7,
+        "text": "Outline challenges and limitations of current quantum computing. Detail decoherence mechanisms (T1/T2 relaxation, dephasing), crosstalk, idling errors, readout fidelity issues, cryogenic requirements, and control electronics bottlenecks. Discuss NISQ vs fault-tolerant regimes, no-cloning theorem implications, and verification/validation problems without covering specific hardware platforms.",
+        "word_count": 42
+      },
+      {
+        "num": 8,
+        "text": "Examine near-term applications in the NISQ era. Cover quantum simulation of molecules (vQE for chemistry), optimization (QAOA for MaxCut, TSP), machine learning (quantum kernel methods, QSVM), and finance (portfolio optimization, Monte Carlo sampling). Include specific 2025-2026 case studies, speedup claims, and hybrid quantum-classical workflows.",
+        "word_count": 44
+      },
+      {
+        "num": 9,
+        "text": "Explore long-term transformative applications post-fault-tolerance. Detail cryptanalysis (breaking RSA/EC via Shor), drug discovery (quantum chemistry simulations), materials science (high-temperature superconductors), climate modeling (optimized carbon capture), and AI acceleration (quantum Boltzmann machines). Quantify potential impacts with economic forecasts and industry roadmaps to 2030-2040.",
+        "word_count": 42
+      },
+      {
+        "num": 10,
+        "text": "Project future developments in quantum computing through 2040. Cover scalability roadmaps (1000+ logical qubits), national quantum initiatives (US Quantum Economic Development Consortium, EU Quantum Flagship, China’s quantum plan), ethical concerns (quantum divide, cybersecurity risks), standardization efforts (NIST post-quantum crypto), and expert predictions on quantum supremacy timelines.",
+        "word_count": 46
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": 11,
+    "domain": "Writing / How-to",
+    "complexity": "Moderate",
+    "expected_range": "3-5",
+    "user_query": "How do I write a compelling novel? Cover structure, character development, and publishing",
+    "num_queries": 3,
+    "elapsed_seconds": 7.4,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a comprehensive guide to novel structure for creating compelling narratives. Cover the three-act structure (setup, confrontation, resolution) in detail with specific plot points like inciting incident, midpoint reversal, climax, and falling action. Include Freytag's pyramid, Save the Cat beat sheet by Blake Snyder, rising and falling action pacing techniques, and chapter cliffhangers. Explain how to outline using snowflake method or index cards, ensuring non-overlapping focus solely on structural frameworks without character or publishing details.",
+        "word_count": 75
+      },
+      {
+        "num": 2,
+        "text": "Detail proven techniques for character development in novels to make protagonists and supporting cast compelling. Cover character arcs (positive, negative, flat) with examples from classic literature like Darcy in Pride and Prejudice. Include backstory layering, motivations and flaws via internal monologue, dialogue-driven revelation, physical mannerisms tied to personality, and relationship dynamics for conflict. Specify methods like character questionnaires by Linda Seger or the iceberg theory, focusing only on development without structure or publishing.",
+        "word_count": 73
+      },
+      {
+        "num": 3,
+        "text": "Outline the step-by-step process for publishing a novel, distinguishing traditional and self-publishing paths. For traditional: querying literary agents with one-sheet and first chapters, slush pile navigation, acquisition editor reviews, contracts negotiation. For self-publishing: platforms like Amazon KDP, formatting with Vellum or Reedsy, ISBN acquisition, cover design best practices, marketing via BookBub or ARC teams. Cover hybrid models and common pitfalls like rights reversion, excluding writing techniques.",
+        "word_count": 66
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": 12,
+    "domain": "General / Definition",
+    "complexity": "Simple",
+    "expected_range": "1",
+    "user_query": "What is photosynthesis?",
+    "num_queries": 3,
+    "elapsed_seconds": 31.7,
+    "verdict": "FAIL",
+    "queries": [
+      {
+        "num": 1,
+        "text": "What is photosynthesis? Provide a comprehensive definition, the balanced overall chemical equation, its fundamental biological importance to life on Earth and global oxygen production, primary site in plant cells (chloroplast structure with thylakoids and stroma), key pigments involved (chlorophyll a, chlorophyll b, carotenoids and their absorption spectra), and environmental factors affecting its rate (light intensity, CO2 levels, temperature, water availability). Include historical discovery context by Priestly, Ingenhousz, and Calvin.",
+        "word_count": 69
+      },
+      {
+        "num": 2,
+        "text": "Detail the molecular mechanisms of the light-dependent reactions of photosynthesis occurring in the thylakoid membranes. Cover photosystem II (P680 reaction center, oxygen-evolving complex, water photolysis producing O2 protons and electrons), electron transport chain (plastoquinone, cytochrome b6f complex, plastocyanin), photosystem I (P700, ferredoxin-NADP+ reductase producing NADPH), non-cyclic vs. cyclic photophosphorylation, chemiosmotic ATP synthesis by ATP synthase, quantum yields, Z-scheme diagram explanation, and regulation by state transitions.",
+        "word_count": 65
+      },
+      {
+        "num": 3,
+        "text": "Explain in depth the light-independent reactions of photosynthesis, known as the Calvin-Benson-Bassham cycle in the chloroplast stroma. Describe the three phases: carboxylation (RuBP carboxylase/oxygenase - Rubisco - fixing CO2 to RuBP forming 3-phosphoglycerate), reduction (ATP and NADPH converting 3-PGA to glyceraldehyde-3-phosphate - G3P), regeneration (reformation of RuBP via a series of enzymes like sedoheptulose-1,7-bisphosphatase), net output of carbohydrates like glucose, stoichiometry for one glucose molecule, energy costs, pH/light regulation of enzymes, and rate-limiting role of Rubisco.",
+        "word_count": 76
+      }
+    ],
+    "error": null
+  }
+]

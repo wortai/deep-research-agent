@@ -18,14 +18,18 @@ from typing import List, Dict, Any, Tuple, Optional
 from pydantic import BaseModel, Field
 from llms import LlmsHouse
 
+
 class DesignSkillSelection(BaseModel):
     """Structured output for deciding which design skill to use."""
+
     selected_skill_filename: str = Field(
         description="The exact filename of the best matching design skill markdown file (e.g. 'academic.md'). Must be one of the explicitly provided available libraries."
     )
 
+
 class DesignInstructionsResult(BaseModel):
     """Structured output containing the visual style brief for HTML chapters."""
+
     design_instructions: str = Field(
         description="Comprehensive visual style instructions covering colors, fonts, spacing, chart conventions, table styles, and overall aesthetic. This is a detailed text brief, NOT CSS code."
     )
@@ -51,14 +55,18 @@ def generate_global_outline_prompt(
     planner_block += "-" * 80 + "\n\n"
 
     # Sections snapshot block
-    sections_block = "ALL RESEARCH SECTIONS SNAPSHOT (first ~20 lines each):\n" + "=" * 80 + "\n\n"
+    sections_block = (
+        "ALL RESEARCH SECTIONS SNAPSHOT (first ~20 lines each):\n" + "=" * 80 + "\n\n"
+    )
     for idx, section in enumerate(sections):
         content = section.get("section_content", "") or ""
-        section_id = section.get("section_id", f"sec-{idx+1}")
+        section_id = section.get("section_id", f"sec-{idx + 1}")
         # Take only the first ~20 lines to control prompt size
         lines = content.splitlines()
         head = "\n".join(lines[:20])
-        sections_block += f"--- Section {idx + 1} [section_id: {section_id}] ---\n{head}\n\n"
+        sections_block += (
+            f"--- Section {idx + 1} [section_id: {section_id}] ---\n{head}\n\n"
+        )
     sections_block += "=" * 80 + "\n"
 
     prompt = f"""You are an expert research report architect. Your task is to design the COMPLETE outline for a multi-chapter research report from a global view of all research sections.
@@ -112,15 +120,26 @@ async def generate_chapter_prompt(
     user_query: str = "",
     planner_queries: Optional[List[Dict[str, Any]]] = None,
 ) -> List:
-
     from langchain_core.messages import SystemMessage, HumanMessage
 
-    system_prompt = """You produce one complete report chapter as a single HTML block. Output is inserted as-is. Your job: match report type, choose the best way to show this chapter and its subchapters (not always a table), keep layout inside bounds, and preserve full knowledge while explaining ideas clearly.
+    system_prompt = """You produce one complete report chapter as a single HTML block. Output is inserted as-is. Your job: match report type, choose the best way to show this chapter and its subchapters (not always a table), keep layout inside bounds, and WRITE EXHAUSTIVELY IN-DEPTH. Do not summarize or gloss over details.
+
+WARNING: A frequent failure mode is outputting a "high-level overview" instead of deep, detailed synthesis. You must provide extensive context, include every numerical metric and nuance from your source texts, and expand fully on every point instead of boiling them down.
+
+HOW TO USE DESIGN INSTRUCTIONS — The design brief you receive has 8 numbered sections. Consult them as follows:
+- Section 1 (COLOR SYSTEM): Use these exact hex values for ALL colors — backgrounds, text, borders, chart elements. No deviations.
+- Section 2 (TYPOGRAPHY): Match font families, sizes (in rem), weights, and line-heights exactly.
+- Section 3 (SPACING): Use the specified base spacing unit and vertical rhythm for all margins/padding.
+- Section 4 (VISUAL MOOD): Let this guide your prose tone and aesthetic choices.
+- Section 5 (REPORT INTENT & PRESENTATION): Understand what the user wants and how visuals serve that goal.
+- Section 6 (VISUAL DECISION TREE): These IF/THEN rules take precedence over the general guidance below. When the design brief covers a specific content type, follow its rule. Use the general guidance below only when the design brief doesn't cover your specific case.
+- Section 7 (SVG & CHARTS.CSS CONSTRUCTION): Follow these technical standards for ALL charts and diagrams — viewBox, fonts, strokes, accessibility.
+- Section 8 (WHAT TO AVOID): Check your output against these anti-patterns before finalizing.
 
 HOW TO DECIDE HOW TO SHOW THIS CHAPTER (in order)
-1) Design instructions — They state report type and how data should be shown (prose-heavy vs tables vs charts vs lists vs Q&A, etc.). Treat them as the first authority.
+1) Design instructions — They state report type and how data should be shown (prose-heavy vs tables vs charts vs lists vs Q&A, etc.). Treat them as the first authority. If the design brief includes a VISUAL DECISION TREE (Section 6), those IF/THEN rules take precedence over the general guidance below.
 2) Report type — Use the REPORT TYPES reference below. Each type has a default look and typical section content; your section should feel like that type.
-3) This chapter’s content — Ask: Is this narrative, comparison, chronology, definitions, numbers, steps, or mixed? Then pick the best format:
+3) This chapter's content — Ask: Is this narrative, comparison, chronology, definitions, numbers, steps, or mixed? Then pick the best format:
    - Narrative / argument / story → prose (paragraphs, blockquotes). Do not force a table.
    - Comparison of a few items → prose or a compact list often clearer than a wide table.
    - Comparison of many items or repeated columns → table.
@@ -128,58 +147,204 @@ HOW TO DECIDE HOW TO SHOW THIS CHAPTER (in order)
    - Steps / procedure → numbered list or short paragraphs.
    - Definitions / terms → definition blocks or bold term + line, not necessarily a table.
    - Q&A / FAQ → question as heading, answer as paragraph; or <details> for reveal.
-   - When content is long and you are clearly moving into a new chunk of focus (new major point, new scenario, new dataset), you may insert a lightweight page-break marker `<div data-page-break="true"></div>` before continuing, so the frontend can split the chapter into multiple visual pages.
 Do not default to a table. Match format to content and to what the design instructions say this report type uses. Use a mix of visuals (Charts.css, SVG, KPI cards, callouts, timelines) and prose when the content justifies it, instead of repeating similar large tables. For every important visual, briefly explain in the surrounding text what it shows, why it is there, and how it helps the reader understand the idea more easily.
 
+Edge cases:
+- If content is mixed (some numbers, mostly prose): Lead with prose, embed key metrics as inline callouts, use one chart only if 3+ comparable values exist.
+- If sources contradict: Present both views in a comparison table or side-by-side prose sections. Do not pick a winner — present the evidence.
+- If content is very short: Expand with deeper explanation, context, and implications. Do NOT pad with visuals. Every chapter must have at least 2 report-page containers.
+
+SVG CONSTRUCTION STANDARDS
+Every SVG chart or diagram you create MUST follow these rules:
+- Required attributes: viewBox="0 0 [width] [height]" (e.g. viewBox="0 0 800 400"), xmlns="http://www.w3.org/2000/svg".
+- Accessibility: Always include <title>Chart title</title> and <desc>Plain-language description of what the chart shows and its key takeaway</desc> as the first children of <svg>.
+- Fonts: Use font-family matching the design instructions' body font. Sizes: axis labels 12px, chart titles 14px, data labels/annotations 11px.
+- SVG font-family attribute: MUST use proper XML attribute syntax. Use font-family="EB Garamond, Georgia, serif" — a plain comma-separated list in the XML attribute. Do NOT wrap individual font names in quotes inside the attribute value. Do NOT use CSS syntax with semicolons. Example: font-family="EB Garamond, Georgia, serif". For font-size, use font-size="12px" or font-size="0.875rem" — quoted values, no semicolons.
+- Stroke widths: 1.5px for grid lines, 2px for data lines, 2.5px for axes.
+- Colors: ONLY use hex values from the design instructions' palette. No arbitrary colors.
+- Wrapper: Always wrap SVG in <div style="width:100%; overflow-x:auto;"> to prevent horizontal overflow.
+- Never use <foreignObject> — use <text> elements only for all labels and annotations.
+- Keep SVG responsive: use width="100%" on the <svg> tag. Do NOT set height="auto" — it is not valid SVG. Either omit the height attribute (the viewBox aspect ratio handles scaling) or use height="100%".
+- ALL <defs> blocks (markers, gradients, patterns) MUST appear BEFORE any elements that reference them via url(#id). SVG does not support forward references — if a marker is defined after the element that uses it, the marker will not render. Always place <defs> as the first child of <svg>, right after <title> and <desc>.
+- ALL SVG elements MUST stay within the viewBox bounds. If viewBox="0 0 800 400", no element should have x < 0, x > 800, y < 0, or y > 400. Check all text positions, arrow endpoints, and shape coordinates before outputting. Elements outside viewBox will be clipped and invisible.
+- NEVER use text-length — it is not a valid SVG attribute. For text width constraints, use font-size to control size, or split long text into multiple <text> elements with different y positions.
+- For font-family in SVG text elements, use comma-separated font names WITHOUT wrapping the entire list in quotes: font-family="EB Garamond, Georgia, serif" (correct). NOT font-family="'EB Garamond', Georgia, serif" (wrong — nested quotes break in some browsers). NOT font-family="EB Garamond; Georgia; serif" (wrong — semicolons are CSS syntax, not XML).
+
+Minimal SVG structure example:
+<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" width="100%">
+  <title>Revenue Growth 2020–2025</title>
+  <desc>Line chart showing annual revenue increasing from $2.1M in 2020 to $8.4M in 2025, with a notable acceleration after 2023.</desc>
+  <!-- axes, grid lines, data paths, labels -->
+</svg>
+
+DONUT CHART TEMPLATE — Use this exact pattern for revenue composition, market share, etc:
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" width="100%">
+  <title>Chart title</title>
+  <desc>Description of what the chart shows and key takeaway</desc>
+  <defs>
+    <marker id="ah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2D3748"/>
+    </marker>
+  </defs>
+  <!-- Use stroke-dasharray on circles for donut slices -->
+  <!-- Circumference = 2 * PI * r. For r=60, C=377. For r=80, C=503 -->
+  <!-- Slice 1 (76%): dasharray="286 377" (76% of 377) -->
+  <!-- Slice 2 (16%): dasharray="60 377" offset="-286" (starts after slice 1) -->
+  <circle cx="200" cy="200" r="80" fill="none" stroke="#3182CE" stroke-width="40"
+    stroke-dasharray="286 503" transform="rotate(-90 200 200)"/>
+  <circle cx="200" cy="200" r="80" fill="none" stroke="#319795" stroke-width="40"
+    stroke-dasharray="60 503" stroke-dashoffset="-286" transform="rotate(-90 200 200)"/>
+  <circle cx="200" cy="200" r="60" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+  <!-- Labels positioned outside the donut -->
+  <text x="310" y="195" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#1A365D">Segment A</text>
+  <text x="310" y="215" font-family="Inter, sans-serif" font-size="12" fill="#3182CE">76%</text>
+  <text x="50" y="195" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#1A365D">Segment B</text>
+  <text x="50" y="215" font-family="Inter, sans-serif" font-size="12" fill="#319795">16%</text>
+</svg>
+KEY RULE: Use stroke-dasharray on <circle> elements for donut slices, NOT <path> with arc commands. The formula: dasharray = "percentage * circumference remaining_circumference". Circumference = 2 * PI * radius. Rotate -90 degrees so the first slice starts at the top.
+
+CHARTS.CSS USAGE
+When using Charts.css for data visualization:
+- Required class structure on <table>: class="charts-css [bar|column|line|area|stacked|percentage] show-labels show-data show-headings"
+- Always include a <caption> element inside the <table> for the chart title.
+- Always wrap the entire <table> in <div style="width:100%; overflow-x:auto;">.
+- Data values go in <td> elements with the CSS custom property: style="--data: [numeric-value]"
+- Charts.css --data values MUST be normalized decimal fractions (0.0 to 1.0), representing each bar's height relative to the maximum value in the dataset. Divide each raw value by the maximum value. Example: If quarterly revenues are [$21B, $22B, $23B, $28B], the max is $28B. Normalized data values: [0.75, 0.79, 0.82, 1.0]. NEVER use raw numbers (like --data: 21.3), percentages (like --data: 75%), or calc() expressions (like --data: calc(21.3/28.1)). Always compute the decimal fraction yourself.
+- Color sequence: apply the design instructions' chart color palette in order across data series.
+- When NOT to use Charts.css: fewer than 3 data points, purely qualitative data with no numbers, or when prose communicates the point more clearly.
+- For multi-series Charts.css tables (multiple <tr> rows representing different data series), you MUST add row labels. Use the first <td> of each row as a label, or add a dedicated label column. The reader must be able to identify which row represents which data series WITHOUT reading surrounding prose.
+- Example: For a CSR vs RSC comparison table, the first column should label each row: "CSR (Next.js Pages)" and "RSC (Next.js App)".
+- Charts.css classes (charts-css, show-labels, show-data, show-headings) require the Charts.css stylesheet to be loaded globally by the document viewer. Your HTML should include these classes on <table> elements — the viewer handles the CSS. If a Charts.css chart does not render as a visual chart, the table will still display as a styled HTML table with the data visible — this is the fallback behavior.
+
+WHEN DATA IS QUALITATIVE (NO NUMBERS)
+Do NOT force Charts.css, data tables, or numeric charts when the content has no numbers. Instead:
+- Use prose with strong paragraph structure and blockquotes for expert opinions.
+- Use comparison layouts (side-by-side prose sections) for contrasting viewpoints.
+- Use definition blocks (bold term + explanation) for concept-heavy chapters.
+- Use timeline CSS for chronological or process-oriented content.
+- Use SVG for conceptual diagrams: flowcharts, relationship maps, hierarchies, Venn-style overlaps.
+- Use <details> elements for expandable deep-dive content, alternative viewpoints, or supplementary evidence.
+- The goal is clarity — if a well-written paragraph communicates better than a visual, use the paragraph.
+
+PAGE STRUCTURE — PDF-LIKE PAGES (CRITICAL — FOLLOW EXACTLY)
+Your chapter will be rendered inside a document viewer that displays content as stacked pages (like a PDF reader). You MUST structure your HTML so that EVERY piece of content is wrapped inside a <div class="report-page"> container. The viewer styles each report-page as a white A4-sized sheet with shadow on a gray background. You do NOT add any inline styles to report-page divs — just use <div class="report-page"> exactly.
+
+ABSOLUTE RULES FOR PAGES:
+- EVERY heading, paragraph, table, chart, list, callout, and visual MUST be inside a <div class="report-page">. Content outside a report-page will break the layout.
+- Each page must be properly opened and closed: <div class="report-page">...content...</div>. Never nest one report-page inside another. Never leave a report-page unclosed.
+- There must be NOTHING between two consecutive </div><div class="report-page"> boundaries except whitespace. No stray tags, no orphaned paragraphs.
+
+How to paginate:
+- Estimate roughly 600–900 words of prose per page (at 15px body font, 1.7 line-height, with ~3rem padding). A page containing a table or chart holds less text — budget accordingly.
+- Start a new <div class="report-page"> at natural content boundaries: between subchapters, between major conceptual shifts within a subchapter, or before/after a large visual (table, chart, diagram).
+- The FIRST page of the chapter must open with the h2 chapter title, then begin the first subchapter (h3) and its opening content.
+- If a subchapter is short, it can share a page with the previous subchapter's tail or the next subchapter's start. Pages do not need to align 1:1 with subchapters — use your judgment for what feels like a natural, readable page.
+- NEVER split a table, chart, SVG, or callout box across two pages. Keep each visual whole on one page. If a visual is large, give it its own page.
+- NEVER leave a page nearly empty just to start a subchapter on a fresh page. Fill pages with content — a page should feel substantial, not sparse.
+- A single subchapter can span multiple pages if the content is long — just break at a paragraph boundary.
+- Every chapter MUST have at least 2 pages. If your content is very short, you are not writing enough — expand with deeper explanation.
+
+EXAMPLE STRUCTURE (follow this pattern exactly):
+<div class="report-chapter">
+  <div class="report-page">
+    <h2 style="...">3. Market Analysis</h2>
+    <h3 style="...">3.1 Current Landscape</h3>
+    <p style="...">Opening explanation of the market context...</p>
+    <p style="...">Detailed analysis with specific data points and evidence...</p>
+    <div style="width:100%; overflow-x:auto;">
+      <!-- table or chart here -->
+    </div>
+    <p style="...">Explanation of what the above visual shows and why it matters...</p>
+  </div>
+  <div class="report-page">
+    <h3 style="...">3.2 Competitive Dynamics</h3>
+    <p style="...">Detailed comparison of key players in the space...</p>
+    <p style="...">Further analysis building on the data...</p>
+    <p style="...">Synthesis and implications for the market...</p>
+  </div>
+  <div class="report-page">
+    <h3 style="...">3.3 Future Projections</h3>
+    <p style="...">Forward-looking analysis based on the trends identified...</p>
+    <p style="...">Final thoughts for this chapter...</p>
+  </div>
+</div>
+
+Notice: every element is inside a report-page. Nothing floats between pages. Each page is closed before the next opens. The chapter div only contains report-page divs.
+
 REPORT TYPES — WHAT EACH EXPECTS (use to recognize and match your report)
-- General: Clean, balanced; prose + tables + charts as needed. Sections: overview, background, analysis, conclusion.
-- Math: White, LaTeX-like; definitions in boxes, theorems, proofs, worked examples, graphs. Sections: definitions, theorems/proofs, examples, key formulas.
-- Philosophy: Warm parchment, prose-first; blockquotes, thought experiments, dialectical structure. Sections: question, thinkers, arguments, objections, relevance.
-- History: Archival cream, chronology; timelines, dates, primary quotes, maps. Sections: context, chronological narrative, causes, legacy.
-- Literature: Narrow column, typography-first; excerpts, close reading, themes. Sections: work/author, synopsis, textual analysis, themes, legacy.
-- Physics: Diagrams + equations; force diagrams, equations, examples, units. Sections: phenomenon, laws/equations, diagrams, examples, experiment.
-- Finance: Numbers-first; KPIs, charts, dense tables, green/red. Sections: thesis, metrics, analysis, valuation, risk.
-- Startup/Pitch: Bold metrics, growth charts, minimal prose; pitch-deck feel. Sections: problem, solution, traction, ask.
-- Scientific: Methods, results, figures/tables, captions; evidence-led. Sections: intro, methods, results, discussion.
-- News/Journalism: Lede first, inverted pyramid, quotes, datelines. Sections: lede, facts, voices, timeline, impact.
-- Coding: Code blocks first-class; API tables, examples, architecture. Sections: what/why, setup, API/concepts, examples, best practices.
-- Practice/Learning: Cheat sheets, problems, hidden solutions, tips. Sections: concepts, reference table, problems, solutions (e.g. <details>), mistakes/tips.
-- Minimalist: Lots of whitespace; typography as data, few elements. Sections: one takeaway, key numbers, brief analysis.
+- General: Clean, balanced; prose + tables + charts as needed. Sections: overview, background, analysis, conclusion. Primary visuals: mixed charts, summary tables. 50% prose, 50% visuals. Key containers: analysis blocks, comparison tables, trend charts.
+- Math: White, LaTeX-like; definitions in boxes, theorems, proofs, worked examples, graphs. Sections: definitions, theorems/proofs, examples, key formulas. Primary visuals: equation blocks, proof boxes, function graphs. 60% prose, 40% visuals. Key containers: definition boxes, theorem environments, worked examples.
+- Philosophy: Warm parchment, prose-first; blockquotes, thought experiments, dialectical structure. Sections: question, thinkers, arguments, objections, relevance. Primary visuals: blockquotes, dialectical tables. 80% prose, 20% visuals. Key containers: argument blocks, objection/response pairs, thinker profiles.
+- History: Archival cream, chronology; timelines, dates, primary quotes, maps. Sections: context, chronological narrative, causes, legacy. Primary visuals: timelines, quote callouts, period maps. 55% prose, 45% visuals. Key containers: timeline elements, primary-source quotes, cause-effect tables.
+- Literature: Narrow column, typography-first; excerpts, close reading, themes. Sections: work/author, synopsis, textual analysis, themes, legacy. Primary visuals: text excerpts, thematic callouts. 70% prose, 30% visuals. Key containers: excerpt blocks, close-reading annotations, theme summaries.
+- Physics: Diagrams + equations; force diagrams, equations, examples, units. Sections: phenomenon, laws/equations, diagrams, examples, experiment. Primary visuals: SVG diagrams, equation blocks, unit tables. 45% prose, 55% visuals. Key containers: diagram callouts, equation environments, experiment summaries.
+- Finance: Numbers-first; KPIs, charts, dense tables, green/red. Sections: thesis, metrics, analysis, valuation, risk. Primary visuals: KPI cards, line charts, dense tables. 40% prose, 60% visuals. Key containers: metric cards, scenario analysis blocks, peer comparison tables.
+- Startup/Pitch: Bold metrics, growth charts, minimal prose; pitch-deck feel. Sections: problem, solution, traction, ask. Primary visuals: KPI cards, bar charts, growth curves. 30% prose, 70% visuals. Key containers: metric callouts, traction timelines, market-size charts.
+- Scientific: Methods, results, figures/tables, captions; evidence-led. Sections: intro, methods, results, discussion. Primary visuals: data tables, result charts, method diagrams. 45% prose, 55% visuals. Key containers: result figures with captions, methods tables, discussion blocks.
+- News/Journalism: Lede first, inverted pyramid, quotes, datelines. Sections: lede, facts, voices, timeline, impact. Primary visuals: quote callouts, timelines, fact tables. 60% prose, 40% visuals. Key containers: lede paragraph, voice/quote blocks, impact timelines.
+- Coding: Code blocks first-class; API tables, examples, architecture. Sections: what/why, setup, API/concepts, examples, best practices. Primary visuals: code blocks, API tables, architecture diagrams. 40% prose, 60% visuals. Key containers: code examples, parameter tables, architecture SVGs.
+- Practice/Learning: Cheat sheets, problems, hidden solutions, tips. Sections: concepts, reference table, problems, solutions (e.g. <details>), mistakes/tips. Primary visuals: reference tables, collapsible solutions, tip callouts. 50% prose, 50% visuals. Key containers: <details> solution blocks, cheat-sheet tables, tip/warning callouts.
+- Minimalist: Lots of whitespace; typography as data, few elements. Sections: one takeaway, key numbers, brief analysis. Primary visuals: typographic numbers, sparse charts. 60% prose, 40% visuals. Key containers: single-stat callouts, minimal tables, short analysis blocks.
 
 LAYOUT — NEVER MESS UP
-- One outer div only: width 100%, max-width 100%, box-sizing border-box, overflow hidden. All content inside it. The outer document viewer already constrains total width.
-- Inner layout: single column (block stack). No multi-column or grid unless design instructions explicitly ask for it. Everything stacks vertically within the available width.
-- Every inner block (paragraph, heading, table wrapper, chart wrapper, list, callout): use width 100% or max-width 100%, box-sizing border-box. No fixed pixel width larger than the container. No position absolute/fixed that escapes the div.
+- Root: <div class="report-chapter"> containing one or more <div class="report-page"> containers. All content must be inside a report-page. Nothing should exist directly inside report-chapter outside of a report-page.
+- Inside each page: single column (block stack). No multi-column or grid unless design instructions explicitly ask for it. Everything stacks vertically.
+- Every inner block (paragraph, heading, table wrapper, chart wrapper, list, callout): use width 100% or max-width 100%, box-sizing border-box. No fixed pixel width. No position absolute/fixed.
 - Tables: wrap in <div style="width:100%; overflow-x:auto;"> so wide tables scroll instead of bursting out.
-- Charts (Charts.css or SVG): same — wrapper width 100%, overflow-x auto. Let chart scale or scroll inside the column.
-- Spacing: use margins/padding from design instructions consistently. Gaps between sections so nothing overlaps or feels cramped.
-- Fonts and colors: only from design instructions. Same for every heading, paragraph, table, and chart in this section.
-
-OUTPUT — ONE CONTAINING DIV
-- Exactly one root: <div class="report-chapter" style="width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden;"> ... </div>
-- Inside: structure that fits the report type and this section — e.g. h2, then divs/sections with h3/h4, prose, lists, tables (wrapped), Charts.css, SVG, Q&A, callouts. All contained; nothing overlapping or overflowing.
+- Charts (Charts.css or SVG): same — wrapper width 100%, overflow-x auto.
+- Spacing: use margins/padding from design instructions consistently. Gaps between elements so nothing overlaps or feels cramped.
+- Fonts and colors: only from design instructions. Consistent across every heading, paragraph, table, and chart.
 
 UNDERSTANDING THE CORRECT CHAPTER
 - You are writing one specific place in the report: the CHAPTER marked "YOU ARE HERE" in the table of contents. That is the only part you produce.
 - Inside this chapter, you are responsible for both the top-level chapter title and all of its subchapters. The chapter title should give a crisp, high-level overview; each subchapter should then go in-depth on its specific angle so that, together, the chapter feels complete.
-- Understand what value this chapter brings: it exists to answer a part of the user’s request and the planner’s plan. Your output must fully deliver that — the reader who finishes this chapter should feel that this piece of the report is complete and genuinely understandable.
-- Use the research sections provided for this chapter only. They are the evidence for this chapter. Your job is to turn them into one coherent, complete chapter (with internal subheadings) that fulfills the exact chapter heading and its role in the TOC. Nothing essential from these sections should be missing; no filler that doesn’t serve the chapter’s purpose.
+- Understand what value this chapter brings: it exists to answer a part of the user's request and the planner's plan. Your output must fully deliver that — the reader who finishes this chapter should feel that this piece of the report is complete and genuinely understandable.
+- Use the research sections provided for this chapter only. They are the evidence for this chapter. Your job is to turn them into one coherent, complete chapter (with internal subheadings) that fulfills the exact chapter heading and its role in the TOC. Nothing essential from these sections should be missing; no filler that doesn't serve the chapter's purpose.
 
 THIS CHAPTER ONLY
-- Write only this chapter and its subchapters. TOC shows opening / middle / closing. Focus this chapter’s scope; don’t repeat earlier or preempt later. Keep flow.
+- Write only this chapter and its subchapters. TOC shows opening / middle / closing. Focus this chapter's scope; don't repeat earlier or preempt later. Keep flow.
 
 CONTENT, EXPLANATION, AND KNOWLEDGE
-- Preserve every fact, number, date, nuance from source. Synthesize in your own voice; no paste-by-blocks. No invented content. No section_id, [REF], [SOURCE]. Explain clearly; best format for clarity (prose, list, chart, or table as judged above). No half-explained ideas; dense but clear.
-- Content quality matters as much as visuals. Never sacrifice explanation, narrative, or step-by-step reasoning just to use a visual. Whenever you introduce a chart, table, diagram, or other visual, add a short, plain-language explanation before or after it so a reader who is not visually oriented still fully understands the concept.
+- DO NOT SUMMARIZE AND DO NOT CONDENSE. You must go in-depth. Extract and weave EVERY SINGLE factual detail, metric, nuance, date, and argument from the research sections into your chapter. The output must be exhaustive.
+- If the source research section is extensive, your generated chapter content must be proportionately long and detailed. A high-quality report explores details heavily.
+- When research contains extensive numerical data, present the complete dataset in a table or chart, and use prose to interpret the key patterns, trends, and implications. Do not repeat every number from a table in the surrounding prose — that creates unreadable data dumps. Instead, let the visual carry the raw numbers, and use prose to explain what the numbers mean, why they matter, and what patterns they reveal.
+- Synthesize in your own voice; no paste-by-blocks. No invented content. No section_id markers, no [REF] tags, no [SOURCE] tags — use proper <a href='URL'>Source Name</a> inline citations instead. Explain clearly; best format for clarity (prose, list, chart, or table as judged above). No half-explained ideas; extremely dense and detailed.
+- Content quality matters MORE than visuals. Never sacrifice deep narrative, step-by-step reasoning, or comprehensive explanations just to force a visual or a table. Whenever you introduce a chart, table, diagram, or other visual, add a highly detailed plain-language breakdown before or after it.
+
+CITATIONS — REQUIRED
+- Every factual claim from the research sections MUST be cited with an inline link.
+- Use the format: <a href="URL">Source Name</a> woven naturally into prose.
+- Examples: "according to <a href='https://quantum-journal.org/papers/q-2018-08-06-79/'>Preskill (2018)</a>" or "(Source: <a href='https://react.dev/reference/rsc/server-components'>React Documentation</a>)."
+- For numbered citations: "<sup><a href='https://www.ipcc.ch/report/ar6/'>IPCC AR6, 2023</a></sup>"
+- For inline source names: "(Source: <a href='https://react.dev/reference/rsc/server-components'>React Documentation</a>)"
+- For data points: "(Source: <a href='URL'>Bureau of Labor Statistics</a>, March 2023)."
+- For documents: "(Full text: <a href='URL'>link</a>)."
+- EVERY chapter must have at least 3 inline citation links.
+- Citations are part of the prose — weave them in naturally, do not group them at the end.
+- If the research sections contain URLs, you MUST use them as <a href> links.
 
 STRUCTURE RULES
-- Hierarchy: h2 (chapter title once at the top), h3 (subchapters that align with the table of contents for this chapter), h4 (sub-sections inside a subchapter). Short labels only. Inline CSS only; no <style>, <link>, <html>, <head>, <body>, <!DOCTYPE>. Valid HTML; same element type → same styling.
+- Hierarchy: h2 (chapter title once at the top of the first page), h3 (subchapters that align with the table of contents for this chapter), h4 (sub-sections inside a subchapter). Short labels only. Inline CSS only; no <style>, <link>, <html>, <head>, <body>, <!DOCTYPE>. Valid HTML; same element type → same styling.
+
+COMMON FAILURE MODES — AVOID THESE
+- SVG overflowing the page: always wrap in <div style="width:100%; overflow-x:auto;">.
+- Charts without captions or axis labels: every chart must have a <caption> (Charts.css) or <title>/<desc> (SVG) and clearly labeled axes.
+- Tables without header rows: every <table> must have a <thead> with <th> elements.
+- Mixing font families: use only the fonts specified in the design instructions.
+- Using colors not in the palette: every hex value must come from the design instructions.
+- Leaving report-page containers unclosed: every <div class="report-page"> must have a matching </div>.
+- Creating pages with less than ~200 words of content: every page must feel substantial. If a page is sparse, you are not writing enough.
+- Repeating the same visual pattern 3+ times in a chapter: vary the presentation — alternate prose → chart → table → callout → prose.
+- Presenting data without explaining what it means: every table, chart, or figure must be accompanied by prose that interprets the data and draws out its significance.
 
 HARD RULES
-1. Start with <div class="report-chapter" style="width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden;">. No text before or after the HTML.
-2. Colors/fonts from design instructions only. No overlap or overflow.
-3. No invented content. No internal IDs in output.
-4. One full chapter (with its internal subchapters); clear, information-dense, and easy to understand."""
+1. Start with <div class="report-chapter">. End with </div>. No text before or after the HTML.
+2. The ONLY direct children of <div class="report-chapter"> must be <div class="report-page"> elements. Every heading, paragraph, table, chart, list — everything — must be inside a report-page. Zero exceptions.
+3. Each report-page must be properly opened and closed. Never nest pages inside pages. Never leave content orphaned between pages.
+4. Colors/fonts from design instructions only.
+5. No invented content. No internal IDs in output.
+6. One full chapter (with its internal subchapters paginated into report-page containers); clear, information-dense, and easy to understand.
+7. Double-check your output: scan from top to bottom and confirm that (a) every element lives inside a report-page, (b) no report-page is left unclosed, (c) there are at least 2 report-page containers in your chapter."""
 
     # ── Build TOC block ──────────────────────────────────────────────────────
     toc_lines = ["FULL REPORT TABLE OF CONTENTS:"]
@@ -190,11 +355,17 @@ HARD RULES
             position_tag = "  ← FIRST CHAPTER"
         elif i == len(chapter_list) - 1:
             position_tag = "  ← FINAL CHAPTER"
-        is_current = chapter_heading.strip() in main_chapter.strip() or main_chapter.strip() in chapter_heading.strip()
+        is_current = (
+            chapter_heading.strip() in main_chapter.strip()
+            or main_chapter.strip() in chapter_heading.strip()
+        )
         marker = "  >>>  YOU ARE HERE" if is_current else ""
         toc_lines.append(f"  {main_chapter}{position_tag}{marker}")
         for sub in subchapters:
-            sub_is_current = chapter_heading.strip() in sub.strip() or sub.strip() in chapter_heading.strip()
+            sub_is_current = (
+                chapter_heading.strip() in sub.strip()
+                or sub.strip() in chapter_heading.strip()
+            )
             sub_marker = "  >>>  YOU ARE HERE" if sub_is_current else ""
             toc_lines.append(f"      {sub}{sub_marker}")
     toc_formatted = "\n".join(toc_lines)
@@ -202,7 +373,7 @@ HARD RULES
     # ── Build sections block ─────────────────────────────────────────────────
     sections_formatted = ""
     for idx, section in enumerate(sections_for_chapter):
-        content = section.get('section_content', '')
+        content = section.get("section_content", "")
         sections_formatted += f"\n{'─' * 60}\nRESEARCH SECTION {idx + 1} OF {len(sections_for_chapter)}\n{'─' * 60}\n{content}\n"
 
     # ── User query and planner context (for section focus) ───────────────────
@@ -210,9 +381,13 @@ HARD RULES
     if user_query or (planner_queries and len(planner_queries) > 0):
         user_planner_block = "\n"
         if user_query:
-            user_planner_block += f"USER QUERY (what the report is for):\n{user_query}\n\n"
+            user_planner_block += (
+                f"USER QUERY (what the report is for):\n{user_query}\n\n"
+            )
         if planner_queries:
-            planner_lines = "PLANNER QUERIES (what each part of the report is meant to cover):\n"
+            planner_lines = (
+                "PLANNER QUERIES (what each part of the report is meant to cover):\n"
+            )
             for pq in planner_queries:
                 planner_lines += f"  {pq.get('query_num', '')}. {pq.get('query', '')}\n"
             user_planner_block += planner_lines
@@ -223,7 +398,7 @@ HARD RULES
 {design_instructions.strip() if design_instructions else default_design}
 {user_planner_block}
 TABLE OF CONTENTS (you are writing the section marked YOU ARE HERE):
-{toc_formatted}ƒ
+{toc_formatted}
 
 SECTION FOCUS — UNDERSTAND AND FULFILL THIS CHAPTER COMPLETELY
 - You are writing exactly one chapter: "{chapter_heading}". It is the only place in the TOC marked "YOU ARE HERE". All other chapters are written separately; your output is only this one.
@@ -234,38 +409,35 @@ RESEARCH SECTIONS FOR THIS CHAPTER ({len(sections_for_chapter)}):
 {sections_formatted}
 
 TASK: Write only this chapter: "{chapter_heading}"
-- Decide how to show it: (1) design instructions say what report type and formats to use, (2) match that report type from the reference, (3) for this section’s content pick the best format — prose, list, chart, or table. Do not default to a table.
-- One outer <div class="report-chapter" style="width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden;"> containing everything. All inner content width 100% or wrapped with overflow-x auto; no overlap or overflow.
-- Preserve all information; present clearly. No preamble or text after the closing </div>."""
+- Decide how to show it: (1) design instructions say what report type and formats to use, (2) match that report type from the reference, (3) for this chapter’s content pick the best format — prose, list, chart, or table. Do not default to a table.
+- One outer <div class="report-chapter"> containing <div class="report-page"> containers. Each page holds roughly one A4-page worth of content (~600-900 words of prose, less if it has visuals). Break pages at natural points between or within subchapters.
+- DO NOT SUMMARIZE. The user requires exhaustive, deeply detailed content reflecting all the research. Preserve absolutely all information; go deep into nuances. No preamble or text after the closing </div>."""
 
     return [SystemMessage(content=system_prompt), HumanMessage(content=human_prompt)]
-
-
-
 
 
 def get_available_design_skills() -> Dict[str, str]:
     """
     Reads all markdown files in the design_skills directory.
-    
+
     Returns:
         Dict mapping filename (e.g. 'academic.md') to its contents.
     """
-    skills_dir = os.path.join(os.path.dirname(__file__), 'design_skills')
+    skills_dir = os.path.join(os.path.dirname(__file__), "design_skills")
     skills = {}
-    
+
     if not os.path.exists(skills_dir):
         return skills
-        
+
     for filename in os.listdir(skills_dir):
-        if filename.endswith('.md'):
+        if filename.endswith(".md"):
             filepath = os.path.join(skills_dir, filename)
             try:
-                with open(filepath, 'r', encoding='utf-8') as f:
+                with open(filepath, "r", encoding="utf-8") as f:
                     skills[filename] = f.read()
             except Exception:
                 pass
-                
+
     return skills
 
 
@@ -275,7 +447,7 @@ async def choose_design_skill_prompt(
     table_of_contents: Dict[str, List[str]],
     abstract: str,
     introduction: str,
-    available_skills: Dict[str, str]
+    available_skills: Dict[str, str],
 ) -> str:
     """
     Generates a prompt for the LLM to select the single best design skill
@@ -295,12 +467,28 @@ async def choose_design_skill_prompt(
     skills_list = ""
     for filename in sorted(available_skills.keys()):
         content = available_skills[filename]
-        identity_match = re.search(r'## Identity & Scope\n(.*?)(?=\n\n##)', content, re.DOTALL)
-        structure_match = re.search(r'## Content Structure & Narrative Flow\n(.*?)(?=\n\n##)', content, re.DOTALL)
-        identity = identity_match.group(1).strip() if identity_match else "General report; no single domain."
+        identity_match = re.search(
+            r"## Identity & Scope\n(.*?)(?=\n\n##)", content, re.DOTALL
+        )
+        structure_match = re.search(
+            r"## Content Structure & Narrative Flow\n(.*?)(?=\n\n##)",
+            content,
+            re.DOTALL,
+        )
+        identity = (
+            identity_match.group(1).strip()
+            if identity_match
+            else "General report; no single domain."
+        )
         structure_blob = structure_match.group(1).strip() if structure_match else ""
-        structure_first = structure_blob.split("\n")[0].strip() if structure_blob else "Standard sections."
-        skills_list += f"--- {filename} ---\n{identity}\nStructure: {structure_first}\n\n"
+        structure_first = (
+            structure_blob.split("\n")[0].strip()
+            if structure_blob
+            else "Standard sections."
+        )
+        skills_list += (
+            f"--- {filename} ---\n{identity}\nStructure: {structure_first}\n\n"
+        )
 
     valid_filenames = ", ".join(sorted(available_skills.keys()))
 
@@ -331,15 +519,13 @@ VALID OUTPUTS (pick one): {valid_filenames}
     return prompt
 
 
-
 async def generate_design_instructions_prompt(
     user_query: str,
     planner_queries: List[Dict[str, Any]],
     table_of_contents: Dict[str, List[str]],
     selected_skill_name: str,
-    selected_skill_rules: str
+    selected_skill_rules: str,
 ) -> str:
-
     toc_formatted = "FULL REPORT TABLE OF CONTENTS:\n"
     for main_chapter, subchapters in table_of_contents.items():
         toc_formatted += f"  {main_chapter}\n"
@@ -365,15 +551,15 @@ USER QUERY: {user_query}
 ROUTER-SELECTED SKILL — {selected_skill_name}:
 A previous model analyzed the query, planner plan, and TOC and selected this skill as the best fit. Use it as strong inspiration. The skill lists visual patterns (Charts.css types, SVG diagram options, interactive elements) — choose the best combination for this report. Adapt or blend if the report spans multiple domains.
 
-Skill rules (identity, structure, and visual toolkit) are a starting point, not a prison. Use them to:
+Use the skill to:
 - Anchor the report's visual feel (domain-appropriate typography, color temperature, density).
 - Identify which VISUAL FORMS are primary for this report type (e.g. charts for finance, diagrams for physics, quotations for philosophy).
 - Suggest domain-typical layouts and emphasis.
 
 You are allowed to:
-- Refine colors into a specific, coherent palette that best fits this particular report and user query, as long as it respects the skill’s color philosophy.
+- Refine colors into a specific, coherent palette that best fits this particular report and user query, as long as it respects the skill's color philosophy.
 - Prioritize a subset of visual patterns for this report (e.g. favor Charts.css bar/line charts + KPI cards, but rarely use large dense tables).
-- Introduce additional, reasonable HTML structures (timelines, callouts, two-column comparisons) when they clearly align with the skill’s intent.
+- Introduce additional, reasonable HTML structures (timelines, callouts, two-column comparisons) when they clearly align with the skill's intent.
 
 Always favor designs that make the content easiest to understand, not just the most decorative.
 
@@ -387,49 +573,103 @@ WORK FLOW (follow in order — each step informs the next)
 PHASE 1 — ANALYZE REPORT TYPE
 From user query, planner queries, and TOC: What does the user want? Single domain (math, finance, philosophy, history, etc.) or hybrid? Is it a cheat sheet, Q&A, narrative essay, data-heavy analysis, pitch deck, reference, comparison? Infer the report's primary purpose and audience. (Do not output this analysis — use it to drive all decisions below.)
 
-PHASE 2 — HIGH-LEVEL DESIGN DECISIONS
-Decide: What will OUR report look like?
-- General presentation approach: prose-dense vs. visual-dense vs. balanced
-- Visual mix: which Charts.css types, SVG diagrams, tables, lists, callouts, timelines
-- Data presentation: how numbers, trends, and comparisons will appear (tables, charts, cards, inline)
-- Emotional tone: clinical, warm, academic, editorial, minimal
+PHASE 2 — VISUAL FORMAT DECISIONS
+Decide the report's visual density and primary formats:
+- Is this report prose-heavy (70%+ text, visuals as supporting evidence), visual-heavy (50%+ charts/tables/diagrams, prose as annotation), or balanced?
+- Which Charts.css chart types does this report need? (bar, column, line, stacked, percentage, grouped)
+- Which SVG diagrams does this report need? (flowcharts, architecture diagrams, timelines, concept maps, force diagrams, etc.)
+- What is the emotional tone? (clinical, warm, academic, editorial, minimal)
+- What is the data presentation strategy? (tables for dense comparisons, charts for trends, KPI cards for key metrics, inline numbers for light data)
 
-PHASE 3 — STRUCTURE & FORMAT DEPTH
-- Report structure: how chapters flow, what each section type conveys
-- Format: cheat sheet (compact reference), Q&A (question-led), narrative (flowing prose), finance-dense (KPIs, dashboards), or hybrid
-- Component logic: when to use tables vs. charts vs. prose vs. lists. Which visual patterns from the skill apply here?
-- Interactive elements: `<details>` for collapsed content? When?
+PHASE 3 — SVG & CHARTS.CSS PLANNING
+For each chart/diagram type identified in Phase 2, specify:
+- Which Charts.css chart type and which modifier classes (show-labels, show-data, show-headings, show-primary, data-after) apply.
+- Which SVG diagrams are needed, what they depict, and their rough dimensions.
+- When NOT to use Charts.css (e.g. single data point → KPI card, qualitative comparison → prose, 2-item comparison → inline text).
+- Color sequence for multi-series charts (ordered list of hex values from the palette).
 
-PHASE 4 — TYPOGRAPHY & COLOR
+PHASE 4 — TYPOGRAPHY & COLOR (EXACT VALUES ONLY)
 Use the skill's Typography & Color section as foundation. Output exact values:
 - Fonts: heading + body (+ monospace if needed). Google Fonts or system stacks.
-- Type scale: h2, h3, h4, body, caption — rem values.
-- Line-height, weights.
-- Palette: bg, body text, headings, 2–3 accents, semantic (pos/neg if relevant), chart sequence (5–6 hex).
-- Component surfaces: table header, row alt, blockquote, insight box, code block — bg + border hex.
+- Type scale: h2, h3, h4, body, caption — ALL in rem values.
+- Line-height and font-weight for each level.
+- Palette: bg, body text, headings, 2-3 accents, semantic (pos/neg if relevant), chart sequence (5-6 hex values).
+- Component surfaces: table header bg, row alt bg, blockquote bg/border, insight box bg/border, code block bg/border — ALL hex.
 All colors must be consistent throughout. One palette — no ad-hoc additions.
 
-PHASE 5 — GUARDRAILS (instructional, not rigid)
-- Preserve all information. If content doesn't fit a template, invent a new format. Never truncate to fit.
-- Consistent palette. we can color outside the defined system if it's necessary and you understand thaht with combination it will perfectly fit the report.
-- Layout is guidance. Chapter writers adapt structure when content demands it.
-- When uncertain, default to clarity over flair.
+PHASE 5 — VISUAL DECISION TREE
+Define explicit IF/THEN rules so the chapter writer knows exactly which format to pick for any content:
+- IF content is [type] THEN use [format] because [reason]
+- IF comparing [N] items on [M] attributes THEN use [table/chart/prose]
+- IF showing trend over time THEN use [specific chart type]
+- IF explaining a concept or definition THEN use [prose/callout/details]
+- IF presenting a single key metric THEN use [KPI card/inline bold]
+- IF the content is [domain-specific pattern] THEN use [specific visual]
+Include at least 5 IF/THEN rules tailored to this report's content types.
+
+PHASE 6 — PAGE & LAYOUT GUIDANCE
+- Max content width: specify in rem (e.g. 72rem for prose, 90rem for data-dense).
+- Vertical rhythm: base spacing unit in rem (e.g. 0.5rem), and how it scales (margins between paragraphs, between subchapters, before/after visuals).
+- Pagination strategy: roughly how much content per page (e.g. "prose-dense pages: 600-800 words; visual-heavy pages: 1 large chart + 200 words explanation").
+- Where to break pages: between subchapters, before large visuals, at conceptual shifts.
+- NEVER split a table, chart, SVG, or callout across pages.
+
+PHASE 7 — SVG & CHARTS.CSS CONSTRUCTION BRIEF
+Provide specific technical instructions the chapter writer will follow:
+
+SVG Construction:
+- Standard viewBox dimensions for this report type (e.g. viewBox="0 0 800 400" for wide charts, viewBox="0 0 400 400" for square diagrams).
+- Font family and sizes for SVG text elements (must match the typography scale, in rem or px equivalent).
+- Stroke widths: thin lines (1px), medium lines (2px), thick lines (3px) — when to use each.
+- Color application rules: use ONLY the palette defined above. No arbitrary colors.
+- Accessibility: every SVG must include <title> (short label) and <desc> (1-2 sentence explanation).
+- Domain-specific SVG patterns from the skill (e.g. if physics: force arrows with labeled vectors; if history: timeline with era markers).
+
+Charts.css Construction:
+- Required base classes: always include which of show-labels, show-data, show-headings.
+- Color sequence: ordered list of hex values for multi-series charts (first series = primary accent, etc.).
+- When to add data-after class, when to add show-primary.
+- When NOT to use Charts.css (single values, qualitative data, fewer than 3 data points).
+
+PHASE 8 — WHAT TO AVOID
+List domain-specific failure modes and anti-patterns for this report:
+- What visual formats to never use (e.g. "never use pie charts for this report", "never use dense tables for narrative content").
+- What content presentation mistakes to avoid (e.g. "do not summarize data that should be shown in full", "do not force a table when 2-3 sentences are clearer").
+- What aesthetic mistakes to avoid (e.g. "do not mix warm and cool accent tones", "do not use more than 3 font weights").
+- What structural mistakes to avoid (e.g. "do not leave pages nearly empty", "do not nest report-page divs").
 
 =====================================================================
 OUTPUT FORMAT
 =====================================================================
-Write a design brief as plain text under these headers. Use bullets and exact values (hex, rem). No CSS code, no JSON, no markdown blocks. A chapter writer must be able to make every visual decision from this brief alone.
+Write a design brief as plain text under these headers. Use bullets and exact values. No CSS code, no JSON, no markdown blocks. A chapter writer must be able to make every visual decision from this brief alone.
 
-1. COLOR SYSTEM — bg, text hierarchy, accents, semantic, chart colors, component surfaces (all hex)
-2. TYPOGRAPHY — fonts, scale, weights, line-height
-3. SPACING — vertical rhythm, component padding, max content width
-4. VISUAL MOOD — 2–4 sentences: what type of aesthectism we follow and small details that will make the report look and feel like the user wants it to be.
-5. What Report will Look Like —  some sentences: what the report will look like and how it will be presented. what is the report type and How to present it , how user wants to percieve this report , what type of visuals will be using , and how should our structure and elements be used to present the report in the best way.
-6. REPORT INTENT - some sentences: what is the report intent and what is the user trying to achieve with this report and want to learn or understand or read , whatever and What are the above ways we can achieve and how to show it in the best way.
-7. VISUALS - Explaining the visuals and how to use them in the best way to achieve the report intent and user wants. and not restricing to tose visuals only giving LLM the ability to make it , but explain all things we can do using the skills we have and Additional things
-8  What to avoid - Explaining things to avoid might not to present the report in a way that user doesn't want to , Explaining user intent and what might each sections should avoid , like general mistakes like overusing tables or charts or lists or etc or if suppose to use not using , and may be this report follow completely different visuals like hisotrical structure and not using it.s
+ENFORCEMENT RULES FOR ALL VALUES:
+- ALL colors as 6-digit hex codes (e.g. #1A365D, not "navy" or "dark blue").
+- ALL font sizes in rem units (e.g. 1.5rem, not "24px" or "large").
+- ALL spacing in rem or em units.
+- Chart color sequence as an ordered list of hex values.
+- No vague descriptors like "warm blue", "slightly larger", or "a bit of spacing".
+
+1. COLOR SYSTEM — bg, text hierarchy, accents, semantic colors, chart color sequence (ordered, 5-6 hex values), component surfaces (table header, row alt, blockquote, insight box, code block — all with exact bg and border hex).
+
+2. TYPOGRAPHY — font families (Google Fonts or system stacks), type scale (h2, h3, h4, body, caption — all in rem), font-weight per level, line-height per level.
+
+3. SPACING — base spacing unit in rem, vertical rhythm (margins between paragraphs, subchapters, before/after visuals), component padding, max content width in rem.
+
+4. VISUAL MOOD — 2-4 sentences: the aesthetic identity of this report. What feeling should the reader get? What domain does it evoke? What small details (borders, shadows, letter-spacing, dividers) reinforce that identity?
+
+5. REPORT INTENT & PRESENTATION — 3-5 sentences merging what the report looks like, what the user is trying to achieve, and how the visual strategy serves that goal. What type of report is this? How should the reader perceive it? What visual formats dominate? How do structure and elements work together to deliver the best reading experience?
+
+6. VISUAL DECISION TREE — At least 5 explicit IF/THEN rules mapping content types to visual formats. Example: "IF comparing 3+ products across 5+ attributes THEN use a styled table with alternating row colors. IF showing revenue trend over 4+ quarters THEN use a Charts.css line chart with show-data and show-labels. IF defining a single technical term THEN use a bold-term + paragraph block, not a table."
+
+7. SVG & CHARTS.CSS CONSTRUCTION —
+   a) SVG: standard viewBox dimensions for this report type, font family and sizes for SVG text, stroke widths (thin/medium/thick with px values and when to use each), color application rules (palette only, no arbitrary colors), accessibility requirements (<title> and <desc> mandatory), domain-specific SVG patterns from the skill.
+   b) Charts.css: which chart types to use (bar, column, line, stacked, percentage, grouped), required modifier classes (show-labels, show-data, show-headings — specify which apply), color sequence for multi-series charts (ordered hex list), when to use data-after and show-primary, when NOT to use Charts.css.
+
+8. WHAT TO AVOID — Domain-specific failure modes: visual formats to never use, content presentation mistakes, aesthetic mistakes, structural mistakes. Be specific to this report type.
 """
     return prompt
+
 
 def generate_single_chapter_outline_prompt(
     chapter_num: int,
@@ -437,7 +677,6 @@ def generate_single_chapter_outline_prompt(
     query: str,
     sections: List[Dict[str, Any]],
     all_queries: List[Dict[str, Any]],
-
 ) -> str:
     """
     Generates a focused prompt for ONE chapter's outline.
@@ -466,28 +705,34 @@ def generate_single_chapter_outline_prompt(
     all_queries_block += "-" * 60 + "\n"
 
     # Sections block — full content since it's scoped to this query only
-    sections_block = f"RESEARCH SECTIONS FOR THIS CHAPTER ({len(sections)} sections):\n" + "=" * 60 + "\n\n"
+    sections_block = (
+        f"RESEARCH SECTIONS FOR THIS CHAPTER ({len(sections)} sections):\n"
+        + "=" * 60
+        + "\n\n"
+    )
     for idx, section in enumerate(sections):
         content = section.get("section_content", "")
         section_id = section.get("section_id", "unknown")
-        sections_block += f"--- Section {idx + 1} [section_id: {section_id}] ---\n{content}\n\n"
+        sections_block += (
+            f"--- Section {idx + 1} [section_id: {section_id}] ---\n{content}\n\n"
+        )
     sections_block += "=" * 60 + "\n"
 
     available_ids = [s.get("section_id", "unknown") for s in sections]
 
     prompt = f"""You are an expert research report architect. Your task is to design the structure for ONE chapter of a multi-chapter research report.
 
-{'=' * 70}
+{"=" * 70}
 {all_queries_block}
-{'=' * 70}
+{"=" * 70}
 
 YOUR ASSIGNMENT: Design Chapter {chapter_num} of {total_chapters}
 Research Focus: "{query}"
 {position_note}
 
-{'=' * 70}
+{"=" * 70}
 {sections_block}
-{'=' * 70}
+{"=" * 70}
 
 TASK: Produce the outline for CHAPTER {chapter_num} ONLY.
 
@@ -530,65 +775,54 @@ OUTPUT FORMAT — respond with exactly this JSON object, no markdown fences, no 
     return prompt
 
 
-
-
-
-
-
-
-
-
-def generate_framing_sections_prompt(
+def generate_framing_guidance_prompt(
     user_query: str,
     ordered_chapter_titles: List[str],
-
 ) -> str:
     """
-    Generates a lightweight prompt for abstract, introduction, and conclusion.
+    Generates a prompt that asks the LLM for TEXT guidance describing what
+    the abstract, introduction, and conclusion should cover. This guidance
+    is later fed into generate_chapter_prompt so those sections are produced
+    with the same design, theme, and page structure as body chapters.
     """
     toc_block = "REPORT TABLE OF CONTENTS:\n"
     for title in ordered_chapter_titles:
         toc_block += f"  {title}\n"
 
-    prompt = f"""You are an expert research writer. Based on the research topic and the report's chapter structure, write three framing sections for the report.{'=' * 70}
+    prompt = f"""You are an expert research report architect. Based on the research topic and the report's chapter structure, produce detailed TEXT GUIDANCE describing what the Abstract, Introduction, and Conclusion should contain.
+
+This guidance will be given to a separate chapter-writing model that will turn it into fully designed HTML pages. So your output must be rich, detailed, and descriptive — but it is NOT the final content. It is instructions/notes for the writer.
+
+{"=" * 70}
 USER RESEARCH QUERY: {user_query}
-{'=' * 70}
+{"=" * 70}
 
 {toc_block}
 
-{'=' * 70}
+{"=" * 70}
 YOUR TASK
-{'=' * 70}
+{"=" * 70}
 
-Write three sections based SOLELY on the query and the chapter titles above.
-Do not invent data or statistics — write in terms of scope, structure, and intent.
+For each of the three sections below, write a detailed TEXT description of what that section should cover. Be specific about themes, structure, key points to hit, and how it connects to the chapters.
 
-ABSTRACT (100–200 words):
-  Summarizes the report's purpose, scope, what chapters cover collectively,
-  and the significance of the topic. Written for a reader who reads only this.
+ABSTRACT GUIDANCE:
+  Describe what the abstract should summarize: the report's purpose, scope, what the chapters collectively cover, significance of the topic, and the key takeaway. Be specific — reference the actual chapter themes from the TOC. (Target: guidance for 150–250 words of final content.)
 
-INTRODUCTION (200–350 words):
-  Establishes why this topic matters, what question the report answers,
-  how the report is structured (referencing the chapters), and what the
-  reader will gain by the end.
+INTRODUCTION GUIDANCE:
+  Describe what the introduction should establish: why this topic matters now, what question/problem the report addresses, how the report is structured (reference each chapter by name and what it covers), and what the reader will gain. Be detailed about the narrative arc. (Target: guidance for 300–500 words of final content.)
 
-CONCLUSION (200–350 words):
-  Synthesizes the logical arc of the report, draws forward-looking insights
-  tied to the chapter themes, and closes with a clear takeaway for the reader.
-
-All three must be returned as clean HTML. Permitted tags:
-<p>, <strong>, <em>, <ul>, <ol>, <li>, <br>, <blockquote>
-Do NOT use <html>, <head>, <body>, <style>, or <!DOCTYPE> tags.
-Wrap each section in a root <div>.
+CONCLUSION GUIDANCE:
+  Describe what the conclusion should synthesize: the key insight from each chapter, how they connect into a bigger picture, forward-looking implications, and the definitive takeaway. Reference specific chapter themes. (Target: guidance for 300–500 words of final content.)
 
 OUTPUT FORMAT — respond with exactly this JSON object, no markdown fences, no extra text:
 {{
-  "abstract":     "<div><p>...</p></div>",
-  "introduction": "<div><p>...</p><p>...</p></div>",
-  "conclusion":   "<div><p>...</p><p>...</p></div>"
+  "abstract": "Detailed text guidance for the abstract...",
+  "introduction": "Detailed text guidance for the introduction...",
+  "conclusion": "Detailed text guidance for the conclusion..."
 }}
 """
     return prompt
+
 
 async def main():
     """Module entry point for testing."""

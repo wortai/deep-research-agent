@@ -32,15 +32,20 @@ logger = logging.getLogger(__name__)
 async def researcher_node(state: ResearchReviewData, writer: StreamWriter) -> Dict[str, Any]:
     """
     Initial research node that performs deep research with web search.
-    
+
     Uses execute_research_tree to perform BFS research on the query,
     populating raw_research_results with List[RawResearchResult].
+
+    The tree depth is read from state['depth'] so that the analysis_level
+    chosen by the user (low/mid/high) propagates down without coupling
+    the subgraph to the parent's level enum.
+
     Emits progress events via StreamWriter for real-time tracking.
     """
     query = state["query"]
     query_num = state.get("query_num", 0)
-    # logger.info(f"[researcher_node] Starting research for: {query}")
-    
+    tree_depth = state.get("depth", 2)
+
     emitter = get_emitter(writer)
     emitter.emit_agent_progress(
         query_num=query_num,
@@ -49,10 +54,10 @@ async def researcher_node(state: ResearchReviewData, writer: StreamWriter) -> Di
         percentage=10,
         current_step=f"Searching: {query[:80]}"
     )
-    
+
     research_results = await execute_research_tree(
         initial_query=query,
-        max_depth=2,
+        max_depth=tree_depth,
         num_gaps_per_node=2,
         query_num=query_num,
         clarification_context=state.get("clarification_context", [])
@@ -84,21 +89,27 @@ async def researcher_node(state: ResearchReviewData, writer: StreamWriter) -> Di
     }
 
 
-MAX_ITERATIONS = 1
-
 async def reviewer_node(state: ResearchReviewData, writer: StreamWriter) -> Dict[str, Any]:
     """
     Review node that generates synthesis questions.
-    
+
     Analyzes raw_research_results and generates review queries
     that identify gaps needing further exploration.
+
+    The maximum number of review cycles is read from state['max_reviews'],
+    injected by _parallel_research_node according to the active analysis_level:
+      low  → 2 cycles
+      mid  → 3 cycles
+      high → 2 cycles (with a deeper research tree)
+
     Emits progress events via StreamWriter for real-time tracking.
     """
     query = state["query"]
     query_num = state.get("query_num", 0)
     research_results = state["raw_research_results"]
     iteration = state.get("iteration_count", 0)
-    
+    max_reviews = state.get("max_reviews", 2)
+
     emitter = get_emitter(writer)
     emitter.emit_agent_progress(
         query_num=query_num,
@@ -107,16 +118,15 @@ async def reviewer_node(state: ResearchReviewData, writer: StreamWriter) -> Dict
         percentage=50,
         current_step="Analyzing gaps..."
     )
-    
-    if iteration >= MAX_ITERATIONS:
-        # logger.info(f"[reviewer_node] Max iterations ({MAX_ITERATIONS}) reached. Stopping reviews.")
+
+    if iteration >= max_reviews:
         emitter.emit_agent_progress(
             query_num=query_num,
             query=query,
-            phase=AgentPhase.REVIEWING,
+            phase=AgentPhase.COMPLETED,
             percentage=100,
-            current_step="Review complete (max iterations)",
-            metadata={"status": "max_iterations"}
+            current_step=f"Review complete ({max_reviews} cycles reached)",
+            metadata={"status": "max_reviews_reached", "max_reviews": max_reviews}
         )
         return {
             "current_reviews": [],
@@ -180,10 +190,11 @@ async def resolve_node(state: ResearchReviewData, writer: StreamWriter) -> Dict[
     new_results = []
     solver = Solver(
         query=review_query,
-        num_web_queries=1,
+        num_web_queries=2,
         max_web_results=2,
         num_gaps_per_node=0,
-        clarification_context=state.get("clarification_context", [])
+        clarification_context=state.get("clarification_context", []),
+        reviewer_mode=True,
     )
     
     _, answer = await solver.resolve()

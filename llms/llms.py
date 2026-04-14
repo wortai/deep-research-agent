@@ -1,4 +1,3 @@
-
 """LLM Management System - LlmsHouse
 Provides unified interface for various LLM providers.
 
@@ -39,82 +38,94 @@ from langchain_mistralai import ChatMistralAI
 from langchain_community.chat_models import ChatPerplexity
 from langchain_anthropic import ChatAnthropic
 from langchain_xai import ChatXAI
+from langchain_openrouter import ChatOpenRouter
 
 # To install these libraries, run the following commands:
 
 from dotenv import load_dotenv
+
 load_dotenv()
+
 
 class LlmsHouse:
     """
     Main LLM management class providing unified access to various LLM providers.
     """
-    
+
     def __init__(self):
         self.fallback_model = "gemini-2.0-flash"
 
     @staticmethod
-    def openai_model(model_name: str, temperature: float = 1.25, **kwargs) -> ChatOpenAI:
+    def openrouter_model(
+        model_name: str, temperature: float = 0.7, **kwargs
+    ) -> ChatOpenRouter:
         """
-        OpenAI models - High quality, versatile for most tasks.
-        Supports: gpt-4o, gpt-4-turbo, gpt-3.5-turbo, o1-preview, etc.
+        OpenRouter models — Unified API to access models from multiple providers.
+        Supports any model listed on https://openrouter.ai/models
+        Examples: qwen/qwen3-235b-a22b, anthropic/claude-sonnet-4.5, openai/gpt-4o
         """
-        return ChatOpenAI(
+        key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPEN_ROUTER")
+        if not key:
+            LlmsHouse._ensure_api_key("OPENROUTER_API_KEY")
+            key = os.getenv("OPENROUTER_API_KEY")
+        os.environ["OPENROUTER_API_KEY"] = key
+        return ChatOpenRouter(
             model=model_name,
             temperature=temperature,
-            max_tokens=kwargs.get('max_tokens', None),
-            timeout=kwargs.get('timeout', None),
-            max_retries=kwargs.get('max_retries', 2),
-            api_key=kwargs.get('api_key', None),
-            base_url=kwargs.get('base_url', None),
-            organization=kwargs.get('organization', None),
+            max_tokens=kwargs.get("max_tokens", None),
+            max_retries=kwargs.get("max_retries", 2),
         )
 
     @staticmethod
-    def google_model(model_name: str ='gemini-3.0-flash', temperature: float = 0.95, **kwargs) -> ChatGoogleGenerativeAI:
-        """
-            Google Gemini models - Excellent for multimodal tasks and reasoning.
-            Supports: gemini-2.0-flash (default), gemini-1.5-flash-latest, gemini-1.5-pro-latest, gemini-2.5-pro, etc.
-            """
-        LlmsHouse._ensure_api_key("GOOGLE_API_KEY")
+    def google_model(
+        model_name: str = "gemini-3.0-flash", temperature: float = 0.95, **kwargs
+    ) -> ChatGoogleGenerativeAI:
+        api_key = kwargs.pop("api_key", None) or os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            LlmsHouse._ensure_api_key("GOOGLE_API_KEY")
+            api_key = os.getenv("GOOGLE_API_KEY")
         return ChatGoogleGenerativeAI(
             model=model_name,
             temperature=temperature,
-            max_tokens=kwargs.get('max_tokens', None),
-            timeout=kwargs.get('timeout', None),
-            max_retries=kwargs.get('max_retries', 2),
+            max_tokens=kwargs.get("max_tokens", None),
+            timeout=kwargs.get("timeout", None),
+            max_retries=kwargs.get("max_retries", 2),
+            google_api_key=api_key,
         )
 
-
     @staticmethod
-    def anthropic_model(model_name: str, temperature: float = 0.7, **kwargs) -> ChatAnthropic:
-        """
-        Anthropic Claude models - Excellent for coding and reasoning.
-        Supports: claude-3-5-sonnet-20241022, claude-3-opus-20240229, claude 4 sonnet and others etc.
-        """
-        LlmsHouse._ensure_api_key("ANTHROPIC_API_KEY")
+    def anthropic_model(
+        model_name: str, temperature: float = 0.7, **kwargs
+    ) -> ChatAnthropic:
+        api_key = kwargs.pop("api_key", None) or os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            LlmsHouse._ensure_api_key("ANTHROPIC_API_KEY")
+            api_key = os.getenv("ANTHROPIC_API_KEY")
         return ChatAnthropic(
             model=model_name,
             temperature=temperature,
-            max_tokens=kwargs.get('max_tokens', None),
-            timeout=kwargs.get('timeout', None),
-            max_retries=kwargs.get('max_retries', 2),
+            max_tokens=kwargs.get("max_tokens", None),
+            timeout=kwargs.get("timeout", None),
+            max_retries=kwargs.get("max_retries", 2),
+            api_key=api_key,
         )
 
     @staticmethod
-    def deepseek_model(model_name: str, temperature: float = 0.7, **kwargs) -> ChatDeepSeek:
+    def deepseek_model(
+        model_name: str, temperature: float = 0.7, **kwargs
+    ) -> ChatDeepSeek:
         """
         DeepSeek models - Very cost-effective, excellent for coding.
         Supports: deepseek-chat, deepseek-coder, deepseek-v3, etc.
         """
         LlmsHouse._ensure_api_key("DEEPSEEK_API_KEY")
         return ChatDeepSeek(
-                    model=model_name,
-                    temperature=temperature,
-                    max_tokens=kwargs.get('max_tokens', None),
-                    timeout=kwargs.get('timeout', None),
-                    max_retries=kwargs.get('max_retries', 2),
-                )
+            model=model_name,
+            temperature=temperature,
+            max_tokens=kwargs.get("max_tokens", None),
+            timeout=kwargs.get("timeout", None),
+            max_retries=kwargs.get("max_retries", 2),
+        )
 
     @staticmethod
     def qwq_model(model_name: str, **kwargs) -> ChatQwQ:
@@ -124,14 +135,16 @@ class LlmsHouse:
         """
         LlmsHouse._ensure_api_key("DASHSCOPE_API_KEY")
         return ChatQwQ(
-                    model=model_name,
-                    max_tokens=kwargs.get('max_tokens', 3000),
-                    timeout=kwargs.get('timeout', None),
-                    max_retries=kwargs.get('max_retries', 2),
-                )
-            
+            model=model_name,
+            max_tokens=kwargs.get("max_tokens", 3000),
+            timeout=kwargs.get("timeout", None),
+            max_retries=kwargs.get("max_retries", 2),
+        )
+
     @staticmethod
-    def mistral_model(model_name: str, temperature: float = 0.7, **kwargs) -> ChatMistralAI:
+    def mistral_model(
+        model_name: str, temperature: float = 0.7, **kwargs
+    ) -> ChatMistralAI:
         """
         Mistral models - Good balance of performance and cost.
         Supports: mistral-large-latest, mistral-medium, etc.
@@ -140,11 +153,13 @@ class LlmsHouse:
         return ChatMistralAI(
             model=model_name,
             temperature=temperature,
-            max_retries=kwargs.get('max_retries', 2),
+            max_retries=kwargs.get("max_retries", 2),
         )
 
     @staticmethod
-    def perplexity_model(model_name: str, temperature: float = 0.7, **kwargs) -> ChatPerplexity:
+    def perplexity_model(
+        model_name: str, temperature: float = 0.7, **kwargs
+    ) -> ChatPerplexity:
         """
         Perplexity models - Excellent for search and research tasks.
         Supports: llama-3.1-sonar-small-128k-online, llama-3.1-sonar-large-128k-online, etc.
@@ -153,9 +168,8 @@ class LlmsHouse:
         return ChatPerplexity(
             model=model_name,
             temperature=temperature,
-            pplx_api_key=kwargs.get('pplx_api_key', os.getenv('PERPLEXITY_API_KEY')),
+            pplx_api_key=kwargs.get("pplx_api_key", os.getenv("PERPLEXITY_API_KEY")),
         )
-
 
     @staticmethod
     def grok_model(model_name: str, temperature: float = 0.7, **kwargs) -> ChatXAI:
@@ -167,10 +181,70 @@ class LlmsHouse:
         return ChatXAI(
             model=model_name,
             temperature=temperature,
-            max_tokens=kwargs.get('max_tokens', None),
-            timeout=kwargs.get('timeout', None),
-            max_retries=kwargs.get('max_retries', 2),
-            xai_api_key=kwargs.get('xai_api_key', os.getenv('GROK_API_KEY')),
+            max_tokens=kwargs.get("max_tokens", None),
+            timeout=kwargs.get("timeout", None),
+            max_retries=kwargs.get("max_retries", 2),
+            xai_api_key=kwargs.get("xai_api_key", os.getenv("GROK_API_KEY")),
+        )
+
+    @staticmethod
+    def openai_model(
+        model_name: str = "gpt-5.4",
+        temperature: float = 0.7,
+        **kwargs,
+    ) -> ChatOpenAI:
+        api_key = kwargs.pop("api_key", None) or os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            LlmsHouse._ensure_api_key("OPENAI_API_KEY")
+            api_key = os.getenv("OPENAI_API_KEY")
+        return ChatOpenAI(
+            model=model_name,
+            api_key=api_key,
+            temperature=temperature,
+            max_tokens=kwargs.get("max_tokens", 4096),
+            timeout=kwargs.get("timeout", 120),
+            max_retries=kwargs.get("max_retries", 2),
+        )
+
+    @staticmethod
+    def nvidia_model(
+        model_name: str = "qwen/qwen3-coder-480b-a35b-instruct",
+        temperature: float = 0.7,
+        **kwargs,
+    ) -> ChatOpenAI:
+        api_key = kwargs.pop("api_key", None) or os.getenv("NVIDIA_API_KEY")
+        if not api_key:
+            LlmsHouse._ensure_api_key("NVIDIA_API_KEY")
+            api_key = os.getenv("NVIDIA_API_KEY")
+        return ChatOpenAI(
+            model=model_name,
+            base_url="https://integrate.api.nvidia.com/v1",
+            api_key=api_key,
+            temperature=temperature,
+            max_tokens=kwargs.get("max_tokens", 4096),
+            timeout=kwargs.get("timeout", 120),
+            max_retries=kwargs.get("max_retries", 2),
+        )
+
+    @staticmethod
+    def openrouter_model(
+        model_name: str, temperature: float = 0.7, **kwargs
+    ) -> ChatOpenRouter:
+        """
+        OpenRouter models — Unified API to access models from multiple providers.
+        Supports any model listed on https://openrouter.ai/models
+        Examples: qwen/qwen3-235b-a22b, anthropic/claude-sonnet-4.5, openai/gpt-4o
+        """
+        key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPEN_ROUTER")
+        if not key:
+            LlmsHouse._ensure_api_key("OPENROUTER_API_KEY")
+            key = os.getenv("OPENROUTER_API_KEY")
+        os.environ["OPENROUTER_API_KEY"] = key
+        return ChatOpenRouter(
+            model=model_name,
+            temperature=temperature,
+            max_tokens=kwargs.get("max_tokens", None),
+            max_retries=kwargs.get("max_retries", 2),
         )
 
     @staticmethod
@@ -178,7 +252,9 @@ class LlmsHouse:
         """
         Get best coding model: Claude Sonnet 4 (hardcoded as best for coding tasks)
         """
-        return LlmsHouse.anthropic_model("claude-sonnet-4-20250514", temperature=0.1, **kwargs)
+        return LlmsHouse.anthropic_model(
+            "claude-sonnet-4-20250514", temperature=0.1, **kwargs
+        )
 
     @staticmethod
     def math_model(**kwargs):
@@ -191,12 +267,13 @@ class LlmsHouse:
     def get_fallback_model(**kwargs):
         """Get fallback model when primary model fails."""
         # Access fallback_model as a class attribute
-        fallback_model_name = "gemini-2.0-flash" # Hardcoded or make LlmsHouse.fallback_model a class attribute
+        fallback_model_name = "gemini-2.0-flash"  # Hardcoded or make LlmsHouse.fallback_model a class attribute
         try:
             return LlmsHouse.google_model(fallback_model_name, **kwargs)
         except Exception as e:
             # Fallback model error logged silently (no stdout print)
             return None
+
     @staticmethod
     def _ensure_api_key(key_name: str):
         """Ensure API key is set."""
@@ -208,13 +285,13 @@ class LlmsHouse:
 if __name__ == "__main__":
     # Initialize the LLM house
     # llm_house = LlmsHouse()
-    
+
     # Example usage - Company-specific models
     # openai_model = llm_house.openai_model("gpt-4o")
     # google_model = llm_house.google_model("gemini-2.0-flash-001")
     # anthropic_model = llm_house.anthropic_model("claude-3-5-sonnet-20241022")
     # deepseek_model = llm_house.deepseek_model("deepseek-coder")
-    
+
     # Example usage - Task-specific models (hardcoded best)
     # coding_model = llm_house.coding_model()  # Uses Claude 3.5 Sonnet
     # math_model = llm_house.math_model()      # Uses Gemini 2.5 Pro'

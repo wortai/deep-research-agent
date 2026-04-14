@@ -7,6 +7,8 @@ used by search_tools.py during the websearch pipeline.
 
 QUERY_GENERATION_PROMPT = """You are a search query strategist. Given a user's question and their conversation history, generate 1-3 targeted search queries that will find the most relevant information.
 
+**Current date and time (UTC):** {current_datetime}
+
 **User Question:** {user_query}
 
 **Conversation Context:**
@@ -25,6 +27,7 @@ SKILL_GENERATION_PROMPT = """You are a response architect. Your job is to analyz
 You do NOT write the response. You write the architectural plan the writer will follow.
 
 <inputs>
+<current_datetime>{current_datetime}</current_datetime>
 <user_query>{user_query}</user_query>
 <research_titles>{search_titles}</research_titles>
 </inputs>

@@ -1,0 +1,466 @@
+[
+  {
+    "criteria": [
+      {
+        "name": "Structure",
+        "verdict": "FAIL",
+        "detail": "The HTML structure is severely malformed. The `<div class='report-chapter'>` is prematurely closed, and `<div class='report-page'>` containers are nested incorrectly or left unclosed, violating the instruction that the chapter wrapper should contain *only* report-page children. There are also empty `h2` and `h3` tags within `report-page` wrappers that lack content, and the main chapter heading 'Section 1' is missing its text."
+      },
+      {
+        "name": "Page Count",
+        "verdict": "PASS",
+        "detail": "Despite the structural issues, there are multiple instances of `<div class='report-page'>` tags, indicating more than 2 page containers were attempted."
+      },
+      {
+        "name": "Design Compliance",
+        "verdict": "FAIL",
+        "detail": "Several design rules are not followed: one paragraph uses an incorrect hex code for body text (`#2D3740` instead of `#2D3748`), and the `h2` for 'Abstract' incorrectly uses `margin-bottom: 1.5rem` instead of the specified `2rem` for h2 elements. The `margin: 0 0 2rem;` on the first paragraph also deviates from the `1rem` standard for paragraph spacing."
+      },
+      {
+        "name": "Visual Variety",
+        "verdict": "FAIL",
+        "detail": "The chapter exclusively uses prose (`h2`, `h3`, `p` tags). There are no tables, charts, SVG, blockquotes, callouts, or KPI grids, despite instructions emphasizing these elements for a data-dense report."
+      },
+      {
+        "name": "Content Depth",
+        "verdict": "FAIL",
+        "detail": "The prose content is superficial and highly repetitive, with the 'Abstract' and 'Investment Objectives' sections largely restating the same information. The total word count is approximately 410 words, falling significantly short of the required 600 words of detailed prose."
+      },
+      {
+        "name": "Citations",
+        "verdict": "FAIL",
+        "detail": "No inline citation links (`<a href>`) are present in the provided HTML."
+      },
+      {
+        "name": "SVG Standards",
+        "verdict": "PASS",
+        "detail": "No SVG elements are present in the provided HTML, so their standards could not be violated."
+      },
+      {
+        "name": "Report Type Match",
+        "verdict": "FAIL",
+        "detail": "The chapter fails to convey the intended visual mood and report type of 'executive confidence, clinical precision, and institutional authority'. It lacks the promised 'numbers and charts', 'pristine white background with sharp, unrounded off-white data cards', and 'semantic green and red conditional formatting' that would mimic a professional financial briefing. The repetitive, text-only content further detracts from this goal."
+      },
+      {
+        "name": "No Anti-Patterns",
+        "verdict": "FAIL",
+        "detail": "The HTML exhibits severe anti-patterns including unclosed/mis-closed tags, incorrect nesting of `div.report-page` elements, empty heading tags, and a highly repetitive content structure. The chapter heading text ('Section 1') is also missing from the initial `h2` element."
+      },
+      {
+        "name": "Overall Quality",
+        "verdict": "FAIL",
+        "detail": "A human reader would find this chapter unprofessional, incomplete, and not informative. The structural errors, repetitive and superficial content, lack of expected data/visuals, and failure to adhere to design specifications make it unsuitable for a financial allocation manual aimed at high-net-worth investors."
+      }
+    ],
+    "pass_count": 2,
+    "fail_count": 8,
+    "summary": "This AI-generated chapter is a significant failure across most quality criteria. It exhibits critical structural errors with incorrect HTML nesting and unclosed tags, fails to implement key design elements like visual variety and proper spacing, and provides superficial, repetitive content far short of the required depth and professionalism. While basic page containers were generated and SVG standards were technically not violated due to their absence, the chapter utterly fails to meet the specified report type and overall quality expectations for a tactical financial allocation manual.",
+    "section_order": 1
+  },
+  {
+    "criteria": [
+      {
+        "name": "Structure",
+        "verdict": "PASS",
+        "detail": "The HTML correctly uses a <div class=\"report-chapter\"> wrapper containing <div class=\"report-page\"> children, and all content is within these page containers."
+      },
+      {
+        "name": "Page Count",
+        "verdict": "PASS",
+        "detail": "The provided HTML snippet contains two <div class=\"report-page\"> containers."
+      },
+      {
+        "name": "Design Compliance",
+        "verdict": "FAIL",
+        "detail": "While font families, colors, and most font sizes match, there are minor deviations in vertical spacing. Specifically, the h2 bottom margin is 1.5rem instead of 2rem (or 1rem if considered like a paragraph break), and the h4 bottom margin is 1rem instead of the instructed 1.5rem."
+      },
+      {
+        "name": "Visual Variety",
+        "verdict": "FAIL",
+        "detail": "The generated HTML (even for the first ~580 words of content) consists almost entirely of prose paragraphs and unordered lists. It completely lacks the mandated tables, charts, KPI cards, insight boxes, or scenario boxes, which are central to the 'data-dense' and 'visually skewed towards numbers and charts' directive in the design instructions."
+      },
+      {
+        "name": "Content Depth",
+        "verdict": "FAIL",
+        "detail": "The content, while meeting the minimum word count, is primarily an introduction and high-level description of what the report *will* cover, rather than delivering actual 'dense metrics, forward-looking Monte Carlo models, and historical CAGR' as per the report intent. It feels superficial given the expectation of a 'tactical financial allocation manual'."
+      },
+      {
+        "name": "Citations",
+        "verdict": "FAIL",
+        "detail": "No inline <a href> citation links are present in the provided HTML snippet, failing the requirement for at least 3 citations."
+      },
+      {
+        "name": "SVG Standards",
+        "verdict": "PASS",
+        "detail": "No SVGs are present in the provided HTML, therefore no SVG standards could be violated."
+      },
+      {
+        "name": "Report Type Match",
+        "verdict": "FAIL",
+        "detail": "While the basic styling (colors, fonts) aligns with the 'executive confidence, clinical precision' mood, the primary visual weight is NOT 'heavily skewed toward numbers and charts' nor is it a 'highly scannable, data-dense reading experience'. The absence of data visualizations fundamentally mismatches the intended report type."
+      },
+      {
+        "name": "No Anti-Patterns",
+        "verdict": "PASS",
+        "detail": "There are no obvious anti-patterns such as invented content, section_id markers, or unclosed tags. The repetition of paragraph style is natural for prose."
+      },
+      {
+        "name": "Overall Quality",
+        "verdict": "FAIL",
+        "detail": "While the generated prose is professionally written and the inline styling attempts to follow design guidelines, the chapter fundamentally fails to deliver on the core promise of the report intent and user query. It is an extensive introduction *to* a data-driven report, rather than a data-driven chapter itself, making it professional in tone but severely lacking in practical information and visual density for a human reader."
+      }
+    ],
+    "pass_count": 4,
+    "fail_count": 6,
+    "summary": "The generated chapter demonstrates a partial understanding of the design instructions, correctly applying many typographical and color specifications. However, it critically fails to meet the core requirements for a data-dense, visually rich financial report. The content is overly descriptive, acting as an introduction to a report rather than delivering actionable insights with supporting metrics and visualizations. Significant omissions include the lack of charts, tables, KPI grids, and citations, which directly contradict the 'Report Intent & Presentation' and 'Visual Decision Tree' instructions. Consequently, while the aesthetic foundation is laid, the functional and informative aspects of the chapter are severely underdeveloped, resulting in a low overall quality rating for a tactical financial allocation manual.",
+    "section_order": 2
+  },
+  {
+    "criteria": [
+      {
+        "name": "Structure",
+        "verdict": "PASS",
+        "detail": "The HTML correctly uses a <div class=\"report-chapter\"> wrapper containing multiple <div class=\"report-page\"> children, and all content elements are appropriately nested within these page containers."
+      },
+      {
+        "name": "Page Count",
+        "verdict": "PASS",
+        "detail": "The generated HTML contains at least two report-page containers (three are visible in the provided snippet)."
+      },
+      {
+        "name": "Design Compliance",
+        "verdict": "PASS",
+        "detail": "The inline styles for colors (hex values), font families, font sizes, weights, and line heights for headings, body text, and table components (header BG, text color, dense table font size) are highly compliant with the design instructions."
+      },
+      {
+        "name": "Visual Variety",
+        "verdict": "FAIL",
+        "detail": "The chapter primarily uses prose and bulleted lists, with only one table introduced. It explicitly misses instructions to use a CSS grid for top-line metrics (Sharpe ratio, CAGR) and does not include other components like KPI cards, insight boxes, charts, or callouts mentioned in the design instructions, leading to a lack of visual diversity."
+      },
+      {
+        "name": "Content Depth",
+        "verdict": "FAIL",
+        "detail": "The prose word count is approximately 473 words, falling short of the required 600 words. More critically, while detailed on foundational metrics and S&P 500 benchmarks, the content only provides preparatory information and does not directly address the user's core query on 'best ways to use your million to make more money either investing, tech, real estate, etc.', making it superficial relative to the query's scope."
+      },
+      {
+        "name": "Citations",
+        "verdict": "FAIL",
+        "detail": "Only two inline citation links were found in the provided HTML snippet, which is less than the required minimum of three."
+      },
+      {
+        "name": "SVG Standards",
+        "verdict": "PASS",
+        "detail": "No SVG elements are present in the provided HTML, so this criterion is met by absence of issues."
+      },
+      {
+        "name": "Report Type Match",
+        "verdict": "FAIL",
+        "detail": "While the colors and typography align with the 'executive confidence' mood, the chapter fails to achieve the intended visual weight 'heavily skewed toward numbers and charts' or utilize 'data cards' and 'CSS grid' for top-line metrics as specified in the 'Visual Mood' and 'Visual Decision Tree' sections. This results in a less data-dense and authoritative presentation than required."
+      },
+      {
+        "name": "No Anti-Patterns",
+        "verdict": "FAIL",
+        "detail": "The provided HTML snippet ends abruptly mid-tag (`<td style=\"pa`), indicating an unclosed `<td>` tag. This constitutes an anti-pattern."
+      },
+      {
+        "name": "Overall Quality",
+        "verdict": "FAIL",
+        "detail": "The chapter, while professionally written regarding definitions, fails to directly answer the user's core query and acts more as an introductory segment. It significantly misses design instructions regarding visual variety and component usage, which are crucial for the intended 'data-dense' and 'institutional authority' aesthetic. Combined with the low word count and insufficient citations, the overall quality is diminished, making it feel incomplete and not fully compliant with the prompt's intent."
+      }
+    ],
+    "pass_count": 4,
+    "fail_count": 6,
+    "summary": "The AI-generated chapter demonstrates strong compliance with the specified color system and typography, contributing to a professional aesthetic. However, it falls short in several critical areas. The chapter lacks sufficient visual variety, failing to incorporate essential components like CSS grids for metrics and other data presentation formats, which detracts from the intended 'data-dense' and 'institutional authority' mood. Furthermore, the content depth is insufficient, with a lower-than-required word count and a focus on foundational principles rather than directly addressing the user's primary query about specific investment strategies. The chapter also provides fewer citations than mandated, and the HTML snippet ends with an unclosed tag. These shortcomings indicate that while the chapter is well-structured and styled in parts, it does not fully meet the overall design intent, content requirements, or presentation standards.",
+    "section_order": 3
+  },
+  {
+    "criteria": [
+      {
+        "name": "Structure",
+        "verdict": "PASS",
+        "detail": "The HTML is correctly wrapped in a 'report-chapter' div, and all content resides within 'report-page' children."
+      },
+      {
+        "name": "Page Count",
+        "verdict": "PASS",
+        "detail": "There are at least 2 'report-page' containers (exactly two are present)."
+      },
+      {
+        "name": "Design Compliance",
+        "verdict": "FAIL",
+        "detail": "While colors for body text and headings, font sizes, weights, and line heights are mostly compliant for the elements present, crucial vertical rhythm and spacing instructions (e.g., between paragraphs, before/after headings) are not applied via inline styles. Many component surface colors and semantic colors are also unused due to the absence of corresponding components (e.g., KPI cards, tables)."
+      },
+      {
+        "name": "Visual Variety",
+        "verdict": "FAIL",
+        "detail": "The chapter exclusively uses prose and unordered lists. It entirely lacks the specified visual elements such as tables, charts, KPI metric grids, blockquotes, or callouts, which are critical for the intended 'data-dense' report style."
+      },
+      {
+        "name": "Content Depth",
+        "verdict": "FAIL",
+        "detail": "Although the prose word count just meets the minimum (around 600 words), the content is largely descriptive and lacks the 'dense metrics, forward-looking Monte Carlo models, and historical CAGR' and quantifiable benchmarks explicitly required by the report intent. It feels superficial for a 'tactical financial allocation manual'."
+      },
+      {
+        "name": "Citations",
+        "verdict": "PASS",
+        "detail": "Three inline 'a href' citation links are present, meeting the requirement."
+      },
+      {
+        "name": "SVG Standards",
+        "verdict": "PASS",
+        "detail": "No SVGs are present in the provided HTML snippet, so this criterion is not applicable."
+      },
+      {
+        "name": "Report Type Match",
+        "verdict": "FAIL",
+        "detail": "The chapter fails to match the visual style of an 'executive confidence, clinical precision, and institutional authority' report or a 'Goldman Sachs or Bloomberg Intelligence briefing.' The absence of data visualizations, comprehensive metrics, and structured tables prevents it from being 'data-dense' and 'highly scannable' as instructed."
+      },
+      {
+        "name": "No Anti-Patterns",
+        "verdict": "PASS",
+        "detail": "No invented content, section_id markers, unclosed tags, or overly repetitive visual patterns were observed beyond standard prose formatting."
+      },
+      {
+        "name": "Overall Quality",
+        "verdict": "FAIL",
+        "detail": "The chapter falls short of being professional and highly informative due to its lack of data-driven insights and visual components. The content is generic, missing the deep analytical validation and quantifiable benchmarks expected from a high-net-worth investor's tactical financial manual. Additionally, the chapter heading '3. Strategic Investment Avenues for Capital Growth' does not match the requested 'Section 4'."
+      }
+    ],
+    "pass_count": 5,
+    "fail_count": 5,
+    "summary": "The AI-generated chapter successfully adheres to basic HTML structure, page count, and citation requirements, and correctly applies some inline typographic styles such as color, font size, weight, and line height. However, it significantly fails to meet the more complex design instructions related to visual variety, content depth, and matching the specified report type. The absence of data visualizations, tables, KPI grids, and detailed financial metrics fundamentally undermines the intent of creating a data-dense, authoritative financial allocation manual. The lack of explicit vertical rhythm implementation and the chapter heading mismatch also contribute to a lower overall quality score.",
+    "section_order": 4
+  },
+  {
+    "criteria": [
+      {
+        "name": "Structure",
+        "verdict": "PASS",
+        "detail": "The HTML is wrapped in `<div class=\"report-chapter\">` which contains two `<div class=\"report-page\">` children. All content is within these page containers."
+      },
+      {
+        "name": "Page Count",
+        "verdict": "PASS",
+        "detail": "There are 2 `report-page` containers, meeting the requirement of at least 2."
+      },
+      {
+        "name": "Design Compliance",
+        "verdict": "FAIL",
+        "detail": "Multiple issues: Font families (Inter, Helvetica Neue, etc.) are only applied inline to the `<table>` element, missing for `<p>`, `<h2>`, `<h3>`. The `<caption>` font-size (`1.125rem`) and font-weight (`600`) contradict instructions (`0.875rem`, `400`). The `h2` `margin-bottom` is `1.5rem` instead of the specified `2rem` for 'Between subchapters (h2)'. Other color and padding rules are correctly applied."
+      },
+      {
+        "name": "Visual Variety",
+        "verdict": "FAIL",
+        "detail": "The chapter primarily uses prose paragraphs and a single table. It lacks charts, SVG, blockquotes, callouts, KPI cards, or insight boxes, which are mentioned in the design instructions as integral components for a 'highly scannable, data-dense reading experience' and 'extract top-line decisions'."
+      },
+      {
+        "name": "Content Depth",
+        "verdict": "FAIL",
+        "detail": "The prose content is approximately 450 words, falling short of the 'at least 600 words' requirement. The chapter also feels summarized and lacks the 'dense metrics, forward-looking Monte Carlo models, and historical CAGR' expected for an 'actionable prospectus' aimed at high-net-worth investors, focusing narrowly on robo-advisors without broader coverage of 'investing, tech, real estate' as implied by the user query and report intent."
+      },
+      {
+        "name": "Citations",
+        "verdict": "PASS",
+        "detail": "There are multiple inline `<a>` citation links (Finance Strategists, Wipro, Optivault), exceeding the minimum of 3."
+      },
+      {
+        "name": "SVG Standards",
+        "verdict": "PASS",
+        "detail": "No SVGs are present in the provided HTML, so this criterion is met by absence."
+      },
+      {
+        "name": "Report Type Match",
+        "verdict": "PASS",
+        "detail": "The overall visual mood, professional tone, and topic align with the 'executive confidence, clinical precision, and institutional authority' intended for a tactical financial allocation manual."
+      },
+      {
+        "name": "No Anti-Patterns",
+        "verdict": "FAIL",
+        "detail": "The generated `h2` element contains `4. Automated Portfolio Management: The Role of Robo-Advisors`, which contradicts the explicit `CHAPTER HEADING: Section 5` instruction given to the generator. This constitutes inventing content for the chapter heading."
+      },
+      {
+        "name": "Overall Quality",
+        "verdict": "FAIL",
+        "detail": "While the chapter is informative and professional in tone, it fails to meet several key quality and instruction compliance benchmarks. The lack of visual variety, insufficient content depth (both in word count and metric detail), significant design compliance issues, and direct contradiction of the chapter heading indicate a failure to deliver a chapter that is truly professional and comprehensive for the specified high-net-worth audience and report intent."
+      }
+    ],
+    "pass_count": 5,
+    "fail_count": 5,
+    "summary": "This chapter demonstrates a mixed adherence to the provided instructions. While it generally follows the structural requirements and maintains a professional tone, it significantly falls short in design compliance, visual variety, and content depth. The AI-generated content also directly contradicts the specified chapter heading, indicating a failure to follow a critical instruction. The chapter's narrow focus and lack of advanced metrics, despite the user's query for comprehensive investment strategies for a $1M portfolio, detract from its overall quality as an 'actionable prospectus' for an advanced audience.",
+    "section_order": 5
+  },
+  {
+    "criteria": [
+      {
+        "name": "Structure",
+        "verdict": "PASS",
+        "detail": "The HTML is wrapped in `<div class='report-chapter'>` and contains a `<div class='report-page'>` child. All visible elements are within this page container."
+      },
+      {
+        "name": "Page Count",
+        "verdict": "FAIL",
+        "detail": "Only one `<div class='report-page'>` container is present in the provided HTML, not at least two as required."
+      },
+      {
+        "name": "Design Compliance",
+        "verdict": "FAIL",
+        "detail": "Multiple issues: The `h3` color `#1A3655D` contains a typo and should be `#1A365D`. Body text (`<p>`) is missing inline `font-size: 1rem` and `font-weight: 400` directives. The `h2` element's `margin: 1.5rem 0;` does not match the required `2rem` for 'Between subchapters (h2)'."
+      },
+      {
+        "name": "Visual Variety",
+        "verdict": "FAIL",
+        "detail": "The chapter consists solely of headings and repetitive paragraphs. It lacks any tables, charts, SVG, KPI cards, insight boxes, or callouts as indicated in the design instructions for a data-dense report."
+      },
+      {
+        "name": "Content Depth",
+        "verdict": "FAIL",
+        "detail": "While potentially reaching a raw word count, the content is extremely superficial and highly repetitive, reiterating the same few points about tax-loss harvesting across numerous paragraphs. It does not provide exhaustive detail and fails to address the user query's broader scope of investing, tech, or real estate strategies for a million dollars."
+      },
+      {
+        "name": "Citations",
+        "verdict": "FAIL",
+        "detail": "No inline `<a href>` citation links are present in the provided HTML."
+      },
+      {
+        "name": "SVG Standards",
+        "verdict": "PASS",
+        "detail": "No SVGs are present in the provided HTML, so the standards for SVGs are not applicable and thus not violated."
+      },
+      {
+        "name": "Report Type Match",
+        "verdict": "FAIL",
+        "detail": "The visual style does not match the intended 'executive confidence, clinical precision, and institutional authority' mood, nor the 'data-dense reading experience' with 'dense metrics, forward-looking Monte Carlo models, and historical CAGR.' It's merely a series of text blocks."
+      },
+      {
+        "name": "No Anti-Patterns",
+        "verdict": "FAIL",
+        "detail": "The chapter exhibits significant repetition of content (the same phrases and concepts in many paragraphs), which acts as filler and an anti-pattern. The section numbering (5) also conflicts with the 'Section 6' indicated in the chapter heading prompt."
+      },
+      {
+        "name": "Overall Quality",
+        "verdict": "FAIL",
+        "detail": "The chapter is severely lacking in professional quality. It fails to address the user's primary query, the content is highly repetitive and lacks depth, there is no visual variety or data presentation, and several design compliance issues exist. A human reader would find this frustrating and uninformative."
+      }
+    ],
+    "pass_count": 2,
+    "fail_count": 8,
+    "summary": "This report chapter demonstrates a critical failure to adhere to almost all specified instructions. While the basic HTML structure is present, the generator completely missed the mark on content relevance to the user query, content depth (opting for extreme repetition), visual variety, and overall design compliance. The chapter's lack of data, charts, tables, and diverse presentation formats contradicts the 'data-dense' and 'institutional authority' mood requested. Numerous anti-patterns and design inconsistencies contribute to a low-quality, unprofessional, and uninformative output.",
+    "section_order": 6
+  },
+  {
+    "criteria": [
+      {
+        "name": "Structure",
+        "verdict": "PASS",
+        "detail": "The HTML is wrapped in <div class=\"report-chapter\"> and contains only <div class=\"report-page\"> children, with all content inside page containers."
+      },
+      {
+        "name": "Page Count",
+        "verdict": "PASS",
+        "detail": "There are two <div class=\"report-page\"> containers, meeting the requirement of at least 2."
+      },
+      {
+        "name": "Design Compliance",
+        "verdict": "FAIL",
+        "detail": "While colors, font families, font sizes, and font weights largely comply, there are specific vertical rhythm mismatches: h2 has margin-bottom: 1rem instead of 2rem, and h4 has margin-bottom: 1rem instead of the specified 1.5rem for 'after h4'."
+      },
+      {
+        "name": "Visual Variety",
+        "verdict": "FAIL",
+        "detail": "The chapter entirely lacks required visual components such as tables, charts, CSS grids for KPIs, KPI cards, insight boxes, or scenario boxes, relying solely on headings, paragraphs, and lists. This directly contradicts instructions for a data-dense report with extensive visual validation."
+      },
+      {
+        "name": "Content Depth",
+        "verdict": "FAIL",
+        "detail": "The prose word count is approximately 485 words, falling short of the required 600 words. More critically, the content is superficial, lacking the 'dense metrics, forward-looking Monte Carlo models, and historical CAGR' explicitly demanded for the target audience, and even highlights its own data gaps."
+      },
+      {
+        "name": "Citations",
+        "verdict": "FAIL",
+        "detail": "No inline <a href> citation links are present in the provided HTML, despite the requirement for at least 3."
+      },
+      {
+        "name": "SVG Standards",
+        "verdict": "PASS",
+        "detail": "No SVGs are present in the provided HTML, so SVG standards are not applicable."
+      },
+      {
+        "name": "Report Type Match",
+        "verdict": "FAIL",
+        "detail": "The chapter fails to project the specified 'executive confidence, clinical precision, and institutional authority' or mimic a 'Goldman Sachs or Bloomberg Intelligence briefing'. Its lack of data, charts, tables, and KPI grids makes it feel like a generic prose summary rather than a 'tactical financial allocation manual' with 'dense metrics' and 'quantifiable benchmarks'."
+      },
+      {
+        "name": "No Anti-Patterns",
+        "verdict": "FAIL",
+        "detail": "The chapter heading '6. Conclusion and Future Research Directions' directly contradicts the USER QUERY's implied 'Section 7', indicating invented and incorrect content/context. The content also includes speculative future data references beyond 2026."
+      },
+      {
+        "name": "Overall Quality",
+        "verdict": "FAIL",
+        "detail": "A human reader would find this chapter unprofessional and insufficient. It deviates significantly from the user's instructions regarding chapter numbering, lacks essential data visualizations and depth for its target audience, and fails to embody the specified institutional visual mood, making it a poor representation of a financial briefing."
+      }
+    ],
+    "pass_count": 3,
+    "fail_count": 7,
+    "summary": "The AI-generated chapter exhibits significant failures in adhering to the design instructions and user query. While basic HTML structure and page count are met, critical discrepancies exist in design compliance regarding vertical rhythm. More importantly, the chapter profoundly fails in visual variety, content depth, and the inclusion of citations, entirely missing the expectation for a data-dense financial report with extensive visual validation. The chapter heading itself is incorrect, and the overall presentation falls far short of the 'executive confidence' and 'Goldman Sachs' aesthetic demanded by the prompt. This results in a report that is unprofessional, uninformative, and not fit for the specified purpose or audience.",
+    "section_order": 7
+  },
+  {
+    "criteria": [
+      {
+        "name": "Structure",
+        "verdict": "PASS",
+        "detail": "The HTML is correctly wrapped in a <div class=\"report-chapter\"> and contains only <div class=\"report-page\"> children, with all content residing within these page containers."
+      },
+      {
+        "name": "Page Count",
+        "verdict": "PASS",
+        "detail": "The truncated HTML includes at least 2 report-page containers (specifically, 4 are present)."
+      },
+      {
+        "name": "Design Compliance",
+        "verdict": "FAIL",
+        "detail": "Multiple issues: h4 uses font-size: 1.25rem instead of 1.125rem and font-weight: 700 instead of 600. h4 elements lack a specified line-height of 1.4. h2 vertical margin is 1.5rem instead of 2rem. h4 only has a top margin of 1.5rem, failing to apply 1.5rem *after* it. Font families are inconsistent and often miss 'Helvetica Neue' and '-apple-system' as specified."
+      },
+      {
+        "name": "Visual Variety",
+        "verdict": "FAIL",
+        "detail": "The chapter entirely lacks visual components such as tables, charts, SVG, blockquotes, callouts, KPI cards, or CSS grids for metrics, despite the instructions explicitly requiring a mix of these formats and heavy reliance on data visualization."
+      },
+      {
+        "name": "Content Depth",
+        "verdict": "FAIL",
+        "detail": "The content is highly repetitive, with entire paragraphs duplicated verbatim multiple times. It is superficial, lacks specific metrics, models, or comparisons, and does not provide the 'dense metrics' or 'actionable prospectus' level of detail required for an intermediate to advanced financial report."
+      },
+      {
+        "name": "Citations",
+        "verdict": "FAIL",
+        "detail": "No inline <a href> citation links are present in the provided HTML, falling short of the required minimum of 3."
+      },
+      {
+        "name": "SVG Standards",
+        "verdict": "PASS",
+        "detail": "No SVGs are present in the provided HTML, thus this criterion is met by default."
+      },
+      {
+        "name": "Report Type Match",
+        "verdict": "FAIL",
+        "detail": "The visual style (or lack thereof) does not match the 'executive confidence, clinical precision, and institutional authority' mood. It fails to skew visual weight toward numbers and charts, or use semantic colors for conditional formatting, completely missing the aesthetic of a Goldman Sachs or Bloomberg Intelligence briefing."
+      },
+      {
+        "name": "No Anti-Patterns",
+        "verdict": "FAIL",
+        "detail": "Major anti-patterns include the verbatim repetition of multiple paragraphs and the significant mismatch between the requested 'CHAPTER HEADING: Section 8' and the generated '6. Conclusion'."
+      },
+      {
+        "name": "Overall Quality",
+        "verdict": "FAIL",
+        "detail": "The chapter is unprofessional due to highly repetitive content, lack of adherence to visual design instructions (especially regarding data presentation), and a mismatch in chapter numbering and content focus (a conclusion presented as a general section). It fails to be informative for the target audience of high-net-worth investors looking for actionable, data-dense insights."
+      }
+    ],
+    "pass_count": 3,
+    "fail_count": 7,
+    "summary": "This chapter largely fails to meet the specified instructions and quality standards. While the basic HTML wrapper structure and page count are correct, there are numerous critical failures in design compliance (font sizes, weights, spacing, font families), content depth (repetitive, superficial prose, lack of data), visual variety (no charts, tables, or other components), and overall report type matching. The presence of significant anti-patterns like verbatim content repetition and a mismatch in chapter heading further reduces its professional quality and informative value for the intended audience.",
+    "section_order": 8
+  }
+]

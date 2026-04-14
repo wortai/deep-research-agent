@@ -1,0 +1,65 @@
+SCENARIO: General — Climate Change Overview
+SELECTED SKILL: scientific_general.md
+================================================================================
+
+1. COLOR SYSTEM
+- Background: #FFFFFF
+- Body text: #2D3748
+- Headings: #1A365D
+- Accents: #3182CE (Primary), #E57373 (Secondary)
+- Semantic Colors: #38A169 (Positive/Mitigation), #E57373 (Negative/Warming), #718096 (Control/Baseline)
+- Chart Color Sequence: #3182CE, #E57373, #319795, #DD6B20, #805AD5, #38A169
+- Table header: bg #1A365D, text #FFFFFF
+- Table row alt: bg #F7FAFC
+- Blockquote: bg #F7FAFC, border #718096
+- Insight box: bg #EBF8FF, border #3182CE
+- Warning/Effects box: bg #FFFAF0, border #DD6B20
+- Code block: bg #1A202C, border #2D3748, text #E2E8F0
+
+2. TYPOGRAPHY
+- Font families: 'Inter', Roboto, sans-serif
+- Type scale: h2 1.5rem, h3 1.25rem, h4 1.125rem, body 1.0rem, caption 0.875rem
+- Font weights: h2 700, h3 600, h4 600, body 400, caption 400
+- Line heights: h2/h3 1.3, h4 1.4, body 1.7, caption 1.4
+
+3. SPACING
+- Base spacing unit: 0.5rem
+- Vertical rhythm: 1.5rem margins between paragraphs, 4rem between subchapters, 2.5rem before and after visuals
+- Component padding: 1rem 1.5rem for insight boxes and blockquotes
+- Max content width: 48rem for standard prose, 64rem for data-dense charts or tables
+
+4. VISUAL MOOD
+The aesthetic identity of this report is objective, authoritative, and empirical, emulating top-tier scientific journals. Readers should feel grounded in undeniable empirical evidence and robust methodology rather than emotional narrative. Subtle details like crisp 1px borders (#E2E8F0), precise left-aligned tabular data, and stark #FFFFFF backgrounds reinforce a clinical, academic identity that highlights facts over decoration.
+
+5. REPORT INTENT & PRESENTATION
+This is a scientific overview of climate change functioning as an authoritative primer. The reader needs to accurately grasp both complex systemic interactions (the greenhouse effect, carbon cycles) and undeniable historical trends (temperature anomalies, sea-level rise). Line charts heavily dominate the trend data, while SVG diagrams precisely dissect cyclical environmental processes. By isolating hard data in pristine, heavily-captioned visual containers, the prose can remain rigorously focused on analytical interpretation rather than listing numbers.
+
+6. VISUAL DECISION TREE
+- IF showing continuous historical or projected climate trends (e.g., CO2 concentration over decades) THEN use a Charts.css line chart.
+- IF explaining systemic environmental interactions (e.g., carbon cycle, greenhouse effect) THEN use an SVG process flowchart with discrete nodes and directional arrows.
+- IF comparing emission sources or economic sector data THEN use a Charts.css horizontal bar chart for precise magnitude ranking.
+- IF listing localized regional impacts or summarizing meta-analyses THEN use a structured table with alternating #F7FAFC rows and a #1A365D header.
+- IF highlighting a critical statistical consensus (e.g., a specific warming limit) THEN use an Insight box (bg #EBF8FF, border #3182CE) with bold metric emphasis.
+
+7. SVG & CHARTS.CSS CONSTRUCTION
+a) SVG:
+- Dimensions: viewBox="0 0 800 400" for wide process maps or cycles, viewBox="0 0 400 400" for molecular or distinct concept models.
+- Fonts: 'Inter', matching body scale (0.875rem for data labels, 1.0rem for major nodes).
+- Stroke Widths: 1px for grids/guidelines, 2px for data pathways/flux arrows, 3px for primary container outlines.
+- Colors: Restrict application exclusively to the Chart Color Sequence palette. No arbitrary color injection.
+- Accessibility: Both <title> and <desc> tags are mandatory within the SVG structure.
+- Domain Patterns: Carbon flow cycles utilizing geometric nodes (rects/ellipses) connected by paths (flux vectors), and cross-sections representing atmospheric layers with labeled interactions.
+
+b) Charts.css:
+- Types: line (time-series trends), column (annual measurements), bar (category comparison).
+- Modifier Classes: All charts must include show-labels, show-data, and show-headings.
+- Sequence Tracking: Start primary series as #3182CE, follow strict sequence order for secondary/tertiary data lines.
+- Utilities: Utilize data-after to precisely label axis markers (e.g., 'ppm' or '%'). Use show-primary strictly to denote extreme anomalies.
+- Restriction: Do NOT use Charts.css if fewer than 3 data points exist.
+
+8. WHAT TO AVOID
+- Never utilize pie charts for emissions or climate data; sector comparisons must use structured bar charts.
+- Never omit precise axis labels, exact timeline ranges, sample datasets, or scientific units of measurement from any visualization.
+- Do not bury multi-decade trend metrics strictly within text paragraphs; extract all continuous trends into a dedicated line chart.
+- Never allow a visual to float unnumbered. All tables and charts require a strict Figure N: or Table N: prefix within the caption element.
+- Avoid utilizing red or warm-toned accent hues for baseline metrics; #E57373 and #DD6B20 strictly denote warning indicators or warming trends.

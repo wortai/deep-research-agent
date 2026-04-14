@@ -42,17 +42,22 @@ class Solver:
         num_web_queries: int = 1, 
         max_web_results: int = 2, 
         num_gaps_per_node: int = 2,
-        clarification_context: list = None
+        clarification_context: list = None,
+        reviewer_mode: bool = False
     ):
         """
         Initialize the Solver.
 
+        Args:
+            reviewer_mode: If True, uses Tavily multiple_advance_queries (efficient, with images).
+                If False, uses WebSearch.initiate_research (Google -> Tavily extract -> Browser -> AgentQL).
         """
         self.query = query
         self.num_web_queries = num_web_queries
         self.num_gaps_per_node = num_gaps_per_node
         self.max_results = max_web_results
         self.clarification_context = clarification_context or []
+        self.reviewer_mode = reviewer_mode
 
         self.web_search_llm = LlmsHouse.deepseek_model("deepseek-chat", temperature=0.5)
         self.analysis_llm = LlmsHouse.google_model("gemini-2.0-flash", temperature=0.7)
@@ -75,31 +80,84 @@ class Solver:
             logger.error(f"Failed to parse web search queries: {e}")
             return []
 
-    async def retrieve_web_content(self, web_search_queries: List[str]) -> List[Dict[str, str]]:
+    async def retrieve_web_content(self, web_search_queries: List[str]) -> List[Dict[str, Any]]:
         """
-        Retrieve content from web using WebSearch class.
+        Retrieve content from web. Uses reviewer_mode to choose strategy:
+        - reviewer_mode=True: Tavily multiple_advance_queries (efficient, with images).
+        - reviewer_mode=False: WebSearch.initiate_research (Google -> Tavily extract -> Browser -> AgentQL).
+        """
+        if self.reviewer_mode:
+            return await self._retrieve_web_content_reviewer(web_search_queries)
+        return await self._retrieve_web_content_default(web_search_queries)
 
-        """
+
+
+
+
+    async def _retrieve_web_content_default(self, web_search_queries: List[str]) -> List[Dict[str, Any]]:
+        """Original retrieval: WebSearch.initiate_research per query."""
         all_web_content = []
-        
         for query in web_search_queries:
             try:
                 logger.info(f"Web search: {query}")
                 web_search = WebSearch(query=query, max_results=self.max_results)
                 results = await web_search.initiate_research()
-                logger.info(f"Retrieved {len(results)} results of websearch data ")
-                
+                logger.info(f"Retrieved {len(results)} results of websearch data")
+
                 if results:
                     for result in results:
                         all_web_content.append({
-                            "content": result['content'],
-                            "url": result['url']
+                            "content": result["content"],
+                            "url": result["url"],
                         })
-            
             except Exception as e:
                 logger.error(f"Web search error for '{query}': {e}")
-        
         return all_web_content
+
+
+
+
+
+    async def _retrieve_web_content_reviewer(self, web_search_queries: List[str]) -> List[Dict[str, Any]]:
+        """Reviewer retrieval: Tavily multiple_advance_queries with images and descriptions."""
+        try:
+            results = await WebSearch.search_with_multiple_advance_queries(
+                queries=web_search_queries,
+                max_results_per_query=self.max_results,
+                include_images=True,
+                include_raw_content=True,
+            )
+            logger.info(f"Retrieved {len(results)} results via multiple advance queries")
+
+            all_web_content = []
+            for item in results:
+                content = item.get("content", "")
+                url = item.get("url", "")
+                title = item.get("title", "")
+                images = item.get("images", [])
+
+                parts = []
+                if title:
+                    parts.append(f"Title: {title}")
+                parts.append(content)
+                if images:
+                    parts.append("")
+                    parts.append("[AVAILABLE IMAGES - Use the description to decide if each image is relevant to this section. Include only useful images as markdown: ![description](url)]")
+                    for i, img in enumerate(images[:8], 1):
+                        img_url = img.get("url", "")
+                        img_desc = img.get("description", "")
+                        if img_url:
+                            parts.append(f"  Image {i}: URL={img_url} | Description: {img_desc}")
+
+                all_web_content.append({
+                    "url": url,
+                    "content": "\n".join(parts),
+                })
+            return all_web_content
+
+        except Exception as e:
+            logger.error(f"Multiple advance queries error: {e}")
+            return []
         
     async def analyze_gaps(self, web_content: List[Dict[str, str]]) -> Tuple[str, Dict[str, str], List[str]]:
         """

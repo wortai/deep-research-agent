@@ -1,0 +1,387 @@
+[
+  {
+    "name": "Finance \u2014 Tesla Stock Analysis 2024",
+    "user_query": "Analyze Tesla's stock performance, financial metrics, and growth trajectory for 2024",
+    "expected_skill": "finance_corporate.md",
+    "stages": {
+      "skill_selection": {
+        "selected": "finance_corporate.md",
+        "expected": "finance_corporate.md",
+        "match": true
+      },
+      "design_instructions": {
+        "length": 4856,
+        "evaluation": {
+          "expected_skill": "finance_corporate.md",
+          "length": 4856,
+          "metrics": {
+            "has_color_system": true,
+            "has_typography": true,
+            "has_spacing": true,
+            "has_visual_mood": true,
+            "has_report_intent": true,
+            "has_visual_decision_tree": true,
+            "has_svg": true,
+            "has_charts.css": true,
+            "has_avoid": true,
+            "hex_color_count": 30,
+            "rem_value_count": 17,
+            "if_then_indicators": 13,
+            "has_viewbox": true,
+            "has_show_labels": true,
+            "has_show_data": true
+          },
+          "issues": [],
+          "warnings": [],
+          "passes": [
+            "Found section: COLOR SYSTEM",
+            "Found section: TYPOGRAPHY",
+            "Found section: SPACING",
+            "Found section: VISUAL MOOD",
+            "Found section: REPORT INTENT",
+            "Found section: VISUAL DECISION TREE",
+            "Found section: SVG",
+            "Found section: CHARTS.CSS",
+            "Found section: AVOID",
+            "OK: 30 hex color values"
+          ]
+        },
+        "preview": "1. COLOR SYSTEM: Background: #FFFFFF. Body text: #2D3748. Headings: #1A365D. Positive/Growth semantic: #38A169. Negative/Decline semantic: #E53E3E. Neutral accent: #3182CE. Chart color sequence (ordered): #3182CE, #319795, #DD6B20, #805AD5, #D69E2E, #4A5568. Component surfaces: Table header bg: #1A365D, border: #1A365D. Row alt bg: #F7FAFC. Blockquote (Bull/Bear scenario) bg: #F0FFF4 or #FFF5F5, border: #38A169 or #E53E3E. Insight box bg: #F7FAFC, border: #E2E8F0. Code block bg: #2D3748, border: #1A365D. *** 2. TYPOGRAPHY: Font families: Inter, Helvetica Neue, -apple-system (use tabular figures for numbers). Type scale: h2: 1.5rem, h3: 1.25rem, h4: 1.125rem, body: 1rem, caption/table data: 0.875rem. Font-weight: headings: 700, body: 400, bold emphasis: 600. Line-height: headings: 1.2, body..."
+      },
+      "chapter": {
+        "html_length": 33021,
+        "evaluation": {
+          "chapter_heading": "1. Finance \u2014 Tesla Stock Analysis 2024",
+          "html_length": 33021,
+          "metrics": {
+            "has_report_chapter": true,
+            "has_report_page": true,
+            "page_count": 5,
+            "has_h2": true,
+            "has_h3": true,
+            "svg_count": 1,
+            "svg_with_title": 1,
+            "svg_with_desc": 1,
+            "svg_with_viewbox": 1,
+            "svg_wrapped": 5,
+            "has_charts_css": true,
+            "table_count": 5,
+            "inline_style_count": 145,
+            "citation_count": 24,
+            "paragraph_count": 14,
+            "total_words": 807,
+            "visual_types": [
+              "SVG",
+              "Charts.css",
+              "Table",
+              "Citation"
+            ]
+          },
+          "issues": [],
+          "warnings": [
+            "Charts.css table missing <caption>",
+            "POSSIBLE REPETITION: 5 tables \u2014 consider varying presentation"
+          ],
+          "passes": [
+            "OK: 5 report-page containers",
+            "OK: 1 SVG element(s)",
+            "OK: 24 citation(s)",
+            "OK: All divs properly closed (30 pairs)",
+            "OK: 807 words of prose content",
+            "OK: 4 visual types: SVG, Charts.css, Table, Citation"
+          ]
+        },
+        "html_preview": "<div class=\"report-chapter\">\n  <div class=\"report-page\">\n    <h2 style=\"font-family: Inter, Helvetica Neue, -apple-system, sans-serif; font-size: 1.5rem; font-weight: 700; line-height: 1.2; color: #1A365D; margin-bottom: 2.5rem;\">1. Finance \u2014 Tesla Stock Analysis 2024</h2>\n    <h3 style=\"font-family: Inter, Helvetica Neue, -apple-system, sans-serif; font-size: 1.25rem; font-weight: 700; line-height: 1.2; color: #1A365D; margin-bottom: 2rem;\">1.1 Overview</h3>\n    <div style=\"background-color: #F7FAFC; border: 1px solid #E2E8F0; padding: 1.5rem; margin-bottom: 2rem; border-radius: 0.25rem;\">\n      <p style=\"font-family: Inter, Helvetica Neue, -apple-system, sans-serif; font-size: 1rem; font-weight: 600; line-height: 1.6; color: #1A365D; margin: 0 0 1rem 0;\">Executive Summary: Tesla achieved record full-year 2024 revenue of $97.7 billion, a robust 19% increase year-over-year from $81.5 billion in 2023, driven primarily by automotive sales recovery in Q4 and explosive growth in energy sto..."
+      }
+    },
+    "design_instructions_path": "/Users/choclate/Desktop/WORT/deep-research-agent/writer/test_design_Finance___Tesla_Stock_Analysis_2024.txt",
+    "html_output_path": "/Users/choclate/Desktop/WORT/deep-research-agent/writer/test_output_Finance___Tesla_Stock_Analysis_2024.html"
+  },
+  {
+    "name": "Math \u2014 Eigenvalues and Eigenvectors",
+    "user_query": "Explain eigenvalues and eigenvectors \u2014 definitions, computation, and applications",
+    "expected_skill": "math.md",
+    "stages": {
+      "skill_selection": {
+        "selected": "math.md",
+        "expected": "math.md",
+        "match": true
+      },
+      "design_instructions": {
+        "length": 5716,
+        "evaluation": {
+          "expected_skill": "math.md",
+          "length": 5716,
+          "metrics": {
+            "has_color_system": true,
+            "has_typography": true,
+            "has_spacing": true,
+            "has_visual_mood": true,
+            "has_report_intent": true,
+            "has_visual_decision_tree": true,
+            "has_svg": true,
+            "has_charts.css": true,
+            "has_avoid": true,
+            "hex_color_count": 39,
+            "rem_value_count": 13,
+            "if_then_indicators": 14,
+            "has_viewbox": true,
+            "has_show_labels": true,
+            "has_show_data": true
+          },
+          "issues": [],
+          "warnings": [],
+          "passes": [
+            "Found section: COLOR SYSTEM",
+            "Found section: TYPOGRAPHY",
+            "Found section: SPACING",
+            "Found section: VISUAL MOOD",
+            "Found section: REPORT INTENT",
+            "Found section: VISUAL DECISION TREE",
+            "Found section: SVG",
+            "Found section: CHARTS.CSS",
+            "Found section: AVOID",
+            "OK: 39 hex color values"
+          ]
+        },
+        "preview": "1. COLOR SYSTEM\n- Background: #FFFFFF\n- Text Body: #2D3748\n- Headings: #1A365D\n- Semantic/Accents: Academic Blue #3182CE (Theorem/Primary), Math Green #38A169 (Lemma/Positive), Burnt Orange #C05621 (Warning/Exception), Crimson #C53030 (Contrasting/Boundary).\n- Chart/Plot Color Sequence: #3182CE, #C53030, #2F855A, #C05621, #805AD5, #4A5568\n- Definition Box: Background #F7F8FA, Border #CBD5E0\n- Theorem Box: Background #EBF4FF, Left Border #3182CE\n- Lemma Box: Background #F0FFF4, Left Border #38A169\n- Example Box: Background #FFFFFF, Border #2D3748\n- Table Header: Background #1A365D, Text #FFFFFF\n- Table Row Alt: Background #F7F8FA\n- Code Block / Algorithm: Background #1E293B, Border #0F172A\n- Blockquote / Remark: Background #FFFFFF, Left Border #718096\n\n2. TYPOGRAPHY\n- Body Font: EB Garamond..."
+      },
+      "chapter": {
+        "html_length": 19726,
+        "evaluation": {
+          "chapter_heading": "1. Math \u2014 Eigenvalues and Eigenvectors",
+          "html_length": 19726,
+          "metrics": {
+            "has_report_chapter": true,
+            "has_report_page": true,
+            "page_count": 6,
+            "has_h2": true,
+            "has_h3": true,
+            "svg_count": 1,
+            "svg_with_title": 1,
+            "svg_with_desc": 1,
+            "svg_with_viewbox": 1,
+            "svg_wrapped": 0,
+            "has_charts_css": true,
+            "table_count": 1,
+            "inline_style_count": 63,
+            "citation_count": 0,
+            "paragraph_count": 23,
+            "total_words": 1024,
+            "visual_types": [
+              "SVG",
+              "Charts.css",
+              "Table",
+              "Collapsible"
+            ]
+          },
+          "issues": [],
+          "warnings": [
+            "1 SVG(s) not wrapped in overflow-x:auto",
+            "Charts.css table missing <caption>",
+            "No citations/links found"
+          ],
+          "passes": [
+            "OK: 6 report-page containers",
+            "OK: 1 SVG element(s)",
+            "OK: All divs properly closed (20 pairs)",
+            "OK: 1024 words of prose content",
+            "OK: 4 visual types: SVG, Charts.css, Table, Collapsible"
+          ]
+        },
+        "html_preview": "<div class=\"report-chapter\">\n  <div class=\"report-page\">\n    <h2 style=\"font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.6rem; font-weight: 600; line-height: 1.3; color: #1A365D; margin-top: 2.5rem; margin-bottom: 1.2rem;\">1. Math \u2014 Eigenvalues and Eigenvectors</h2>\n    <h3 style=\"font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.3rem; font-weight: 600; line-height: 1.3; color: #1A365D; margin-top: 1.5rem; margin-bottom: 1.2rem;\">1.1 Overview</h3>\n    <p style=\"font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;\">Eigenvalues and eigenvectors are fundamental concepts in linear algebra that reveal intrinsic properties of square matrices, describing how linear transformations scale specific directions in space. For an n\u00d7n square matrix A, an eigenvector v is a nonzero vector that, when multiplied by A, results only in a scaled version of itself: Av = \u03bbv, where \u03bb is the corres..."
+      }
+    },
+    "design_instructions_path": "/Users/choclate/Desktop/WORT/deep-research-agent/writer/test_design_Math___Eigenvalues_and_Eigenvectors.txt",
+    "html_output_path": "/Users/choclate/Desktop/WORT/deep-research-agent/writer/test_output_Math___Eigenvalues_and_Eigenvectors.html"
+  },
+  {
+    "name": "Coding \u2014 REST API Design Best Practices",
+    "user_query": "What are the best practices for designing RESTful APIs \u2014 resource naming, versioning, error handling, pagination",
+    "expected_skill": "coding.md",
+    "stages": {
+      "skill_selection": {
+        "selected": "coding.md",
+        "expected": "coding.md",
+        "match": true
+      },
+      "design_instructions": {
+        "length": 4869,
+        "evaluation": {
+          "expected_skill": "coding.md",
+          "length": 4869,
+          "metrics": {
+            "has_color_system": true,
+            "has_typography": true,
+            "has_spacing": true,
+            "has_visual_mood": true,
+            "has_report_intent": true,
+            "has_visual_decision_tree": true,
+            "has_svg": true,
+            "has_charts.css": true,
+            "has_avoid": true,
+            "hex_color_count": 35,
+            "rem_value_count": 16,
+            "if_then_indicators": 15,
+            "has_viewbox": true,
+            "has_show_labels": true,
+            "has_show_data": true
+          },
+          "issues": [],
+          "warnings": [],
+          "passes": [
+            "Found section: COLOR SYSTEM",
+            "Found section: TYPOGRAPHY",
+            "Found section: SPACING",
+            "Found section: VISUAL MOOD",
+            "Found section: REPORT INTENT",
+            "Found section: VISUAL DECISION TREE",
+            "Found section: SVG",
+            "Found section: CHARTS.CSS",
+            "Found section: AVOID",
+            "OK: 35 hex color values"
+          ]
+        },
+        "preview": "1. COLOR SYSTEM  * Background: #FFFFFF  * Body text: #2D3748  * Headings: #1A202C  * Accents: Primary Blue #2B6CB0, Secondary Gray #718096  * Semantic Colors: Success Green #38A169, Warning Orange #DD6B20, Danger Red #E53E3E, Info Blue #3182CE  * Chart Color Sequence: #2B6CB0, #319795, #805AD5, #38A169, #DD6B20  * Component Surfaces: Table Header Background #EDF2F7; Table Row Alternate Background #F7FAFC; Blockquote Background #F7FAFC (Border #A0AEC0); Insight Box (Note) Background #EBF8FF (Border #3182CE); Warning Box Background #FFFAF0 (Border #ED8936); Code Block Background #1A202C (Border #2D3748, Header #2D3748); Code Syntax (Keywords #63B3ED, Strings #68D391, Comments #718096, Numbers #D6BCFA).    2. TYPOGRAPHY  * Body Font: Inter, system-ui, sans-serif  * Code Font: 'Fira Code', 'Je..."
+      },
+      "chapter": {
+        "html_length": 30463,
+        "evaluation": {
+          "chapter_heading": "1. Coding \u2014 REST API Design Best Practices",
+          "html_length": 30463,
+          "metrics": {
+            "has_report_chapter": true,
+            "has_report_page": true,
+            "page_count": 5,
+            "has_h2": true,
+            "has_h3": true,
+            "svg_count": 0,
+            "has_charts_css": false,
+            "table_count": 4,
+            "inline_style_count": 235,
+            "citation_count": 6,
+            "paragraph_count": 19,
+            "total_words": 1052,
+            "visual_types": [
+              "Table",
+              "Citation"
+            ]
+          },
+          "issues": [],
+          "warnings": [
+            "POSSIBLE REPETITION: 4 tables \u2014 consider varying presentation"
+          ],
+          "passes": [
+            "OK: 5 report-page containers",
+            "OK: 6 citation(s)",
+            "OK: All divs properly closed (21 pairs)",
+            "OK: 1052 words of prose content",
+            "OK: 2 visual types: Table, Citation"
+          ]
+        },
+        "html_preview": "<div class=\"report-chapter\">\n  <div class=\"report-page\">\n    <h2 style=\"font-family: 'Inter', system-ui, sans-serif; font-size: 1.875rem; font-weight: 700; line-height: 1.3; color: #1A202C; margin: 0 0 3rem 0;\">1. Coding \u2014 REST API Design Best Practices</h2>\n    <h3 style=\"font-family: 'Inter', system-ui, sans-serif; font-size: 1.5rem; font-weight: 600; line-height: 1.4; color: #1A202C; margin: 3rem 0 1.5rem 0;\">1.1 Overview</h3>\n    <p style=\"font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem; max-width: 54rem;\">RESTful API design establishes a standardized, predictable interface for client-server interactions, emphasizing resource-oriented architecture over RPC-style endpoints. Core best practices revolve around resource naming conventions using nouns in URL paths, precise HTTP method semantics to denote actions, URL path-based versioning for managing changes, consistent error handling with structured ..."
+      }
+    },
+    "design_instructions_path": "/Users/choclate/Desktop/WORT/deep-research-agent/writer/test_design_Coding___REST_API_Design_Best_Practices.txt",
+    "html_output_path": "/Users/choclate/Desktop/WORT/deep-research-agent/writer/test_output_Coding___REST_API_Design_Best_Practices.html"
+  },
+  {
+    "name": "General \u2014 Climate Change Overview",
+    "user_query": "What is climate change \u2014 causes, effects, and what can be done about it",
+    "expected_skill": "general_fallback.md",
+    "stages": {
+      "skill_selection": {
+        "selected": "scientific_general.md",
+        "expected": "general_fallback.md",
+        "match": false
+      },
+      "design_instructions": {
+        "length": 4919,
+        "evaluation": {
+          "expected_skill": "scientific_general.md",
+          "length": 4919,
+          "metrics": {
+            "has_color_system": true,
+            "has_typography": true,
+            "has_spacing": true,
+            "has_visual_mood": true,
+            "has_report_intent": true,
+            "has_visual_decision_tree": true,
+            "has_svg": true,
+            "has_charts.css": true,
+            "has_avoid": true,
+            "hex_color_count": 35,
+            "rem_value_count": 15,
+            "if_then_indicators": 11,
+            "has_viewbox": true,
+            "has_show_labels": true,
+            "has_show_data": true
+          },
+          "issues": [],
+          "warnings": [],
+          "passes": [
+            "Found section: COLOR SYSTEM",
+            "Found section: TYPOGRAPHY",
+            "Found section: SPACING",
+            "Found section: VISUAL MOOD",
+            "Found section: REPORT INTENT",
+            "Found section: VISUAL DECISION TREE",
+            "Found section: SVG",
+            "Found section: CHARTS.CSS",
+            "Found section: AVOID",
+            "OK: 35 hex color values"
+          ]
+        },
+        "preview": "1. COLOR SYSTEM\n- Background: #FFFFFF\n- Body text: #2D3748\n- Headings: #1A365D\n- Accents: #3182CE (Primary), #E57373 (Secondary)\n- Semantic Colors: #38A169 (Positive/Mitigation), #E57373 (Negative/Warming), #718096 (Control/Baseline)\n- Chart Color Sequence: #3182CE, #E57373, #319795, #DD6B20, #805AD5, #38A169\n- Table header: bg #1A365D, text #FFFFFF\n- Table row alt: bg #F7FAFC\n- Blockquote: bg #F7FAFC, border #718096\n- Insight box: bg #EBF8FF, border #3182CE\n- Warning/Effects box: bg #FFFAF0, border #DD6B20\n- Code block: bg #1A202C, border #2D3748, text #E2E8F0\n\n2. TYPOGRAPHY\n- Font families: 'Inter', Roboto, sans-serif\n- Type scale: h2 1.5rem, h3 1.25rem, h4 1.125rem, body 1.0rem, caption 0.875rem\n- Font weights: h2 700, h3 600, h4 600, body 400, caption 400\n- Line heights: h2/h3 1.3, h4 ..."
+      },
+      "chapter": {
+        "html_length": 19432,
+        "evaluation": {
+          "chapter_heading": "1. General \u2014 Climate Change Overview",
+          "html_length": 19432,
+          "metrics": {
+            "has_report_chapter": true,
+            "has_report_page": true,
+            "page_count": 4,
+            "has_h2": true,
+            "has_h3": true,
+            "svg_count": 1,
+            "svg_with_title": 1,
+            "svg_with_desc": 1,
+            "svg_with_viewbox": 1,
+            "svg_wrapped": 0,
+            "has_charts_css": true,
+            "table_count": 3,
+            "inline_style_count": 65,
+            "citation_count": 14,
+            "paragraph_count": 14,
+            "total_words": 1149,
+            "visual_types": [
+              "SVG",
+              "Charts.css",
+              "Table",
+              "Citation"
+            ]
+          },
+          "issues": [],
+          "warnings": [
+            "1 SVG(s) not wrapped in overflow-x:auto",
+            "Charts.css table missing <caption>",
+            "POSSIBLE REPETITION: 3 tables \u2014 consider varying presentation"
+          ],
+          "passes": [
+            "OK: 4 report-page containers",
+            "OK: 1 SVG element(s)",
+            "OK: 14 citation(s)",
+            "OK: All divs properly closed (11 pairs)",
+            "OK: 1149 words of prose content",
+            "OK: 4 visual types: SVG, Charts.css, Table, Citation"
+          ]
+        },
+        "html_preview": "<div class=\"report-chapter\">\n  <div class=\"report-page\">\n    <h2 style=\"font-family: 'Inter', Roboto, sans-serif; font-size: 1.5rem; font-weight: 700; line-height: 1.3; color: #1A365D; margin-bottom: 2.5rem;\">1. General \u2014 Climate Change Overview</h2>\n    <h3 style=\"font-family: 'Inter', Roboto, sans-serif; font-size: 1.25rem; font-weight: 600; line-height: 1.3; color: #1A365D; margin-bottom: 1.5rem;\">1.1 Overview</h3>\n    <p style=\"font-family: 'Inter', Roboto, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.5rem; max-width: 48rem;\">\n      Climate change refers to long-term shifts in global temperatures and weather patterns. Although natural climate variations have occurred throughout Earth's history, the current warming trend is unequivocally driven by human activities since the Industrial Revolution.<a href=\"https://www.ipcc.ch/report/ar6/\"><sup>IPCC AR6, 2023</sup></a><a href=\"https://climate.nasa.gov\">NASA Global Climate Change</a>...."
+      }
+    },
+    "design_instructions_path": "/Users/choclate/Desktop/WORT/deep-research-agent/writer/test_design_General___Climate_Change_Overview.txt",
+    "html_output_path": "/Users/choclate/Desktop/WORT/deep-research-agent/writer/test_output_General___Climate_Change_Overview.html"
+  }
+]

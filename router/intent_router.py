@@ -1,4 +1,3 @@
-
 from typing import Dict, Any
 from datetime import datetime
 from langchain_core.output_parsers import JsonOutputParser
@@ -6,6 +5,7 @@ from llms.llms import LlmsHouse
 from graphs.states.subgraph_state import AgentGraphState
 from router.router_prompt import INTENT_CLASSIFICATION_PROMPT
 from memory.memory_facade import MemoryFacade
+from prompt_datetime import now_utc_for_prompt
 import logging
 import uuid
 
@@ -29,8 +29,12 @@ class IntentRouter:
             model_name="grok-4-1-fast-reasoning",
             temperature=0.9,
         )
+        self.fallback_llm = LlmsHouse.get_fallback_model(temperature=0.9)
         self.parser = JsonOutputParser()
         self.chain = self.llm | self.parser
+        self.fallback_chain = (
+            (self.fallback_llm | self.parser) if self.fallback_llm else None
+        )
 
     @staticmethod
     def _normalize_search_mode(search_mode: str) -> str:
@@ -95,21 +99,23 @@ class IntentRouter:
         await facade.initialize()
 
         if ltm_action == "profile":
-            await facade.store_user_memory(
+            memory_id = await facade.store_user_memory(
                 user_id=user_id,
                 content=ltm_content,
                 memory_type="profile",
             )
-            logger.info(f"[IntentRouter] Stored profile: {ltm_content[:50]}…")
+            if memory_id:
+                logger.info(f"[IntentRouter] Stored profile: {ltm_content[:50]}…")
 
         elif ltm_action == "memory":
             ltm_type = (result.get("ltm_type") or "fact").strip().lower()
-            await facade.store_user_memory(
+            memory_id = await facade.store_user_memory(
                 user_id=user_id,
                 content=ltm_content,
                 memory_type=ltm_type,
             )
-            logger.info(f"[IntentRouter] Stored {ltm_type}: {ltm_content[:50]}…")
+            if memory_id:
+                logger.info(f"[IntentRouter] Stored {ltm_type}: {ltm_content[:50]}…")
 
     async def route(self, state: AgentGraphState) -> Dict[str, Any]:
         """
@@ -124,7 +130,21 @@ class IntentRouter:
             and chat_messages.
         """
         user_query = state.get("user_query", "")
-        search_mode = self._normalize_search_mode(state.get("search_mode", "deepsearch"))
+        search_mode = self._normalize_search_mode(
+            state.get("search_mode", "deepsearch")
+        )
+
+        if search_mode == "edit":
+            logger.info(
+                "[IntentRouter] Edit mode — skipping LLM classification, routing to editor"
+            )
+            return {
+                "search_mode": "edit",
+                "current_phase": "routing",
+                "router_thinking": "User requested a section edit. Improving the Report.",
+                "improve_in_response": "",
+            }
+
         chat_messages = state.get("chat_messages", [])
         reports = state.get("reports", [])
 
@@ -138,6 +158,7 @@ class IntentRouter:
             }
 
         prompt = INTENT_CLASSIFICATION_PROMPT.format(
+            current_datetime=now_utc_for_prompt(),
             user_query=user_query,
             reports_summary=self._format_reports_summary(reports),
             chat_history=self._format_chat_history(chat_messages),
@@ -146,14 +167,21 @@ class IntentRouter:
         try:
             result = await self.chain.ainvoke(prompt)
             print(result)
-            reasoning = (result.get("reasoning") or "I will proceed with the selected search mode.").strip()
-            improve_in_response = self._sanitize_improvement(result.get("Improve_in_response", ""))
+            reasoning = (
+                result.get("reasoning")
+                or "I will proceed with the selected search mode."
+            ).strip()
+            improve_in_response = self._sanitize_improvement(
+                result.get("Improve_in_response", "")
+            )
 
             logger.info(f"[IntentRouter] Routed by search_mode: {search_mode}")
 
             await self._process_ltm_action(result, state)
 
-            routing_msg = self._build_routing_message(search_mode, reasoning, improve_in_response)
+            routing_msg = self._build_routing_message(
+                search_mode, reasoning, improve_in_response
+            )
 
             return {
                 "search_mode": search_mode,
@@ -161,6 +189,44 @@ class IntentRouter:
                 "router_thinking": reasoning,
                 "improve_in_response": improve_in_response,
                 "chat_messages": [routing_msg],
+            }
+
+        except Exception as e:
+            logger.error(f"[IntentRouter] Classification failed: {e}")
+
+            if self.fallback_chain:
+                try:
+                    logger.info("[IntentRouter] Retrying with fallback model")
+                    result = await self.fallback_chain.ainvoke(prompt)
+                    print(result)
+                    reasoning = (
+                        result.get("reasoning")
+                        or "I will proceed with the selected search mode."
+                    ).strip()
+                    improve_in_response = self._sanitize_improvement(
+                        result.get("Improve_in_response", "")
+                    )
+
+                    await self._process_ltm_action(result, state)
+                    routing_msg = self._build_routing_message(
+                        search_mode, reasoning, improve_in_response
+                    )
+
+                    return {
+                        "search_mode": search_mode,
+                        "current_phase": "routing",
+                        "router_thinking": reasoning,
+                        "improve_in_response": improve_in_response,
+                        "chat_messages": [routing_msg],
+                    }
+                except Exception as fb_err:
+                    logger.error(f"[IntentRouter] Fallback also failed: {fb_err}")
+
+            return {
+                "search_mode": search_mode,
+                "current_phase": "routing",
+                "router_thinking": f"Fallback routing due to error: {e}",
+                "improve_in_response": "No need to improve in response, we are doing good.",
             }
 
         except Exception as e:
@@ -182,9 +248,7 @@ class IntentRouter:
         return {
             "message_id": str(uuid.uuid4()),
             "role": "system",
-            "content": (
-                f"[Routed as: {mode}] {reasoning}\n"
-            ),
+            "content": (f"[Routed as: {mode}] {reasoning}\n"),
             "timestamp": datetime.now().isoformat(),
             "metadata": {"message_type": "routing", "mode": mode},
         }

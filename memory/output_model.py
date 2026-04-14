@@ -3,8 +3,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-MemoryType = Literal["fact", "preference", "episodic", "procedural", "style"]
-MEMORY_TYPES = ["fact", "preference", "episodic", "procedural", "style"]
+MemoryType = Literal["fact", "preference", "episodic", "procedural", "style", "profile"]
+MEMORY_TYPES = ["fact", "preference", "episodic", "procedural", "style", "profile"]
 
 
 class MemoryItem(BaseModel):

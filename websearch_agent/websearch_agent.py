@@ -20,6 +20,7 @@ from graphs.states.subgraph_state import AgentGraphState
 from graphs.events.stream_emitter import get_emitter, StreamEmitter
 from websearch_agent.search_tools import ALL_SEARCH_TOOLS
 from llms import LlmsHouse
+from prompt_datetime import now_utc_for_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,7 @@ TOOL_LABELS = {
 }
 
 SYSTEM_PROMPT = """You are a web research agent. Search the web to gather information for the user's question.
+The user message includes **Current date and time (UTC)** — use it for recency (e.g. "latest", "current", "this year") when planning queries and interpreting results.
 
 **Tools:**
 - `generate_search_queries` — Generate 1-3 targeted queries from the user question + chat history. Call this first.
@@ -132,6 +134,7 @@ class WebSearchAgent:
             "messages": [{
                 "role": "user",
                 "content": (
+                    f"Current date and time (UTC): {now_utc_for_prompt()}\n\n"
                     f"Long-Term Memory Context:\n{memory_context}\n\n"
                     f"Chat History:\n{chat_context}\n\n"
                     f"Current User Question: {user_query}\n\n"

@@ -1,0 +1,159 @@
+<div class="report-chapter">
+  <div class="report-page">
+    <h2 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.6rem; font-weight: 600; line-height: 1.3; color: #1A365D; margin-top: 2.5rem; margin-bottom: 1.2rem;">1. Math — Eigenvalues and Eigenvectors</h2>
+    <h3 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.3rem; font-weight: 600; line-height: 1.3; color: #1A365D; margin-top: 1.5rem; margin-bottom: 1.2rem;">1.1 Overview</h3>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;">Eigenvalues and eigenvectors are fundamental concepts in linear algebra that reveal intrinsic properties of square matrices, describing how linear transformations scale specific directions in space. For an n×n square matrix A, an eigenvector v is a nonzero vector that, when multiplied by A, results only in a scaled version of itself: Av = λv, where λ is the corresponding eigenvalue, a scalar. Geometrically, this scaling occurs without altering the direction of v; if λ > 0, the vector is stretched or compressed along its line; if λ < 0, the direction reverses while scaling by |λ|; and if λ = 0, v maps to the zero vector, indicating a direction of complete collapse under the transformation. These notions underpin a wide array of applications, from web search algorithms to quantum mechanics and structural engineering, where they quantify stability, variance, and dominant behaviors in high-dimensional systems. Computationally, eigenvalues solve the characteristic equation det(A - λI) = 0, a polynomial whose roots are the eigenvalues, with eigenvectors found by solving the null space of (A - λI). Key theorems link eigenvalues to traces, determinants, and spectral properties, while numerical methods like power iteration and QR algorithm enable practical computation for large matrices. This chapter provides rigorous definitions, step-by-step computation, geometric intuition, theorems with proofs, numerical techniques, and real-world examples drawn from authoritative sources such as Strang (2016) and Axler (2015).</p>
+    <div style="background-color: #F7F8FA; border: 1px solid #CBD5E0; padding: 1rem; margin: 1.5rem 0; max-width: 48rem;">
+      <h4 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.1rem; font-weight: 700; line-height: 1.3; color: #1A365D; margin-top: 0; margin-bottom: 0.875rem;">Definition: Eigenvalues and Eigenvectors</h4>
+      <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 0;">Let A be an n×n square matrix. A nonzero vector v ∈ ℝⁿ (or ℂⁿ) is called an <em>eigenvector</em> of A if there exists a scalar λ (the <em>eigenvalue</em>) such that <span style="font-style: italic;">Av = λv</span>. (Source: Strang, G. (2016). <em>Introduction to Linear Algebra</em>, 5th Edition. Wellesley-Cambridge Press.)</p>
+    </div>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;">This definition captures the essence of invariant directions under linear transformations, forming the basis for spectral decomposition and diagonalization where possible.</p>
+  </div>
+  <div class="report-page">
+    <h3 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.3rem; font-weight: 600; line-height: 1.3; color: #1A365D; margin-top: 1.5rem; margin-bottom: 1.2rem;">1.2 Geometric Interpretation</h3>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;">Geometrically, applying the matrix A to its eigenvector v results in a vector lying along the same line through the origin, scaled by λ. Positive λ preserves orientation with stretching (λ > 1) or compression (0 < λ < 1); negative λ flips direction; λ = 1 leaves unchanged; λ = 0 collapses to origin. The following SVG illustrates this for the example matrix A = [[4,1],[2,3]], with eigenvector v₁ = [1,1]ᵀ and λ₁ = 5, showing v in blue and Av = 5v in crimson, both aligned along the line y = x.</p>
+    <div style="width: 100%; overflow-x: auto; margin: 1.5rem 0;">
+      <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" width="100%" height="400">
+        <title>Eigenvector Scaling: v and Av for λ=5</title>
+        <desc>2D coordinate grid showing unit eigenvector v=[1,1] as a blue arrow from (0,0) to (1,1), and its image Av=[5,5] as a thicker crimson arrow from (0,0) to (5,5), demonstrating scaling by factor 5 along the same direction y=x without rotation. Grid lines at integers from -1 to 5 on both axes highlight alignment.</desc>
+        <defs>
+          <marker id="blueArrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+            <polygon points="0 0, 10 4, 0 8" fill="#3182CE"/>
+          </marker>
+          <marker id="crimsonArrow" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto">
+            <polygon points="0 0, 12 5, 0 10" fill="#C53030"/>
+          </marker>
+        </defs>
+        <!-- Grid -->
+        <g stroke="#EDF2F7" stroke-width="1">
+          <line x1="0" y1="50" x2="350" y2="50"/>
+          <line x1="0" y1="100" x2="350" y2="100"/>
+          <line x1="0" y1="150" x2="350" y2="150"/>
+          <line x1="0" y1="200" x2="350" y2="200"/>
+          <line x1="0" y1="250" x2="350" y2="250"/>
+          <line x1="50" y1="0" x2="50" y2="350"/>
+          <line x1="100" y1="0" x2="100" y2="350"/>
+          <line x1="150" y1="0" x2="150" y2="350"/>
+          <line x1="200" y1="0" x2="200" y2="350"/>
+          <line x1="250" y1="0" x2="250" y2="350"/>
+        </g>
+        <!-- Axes -->
+        <line x1="50" y1="200" x2="350" y2="200" stroke="#2D3748" stroke-width="2.5"/>
+        <line x1="50" y1="0" x2="50" y2="350" stroke="#2D3748" stroke-width="2.5"/>
+        <!-- v = [1,1] blue -->
+        <line x1="50" y1="200" x2="175" y2="125" stroke="#3182CE" stroke-width="2" marker-end="url(#blueArrow)"/>
+        <!-- Av = [5,5] crimson -->
+        <line x1="50" y1="200" x2="325" y2="-25" stroke="#C53030" stroke-width="3" marker-end="url(#crimsonArrow)"/>
+        <!-- Labels -->
+        <text x="180" y="130" font-family="EB Garamond, Georgia, serif" font-size="12px" fill="#3182CE">v = [1, 1]ᵀ</text>
+        <text x="330" y="-10" font-family="EB Garamond, Georgia, serif" font-size="12px" fill="#C53030">Av = [5, 5]ᵀ = 5v</text>
+        <text x="60" y="190" font-family="EB Garamond, Georgia, serif" font-size="14px" font-weight="600" fill="#1A365D">O</text>
+        <text x="360" y="205" font-family="EB Garamond, Georgia, serif" font-size="12px" fill="#2D3748">x</text>
+        <text x="45" y="15" font-family="EB Garamond, Georgia, serif" font-size="12px" fill="#2D3748">y</text>
+      </svg>
+    </div>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;">This diagram visually confirms the defining property: Av lies on the ray of v, scaled precisely by λ=5, providing intuition that eigenvalues measure stretch factors along eigenspaces. For the second eigenvector v₂=[1,-2]ᵀ with λ₂=2, a similar alignment occurs along y=-2x. (Source: Axler, S. (2015). <em>Linear Algebra Done Right</em>, 3rd Edition. Springer.)</p>
+  </div>
+  <div class="report-page">
+    <h3 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.3rem; font-weight: 600; line-height: 1.3; color: #1A365D; margin-top: 1.5rem; margin-bottom: 1.2rem;">1.3 The Characteristic Equation</h3>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;">To compute eigenvalues, rearrange Av = λv to (A - λI)v = 0. For nontrivial v ≠ 0, A - λI must be singular, yielding det(A - λI) = 0, the characteristic equation. Here, det(A - λI) is the characteristic polynomial, monic of degree n with roots the eigenvalues (counted by multiplicity).</p>
+    <div style="background-color: #FFFFFF; border: 1px solid #2D3748; padding: 1.5rem; margin: 1.5rem 0; max-width: 48rem; text-align: center;">
+      <h4 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.1rem; font-weight: 700; line-height: 1.3; color: #1A365D; margin-top: 0; margin-bottom: 0.875rem;">Example: Eigenvalues of A = [[4, 1], [2, 3]]</h4>
+      <div style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; line-height: 1.7; color: #2D3748; margin-bottom: 0.875rem;">
+        Characteristic equation: <br/>
+        det(A - λI) = det([[4-λ, 1], [2, 3-λ]]) = (4-λ)(3-λ) - 2·1 = λ² - 7λ + 10 = 0 <span style="float: right; font-size: 0.875rem;">(1)</span>
+      </div>
+      <div style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; line-height: 1.7; color: #2D3748; margin-bottom: 0.875rem; border: 2px solid #2D3748; padding: 1rem;">
+        Factoring: (λ - 5)(λ - 2) = 0 <br/>
+        Eigenvalues: λ₁ = 5, λ₂ = 2 &#9633;
+      </div>
+    </div>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;">This worked example demonstrates the process for n=2; for general n, expand the determinant symbolically or numerically.</p>
+    <h3 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.3rem; font-weight: 600; line-height: 1.3; color: #1A365D; margin-top: 1.5rem; margin-bottom: 1.2rem;">1.4 Finding Eigenvectors</h3>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;">For each λ, solve (A - λI)v = 0 for the eigenspace (null space of A - λI).</p>
+    <div style="background-color: #FFFFFF; border: 1px solid #2D3748; padding: 1.5rem; margin: 1.5rem 0; max-width: 48rem; text-align: center;">
+      <div style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; line-height: 1.7; color: #2D3748; margin-bottom: 0.875rem;">
+        For λ₁ = 5: (A - 5I) = [[-1, 1], [2, -2]] <br/>
+        Row reduce: -x + y = 0 ⇒ y = x <br/>
+        v₁ = [1, 1]ᵀ (or k[1, 1]ᵀ, k ≠ 0) <span style="float: right; font-size: 0.875rem;">(2)</span>
+      </div>
+      <div style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; line-height: 1.7; color: #2D3748; margin-bottom: 0.875rem;">
+        For λ₂ = 2: (A - 2I) = [[2, 1], [2, 1]] <br/>
+        2x + y = 0 ⇒ y = -2x <br/>
+        v₂ = [1, -2]ᵀ &#9633;
+      </div>
+    </div>
+  </div>
+  <div class="report-page">
+    <h3 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.3rem; font-weight: 600; line-height: 1.3; color: #1A365D; margin-top: 1.5rem; margin-bottom: 1.2rem;">1.5 Key Theorems</h3>
+    <div style="background-color: #EBF4FF; border-left: 4px solid #3182CE; padding: 1rem; margin: 1.5rem 0; max-width: 48rem;">
+      <h4 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.1rem; font-weight: 700; line-height: 1.3; color: #1A365D; margin-top: 0; margin-bottom: 0.875rem;">Theorem 1: Sum of Eigenvalues Equals Trace</h4>
+      <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 0;">The sum of the eigenvalues of A (with multiplicity) equals tr(A), the trace (sum of diagonal entries).</p>
+    </div>
+    <details style="margin: 1rem 0; max-width: 48rem;">
+      <summary style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1rem; font-weight: 600; color: #3182CE; cursor: pointer; margin-bottom: 0.5rem;">Proof</summary>
+      <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; padding: 1rem 0;">The characteristic polynomial is p(λ) = det(A - λI) = (-1)^n λ^n + (-1)^{n-1} tr(A) λ^{n-1} + ... + (-1)^0 det(A). By Vieta's formulas for roots λ_i, sum λ_i = coefficient of λ^{n-1} / coefficient of λ^n (with sign) = tr(A). &#9633; (Source: Strang (2016).)</p>
+    </details>
+    <div style="background-color: #EBF4FF; border-left: 4px solid #3182CE; padding: 1rem; margin: 1.5rem 0; max-width: 48rem;">
+      <h4 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.1rem; font-weight: 700; line-height: 1.3; color: #1A365D; margin-top: 0; margin-bottom: 0.875rem;">Theorem 2: Product of Eigenvalues Equals Determinant</h4>
+      <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 0;">∏ λ_i = det(A).</p>
+    </div>
+    <details style="margin: 1rem 0; max-width: 48rem;">
+      <summary style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1rem; font-weight: 600; color: #3182CE; cursor: pointer; margin-bottom: 0.5rem;">Proof</summary>
+      <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; padding: 1rem 0;">p(0) = det(A) = ∏ (-λ_i) up to sign, but constant term yields ∏ λ_i = det(A). &#9633;</p>
+    </details>
+    <div style="background-color: #EBF4FF; border-left: 4px solid #3182CE; padding: 1rem; margin: 1.5rem 0; max-width: 48rem;">
+      <h4 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.1rem; font-weight: 700; line-height: 1.3; color: #1A365D; margin-top: 0; margin-bottom: 0.875rem;">Theorem 3: Spectral Theorem (Symmetric Matrices)</h4>
+      <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 0;">If A = Aᵀ, eigenvalues are real, and eigenvectors for distinct eigenvalues are orthogonal.</p>
+    </div>
+    <div style="background-color: #EBF4FF; border-left: 4px solid #3182CE; padding: 1rem; margin: 1.5rem 0; max-width: 48rem;">
+      <h4 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.1rem; font-weight: 700; line-height: 1.3; color: #1A365D; margin-top: 0; margin-bottom: 0.875rem;">Theorem 4: Cayley-Hamilton</h4>
+      <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 0;">p(A) = 0 where p(λ) = det(A - λI).</p>
+    </div>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;">These theorems connect algebraic invariants to spectral data. (Source: Axler (2015).)</p>
+  </div>
+  <div class="report-page">
+    <h3 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.3rem; font-weight: 600; line-height: 1.3; color: #1A365D; margin-top: 1.5rem; margin-bottom: 1.2rem;">1.6 Numerical Computation Methods</h3>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;">Analytical solutions via characteristic polynomial suit small n ≤ 4; larger matrices demand iteration.</p>
+    <ol style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem; padding-left: 1.5rem;">
+      <li><strong>Power Iteration (Dominant Eigenvalue):</strong> Initialize x₀ random, iterate x_{k+1} = A x_k / ||A x_k||, estimate λ ≈ x_kᵀ A x_k. Converges at rate |λ₂/λ₁|^k (λ₁ dominant magnitude); O(n²) per iteration for dense A.</li>
+      <li><strong>QR Algorithm (All Eigenvalues):</strong> A₀ = A; repeat QR = A_k, A_{k+1} = R Q until diagonal converges to eigenvalues. O(n³) per iteration, O(n) iterations typical; basis of NumPy.linalg.eig().</li>
+      <li><strong>Jacobi Method (Symmetric):</strong> Successive Givens rotations nullify off-diagonals; converges reliably for Hermitian matrices.</li>
+    </ol>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;">(Source: Strang (2016).)</p>
+    <h3 style="font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 1.3rem; font-weight: 600; line-height: 1.3; color: #1A365D; margin-top: 1.5rem; margin-bottom: 1.2rem;">1.7 Real-World Applications</h3>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;">Eigenvalues quantify dominance and stability across fields.</p>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;"><strong>Google PageRank:</strong> Web as graph; stationary distribution is principal eigenvector of G = α S + (1-α) e vᵀ (α ≈ 0.85 damping, S stochastic links, v teleportation). λ=1 dominant; power iteration converges in 50-100 steps for ~13 billion pages. (Source: Page, L., et al. (1999). <em>The PageRank Citation Ranking</em>. Stanford InfoLab.)</p>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;"><strong>Principal Component Analysis (PCA):</strong> Eigendecomposition of covariance Σ = Xᵀ X / n; eigenvectors principal components, eigenvalues variance explained. Fraction by first k: Σ_{i=1}^k λ_i / Σ λ_i.</p>
+  </div>
+  <div class="report-page">
+    <div style="width: 100%; overflow-x: auto; margin: 1.5rem 0;">
+      <table class="charts-css column show-labels show-data show-headings" style="max-width: 48rem; --height: 250px;">
+        <caption style="font-family: 'EB Garamond', Georgia, serif; font-size: 0.875rem; font-weight: 400; line-height: 1.4; color: #2D3748; padding: 1rem 0;">Example PCA: Eigenvalue Spectrum (Normalized Variances: λ₁=0.80, λ₂=0.15, λ₃=0.05; total variance=1.0; first PC captures 80%)</caption>
+        <thead>
+          <tr>
+            <th>Principal Component</th>
+            <th>Variance Explained</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>PC1</td>
+            <td style="--data: 1.0; --size: calc(1.0 * var(--height))" data-info="80%"></td>
+          </tr>
+          <tr>
+            <td>PC2</td>
+            <td style="--data: 0.1875; --size: calc(0.1875 * var(--height))" data-info="15%"></td>
+          </tr>
+          <tr>
+            <td>PC3</td>
+            <td style="--data: 0.0625; --size: calc(0.0625 * var(--height))" data-info="5%"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;">The chart shows decreasing eigenvalues, justifying dimensionality reduction to top components. Colors follow #3182CE (PC1), #C53030 (PC2), #2F855A (PC3). (Source: Jolliffe, I.T. (2002). <em>Principal Component Analysis</em>, 2nd Edition. Springer.)</p>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;"><strong>Structural Engineering (Vibration):</strong> Solve K φ = ω² M φ; √λ_i = natural frequencies ω_i, φ_i mode shapes. Tacoma Narrows Bridge (1940) failed via resonance matching wind-forced frequency.</p>
+    <p style="font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; font-weight: 400; line-height: 1.7; color: #2D3748; margin-bottom: 1.2rem;"><strong>Quantum Mechanics:</strong> Hermitian operators; eigenvalues measurement outcomes, post-measurement state = eigenvector. Schrödinger: H ψ = E ψ (energy eigenvalues). (Source: Strang (2016).)</p>
+  </div>
+</div>

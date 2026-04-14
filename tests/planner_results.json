@@ -1,0 +1,244 @@
+[
+  {
+    "id": 1,
+    "domain": "Finance/Fact",
+    "query": "What is the current price of Bitcoin?",
+    "num_generated": 1,
+    "word_counts": [
+      37
+    ],
+    "num_ok": true,
+    "words_ok": true,
+    "plan": [
+      "What is the current price of Bitcoin (BTC) in USD, according to major cryptocurrency exchanges like Coinbase, Binance, and Kraken? Include the timestamp of the price data. Also, provide the daily high and low price for Bitcoin."
+    ]
+  },
+  {
+    "id": 2,
+    "domain": "Coding/Comparison",
+    "query": "Compare React and Vue for building dashboards",
+    "num_generated": 8,
+    "word_counts": [
+      48,
+      48,
+      49,
+      42,
+      45,
+      44,
+      38,
+      46
+    ],
+    "num_ok": true,
+    "words_ok": true,
+    "plan": [
+      "Provide a technical comparison of the core architectural principles of React and Vue.js, specifically focusing on their approaches to the Virtual DOM, component-based architecture, and data binding mechanisms. Include code examples demonstrating the differences in component definition and lifecycle management. Exclude comparisons based on ecosystem or community support.",
+      "Investigate the performance characteristics of React and Vue.js dashboards under various conditions. Compare their rendering speeds, memory usage, and CPU utilization when handling large datasets and complex UI interactions. Include analysis of optimization techniques specific to each framework, such as memoization in React and computed properties in Vue.",
+      "Compare and contrast the component ecosystem and UI library options available for React and Vue.js in the context of dashboard development. Analyze popular choices like Material UI and Ant Design for React, and Vuetify and Element UI for Vue, focusing on their features, customization capabilities, and ease of integration.",
+      "Analyze the state management solutions commonly employed in React and Vue.js dashboards, comparing Redux and Zustand for React with Vuex and Pinia for Vue.js. Discuss their architectural patterns, performance implications, and suitability for different dashboard complexity levels, including handling real-time data updates.",
+      "Examine the scalability and maintainability considerations for building large-scale dashboards with React and Vue.js. Compare their approaches to code organization, modularity, and testing, focusing on techniques for managing complex application state and dependencies as the dashboard grows. Include examples of common architectural patterns like micro-frontends.",
+      "Assess the security vulnerabilities and best practices associated with building dashboards in React and Vue.js. Investigate common attack vectors like XSS and CSRF, and compare the frameworks' built-in security features and recommended mitigation strategies. Include a discussion of secure data handling and authentication mechanisms.",
+      "Compare the developer experience of building dashboards with React and Vue.js, considering factors such as learning curve, tooling, debugging capabilities, and documentation quality. Investigate the impact of TypeScript integration on code maintainability and developer productivity for both frameworks.",
+      "Discuss the long-term trends and future development plans for React and Vue.js in the context of dashboard development. Analyze the potential impact of emerging technologies like server components and reactive programming paradigms on the evolution of these frameworks and their suitability for building modern, data-intensive dashboards."
+    ]
+  },
+  {
+    "id": 3,
+    "domain": "AI/Technical",
+    "query": "How do large language models work and what are their limitations?",
+    "num_generated": 4,
+    "word_counts": [
+      59,
+      66,
+      68,
+      77
+    ],
+    "num_ok": true,
+    "words_ok": true,
+    "plan": [
+      "What are the fundamental concepts behind large language models (LLMs)? Explain the core architectural components such as transformer networks, attention mechanisms (including self-attention), embedding layers, and feedforward networks. Define key terminology like tokens, vocabulary, parameters, and hyperparameters, and describe their roles in LLM operation. Focus on the mathematical principles behind these components, including matrix operations and gradient descent optimization.",
+      "How do LLMs learn and generate text? Detail the training process, including pre-training, fine-tuning, and reinforcement learning from human feedback (RLHF). Explain how LLMs use techniques like backpropagation and stochastic gradient descent to adjust model parameters based on loss functions such as cross-entropy. Discuss different text generation strategies like greedy decoding, beam search, and sampling methods, highlighting their trade-offs in terms of output quality and diversity.",
+      "What are the common architectures and frameworks used in building and deploying LLMs? Compare and contrast different LLM architectures, such as decoder-only (e.g., GPT), encoder-decoder (e.g., T5), and encoder-only (e.g., BERT). Discuss popular frameworks like TensorFlow, PyTorch, and JAX, and how they facilitate the development and deployment of LLMs. Include an overview of model parallelism techniques used to train very large models. Highlight libraries like Hugging Face's Transformers.",
+      "What are the primary limitations and challenges associated with large language models? Explore issues such as limited context windows, difficulty in reasoning and common sense understanding, susceptibility to generating biased or factually incorrect content (hallucinations), and high computational costs. Discuss the problem of adversarial attacks and prompt engineering vulnerabilities, as well as challenges related to evaluating the true capabilities of LLMs beyond standard benchmarks. Analyze the role of data quality and pre-training objectives in addressing these limitations."
+    ]
+  },
+  {
+    "id": 4,
+    "domain": "History",
+    "query": "Tell me about the rise and fall of the Roman Empire",
+    "num_generated": 7,
+    "word_counts": [
+      45,
+      46,
+      41,
+      40,
+      43,
+      39,
+      41
+    ],
+    "num_ok": true,
+    "words_ok": true,
+    "plan": [
+      "What were the key factors that contributed to the rise of the Roman Republic, including its political structures (Senate, assemblies, consuls), military organization (legions, tactics), and socio-economic policies (land distribution, trade)? Focus on the period from the 6th century BCE to the 1st century BCE.",
+      "How did the Roman Republic transition into the Roman Empire, focusing on the roles of Julius Caesar, the First Triumvirate, the Second Triumvirate, and Augustus? Analyze the key political and military events that led to the end of the Republic and the establishment of the Principate.",
+      "What were the defining characteristics of the Pax Romana (27 BCE \u2013 180 CE) under the Julio-Claudian and Antonine emperors? Explore the economic prosperity, infrastructure development (roads, aqueducts), legal reforms, and cultural achievements during this period of relative peace and stability.",
+      "What internal factors, such as political corruption, economic inequality, inflation, and social unrest, contributed to the decline of the Western Roman Empire from the 3rd century CE onwards? Examine the impact of these factors on the empire's stability and resilience.",
+      "What external pressures, including barbarian migrations (Visigoths, Vandals, Huns) and military defeats, led to the eventual collapse of the Western Roman Empire in 476 CE? Analyze the strategies employed by the Romans to defend their frontiers and the reasons for their ultimate failure.",
+      "How did the Eastern Roman Empire (Byzantine Empire) continue the Roman legacy after the fall of the West? Explore its political system, culture, religion (Eastern Orthodox Christianity), and military organization, with a focus on key emperors like Justinian I.",
+      "What are the major historiographical debates surrounding the fall of the Roman Empire? Examine different perspectives and theories proposed by historians regarding the relative importance of internal and external factors in explaining the decline and collapse of the Western Roman Empire."
+    ]
+  },
+  {
+    "id": 5,
+    "domain": "Finance/Strategy",
+    "query": "What are the best investment strategies for beginners in 2025?",
+    "num_generated": 5,
+    "word_counts": [
+      41,
+      48,
+      44,
+      43,
+      52
+    ],
+    "num_ok": true,
+    "words_ok": true,
+    "plan": [
+      "What are the fundamental principles of investing for beginners in 2025, covering concepts like risk tolerance, asset allocation (stocks, bonds, cash), diversification, and the importance of long-term investing horizons, especially considering predicted market conditions? Include definitions and examples of each concept.",
+      "What are the most common investment vehicles suitable for beginners in 2025, specifically mutual funds (index and actively managed), exchange-traded funds (ETFs), and robo-advisors? Explain their fee structures, minimum investment requirements, historical performance, and tax implications. Compare and contrast their suitability for different risk profiles and investment goals.",
+      "How do geopolitical factors and macroeconomic trends expected in 2025 influence different asset classes and investment strategies? Research specific predictions related to inflation, interest rates, economic growth, and international trade, and analyze their potential impact on stock market sectors, bond yields, and currency valuations.",
+      "What are some popular beginner investment strategies for 2025, such as dollar-cost averaging (DCA), dividend investing, and socially responsible investing (SRI)? Explain the mechanics of each strategy, their advantages and disadvantages, and how to implement them effectively using specific examples and hypothetical scenarios.",
+      "What are the common pitfalls and risks that beginner investors should be aware of in 2025, including emotional investing, chasing trends (e.g., meme stocks, speculative assets), high fees, and lack of diversification? Research strategies for mitigating these risks, such as setting clear investment goals, conducting thorough research, and seeking professional financial advice."
+    ]
+  },
+  {
+    "id": 6,
+    "domain": "Biology/Ethics",
+    "query": "Explain how CRISPR gene editing works and its ethical implications",
+    "num_generated": 6,
+    "word_counts": [
+      31,
+      29,
+      33,
+      36,
+      35,
+      38
+    ],
+    "num_ok": true,
+    "words_ok": true,
+    "plan": [
+      "What is CRISPR-Cas9 gene editing? Explain the basic components (Cas9 enzyme, guide RNA), the mechanism of action (target recognition, DNA cleavage, repair pathways), and different Cas9 orthologs used in various applications.",
+      "Describe the different types of CRISPR systems (e.g., CRISPR-Cas9, CRISPR-Cpf1, CRISPR-Cas12a) and their specific properties, advantages, and limitations in terms of target specificity, PAM sequence requirements, and editing efficiency.",
+      "Explain the process of designing guide RNAs (gRNAs) for CRISPR-Cas9 gene editing. Detail the key considerations for target selection, including on-target activity, off-target effects, and bioinformatics tools used for gRNA design and optimization.",
+      "What are the primary methods for delivering CRISPR-Cas9 components into cells or organisms? Discuss viral vectors (AAV, lentivirus), non-viral methods (electroporation, lipid nanoparticles), and their advantages and disadvantages in terms of delivery efficiency, immunogenicity, and safety.",
+      "How is CRISPR-Cas9 being applied in gene therapy for inherited diseases? Discuss specific examples of clinical trials targeting diseases like sickle cell anemia, beta-thalassemia, and cystic fibrosis, highlighting the challenges and successes of these approaches.",
+      "What are the major ethical concerns surrounding CRISPR gene editing, particularly in the context of germline editing and enhancement? Address issues such as informed consent, equitable access, long-term consequences, and the potential for unintended effects on future generations."
+    ]
+  },
+  {
+    "id": 7,
+    "domain": "News/Current",
+    "query": "What are the major developments in the Ukraine-Russia conflict this year?",
+    "num_generated": 7,
+    "word_counts": [
+      43,
+      41,
+      43,
+      42,
+      42,
+      41,
+      42
+    ],
+    "num_ok": true,
+    "words_ok": true,
+    "plan": [
+      "What were the key strategic shifts and major territorial changes on the front lines of the Russia-Ukraine conflict in 2026, focusing on advancements, retreats, and fortified defense lines established by both sides? Include specific geographical locations and military units involved in significant operations.",
+      "Analyze the changes in military technology and tactics employed by both Russia and Ukraine in 2026, including the deployment of new drone technologies, electronic warfare systems, and precision-guided munitions. What impact have these advancements had on the conflict's intensity and outcome?",
+      "Examine the economic impact of the Russia-Ukraine conflict on global energy markets and supply chains in 2026, considering sanctions, trade disruptions, and shifts in energy production and consumption. What measures have been implemented to mitigate these impacts, and how effective have they been?",
+      "Assess the geopolitical implications of the Russia-Ukraine conflict on NATO expansion and international alliances in 2026, focusing on shifts in defense spending, military cooperation, and diplomatic relations between key players. How have these shifts affected the balance of power in Eastern Europe?",
+      "Investigate the humanitarian crisis resulting from the Russia-Ukraine conflict in 2026, focusing on displacement, refugee flows, and access to essential resources and medical care. What international aid efforts are in place to address these humanitarian needs, and what are the challenges involved?",
+      "How have international legal frameworks, such as the Geneva Conventions and international criminal law, been applied to the actions of both Russia and Ukraine in 2026? What investigations or prosecutions have been initiated concerning alleged war crimes or human rights violations?",
+      "What is the role and impact of information warfare, propaganda, and disinformation campaigns waged by both Russia and Ukraine in 2026, examining their influence on public opinion, morale, and international perceptions of the conflict? What strategies are being used to combat disinformation?"
+    ]
+  },
+  {
+    "id": 8,
+    "domain": "Science/Comprehensive",
+    "query": "Explain everything about quantum computing \u2014 from basics to current state to future applications",
+    "num_generated": 9,
+    "word_counts": [
+      41,
+      45,
+      45,
+      44,
+      37,
+      35,
+      38,
+      39,
+      38
+    ],
+    "num_ok": true,
+    "words_ok": true,
+    "plan": [
+      "What are the fundamental principles of quantum mechanics that underpin quantum computing, including superposition, entanglement, and quantum interference? Explain these concepts with equations and examples, and clarify how they enable quantum computers to perform calculations beyond the capabilities of classical computers.",
+      "Describe the architecture of a quantum computer. Detail the different types of qubits (superconducting, trapped ion, photonic, etc.), their advantages and disadvantages, and the technologies used to control and measure them. Include discussion of quantum error correction and its impact on qubit coherence and scalability.",
+      "Compare and contrast the major quantum computing hardware platforms: superconducting qubits (e.g., Google, IBM), trapped ion qubits (e.g., IonQ), photonic qubits, and neutral atom qubits. What are the specific strengths and weaknesses of each approach in terms of fidelity, connectivity, scaling potential, and gate speed?",
+      "Explain the key quantum algorithms that offer speedups compared to classical algorithms, such as Shor's algorithm for factoring, Grover's algorithm for search, and quantum simulation algorithms. Include the complexity analysis for each algorithm and the specific problem domains where they provide the greatest advantage.",
+      "What is the current state of quantum computing technology? Report on the latest advancements in qubit counts, coherence times, and gate fidelities achieved by leading quantum computing companies and research institutions. Provide specific performance metrics and benchmarks.",
+      "Outline the potential applications of quantum computing across various fields, including drug discovery, materials science, financial modeling, cryptography, and optimization problems. Describe specific use cases and the potential impact of quantum computing on these industries.",
+      "What are the primary challenges and limitations currently hindering the widespread adoption of quantum computing, such as qubit decoherence, error correction overhead, and the difficulty of scaling quantum systems? Discuss the ongoing research efforts to overcome these challenges.",
+      "Assess the ethical and societal implications of quantum computing, particularly its potential impact on cryptography and national security. How might quantum-resistant cryptographic methods mitigate these risks? What are the potential benefits and risks of quantum computing becoming widely accessible?",
+      "What are the anticipated future trends and developments in quantum computing over the next 5-10 years, including advancements in hardware, software, algorithms, and applications? How might quantum computing impact other emerging technologies such as artificial intelligence and blockchain?"
+    ]
+  },
+  {
+    "id": 9,
+    "domain": "General/Business",
+    "query": "What are the benefits and drawbacks of remote work for employees and companies?",
+    "num_generated": 8,
+    "word_counts": [
+      32,
+      26,
+      41,
+      34,
+      40,
+      37,
+      30,
+      34
+    ],
+    "num_ok": true,
+    "words_ok": true,
+    "plan": [
+      "What are the commonly cited advantages and disadvantages of remote work arrangements for employees, specifically regarding work-life balance, productivity, career advancement opportunities, and mental health, referencing studies and surveys conducted between 2020-2024?",
+      "How do different remote work models (fully remote, hybrid, and remote-first) impact employee engagement, collaboration, and team cohesion, considering the role of communication tools and strategies?",
+      "What are the key benefits and challenges companies face when implementing remote work policies, focusing on aspects like cost savings, talent acquisition and retention, cybersecurity risks, and maintaining company culture, drawing upon case studies of organizations with established remote work programs?",
+      "What are the legal and regulatory considerations for companies employing remote workers, including compliance with labor laws, data privacy regulations (e.g., GDPR), and tax implications in different jurisdictions, considering recent changes and emerging trends?",
+      "What strategies can companies implement to effectively manage and support remote employees, focusing on performance evaluation, communication protocols, technology infrastructure, and fostering a sense of community and belonging in the absence of physical proximity, referencing best practices and industry standards?",
+      "How does the effectiveness of remote work vary across different industries (e.g., tech, finance, healthcare) and job roles (e.g., software development, customer service, management), considering factors like task interdependence, skill requirements, and the need for in-person interaction?",
+      "What are the long-term societal and economic implications of the widespread adoption of remote work, considering its effects on urban development, transportation infrastructure, environmental sustainability, and the future of work?",
+      "What emerging technologies and trends are shaping the future of remote work, focusing on innovations in virtual reality, augmented reality, artificial intelligence, and collaboration platforms that enhance remote work experiences and address current limitations?"
+    ]
+  },
+  {
+    "id": 10,
+    "domain": "Writing/How-to",
+    "query": "How do I write a compelling novel? Cover structure, character development, and publishing",
+    "num_generated": 6,
+    "word_counts": [
+      58,
+      48,
+      49,
+      55,
+      53,
+      52
+    ],
+    "num_ok": true,
+    "words_ok": true,
+    "plan": [
+      "What are the fundamental elements of a compelling novel structure, including plot structures like the Freytag Pyramid, the Hero's Journey, and common variations? Research the importance of plot points, pacing, rising action, climax, and resolution in engaging readers. Explore different narrative structures such as linear, non-linear, and circular plots. What are examples of novels employing each structure effectively?",
+      "How can writers create believable and engaging characters? Explore character archetypes, character development techniques (internal and external conflicts, motivations, flaws), and methods for revealing character traits through actions, dialogue, and interactions with other characters. How do concepts like character arcs and consistent character voice impact a novel\u2019s success?",
+      "What are the key steps and considerations in the publishing process for a novel? Detail the differences between traditional publishing (agents, publishers, royalties) and self-publishing (editorial, cover design, marketing, distribution). Research the pros and cons of each route, including costs, control, and potential revenue. What are hybrid publishing models?",
+      "What are effective strategies for building a readership and marketing a novel after publication? Investigate methods such as social media marketing, book reviews, author events, online advertising, and email list building. How do factors like genre, target audience, and budget impact marketing decisions? Explore the role of book bloggers and influencers in promoting a novel.",
+      "What are some common pitfalls and challenges that new novelists face during the writing, publishing, and marketing phases, and how can they be avoided? Research common writing mistakes, difficulties in securing an agent or publisher, marketing strategies that fail, and ways to overcome writer's block. How can writers effectively manage criticism and rejection?",
+      "What are some emerging trends and future directions in the novel publishing industry? Investigate the impact of digital publishing, audiobooks, subscription services, and online writing platforms on the traditional publishing model. Explore the role of AI in writing and editing novels. How are authors adapting to changing reader preferences and consumption habits?"
+    ]
+  }
+]

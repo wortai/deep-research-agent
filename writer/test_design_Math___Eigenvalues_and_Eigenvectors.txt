@@ -1,0 +1,75 @@
+SCENARIO: Math — Eigenvalues and Eigenvectors
+SELECTED SKILL: math.md
+================================================================================
+
+1. COLOR SYSTEM
+- Background: #FFFFFF
+- Text Body: #2D3748
+- Headings: #1A365D
+- Semantic/Accents: Academic Blue #3182CE (Theorem/Primary), Math Green #38A169 (Lemma/Positive), Burnt Orange #C05621 (Warning/Exception), Crimson #C53030 (Contrasting/Boundary).
+- Chart/Plot Color Sequence: #3182CE, #C53030, #2F855A, #C05621, #805AD5, #4A5568
+- Definition Box: Background #F7F8FA, Border #CBD5E0
+- Theorem Box: Background #EBF4FF, Left Border #3182CE
+- Lemma Box: Background #F0FFF4, Left Border #38A169
+- Example Box: Background #FFFFFF, Border #2D3748
+- Table Header: Background #1A365D, Text #FFFFFF
+- Table Row Alt: Background #F7F8FA
+- Code Block / Algorithm: Background #1E293B, Border #0F172A
+- Blockquote / Remark: Background #FFFFFF, Left Border #718096
+
+2. TYPOGRAPHY
+- Body Font: EB Garamond, Georgia, serif
+- Heading Font: Inter, Helvetica Neue, sans-serif
+- Monospace Font: Fira Code, JetBrains Mono, monospace
+- Math Variables: EB Garamond, Georgia, serif (italic)
+- h2 scale: 1.6rem, weight 600, line-height 1.3
+- h3 scale: 1.3rem, weight 600, line-height 1.3
+- h4 scale: 1.1rem, weight 700, line-height 1.3
+- Body text scale: 1.0rem, weight 400, line-height 1.7 (wide to accommodate inline math)
+- Caption/Equation Number scale: 0.875rem, weight 400, line-height 1.4
+
+3. SPACING
+- Base spacing unit: 1.0rem
+- Paragraph margin-bottom: 1.2rem
+- Subchapter (h2) margin-top: 2.5rem
+- Section (h3) margin-top: 1.5rem
+- Pre/Post Visuals and Display Equations: 1.5rem
+- Component Padding (Boxes, Quotes): 1.0rem inside, Examples 1.5rem inside.
+- Max Content Width: 48rem (ensures optimal line length for dense mathematical prose)
+
+4. VISUAL MOOD
+Clinical, precise, and authoritative. The report evokes a classic graduate mathematics textbook (such as Springer texts). The stark white background, classical serif typography, and rigid structural elements project logical inevitability. Subtle academic colors (cool grays, muted blues, forest greens) frame definitions and theorems without causing distraction.
+
+5. REPORT INTENT & PRESENTATION
+This is a rigorous pedagogical reference focused on teaching linear algebra principles. The reader requires explicit foundational definitions, visual geometric intuition, and step-by-step computational formulas. The layout prioritizes classical textbook structure: a concept is formally boxed, a theorem follows with proof, a geometric SVG visualization illustrates the concept, and an example explicitly runs the numbers. Structure and typography work intimately to pace the reading, making heavy abstract mathematics accessible and clear.
+
+6. VISUAL DECISION TREE
+- IF introducing the mathematical concept of eigenvalues or eigenvectors THEN use a Definition Box (Background #F7F8FA, Border #CBD5E0).
+- IF establishing a formal mathematical property (e.g., eigenvalues of an inverse matrix) THEN use a Theorem block (Background #EBF4FF, Left Border #3182CE) followed by an indented, collapsible proof.
+- IF solving the characteristic equation det(A - lambda * I) = 0 THEN use a worked Example Box (Border #2D3748) with step-by-step centered equations and a double-bordered final answer.
+- IF explaining geometric intuition THEN use an SVG diagram plotting vector v and transformed vector Av on a 2D coordinate grid.
+- IF illustrating real-world applications containing distinct categorized variance (e.g., Principal Component Analysis component weights) THEN use a Charts.css column chart.
+- IF writing out simultaneous equations or matrix transformations THEN use a centered scrollable equation block, explicitly numbered right-aligned in parentheses.
+
+7. SVG & CHARTS.CSS CONSTRUCTION
+a) SVG:
+- ViewBox: 0 0 400 400 for 2D square matrix geometric transformations; 0 0 800 400 for 1D timeline applications (e.g., Markov chains over time).
+- Fonts: text elements must use font-family="EB Garamond, Georgia, serif" directly on the tag. Size: 14px for titles, 12px for axis/vector labels.
+- Stroke widths: thin 1px for coordinate gridlines (#EDF2F7), medium 2px for standard geometric mappings, thick 3px for primary eigenvector arrows to show scale.
+- Color: Use only the established palette. Blue (#3182CE) for standard vector v, Crimson (#C53030) for transformed matrix application Av.
+- Accessibility: <title> and <desc> are strictly mandatory describing the geometric setup.
+- Patterns: Use <line> elements with marker arrows for vectors, distinct <circle> elements at integer coordinates.
+
+b) Charts.css:
+- Use exclusively for the "Applications" section (e.g., frequency distributions or dimensional variance).
+- Allowed types: column (for sequential steps/dimensions), bar (for discrete application states).
+- Modifiers: ALWAYS include show-labels, show-data, show-headings.
+- Color sequence: #3182CE (Dimension 1), #C53030 (Dimension 2), #2F855A (Dimension 3).
+- DO NOT use for algebraic formulas or geometric transformations. Do not use for fewer than 3 points of application data.
+
+8. WHAT TO AVOID
+- DO NOT format mathematical logical arguments or proofs as bulleted lists; proofs must be sequential, flowing prose terminating with a tombstone (QED).
+- NEVER present a display equation without defining all constituent variables (A, lambda, v, I) immediately adjacent to it, and do not forget the right-aligned equation number.
+- DO NOT use flashy gradients, colored backgrounds, or anything that detracts from the pure black-and-white print aesthetic.
+- AVOID dumping abstract equations without SVG geometric intuition; an eigenvalue must be shown as a vector scaling on a grid.
+- NEVER use nested quotes in SVG style declarations for font families (e.g. font-family: "'EB Garamond', serif"); use unquoted attribute lists font-family="EB Garamond, serif".

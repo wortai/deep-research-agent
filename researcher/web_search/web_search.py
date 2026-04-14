@@ -10,7 +10,7 @@ from researcher.retrievers.serpapi import SerpApiClient
 from researcher.retrievers.custom_url_retriever.google_search import GoogleSearchRetriever
 from researcher.scrapers.agentql import AgentQLScraper
 from researcher.scrapers.browser import UniversalLoader
-from researcher.scrapers.tavily import Tavily          
+from researcher.scrapers.tavily import Tavily
 # from researcher.scrapers.arxiv import ResearchSearch
 
 
@@ -90,6 +90,81 @@ class WebSearch:
             logging.error(f"Tavily search failed: {e}")
         return extracted_data
 
+    @staticmethod
+    async def search_with_multiple_advance_queries(
+        queries: List[str],
+        max_results_per_query: int = 2,
+        include_images: bool = True,
+        include_raw_content: bool = False ,
+    ) -> List[Dict[str, Any]]:
+        """
+        Performs multiple advanced Tavily searches concurrently.
+        Uses Tavily's multiple_advance_queries for efficient batch retrieval.
+        Returns results with url, content, title, and images for richer analysis.
+
+        Args:
+            queries: List of search queries to execute.
+            max_results_per_query: Max results per query. Default 2.
+            include_images: Include images in results. Default True.
+            include_raw_content: Include raw content when available. Default True.
+
+        Returns:
+            List of dicts: {"url", "content", "title", "images"}
+        """
+        if not queries:
+            logging.warning("No queries provided to search_with_multiple_advance_queries.")
+            return []
+
+        try:
+            tavily = Tavily(
+                queries=queries,
+                depth=True,
+                max_result=max_results_per_query,
+                include_images=include_images,
+                include_raw_content=include_raw_content,
+            )
+            responses = await tavily.multiple_advance_queries()
+        except Exception as e:
+            logging.error(f"Multiple advance queries failed: {e}")
+            return []
+
+        all_results = []
+        for resp in responses:
+            if "error" in resp:
+                logging.warning(f"Query '{resp.get('query', '')}' failed: {resp['error']}")
+                continue
+
+            results = resp.get("results", [])
+            raw_images = resp.get("images", [])
+
+            # Normalize images to {url, description} format (Tavily returns url + description)
+            images: List[Dict[str, str]] = []
+            for img in raw_images:
+                img_url = img.get("url") or img.get("src", "")
+                img_desc = img.get("description") or img.get("alt") or ""
+                if img_url:
+                    images.append({"url": img_url, "description": img_desc})
+
+            for r in results:
+                url = r.get("url")
+                content = r.get("raw_content") or r.get("content") or ""
+                title = r.get("title", "")
+
+                if not url or not content:
+                    continue
+
+                item: Dict[str, Any] = {
+                    "url": url,
+                    "content": content,
+                    "title": title,
+                }
+                if images:
+                    item["images"] = images
+                all_results.append(item)
+
+        return all_results
+
+
     async def search_with_agentql(self, urls: List[str]) -> List[Dict[str, Any]]:
         """
         Scrapes data using AgentQL for unresolved URLs.
@@ -125,61 +200,6 @@ class WebSearch:
         
         # print(serpapi_results_combined)
         return serpapi_results_combined[:self.max_results]
-
-    # async def search_with_arxiv(self) -> List[Dict[str, Any]]:
-    #     """
-    #     Searches for research papers on Arxiv.
-    #     Returns:
-    #         List[Dict[str, Any]]: List of research paper details.
-    #     """
-    #     try:
-    #         if not hasattr(self, 'reserach_paper_queries') or not hasattr(self, 'arxiv_max_results'):
-    #              logging.error("Arxiv search parameters (reserach_paper_queries, arxiv_max_results) are not set.")
-    #              return []
-
-    #         arxiv_results = await ResearchSearch.arxiv(queries=self.arxiv_reserach_paper_queries, papers_per_query=self.arxiv_max_results)
-
-    #         if arxiv_results and arxiv_results.get("status") == "success" and arxiv_results.get("data"):
-
-    #             return arxiv_results["data"]
-    #         else:
-    #             # Log specific error if status is not success or data is missing
-    #             status = arxiv_results.get('status', 'Unknown status') if arxiv_results else 'No results returned'
-    #             logging.error(f"Arxiv search failed or returned no data. Status: {status}")
-    #             return []
-    #     except Exception as e:
-    #         logging.error(f"An unexpected error occurred during Arxiv search: {e}")
-    #         return []
-
-
-
-
-    # async def search_with_medrxiv_biorxiv(self) -> List[Dict[str, Any]]:
-    #     """
-    #     Searches for research papers on MedRxiv and BioRxiv.
-    #     Returns:
-    #         List[Dict[str, Any]]: List of research paper details.
-    #     """
-    #     try:
-    #         # Check if the required parameters are set
-    #         if not self.medbio_research_paper_queries or self.medbio_max_results <= 0:
-    #              logging.info("MedRxiv/BioRxiv search parameters (medbio_research_paper_queries, medbio_max_results) are not set or max_results is zero. Skipping search.")
-    #              return []
-
-    #         # Call the research tool
-    #         medbioxiv_results = await ResearchSearch.medrxiv_biorxiv(
-    #             queries=self.medbio_research_paper_queries,
-    #             papers_per_query=self.medbio_max_results
-    #         )
-
-    #         return medbioxiv_results['data']
-            
-
-
-    #     except Exception as e:
-    #         # Catch any unexpected exceptions during the process
-    #         logging.error(f"An unexpected error occurred during MedRxiv/BioRxiv search: {e}")
-    #         return []
 
 
     async def get_google_results(self) -> list:
@@ -227,14 +247,7 @@ class WebSearch:
             agentql_results = await self.search_with_agentql(remaining_urls)       
             print("--------------------------------------------------")
 
-            # Step 5: using research papers if mentioned 
-            # if len(self.arxiv_research_paper_queries) > 0 and len(self.arxiv_max_results) > 0:
-            #     arxiv_results = await self.search_with_arxiv()
-            #     self.results.extend(arxiv_results)
-                
-            # if len(self.medbio_research_paper_queries) > 0 and len(self.medbio_max_results) > 0:
-            #     medbio_results = await self.search_with_medrxiv_biorxiv()
-            #     self.results.extend(medbio_results)
+
 
 
             # Combine all results

@@ -147,10 +147,14 @@ class MemoryCompactor:
 
         return messages[:split_index], messages[split_index:]
 
+    def _is_summary_message(self, message: Dict) -> bool:
+        """True if message is a prior compaction summary."""
+        return message.get("metadata", {}).get("message_type") == "summary"
+
     def _extract_existing_summary(self, messages: List[Dict]) -> str:
         """Pulls content from a prior summary message if one exists."""
         for msg in messages:
-            if msg.get("metadata", {}).get("message_type") == "summary":
+            if self._is_summary_message(msg):
                 return msg.get("content", "")
         return ""
 

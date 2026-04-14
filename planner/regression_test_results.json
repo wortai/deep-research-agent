@@ -1,0 +1,272 @@
+[
+  {
+    "query_id": "A1",
+    "category": "Definition Fix",
+    "label": "Photosynthesis (run 1)",
+    "expected_range": "1",
+    "user_query": "What is photosynthesis?",
+    "num_queries": 1,
+    "elapsed_seconds": 6.6,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Define photosynthesis comprehensively, focusing on its core biological and biochemical mechanisms in plants, algae, and cyanobacteria. Detail the overall process converting CO2 and H2O into glucose and O2 using light energy via the equation 6CO2 + 6H2O + light → C6H12O6 + 6O2. Describe the site in thylakoids and stroma of chloroplasts, roles of chlorophyll a/b and accessory pigments, light-dependent reactions (photosystem II water-splitting, electron transport chain, photosystem I, ATP/NADPH production via non-cyclic/cyclic photophosphorylation), light-independent Calvin cycle (Rubisco carboxylation, reduction phase, regeneration), and key variants like C4 and CAM pathways.",
+        "word_count": 90
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": "A2",
+    "category": "Definition Fix",
+    "label": "Photosynthesis (run 2)",
+    "expected_range": "1",
+    "user_query": "What is photosynthesis?",
+    "num_queries": 1,
+    "elapsed_seconds": 4.1,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Define photosynthesis comprehensively at the molecular and biochemical level: include the overall chemical equation (6CO2 + 6H2O → C6H12O6 + 6O2), site in chloroplasts (thylakoids and stroma), roles of chlorophyll a/b and photosystems I/II in light-dependent reactions (photolysis of water, electron transport chain, ATP synthase for photophosphorylation producing ATP and NADPH), and light-independent reactions (Calvin-Benson cycle with Rubisco enzyme, carbon fixation, reduction, regeneration phases). Explain reactants, products, energy conversions, and evolutionary significance in oxygenic photosynthesis by cyanobacteria and plants.",
+        "word_count": 79
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": "A3",
+    "category": "Definition Fix",
+    "label": "Gravity",
+    "expected_range": "1",
+    "user_query": "What is gravity?",
+    "num_queries": 1,
+    "elapsed_seconds": 8.5,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "What is gravity? Provide a deep scientific definition covering Newtonian gravity (universal law of gravitation F = G m1 m2 / r^2, gravitational field g = G M / r^2, inverse-square law), Einstein's General Relativity (equivalence principle, spacetime curvature as geometry of gravity, geodesic paths), mathematical formulations (Poisson's equation ∇²Φ = 4πGρ, Einstein field equations G_{\\mu\\nu} = 8\\pi G / c^4 T_{\\mu\\nu}), experimental validations (Cavendish torsion balance, perihelion precession of Mercury, gravitational lensing, LIGO gravitational waves), and distinction from other fundamental forces (electromagnetism, strong/weak nuclear).",
+        "word_count": 85
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": "A4",
+    "category": "Definition Fix",
+    "label": "Machine Learning",
+    "expected_range": "1",
+    "user_query": "What is machine learning?",
+    "num_queries": 1,
+    "elapsed_seconds": 10.1,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a comprehensive definition of machine learning (ML), distinguishing it from traditional programming and classical AI. Cover its core mathematical foundations, including supervised learning via empirical risk minimization, loss functions, gradient-based optimization (e.g., stochastic gradient descent), and probabilistic models like Bayesian inference. Detail major paradigms: supervised (regression, classification with examples like linear models, SVMs, decision trees), unsupervised (clustering via k-means, dimensionality reduction with PCA/autoencoders), reinforcement learning (Markov decision processes, Q-learning, policy gradients), and semi/self-supervised learning. Explain key concepts like overfitting, regularization (L1/L2), cross-validation, and feature engineering.",
+        "word_count": 86
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": "A5",
+    "category": "Definition Fix",
+    "label": "Blockchain (imperative)",
+    "expected_range": "1",
+    "user_query": "Define blockchain",
+    "num_queries": 1,
+    "elapsed_seconds": 5.4,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a precise, technical definition of blockchain technology, including its core components such as distributed ledger, cryptographic hashing (SHA-256), Merkle trees for data integrity, immutability via chained blocks, and consensus mechanisms like Proof-of-Work or Proof-of-Stake. Explain its foundational principles from Satoshi Nakamoto's Bitcoin whitepaper, distinguishing it from centralized databases, and cover key properties: decentralization, transparency, and security against tampering.",
+        "word_count": 59
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": "R1",
+    "category": "Regression",
+    "label": "Bitcoin price",
+    "expected_range": "1",
+    "user_query": "What is the current price of Bitcoin?",
+    "num_queries": 1,
+    "elapsed_seconds": 7.0,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Determine the current price of Bitcoin (BTC) in USD as of April 5, 2026. Use real-time data from major cryptocurrency exchanges including Coinbase, Binance, Kraken, Bitstamp, and Gemini, as well as aggregators like CoinMarketCap, CoinGecko, and TradingView. Report the spot price average across these sources, 24-hour price change percentage, 24-hour trading volume, current market capitalization, and circulating supply. Note any discrepancies between spot, futures (e.g., CME Bitcoin futures), and over-the-counter prices, and identify the primary price source if consensus varies.",
+        "word_count": 80
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": "R2",
+    "category": "Regression",
+    "label": "React vs Vue",
+    "expected_range": "3",
+    "user_query": "Compare React and Vue for building interactive dashboards",
+    "num_queries": 3,
+    "elapsed_seconds": 14.2,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a detailed overview of React's core architecture and features optimized for building interactive dashboards as of 2026. Cover functional components with hooks (useState, useReducer, useEffect, useContext, useMemo), virtual DOM reconciliation, fiber architecture for concurrency, state management solutions (Redux Toolkit, Zustand, Recoil), and integration with visualization libraries like Recharts, Nivo, or D3.js. Include dashboard-specific techniques such as responsive design with CSS-in-JS (Styled Components, Emotion), real-time updates via WebSockets, and performance optimizations like React.memo and Suspense.",
+        "word_count": 75
+      },
+      {
+        "num": 2,
+        "text": "Provide a detailed overview of Vue.js's core architecture and features for building interactive dashboards as of 2026. Cover single-file components, Composition API with reactivity primitives (ref, reactive, computed, watchEffect), template syntax and directives (v-if, v-for, v-model), state management with Pinia, Vue Router for multi-page dashboards, and integration with charting libraries such as Vue ECharts, Chart.js Vue wrapper, or Vuetify data grids. Discuss transitions, teleports, and optimizations like dynamic imports and keep-alive for tabbed interfaces.",
+        "word_count": 74
+      },
+      {
+        "num": 3,
+        "text": "Conduct a head-to-head comparison of React versus Vue.js for developing interactive dashboards as of 2026, focusing on non-overlapping metrics: bundle size and initial load times from Krausest benchmarks, runtime performance for large datasets (virtual scrolling, pagination), developer experience (DX surveys, TypeScript support, hot module replacement via Vite), ecosystem for dashboards (Ant Design vs Vuetify, Formik vs VeeValidate), scalability and maintainability for enterprise use, and case studies of production dashboards (e.g., React in Jira dashboards, Vue in GitLab UI). Conclude with trade-offs and recommendations based on team expertise and project scale.",
+        "word_count": 90
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": "R3",
+    "category": "Regression",
+    "label": "CRISPR + ethics",
+    "expected_range": "4-5",
+    "user_query": "Explain how CRISPR gene editing works and its ethical implications",
+    "num_queries": 4,
+    "elapsed_seconds": 28.0,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "What is CRISPR-Cas9 gene editing? Define the key components including Cas9 endonuclease, guide RNA (gRNA), and PAM sequence. Explain how these components interact at the molecular level to form the CRISPR complex. Describe the origin of CRISPR as an adaptive immune system in bacteria against viral infections, including spacer acquisition, CRISPR array expression, and interference mechanisms.",
+        "word_count": 56
+      },
+      {
+        "num": 2,
+        "text": "Explain the detailed step-by-step molecular mechanism of CRISPR-Cas9 gene editing: guide RNA design and complex formation with Cas9, target DNA recognition via base-pairing and PAM verification, Cas9-mediated double-strand break induction, and subsequent cellular DNA repair pathways—non-homologous end joining (NHEJ) for gene knockout and homology-directed repair (HDR) for precise insertion or correction. Cover precision enhancements like base editing with cytidine or adenine base editors and prime editing using pegRNA and reverse transcriptase fusion.",
+        "word_count": 72
+      },
+      {
+        "num": 3,
+        "text": "Detail the current real-world applications of CRISPR gene editing across domains: in medicine (e.g., FDA-approved Casgevy for sickle cell disease and beta-thalassemia, ongoing trials for HIV, cancer immunotherapies like CAR-T enhancements); agriculture (e.g., non-browning mushrooms, drought-resistant crops, gene drives in mosquitoes for malaria control); and basic research (e.g., genome-wide knockout screens, epigenetic modifications). Include specific examples, outcomes, and development status as of 2026.",
+        "word_count": 63
+      },
+      {
+        "num": 4,
+        "text": "Analyze the major ethical implications of CRISPR gene editing, focusing on germline vs. somatic editing debates, the therapy-enhancement distinction, risks of off-target effects and mosaicism on future generations, equity/access issues in global health disparities, and intellectual property conflicts. Cover landmark events like He Jiankui's 2018 CRISPR babies scandal, regulatory frameworks (e.g., US FDA, EU bans on germline), international guidelines (e.g., WHO recommendations, Nuffield Council reports), and ongoing ethical challenges as of 2026.",
+        "word_count": 72
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": "R4",
+    "category": "Regression",
+    "label": "Investment strategies",
+    "expected_range": "4-5",
+    "user_query": "What are the best investment strategies for beginners in 2025?",
+    "num_queries": 5,
+    "elapsed_seconds": 15.6,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Research the foundational principles of investing for beginners, including assessing personal risk tolerance using standard questionnaires (e.g., Vanguard Investor Questionnaire), understanding diversification via modern portfolio theory, the power of compounding with specific examples, dollar-cost averaging mechanics, and the critical role of low expense ratios (&lt;0.2%) in funds like VTI or VOO. Explain why these basics are timeless for 2025 entry.",
+        "word_count": 60
+      },
+      {
+        "num": 2,
+        "text": "Detail the top three investment strategies recommended for beginners: passive index fund investing (e.g., S&amp;P 500 trackers), robo-advisor platforms (e.g., Betterment, Wealthfront algorithms), and target-date retirement funds. For each, describe the underlying mechanism, asset allocation models (e.g., 60/40 stocks/bonds), historical 10-year returns adjusted for 2025 inflation, and beginner suitability criteria.",
+        "word_count": 50
+      },
+      {
+        "num": 3,
+        "text": "Analyze 2025-specific market conditions shaping best beginner strategies, including Federal Reserve interest rate trajectory, performance of tech/AI sectors (e.g., Magnificent Seven stocks), bond yields amid disinflation, cryptocurrency regulatory changes (e.g., SEC ETF approvals), and global events like geopolitical tensions or election impacts. Cover sector ETF performance data for the year.",
+        "word_count": 50
+      },
+      {
+        "num": 4,
+        "text": "Compare the risk-adjusted returns of beginner strategies in 2025 using Sharpe ratio and Sortino ratio metrics: index funds vs. active mutual funds vs. thematic ETFs (e.g., ARKK vs. broad market). Evaluate trade-offs in liquidity, tax efficiency (e.g., Roth IRA integration), minimum investments, and behavioral pitfalls like market timing, backed by 2025 case studies.",
+        "word_count": 53
+      },
+      {
+        "num": 5,
+        "text": "Outline practical steps for beginners to implement 2025 strategies: selecting beginner-friendly brokers (e.g., Fidelity, Schwab zero-commission), setting up automatic investments, tax-advantaged accounts (Roth IRA contribution limits), monitoring via apps like Personal Capital, common pitfalls like emotional selling, and forward-looking advice based on 2025 outcomes for 2026 adjustments.",
+        "word_count": 47
+      }
+    ],
+    "error": null
+  },
+  {
+    "query_id": "R5",
+    "category": "Regression",
+    "label": "Quantum computing (comprehensive)",
+    "expected_range": "8-10",
+    "user_query": "Explain everything about quantum computing from basics to current state to future applications",
+    "num_queries": 10,
+    "elapsed_seconds": 26.9,
+    "verdict": "PASS",
+    "queries": [
+      {
+        "num": 1,
+        "text": "Provide a comprehensive foundational overview of quantum computing, defining qubits (superposition states, Bloch sphere representation), classical bits vs. qubits, and core quantum principles including superposition, entanglement (Bell states), quantum interference, and measurement (wavefunction collapse). Cover the Church-Turing thesis extension to quantum Turing machines by Deutsch, with no discussion of algorithms or hardware.",
+        "word_count": 52
+      },
+      {
+        "num": 2,
+        "text": "Detail the mathematical formalism of quantum computing: Hilbert spaces, tensor products for multi-qubit systems, unitary operators, Hermitian observables, density matrices for mixed states, and quantum channels for noise/decoherence. Explain Dirac notation, basis states (|0>, |1>), inner products, and how eigenvalues/eigenstates describe measurement outcomes, excluding hardware or algorithms.",
+        "word_count": 47
+      },
+      {
+        "num": 3,
+        "text": "Describe the basic building blocks of quantum computation: single-qubit gates (Pauli-X/Y/Z, Hadamard H, phase S/T), controlled gates (CNOT, Toffoli), measurement operations, and universal quantum gate sets (e.g., {H, T, CNOT}). Include quantum circuit diagrams for simple examples like Bell state creation, without algorithms or hardware specifics.",
+        "word_count": 46
+      },
+      {
+        "num": 4,
+        "text": "Survey major quantum algorithms and their mechanisms: Shor's algorithm for integer factorization (quantum Fourier transform QFT), Grover's unstructured search (amplitude amplification), variational quantum eigensolver (VQE) for ground states, quantum approximate optimization algorithm (QAOA), and HHL for linear systems, detailing time complexities vs. classical.",
+        "word_count": 43
+      },
+      {
+        "num": 5,
+        "text": "Provide an in-depth review of quantum hardware platforms as of 2026: superconducting qubits (transmon, fluxonium, IBM Eagle/Condor/Heron chips), trapped-ion systems (IonQ, Honeywell), neutral atoms (QuEra, Pasqal), photonic qubits (PsiQuantum, Xanadu), silicon spins (Intel, Quantum Motion), and topological qubits (Microsoft Majorana), covering coherence times, gate fidelities, and scalability challenges.",
+        "word_count": 48
+      },
+      {
+        "num": 6,
+        "text": "Summarize the current state of quantum computing in 2026: leading players and their achievements (Google Sycamore supremacy/volume, IBM Quantum Roadmap to 100k qubits, IonQ Tempo 36-qubit system, Rigetti Aspen, Amazon Braket), NISQ-era milestones, quantum volume benchmarks, available cloud platforms, and economic investments/funding.",
+        "word_count": 42
+      },
+      {
+        "num": 7,
+        "text": "Analyze key challenges in quantum computing: decoherence mechanisms (T1/T2 times, amplitude/phase damping), gate error rates, crosstalk, qubit connectivity topologies (grid vs. all-to-all), scalability barriers (cryogenics, control electronics), and classical simulation limits (tensor networks, exact diagonalization).",
+        "word_count": 35
+      },
+      {
+        "num": 8,
+        "text": "Detail quantum error correction and fault-tolerance: stabilizer codes (Shor 9-qubit, Steane [[7,1,3]]), surface codes (lattice surgery), threshold theorem, magic state distillation, cat codes for biased noise, and current experimental demonstrations (Google, USTC surface code experiments), excluding applications.",
+        "word_count": 37
+      },
+      {
+        "num": 9,
+        "text": "Explore current and near-term applications of NISQ devices as of 2026: quantum chemistry simulations (VQE for molecular Hamiltonians), optimization (QAOA for MaxCut), machine learning (quantum kernel methods, QSVM), sensing/metrology (NV centers), and cryptography threats (post-quantum readiness), with specific case studies.",
+        "word_count": 40
+      },
+      {
+        "num": 10,
+        "text": "Outline future applications and long-term vision of fault-tolerant quantum computing beyond 2030: drug discovery (protein folding simulations), materials science (high-Tc superconductors), finance (portfolio optimization, Monte Carlo), breaking RSA via Shor, climate modeling, AI acceleration, ethical risks (crypto disruption), and industry roadmaps (Quantum Economic Development Consortium).",
+        "word_count": 45
+      }
+    ],
+    "error": null
+  }
+]

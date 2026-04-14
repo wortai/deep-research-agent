@@ -11,7 +11,8 @@ from urllib.parse import urlparse
 from llms import LlmsHouse
 from graphs.states.subgraph_state import AgentGraphState
 from langchain_core.messages import HumanMessage, SystemMessage
-from response.utils import _extract_citation_label, _build_citation_map 
+from response.utils import _extract_citation_label, _build_citation_map
+from prompt_datetime import now_utc_for_prompt
 from datetime import datetime
 import logging
 
@@ -130,6 +131,7 @@ class ResponseComposer:
 
                     system_prompt = WEBSEARCH_SYSTEM_PROMPT
                     human_prompt = WEBSEARCH_HUMAN_TEMPLATE.format(
+                        current_datetime=now_utc_for_prompt(),
                         user_query=user_query,
                         chat_history=chat_history,
                         citation_map=citation_map,
@@ -154,6 +156,7 @@ class ResponseComposer:
                     assistant_message = self._create_chat_message("assistant", final_text)
                     return {
                         "chat_messages": [assistant_message],
+                        "final_response": final_text,
                         "current_phase": "responding",
                     }
 
@@ -172,7 +175,6 @@ class ResponseComposer:
                         user_query=user_query,
                         abstract=abstract,
                         introduction=introduction,
-                        pdf_path=pdf_path,
                     )
 
                 case "edit":
@@ -188,7 +190,6 @@ class ResponseComposer:
                         user_query=user_query,
                         abstract=latest_report.get("abstract", "")[:500],
                         introduction=latest_report.get("introduction", "")[:500],
-                        pdf_path=state.get("pdf_s3_path") or state.get("final_report_path", ""),
                     )
 
             if prompt:
@@ -199,6 +200,7 @@ class ResponseComposer:
                 assistant_message = self._create_chat_message("assistant", final_text)
                 return {
                     "chat_messages": [assistant_message],
+                    "final_response": final_text,
                     "current_phase": "responding",
                 }
 
@@ -206,15 +208,15 @@ class ResponseComposer:
                 assistant_message = self._create_chat_message("assistant", response)
                 return {
                     "chat_messages": [assistant_message],
+                    "final_response": response,
                     "current_phase": "responding",
                 }
 
-            fallback = self._create_chat_message(
-                "assistant",
-                "I could not generate a response. Please try again."
-            )
+            fallback_text = "I could not generate a response. Please try again."
+            fallback = self._create_chat_message("assistant", fallback_text)
             return {
                 "chat_messages": [fallback],
+                "final_response": fallback_text,
                 "current_phase": "responding",
             }
 

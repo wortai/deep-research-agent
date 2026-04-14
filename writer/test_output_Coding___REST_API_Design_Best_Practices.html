@@ -1,0 +1,310 @@
+<div class="report-chapter">
+  <div class="report-page">
+    <h2 style="font-family: 'Inter', system-ui, sans-serif; font-size: 1.875rem; font-weight: 700; line-height: 1.3; color: #1A202C; margin: 0 0 3rem 0;">1. Coding — REST API Design Best Practices</h2>
+    <h3 style="font-family: 'Inter', system-ui, sans-serif; font-size: 1.5rem; font-weight: 600; line-height: 1.4; color: #1A202C; margin: 3rem 0 1.5rem 0;">1.1 Overview</h3>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem; max-width: 54rem;">RESTful API design establishes a standardized, predictable interface for client-server interactions, emphasizing resource-oriented architecture over RPC-style endpoints. Core best practices revolve around resource naming conventions using nouns in URL paths, precise HTTP method semantics to denote actions, URL path-based versioning for managing changes, consistent error handling with structured responses and standard HTTP status codes, and efficient pagination patterns to handle large datasets. These principles ensure scalability, cacheability, and developer experience, drawing from established guides like Google's API Design Guide and Microsoft's REST API Guidelines. This chapter provides actionable examples, tables, and code snippets for immediate implementation, highlighting common pitfalls such as verb-heavy URLs and deep nesting.</p>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 2.5rem; max-width: 54rem;">By adhering to these practices, APIs become self-documenting, with HTTP methods carrying the intent (e.g., GET for safe reads, POST for creation), plural nouns for collections, and nested paths limited to two levels for sub-resources. Versioning prevents breaking changes, error responses include machine-readable codes and human-friendly details, and pagination favors cursor-based over offset for performance at scale. Every recommendation includes exact request/response formats, status code mappings, and rationale for trade-offs like idempotency.</p>
+    <h3 style="font-family: 'Inter', system-ui, sans-serif; font-size: 1.5rem; font-weight: 600; line-height: 1.4; color: #1A202C; margin: 3rem 0 1.5rem 0;">1.2 Resource Naming Conventions and HTTP Methods</h3>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem; max-width: 54rem;">REST APIs must represent resources as nouns in URL paths, with HTTP methods specifying the action. This separation promotes uniformity: the path identifies the resource (e.g., /users for the collection of user resources), while the method defines the operation. Collections use plural nouns like /users or /orders, single resources incorporate IDs like /users/123, and relationships employ shallow nesting like /users/123/orders. Avoid nesting beyond two levels to prevent unwieldy paths; for deeper queries, append query parameters such as ?include=product,category.</p>
+    <div style="width:100%; overflow-x:auto; margin: 2.5rem 0;">
+      <table style="width: 100%; max-width: 72rem; border-collapse: collapse; font-family: 'Inter', system-ui, sans-serif; font-size: 0.875rem; color: #2D3748; border: 1px solid #E2E8F0;">
+        <thead>
+          <tr style="background: #EDF2F7;">
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Method</th>
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Path</th>
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">GET</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">/users</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">List all users</td>
+          </tr>
+          <tr>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">GET</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">/users/123</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Get user 123</td>
+          </tr>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">POST</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">/users</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Create a new user</td>
+          </tr>
+          <tr>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">PUT</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">/users/123</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Replace user 123 entirely</td>
+          </tr>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">PATCH</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">/users/123</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Partially update user 123</td>
+          </tr>
+          <tr>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">DELETE</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">/users/123</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Delete user 123</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem; max-width: 54rem;">The table above illustrates correct resource-oriented paths. For nested resources belonging to a parent, use paths like GET /users/123/orders to list orders for user 123, GET /users/123/orders/456 for a specific order, or POST /users/123/orders to create an order under that user. This maintains clarity without excessive depth.<a href="https://cloud.google.com/apis/design">Source: Google API Design Guide</a><a href="https://github.com/microsoft/api-guidelines">Source: Microsoft REST API Guidelines</a></p>
+    <div style="background: #FFFAF0; border-left: 4px solid #ED8936; padding: 1.5rem; margin: 2.5rem 0;">
+      <h4 style="font-family: 'Inter', system-ui, sans-serif; font-size: 1.25rem; font-weight: 600; line-height: 1.4; color: #DD6B20; margin: 0 0 1rem 0;">Common Mistake: Verbs in URLs</h4>
+      <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem;">Avoid verb-laden paths, as they duplicate HTTP method semantics and lead to inconsistent APIs:</p>
+      <ul style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem; max-width: 54rem;">
+        <li>GET /getUsers</li>
+        <li>POST /createUser</li>
+        <li>POST /updateUser/123</li>
+      </ul>
+      <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 0;">These violate REST principles by embedding actions in paths rather than using methods.</p>
+    </div>
+  </div>
+  <div class="report-page">
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 2.5rem; max-width: 54rem;">HTTP methods carry precise semantics regarding safety (can be repeated without side effects), idempotency (multiple identical requests yield the same result), and body usage. GET is safe and idempotent for reads without a body; POST is neither but creates resources; PUT fully replaces idempotently; PATCH partially updates (not strictly idempotent per spec but implemented as such in practice); DELETE idempotently removes with optional body.</p>
+    <div style="width:100%; overflow-x:auto; margin: 2.5rem 0;">
+      <table style="width: 100%; max-width: 72rem; border-collapse: collapse; font-family: 'Inter', system-ui, sans-serif; font-size: 0.875rem; color: #2D3748; border: 1px solid #E2E8F0;">
+        <thead>
+          <tr style="background: #EDF2F7;">
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Method</th>
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Idempotent</th>
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Safe</th>
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Body?</th>
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">GET</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Yes</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Yes</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">No</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Read/retrieve resource</td>
+          </tr>
+          <tr>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">POST</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">No</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">No</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Yes</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Create new resource</td>
+          </tr>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">PUT</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Yes</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">No</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Yes</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Full replacement</td>
+          </tr>
+          <tr>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">PATCH</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">No*</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">No</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Yes</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Partial update</td>
+          </tr>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">DELETE</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Yes</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">No</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Optional</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Remove resource</td>
+          </tr>
+        </tbody>
+        <tfoot style="font-size: 0.75rem; color: #718096;">
+          <tr>
+            <td colspan="5" style="padding: 0.5rem 1rem; text-align: left;">*PATCH is technically not idempotent by spec, but should be implemented idempotently in practice.</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 2.5rem; max-width: 54rem;">This table details method properties, enabling clients to retry safely (e.g., idempotent PUT/DELETE) and servers to cache GET responses. Consider a complete POST /api/v1/users request and 201 Created response, including self-links for HATEOAS navigation and related sub-resources.</p>
+    <div style="margin: 2.5rem 0;">
+      <div style="background: #2D3748; color: #FFFFFF; padding: 0.75rem 1rem; font-family: 'Fira Code', 'JetBrains Mono', monospace; font-size: 0.875rem; font-weight: 400; line-height: 1.5;">POST /api/v1/users<br>Content-Type: application/json</div>
+      <pre style="background: #1A202C; padding: 1rem; border: 1px solid #2D3748; margin: 0; overflow: auto; font-family: 'Fira Code', 'JetBrains Mono', monospace; font-size: 0.875rem; line-height: 1.5;"><code>{
+  <span style="color: #63B3ED;">"name"</span>: <span style="color: #68D391;">"Jane Smith"</span>,
+  <span style="color: #63B3ED;">"email"</span>: <span style="color: #68D391;">"jane@example.com"</span>,
+  <span style="color: #63B3ED;">"role"</span>: <span style="color: #68D391;">"admin"</span>
+}</code></pre>
+    </div>
+    <div style="margin: 0 0 2.5rem 0;">
+      <div style="background: #2D3748; color: #FFFFFF; padding: 0.75rem 1rem; font-family: 'Fira Code', 'JetBrains Mono', monospace; font-size: 0.875rem; font-weight: 400; line-height: 1.5;">Response — 201 Created</div>
+      <pre style="background: #1A202C; padding: 1rem; border: 1px solid #2D3748; margin: 0; overflow: auto; font-family: 'Fira Code', 'JetBrains Mono', monospace; font-size: 0.875rem; line-height: 1.5;"><code>{
+  <span style="color: #63B3ED;">"id"</span>: <span style="color: #D6BCFA;">"usr_abc123"</span>,
+  <span style="color: #63B3ED;">"name"</span>: <span style="color: #68D391;">"Jane Smith"</span>,
+  <span style="color: #63B3ED;">"email"</span>: <span style="color: #68D391;">"jane@example.com"</span>,
+  <span style="color: #63B3ED;">"role"</span>: <span style="color: #68D391;">"admin"</span>,
+  <span style="color: #63B3ED;">"createdAt"</span>: <span style="color: #68D391;">"2024-01-15T10:30:00Z"</span>,
+  <span style="color: #63B3ED;">"_links"</span>: {
+    <span style="color: #63B3ED;">"self"</span>: { <span style="color: #63B3ED;">"href"</span>: <span style="color: #68D391;">"/api/v1/users/usr_abc123"</span> },
+    <span style="color: #63B3ED;">"orders"</span>: { <span style="color: #63B3ED;">"href"</span>: <span style="color: #68D391;">"/api/v1/users/usr_abc123/orders"</span> }
+  }
+}</code></pre>
+    </div>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem; max-width: 54rem;">The response echoes the input, adds server-generated fields like id and createdAt, and provides _links for discoverability, aligning with hypermedia principles.</p>
+  </div>
+  <div class="report-page">
+    <h3 style="font-family: 'Inter', system-ui, sans-serif; font-size: 1.5rem; font-weight: 600; line-height: 1.4; color: #1A202C; margin: 3rem 0 1.5rem 0;">1.3 API Versioning Strategies</h3>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem; max-width: 54rem;">Versioning manages evolutionary changes without breaking clients. For major/breaking changes, increment the version (v1 to v2); for additive changes like new optional fields or endpoints, evolve within the version. Three primary strategies exist, each balancing simplicity, cacheability, and discoverability.</p>
+    <div style="width:100%; overflow-x:auto; margin: 2.5rem 0;">
+      <table style="width: 100%; max-width: 72rem; border-collapse: collapse; font-family: 'Inter', system-ui, sans-serif; font-size: 0.875rem; color: #2D3748; border: 1px solid #E2E8F0;">
+        <thead>
+          <tr style="background: #EDF2F7;">
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Strategy</th>
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Example</th>
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Pros</th>
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Cons</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">URL Path (Most Common)</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">GET /api/v1/users<br>GET /api/v2/users</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Simple, explicit, cacheable</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Clutters URLs, version proliferation</td>
+          </tr>
+          <tr>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Header</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">GET /api/users<br>Header: API-Version: 2024-01-15</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Clean URLs, date-based</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Less discoverable, browser testing harder</td>
+          </tr>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Query Parameter</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">GET /api/users?version=2</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Easy to test</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Can be ignored by clients</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 2.5rem; max-width: 54rem;">URL path versioning is recommended for its explicitness and caching benefits, as proxies can differentiate /v1 vs /v2. Date-based headers suit micro-versioning, while query params offer flexibility but risk oversight.<a href="https://stripe.com/docs/api">Source: Stripe API Reference</a></p>
+  </div>
+  <div class="report-page">
+    <h3 style="font-family: 'Inter', system-ui, sans-serif; font-size: 1.5rem; font-weight: 600; line-height: 1.4; color: #1A202C; margin: 3rem 0 1.5rem 0;">1.4 Error Handling</h3>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem; max-width: 54rem;">Consistent error responses across endpoints include a structured JSON object with code, message, field-specific details, requestId for tracing, and timestamp. Pair with precise HTTP status codes to signal request lifecycle issues.</p>
+    <div style="width:100%; overflow-x:auto; margin: 2.5rem 0;">
+      <table style="width: 100%; max-width: 72rem; border-collapse: collapse; font-family: 'Inter', system-ui, sans-serif; font-size: 0.875rem; color: #2D3748; border: 1px solid #E2E8F0;">
+        <thead>
+          <tr style="background: #EDF2F7;">
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Status</th>
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">Meaning</th>
+            <th style="padding: 0.75rem 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #A0AEC0;">When to Use</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">200</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">OK</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Successful GET, PUT, PATCH</td>
+          </tr>
+          <tr>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">201</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Created</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Successful POST (new resource created)</td>
+          </tr>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">204</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">No Content</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Successful DELETE</td>
+          </tr>
+          <tr>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">400</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Bad Request</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Invalid request body, missing required fields</td>
+          </tr>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">401</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Unauthorized</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Missing or invalid authentication token</td>
+          </tr>
+          <tr>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">403</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Forbidden</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Authenticated but no permission</td>
+          </tr>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">404</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Not Found</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Resource doesn't exist</td>
+          </tr>
+          <tr>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">409</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Conflict</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Duplicate resource, version conflict</td>
+          </tr>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">422</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Unprocessable</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Valid JSON but semantic errors (validation)</td>
+          </tr>
+          <tr>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">429</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Too Many Requests</td>
+            <td style="padding: 0.75rem 1rem; border-bottom: 1px solid #E2E8F0;">Rate limit exceeded</td>
+          </tr>
+          <tr style="background: #F7FAFC;">
+            <td style="padding: 0.75rem 1rem;">500</td>
+            <td style="padding: 0.75rem 1rem;">Internal Error</td>
+            <td style="padding: 0.75rem 1rem;">Unexpected server error</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem; max-width: 54rem;">Note 422 for validation failures despite syntactically valid JSON, distinguishing from 400. A sample validation error (e.g., 422) provides granular details for client correction.</p>
+    <div style="margin: 2.5rem 0;">
+      <div style="background: #2D3748; color: #FFFFFF; padding: 0.75rem 1rem; font-family: 'Fira Code', 'JetBrains Mono', monospace; font-size: 0.875rem; font-weight: 400; line-height: 1.5;">422 Unprocessable Entity Error Response</div>
+      <pre style="background: #1A202C; padding: 1rem; border: 1px solid #2D3748; margin: 0; overflow: auto; font-family: 'Fira Code', 'JetBrains Mono', monospace; font-size: 0.875rem; line-height: 1.5;"><code>{
+  <span style="color: #63B3ED;">"error"</span>: {
+    <span style="color: #63B3ED;">"code"</span>: <span style="color: #D6BCFA;">"VALIDATION_ERROR"</span>,
+    <span style="color: #63B3ED;">"message"</span>: <span style="color: #68D391;">"The request body contains invalid fields"</span>,
+    <span style="color: #63B3ED;">"details"</span>: [
+      {
+        <span style="color: #63B3ED;">"field"</span>: <span style="color: #D6BCFA;">"email"</span>,
+        <span style="color: #63B3ED;">"message"</span>: <span style="color: #68D391;">"Must be a valid email address"</span>,
+        <span style="color: #63B3ED;">"code"</span>: <span style="color: #D6BCFA;">"INVALID_FORMAT"</span>
+      },
+      {
+        <span style="color: #63B3ED;">"field"</span>: <span style="color: #D6BCFA;">"age"</span>,
+        <span style="color: #63B3ED;">"message"</span>: <span style="color: #68D391;">"Must be between 18 and 120"</span>,
+        <span style="color: #63B3ED;">"code"</span>: <span style="color: #D6BCFA;">"OUT_OF_RANGE"</span>
+      }
+    ],
+    <span style="color: #63B3ED;">"requestId"</span>: <span style="color: #D6BCFA;">"req_xyz789"</span>,
+    <span style="color: #63B3ED;">"timestamp"</span>: <span style="color: #68D391;">"2024-01-15T10:30:00Z"</span>
+  }
+}</code></pre>
+    </div>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 2.5rem; max-width: 54rem;">This format enables automated handling (via code/details) and debugging (requestId/timestamp).<a href="https://docs.github.com/en/rest">Source: GitHub REST API</a></p>
+  </div>
+  <div class="report-page">
+    <h3 style="font-family: 'Inter', system-ui, sans-serif; font-size: 1.5rem; font-weight: 600; line-height: 1.4; color: #1A202C; margin: 3rem 0 1.5rem 0;">1.5 Pagination Patterns</h3>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem; max-width: 54rem;">Pagination prevents overwhelming responses from large collections. Offset-based is simple but scans entire datasets inefficiently; cursor-based uses opaque tokens for efficient resumption; keyset leverages indexed columns for optimal performance without offsets.</p>
+    <div style="margin: 2.5rem 0;">
+      <div style="background: #2D3748; color: #FFFFFF; padding: 0.75rem 1rem; font-family: 'Fira Code', 'JetBrains Mono', monospace; font-size: 0.875rem; font-weight: 400; line-height: 1.5;">GET /api/v1/users?limit=20&amp;offset=40 (Offset-Based)</div>
+      <pre style="background: #1A202C; padding: 1rem; border: 1px solid #2D3748; margin: 0; overflow: auto; font-family: 'Fira Code', 'JetBrains Mono', monospace; font-size: 0.875rem; line-height: 1.5;"><code>{
+  <span style="color: #63B3ED;">"data"</span>: [...],
+  <span style="color: #63B3ED;">"pagination"</span>: {
+    <span style="color: #63B3ED;">"total"</span>: <span style="color: #D6BCFA;">1247</span>,
+    <span style="color: #63B3ED;">"limit"</span>: <span style="color: #D6BCFA;">20</span>,
+    <span style="color: #63B3ED;">"offset"</span>: <span style="color: #D6BCFA;">40</span>,
+    <span style="color: #63B3ED;">"hasMore"</span>: <span style="color: #63B3ED;">true</span>
+  }
+}</code></pre>
+    </div>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem; max-width: 54rem;">Offset scales poorly for millions of records due to full scans.</p>
+    <div style="margin: 2.5rem 0;">
+      <div style="background: #2D3748; color: #FFFFFF; padding: 0.75rem 1rem; font-family: 'Fira Code', 'JetBrains Mono', monospace; font-size: 0.875rem; font-weight: 400; line-height: 1.5;">GET /api/v1/users?limit=20&amp;cursor=eyJpZCI6MTIzfQ== (Cursor-Based, Recommended)</div>
+      <pre style="background: #1A202C; padding: 1rem; border: 1px solid #2D3748; margin: 0; overflow: auto; font-family: 'Fira Code', 'JetBrains Mono', monospace; font-size: 0.875rem; line-height: 1.5;"><code>{
+  <span style="color: #63B3ED;">"data"</span>: [...],
+  <span style="color: #63B3ED;">"pagination"</span>: {
+    <span style="color: #63B3ED;">"nextCursor"</span>: <span style="color: #D6BCFA;">"eyJpZCI6MTQzfQ=="</span>,
+    <span style="color: #63B3ED;">"hasMore"</span>: <span style="color: #63B3ED;">true</span>
+  }
+}</code></pre>
+    </div>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem; max-width: 54rem;">Cursors encode position (e.g., base64({id:123})), enabling server-side efficiency without exposing internals.</p>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 1rem; max-width: 54rem;">Keyset pagination uses queries like GET /api/v1/users?limit=20&amp;after_id=usr_123&amp;sort=created_at, scanning ranges on indexes for constant-time performance.</p>
+    <p style="font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #2D3748; margin-bottom: 2.5rem; max-width: 54rem;">Always include rate-limiting headers on responses: X-RateLimit-Limit: 1000, X-RateLimit-Remaining: 847, X-RateLimit-Reset: 1705312200 (Unix timestamp). Cursor-based is preferred for large-scale APIs like user lists.<a href="https://stripe.com/docs/api">Source: Stripe API Reference</a><a href="https://docs.github.com/en/rest">Source: GitHub REST API</a></p>
+  </div>
+</div>

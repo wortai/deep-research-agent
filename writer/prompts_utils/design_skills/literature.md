@@ -61,6 +61,36 @@ Multiple styles for quoting original works:
 - Extra vertical spacing (3em+) between major sections.
 - Transitions should feel like turning a page in a hardcover.
 
+### SVG Diagrams for Literary Structure
+- **Narrative structure diagrams**: Freytag's pyramid, narrative arcs, plot tension curves.
+- **Character relationship maps**: Elegant labeled connections between characters.
+- **Thematic recurrence maps**: Showing where themes appear across chapters/acts.
+- **Influence trees**: Literary lineage — who influenced whom.
+- Use minimal, elegant SVG — these are literary tools, not data charts.
+
+### SVG Construction Standards
+- **viewBox**: `viewBox="0 0 800 400"` for wide diagrams (narrative arcs, influence trees); `viewBox="0 0 400 400"` for square diagrams (character relationship maps, thematic circles).
+- **Font sizing**: `font-family` must match body font (EB Garamond). Labels 12px, titles 14px, annotations 11px.
+- **Stroke widths**: 1.5px for guide lines, 2px for connection lines and arcs, 2.5px for borders, 1px for decorative elements.
+- **Color application**: Use the exact literature palette — near-black (#1A1A1A), warm gray (#BDBDBD), medium gray (#757575), light yellow (#FFF9C4). No arbitrary colors.
+- **Accessibility**: Every SVG must have `<title>` (e.g., "Freytag's pyramid for Hamlet") and `<desc>` (describe the narrative structure and key plot points).
+- **Background**: Transparent or soft white (#FAFAFA) to match the page.
+- **Text elements**: Use `<text>` with `text-anchor="start|middle|end"` — never `<foreignObject>`. Character names use `<tspan font-variant="small-caps">`.
+- **Domain-specific SVG patterns**:
+  - *Freytag's pyramid*: `<path>` arc shape (exposition → rising → climax → falling → denouement), `<text>` labels at each stage, `<text>` plot events positioned along the curve.
+  - *Character relationship*: `<circle>` character nodes, `<path>` connection lines with `<text>` relationship labels. Line weight indicates relationship strength.
+  - *Influence tree*: Root `<text>` or `<rect>` for origin author, branching `<path>` lines to influenced authors. Chronological left-to-right flow.
+  - *Thematic recurrence*: Vertical `<line>` representing the work's length, horizontal `<line>` marks at chapter/act positions where a theme appears, labeled `<text>`.
+
+### Charts.css Decision Guide
+- Literature reports RARELY use Charts.css — this is a prose-first domain.
+- IF comparing categories (themes across works, author characteristics) → horizontal bar chart (only if quantitative data exists)
+- IF comparing time periods (publication dates, literary periods) → column chart
+- IF showing trend (word frequency, sentiment analysis in computational literary studies) → line chart
+- IF showing composition (genre distribution in an author's oeuvre) → stacked bar chart
+- Do NOT use Charts.css when: data is purely textual/qualitative (use prose analysis), fewer than 3 data points, or the comparison is better served by a side-by-side passage comparison.
+- When used: `class="charts-css [type]" show-labels show-data show-headings` with muted, warm colors only.
+
 ### Thematic & Structural Analysis Visuals
 - **Theme tracking**: Indented list or minimal timeline showing a theme's appearances across chapters/acts.
 - **Character relationship maps**: Elegant labeled connections — not data visualizations, but literary relationship diagrams.
@@ -76,6 +106,14 @@ Multiple styles for quoting original works:
 - Elegantly styled lists of related works — author, title (italic), year.
 - Can include brief one-line annotations for each recommendation.
 
+### Edge Cases & Adaptations
+- **No quantitative data**: This is the DEFAULT state for literature. Use SVG narrative diagrams, close reading annotations, and textual comparison layouts. Charts.css is almost never appropriate.
+- **Too much data**: For computational literary analysis (e.g., word frequency across 100 novels), summarize with key statistics and show representative charts. Use `<details>` for full data tables.
+- **Mixed content**: When literary analysis includes some statistics (e.g., stylometry), embed key metrics inline and use small charts only for sections with 3+ comparable data points.
+- **Contradictory interpretations**: Present competing critical readings side-by-side with clear attribution to each school of criticism. Note the interpretive lens each uses.
+- **Variable chapter length**: Short topics (single poem) get the full text + close reading. Long topics (author's complete works) use the complete toolkit with influence trees and thematic maps.
+- **Default format mismatch**: If the literature topic is historical (e.g., "History of the Novel"), borrow timeline patterns from the history skill. If it's philosophical (e.g., "Existentialism in Dostoevsky"), borrow philosophy argument patterns.
+
 ## Citation Style — Literary Sources
 - Use inline author-date or parenthetical citations: (Fitzgerald, 1925, Ch. IX) or (Eliot, "Prufrock," l. 45).
 - For poetry: cite by line number (l. 45) or stanza number.
@@ -85,6 +123,11 @@ Multiple styles for quoting original works:
 - Source links formatted as: `<a href="URL">Project Gutenberg</a>` or the critical edition.
 - Full works-cited list at chapter end — MLA style or similar humanities format.
 - In literary analysis, citations are acts of respect — they show which voices and texts are being engaged.
+- **Multiple formats**: Use parenthetical for textual claims, footnote-style numbers for critical theory references, and source blocks for archival manuscripts.
+- **No URL available**: Cite as "Author, *Title*, Publisher, Edition, Year, p. XX" — standard bibliographic format. For manuscripts: "Archive Name, MS Collection, Folio X."
+- **Multiple sources for same claim**: List critical sources chronologically to show interpretive evolution: "(Bradley, 1904; Bloom, 1994; Greenblatt, 2004)."
+- **Beautiful citations**: Style the works-cited list with hanging indents, italic titles, and a subtle warm border. Separate primary works (the texts being analyzed) from secondary sources (criticism) with a decorative divider.
+- **Source credibility hierarchy**: Authoritative critical edition (Oxford, Penguin Classics) > peer-reviewed literary criticism > established literary journal > reputable review/essay > general reference. Always prefer the most authoritative edition of the primary text.
 
 ## Typography & Color — The Literature Palette
 
@@ -105,6 +148,11 @@ Multiple styles for quoting original works:
 - **Epigraph text**: Lighter gray (#616161).
 - **Line height**: 1.85–1.9 — generous literary reading pace.
 - **Max width**: 680px — narrow, focused, bookish.
+- **Extended chart palette** (7+ colors, for rare quantitative use): Near-black (#1A1A1A), Warm gray (#BDBDBD), Medium gray (#757575), Light yellow (#FFF9C4), Sepia (#704214), Burgundy (#800020), Dark olive (#556B2F). All WCAG AA compliant on soft white.
+- **Semantic color rules**: Near-black = primary text/data. Warm gray = secondary/structural elements. Medium gray = metadata/annotations. Light yellow = highlights/analyzed passages. Sepia = historical/manuscript references. Burgundy = emphasis/key themes. Dark olive = nature/pastoral motifs (when relevant).
+- **Hover/interaction**: Minimal — literature is a reading medium, not interactive. Subtle underline on links only.
+- **Print-friendly**: The entire palette is designed for print. All colors maintain excellent contrast on soft white in grayscale.
+- **WCAG AA compliance**: All text ≥ 4.5:1 contrast ratio on soft white (#FAFAFA). Chart colors ≥ 3:1. The muted palette is inherently accessible.
 
 ## Adaptive Instructions — How the LLM Should Use This Skill
 - **Never sacrifice content for layout.** If the research sources contain 10 textual excerpts, present all 10 — use varying quotation styles to avoid visual monotony.
@@ -112,13 +160,18 @@ Multiple styles for quoting original works:
 - **Build new containers when needed.** If the content demands a "Translation Comparison" layout or a "Dramatic Scene Breakdown," build it. The skill defines the aesthetic, not the limits.
 - **Match tone to genre analyzed.** Analyzing a Romantic poem? The prose can be slightly warmer. Analyzing a brutalist postmodern novel? The prose can be more clipped and contemporary. The core aesthetic (serif, narrow column, warm neutrals) stays, but register can flex.
 - **Excerpts are primary evidence, not decoration.** Every quote used must be analyzed. Don't include a beautiful passage without explaining why it matters.
+- Never presents literary analysis without at least one structural visual. If the research contains narrative analysis, character relationships, or thematic patterns, you MUST create at least one SVG diagram (narrative arc, character map, or thematic recurrence display).
+- **Visual diversity is mandatory.** Every chapter MUST include at least 3 different visual types from the toolkit (e.g., text excerpt + close reading annotation + narrative arc SVG, or thematic summary + influence tree + critical reception blockquote). A chapter with only tables and prose is insufficient — it fails to leverage the full visual toolkit and creates a monotonous reading experience. Spread visuals across pages — do not cluster all visuals on one page.
 
 ### What This Report NEVER Does
 - Never uses bullet points or numbered lists — literary analysis is prose
-- Never uses data charts, bar graphs, or Charts.css
+- Never uses data charts, bar graphs, or Charts.css (except for rare computational literary studies)
 - Never reflows or reformats poetry
 - Never uses bright or saturated colors
 - Never uses sans-serif for body text
 - Never presents a quotation without citing exact source, work, and location
 - Never uses CSS grids or multi-column layouts — literature is single-column
 - Never treats an excerpt as decoration — every quote is analyzed
+- Never uses SVG diagrams for quantitative data — only for narrative/structural analysis
+- Never uses hover effects or interactive elements — literature is for reading, not clicking
+- Never skips SVG visualizations when the data supports them — at least one SVG structural visual is mandatory per chapter. If the research contains narrative analysis, character relationships, or thematic patterns, you MUST create at least one SVG diagram (narrative arc, character map, or thematic recurrence display).
