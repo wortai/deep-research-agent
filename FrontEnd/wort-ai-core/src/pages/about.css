@@ -1,0 +1,70 @@
+/* ── About page — production marketing layout ──────────────────────── */
+.about-page {
+  --about-paper: #f7f7f5;
+  --about-forest: #1a3c2b;
+  --about-hairline: rgba(58, 58, 56, 0.15);
+  --about-mint: #9effbf;
+
+  background-color: var(--about-paper);
+  color: var(--about-forest);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+ * Grid lives as a background-image on the root div.
+ * This is the only reliable approach — fixed overlays get
+ * painted over by any element with an explicit background.
+ *
+ * Light sections (no explicit bg) → grid shows through.
+ * Dark sections (bg-[#1A3C2B]) → paint over grid, solid green.
+ */
+.about-page.about-grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(58, 58, 56, 0.11) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(58, 58, 56, 0.11) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Unlock page scroll */
+body:has(.about-page) {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* ── Portrait hover — grayscale → full color (from style.md spec) ── */
+.about-page .portrait-filter {
+  filter: grayscale(1) contrast(1.15) brightness(0.9);
+  mix-blend-mode: luminosity;
+  opacity: 0.9;
+  transition: filter 0.4s ease, mix-blend-mode 0.4s ease, opacity 0.4s ease;
+}
+
+.about-page .portrait-container:hover .portrait-filter {
+  filter: grayscale(0) contrast(1) brightness(1);
+  mix-blend-mode: normal;
+  opacity: 1;
+}
+
+/* ── Font families ── */
+.about-page h1,
+.about-page h2,
+.about-page h3,
+.about-page .font-display {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.about-page p,
+.about-page .font-sans {
+  font-family: "General Sans", sans-serif;
+}
+
+.about-page .font-mono {
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* ── Hairline utility ── */
+.about-page .border-hairline {
+  border-color: var(--about-hairline);
+}

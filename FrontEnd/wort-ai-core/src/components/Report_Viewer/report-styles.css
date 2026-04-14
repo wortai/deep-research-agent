@@ -1,0 +1,475 @@
+/* Professional Research Report PDF Stylesheet */
+/* All selectors scoped under .report-print-container to prevent CSS leaking into the main app */
+
+/* Page Setup with Footer — @page rules cannot be scoped, they are page-level */
+@page {
+    size: A4;
+    margin: 2.5cm 2cm 3cm 2cm;
+
+    @bottom-center {
+        content: counter(page);
+        font-size: 10pt;
+        color: #666;
+    }
+
+    @bottom-right {
+        content: "by Wort";
+        font-size: 9pt;
+        color: #888;
+        font-style: italic;
+    }
+}
+
+@page :first {
+    @bottom-center {
+        content: none;
+    }
+
+    @bottom-right {
+        content: none;
+    }
+}
+
+/* ========================================
+   Scoped selectors — only apply inside .report-print-container
+   ======================================== */
+
+/* Base Typography */
+.report-print-container body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 11pt;
+    line-height: 1.7;
+    color: #1a1a1a;
+    text-align: justify;
+    orphans: 3;
+    widows: 3;
+}
+
+/* Headings */
+.report-print-container h1,
+.report-print-container h2,
+.report-print-container h3,
+.report-print-container h4,
+.report-print-container h5,
+.report-print-container h6 {
+    font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    color: #1a365d;
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+    page-break-after: avoid;
+    break-after: avoid;
+}
+
+.report-print-container h1 {
+    font-size: 24pt;
+    font-weight: 700;
+    border-bottom: 3px solid #2c5282;
+    padding-bottom: 12px;
+    margin-top: 0;
+    page-break-before: always;
+}
+
+.report-print-container h1:first-of-type {
+    page-break-before: avoid;
+}
+
+.report-print-container h2 {
+    font-size: 18pt;
+    font-weight: 600;
+    color: #2c5282;
+    border-bottom: 1px solid #cbd5e0;
+    padding-bottom: 8px;
+}
+
+.report-print-container h3 {
+    font-size: 14pt;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.report-print-container h4 {
+    font-size: 12pt;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+/* Paragraphs */
+.report-print-container p {
+    margin-bottom: 1em;
+    text-indent: 0;
+}
+
+/* Table of Contents Styling - Single Column for Reliability */
+.report-print-container .toc {
+    page-break-after: always;
+    break-after: page;
+}
+
+.report-print-container .toc h1,
+.report-print-container .toc h2 {
+    text-align: center;
+    border-bottom: none;
+    margin-bottom: 1em;
+    font-size: 18pt;
+    color: #1a1a1a;
+}
+
+.report-print-container .toc ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.report-print-container .toc li {
+    margin: 0.2em 0;
+    line-height: 1.3;
+}
+
+/* Main chapter entries in ToC - Black color */
+.report-print-container .toc>ul>li {
+    font-weight: 700;
+    font-size: 10pt;
+    color: #1a1a1a;
+    margin-top: 0.6em;
+    padding-left: 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.report-print-container .toc>ul>li:first-child {
+    margin-top: 0;
+}
+
+/* Sub-chapter entries in ToC - Blue color */
+.report-print-container .toc>ul>li>ul {
+    margin-top: 0.15em;
+    padding-left: 1em;
+}
+
+.report-print-container .toc>ul>li>ul>li {
+    font-weight: 400;
+    font-size: 9pt;
+    color: #2c5282;
+    margin: 0.15em 0;
+    padding-left: 0.3em;
+    border-left: 2px solid #cbd5e0;
+}
+
+/* Third-level ToC entries - Lighter blue */
+.report-print-container .toc>ul>li>ul>li>ul {
+    padding-left: 0.8em;
+}
+
+.report-print-container .toc>ul>li>ul>li>ul>li {
+    font-size: 8pt;
+    color: #4299e1;
+    border-left: 1px solid #e2e8f0;
+}
+
+/* ToC links */
+.report-print-container .toc a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.report-print-container .toc a:hover {
+    color: #2c5282;
+}
+
+/* Abstract Section */
+.report-print-container .abstract {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    padding: 20px 24px;
+    border-radius: 8px;
+    border-left: 5px solid #2c5282;
+    margin: 2em 0;
+    page-break-inside: avoid;
+}
+
+.report-print-container .abstract h2 {
+    font-style: normal;
+    margin-top: 0;
+    color: #1a365d;
+    border-bottom: none;
+}
+
+.report-print-container .abstract p {
+    font-style: italic;
+}
+
+/* Introduction Section */
+.report-print-container .introduction {
+    margin-top: 2em;
+}
+
+.report-print-container .introduction h2 {
+    color: #1a365d;
+}
+
+/* Lists */
+.report-print-container ul,
+.report-print-container ol {
+    margin: 1em 0;
+    padding-left: 2em;
+}
+
+.report-print-container li {
+    margin-bottom: 0.5em;
+    line-height: 1.6;
+}
+
+.report-print-container ul li {
+    list-style-type: disc;
+}
+
+.report-print-container ul ul li {
+    list-style-type: circle;
+}
+
+.report-print-container ul ul ul li {
+    list-style-type: square;
+}
+
+/* Blockquotes */
+.report-print-container blockquote {
+    border-left: 4px solid #2c5282;
+    margin: 1.5em 0;
+    padding: 1em 1.5em;
+    background-color: #f7fafc;
+    font-style: italic;
+    color: #4a5568;
+    page-break-inside: avoid;
+}
+
+.report-print-container blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+/* Code Blocks */
+.report-print-container code {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    background-color: #edf2f7;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #2d3748;
+}
+
+.report-print-container code::before,
+.report-print-container code::after {
+    content: none !important;
+}
+
+.report-print-container pre {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1.5em 0;
+    font-size: 9pt;
+    line-height: 1.5;
+    page-break-inside: avoid;
+}
+
+.report-print-container pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+
+/* Math/LaTeX styling - for inline and display math */
+.report-print-container .math {
+    font-family: 'STIX Two Math', 'Cambria Math', 'Times New Roman', serif;
+    font-style: italic;
+}
+
+.report-print-container .math-display {
+    display: block;
+    margin: 1em 0;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+.report-print-container .math-inline {
+    display: inline;
+}
+
+/* Tables - Prevent breaking across pages */
+.report-print-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.report-print-container thead {
+    background-color: #2c5282;
+    color: white;
+    display: table-header-group;
+}
+
+.report-print-container th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    border: 1px solid #2c5282;
+}
+
+.report-print-container td {
+    padding: 10px 16px;
+    border: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+.report-print-container tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.report-print-container tr:nth-child(even) {
+    background-color: #f7fafc;
+}
+
+.report-print-container tr:hover {
+    background-color: #edf2f7;
+}
+
+/* Links */
+.report-print-container a {
+    color: #2c5282;
+    text-decoration: none;
+}
+
+.report-print-container a:hover {
+    text-decoration: underline;
+}
+
+/* Show link indicator with emoji instead of full URL */
+@media print {
+    .report-print-container a[href^="http"]:after {
+        content: " 🔗";
+        font-size: 0.9em;
+        text-decoration: none;
+    }
+}
+
+/* Keep clickable link styling */
+.report-print-container a[href^="http"] {
+    cursor: pointer;
+    position: relative;
+}
+
+/* Methodology Section */
+.report-print-container .methodology {
+    background-color: #fffaf0;
+    padding: 20px 24px;
+    border-left: 5px solid #dd6b20;
+    margin: 1.5em 0;
+    border-radius: 0 8px 8px 0;
+    page-break-inside: avoid;
+}
+
+.report-print-container .methodology h2,
+.report-print-container .methodology h3 {
+    color: #c05621;
+    margin-top: 0;
+    border-bottom: none;
+}
+
+/* Conclusion Section */
+.report-print-container .conclusion {
+    background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+    padding: 24px 28px;
+    border-left: 5px solid #276749;
+    margin: 2em 0;
+    border-radius: 0 8px 8px 0;
+    page-break-inside: avoid;
+}
+
+.report-print-container .conclusion h2,
+.report-print-container .conclusion h1 {
+    color: #276749;
+    margin-top: 0;
+    border-bottom: none;
+}
+
+/* Images */
+.report-print-container img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+    page-break-inside: avoid;
+}
+
+.report-print-container figure {
+    margin: 1.5em 0;
+    page-break-inside: avoid;
+}
+
+.report-print-container figcaption {
+    text-align: center;
+    font-style: italic;
+    color: #718096;
+    font-size: 10pt;
+    margin-top: 0.5em;
+}
+
+/* Horizontal Rule */
+.report-print-container hr {
+    border: none;
+    border-top: 2px solid #e2e8f0;
+    margin: 2em 0;
+}
+
+/* Strong and Emphasis */
+.report-print-container strong,
+.report-print-container b {
+    font-weight: 700;
+    color: #1a202c;
+}
+
+.report-print-container em,
+.report-print-container i {
+    font-style: italic;
+}
+
+/* Prevent orphans and widows */
+.report-print-container p,
+.report-print-container li,
+.report-print-container blockquote {
+    orphans: 3;
+    widows: 3;
+}
+
+/* Avoid breaking inside important elements */
+.report-print-container table,
+.report-print-container figure,
+.report-print-container blockquote,
+.report-print-container pre,
+.report-print-container .abstract,
+.report-print-container .methodology,
+.report-print-container .conclusion {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+/* Chapter page breaks */
+.report-print-container .chapter {
+    page-break-before: always;
+    break-before: page;
+}
+
+/* References section styling */
+.report-print-container .references {
+    font-size: 10pt;
+}
+
+.report-print-container .references li {
+    margin-bottom: 0.75em;
+    text-indent: -2em;
+    padding-left: 2em;
+}

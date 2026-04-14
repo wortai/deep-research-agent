@@ -1,0 +1,115 @@
+/* Scoped to marketing home — avoids clashing with chat shell */
+.home-page {
+  --home-paper: #f7f7f5;
+  --home-forest: #1a3c2b;
+  --home-grid-line: rgba(58, 58, 56, 0.1);
+  --home-mint: #9effbf;
+  --home-gold: #f4d35e;
+  --home-coral: #ff8c69;
+
+  background-color: var(--home-paper);
+  color: var(--home-forest);
+  font-family: "General Sans", sans-serif;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.home-page ~ body,
+body:has(.home-page) {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.home-page .font-grotesk {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+/* Mosaic Background */
+.home-page .mosaic-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h160v160H0z' fill='%23F7F7F5'/%3E%3Cpath d='M80 0v160M0 40h160M0 120h160' stroke='rgba(58,58,56,0.15)' stroke-width='0.5'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  pointer-events: none;
+}
+
+@keyframes home-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.home-page .orbit-planet {
+  animation: home-orbit linear infinite;
+}
+
+/* L-Brackets */
+.home-page .l-bracket {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--home-forest);
+  border-style: solid;
+}
+
+.home-page .l-tl {
+  top: -1px;
+  left: -1px;
+  border-width: 2px 0 0 2px;
+}
+
+.home-page .l-tr {
+  top: -1px;
+  right: -1px;
+  border-width: 2px 2px 0 0;
+}
+
+.home-page .l-bl {
+  bottom: -1px;
+  left: -1px;
+  border-width: 0 0 2px 2px;
+}
+
+.home-page .l-br {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+.home-page .header-link::before {
+  content: attr(data-index);
+  font-size: 8px;
+  margin-right: 4px;
+  opacity: 0.5;
+}
+
+@supports (view-transition-name: none) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+/* Dot flicker — irregular, fast, screen-static feel */
+@keyframes dot-flicker {
+  0%   { opacity: 1; }
+  8%   { opacity: 0.1; }
+  16%  { opacity: 0.9; }
+  28%  { opacity: 0.15; }
+  38%  { opacity: 1; }
+  52%  { opacity: 0.35; }
+  60%  { opacity: 0.95; }
+  72%  { opacity: 0.2; }
+  84%  { opacity: 1; }
+  92%  { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.home-page svg text {
+  user-select: none;
+  -webkit-user-select: none;
+}

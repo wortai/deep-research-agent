@@ -1,0 +1,143 @@
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&f[]=space-grotesk@400,500,600,700&f[]=jetbrains-mono@400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 60 5% 96%;
+    --foreground: 153 37% 7%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 153 37% 7%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 153 37% 7%;
+
+    --primary: 153 37% 17%;
+    --primary-foreground: 60 5% 96%;
+
+    --secondary: 60 3% 93%;
+    --secondary-foreground: 153 37% 17%;
+
+    --muted: 60 3% 93%;
+    --muted-foreground: 153 24% 33%;
+
+    --accent: 145 100% 81%;
+    --accent-foreground: 153 37% 17%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 60 5% 96%;
+
+    --coral: 16 100% 71%;
+    --coral-foreground: 0 0% 100%;
+
+    --gold: 46 88% 66%;
+
+    --border: 45 3% 78%;
+    --input: 45 3% 78%;
+    --ring: 153 37% 17%;
+
+    --radius: 0.5rem;
+
+    --hairline: 45 3% 78%;
+    --log-bg: 60 3% 93%;
+
+    --sidebar-background: 60 5% 96%;
+    --sidebar-foreground: 153 37% 17%;
+    --sidebar-primary: 153 37% 17%;
+    --sidebar-primary-foreground: 60 5% 96%;
+    --sidebar-accent: 145 100% 81%;
+    --sidebar-accent-foreground: 153 37% 17%;
+    --sidebar-border: 45 3% 78%;
+    --sidebar-ring: 153 37% 17%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'General Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  .font-display {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@keyframes pulse-mint {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.animate-pulse-mint {
+  animation: pulse-mint 2s linear infinite;
+}
+
+.rich-text h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  color: hsl(var(--foreground));
+}
+
+.rich-text h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: hsl(var(--foreground));
+}
+
+.rich-text p {
+  font-size: 1rem;
+  line-height: 1.75;
+  margin-bottom: 0.375rem;
+  margin-top: 0.375rem;
+  color: hsl(153 37% 10%);
+}
+
+/* Subtle fade-in for router thinking text */
+@keyframes thinking-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.thinking-fade-in {
+  animation: thinking-fade-in 0.4s ease-out forwards;
+}
+
+.font-sans {
+  font-family: 'General Sans', sans-serif;
+}
+
+@keyframes loader-chase {
+    0% { fill: #1A3C2B; opacity: 1; }
+    33.33% { fill: #3A3A38; opacity: 0.2; }
+    100% { fill: #3A3A38; opacity: 0.2; }
+}
+
+.dot-chase {
+    animation: loader-chase 1.2s infinite linear;
+}
