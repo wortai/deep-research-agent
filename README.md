@@ -119,7 +119,7 @@ When you submit a query, Deep Research moves through five distinct phases. Each 
 **Phase 2 — Planning.** Your query gets decomposed into a structured research plan: a set of independent sub queries, each targeting a different dimension of the topic. WORT remembers your past conversations and preferences, so plans are personalized. You get to **review, revise, or approve** this plan before any research starts.
 
 <div align="center" style="background: linear-gradient(135deg, #9EFFBF, #7adfa0); padding: 24px; border-radius: 14px;">
-  <img src="./assets/allocateDynamicNumberofAgents.jpg" alt="Dynamic allocation of parallel research agents" width="55%" style="border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);" />
+  <img src="./assets/allocateDynamicNumberofAgents.png" alt="Dynamic allocation of parallel research agents" width="55%" style="border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);" />
 </div>
 
 <br/>
