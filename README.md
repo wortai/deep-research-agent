@@ -293,54 +293,9 @@ Extreme Research represents the next frontier. It spins up a **secure live Virtu
 
 The entire system is orchestrated as a **LangGraph state machine** with conditional routing, interrupt/resume support for human in the loop checkpoints, and parallel subgraph invocation.
 
-```
-                              ┌──────────────┐
-                              │  Router Node │
-                              └──────┬───────┘
-                                     │
-                 ┌───────────────────┼───────────────────┐
-                 ▼                   ▼                   ▼
-          ┌──────────┐      ┌───────────────┐     ┌───────────┐
-          │ WebSearch │      │  Clarification │     │   Edit    │
-          │  Agent   │      │     Loop       │     │   Node    │
-          └────┬─────┘      └───────┬───────┘     └─────┬─────┘
-               │                    ▼                    │
-               │            ┌──────────────┐             │
-               │            │  Planner Node │             │
-               │            └──────┬───────┘             │
-               │                   ▼                     │
-               │           ┌───────────────┐             │
-               │           │ Human Review  │             │
-               │           │  (Approve/    │             │
-               │           │   Revise Plan)│             │
-               │           └──────┬────────┘             │
-               │                  ▼                      │
-               │     ┌─────────────────────────┐         │
-               │     │  Parallel Research Node │         │
-               │     │  ┌─────┐ ┌─────┐ ┌─────┐│        │
-               │     │  │Sub 1│ │Sub 2│ │Sub N││        │
-               │     │  │Agent│ │Agent│ │Agent││        │
-               │     │  └─────┘ └─────┘ └─────┘│        │
-               │     └────────────┬────────────┘         │
-               │                  ▼                      │
-               │          ┌──────────────┐               │
-               │          │  Writer Node │               │
-               │          │  (HTML Report)│               │
-               │          └──────┬───────┘               │
-               │                 │                       │
-               └────────────┬────┴───────────────────────┘
-                            ▼
-                    ┌───────────────┐
-                    │ Response Node │
-                    └───────┬───────┘
-                            ▼
-                    ┌───────────────┐
-                    │  Memory Node  │
-                    │  (Long Term)  │
-                    └───────────────┘
-```
-
-
+<div align="center" style="background: #F7F7F5; padding: 20px; border: 1px solid rgba(58,58,56,0.12); border-radius: 2px;">
+  <img src="../FrontEnd/wort-ai-core/public/readme/architecture.svg" alt="WORT System Architecture" width="100%" />
+</div>
 
 <br/>
 
