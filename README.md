@@ -1,7 +1,7 @@
 <div align="center">
 
 <picture>
-  <img src="../FrontEnd/wort-ai-core/public/readme/wortlogo.png" alt="WORT" width="140" />
+  <img src="./assets/wortlogo.png" alt="WORT" width="140" />
 </picture>
 
 # WORT Research Agent
@@ -22,7 +22,7 @@
 <br/>
 
 <div align="center" style="background: linear-gradient(135deg, #1A3C2B, #2A5C42); padding: 30px; border-radius: 16px;">
-  <img src="../FrontEnd/wort-ai-core/public/readme/WortHomepage.png" alt="WORT Homepage" width="92%" style="border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,0.4);" />
+  <img src="./assets/WortHomepage.png" alt="WORT Homepage" width="92%" style="border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,0.4);" />
 </div>
 
 <br/>
@@ -52,7 +52,7 @@ WORT ships with three distinct modes, each designed for a different depth of res
 The fastest path to accurate, cited answers. Web Search is built for questions where you need real time data, not a pre trained knowledge cutoff. Every single line in the response is backed by a source, nothing is hallucinated, and relevant images and illustrations are pulled directly from search results.
 
 <div align="center" style="background: linear-gradient(135deg, #1A3C2B, #244E38); padding: 28px; border-radius: 14px;">
-  <img src="../FrontEnd/wort-ai-core/public/readme/websearchchat.png" alt="Web Search in action showing cited responses" width="92%" style="border-radius: 8px; box-shadow: 0 10px 35px rgba(0,0,0,0.35);" />
+  <img src="./assets/websearchchat.png" alt="Web Search in action showing cited responses" width="92%" style="border-radius: 8px; box-shadow: 0 10px 35px rgba(0,0,0,0.35);" />
 </div>
 
 <br/>
@@ -100,62 +100,31 @@ self._agent = create_agent(
 
 ### `02` Deep Research · Synthesis Engine
 
-This is the core of WORT. Deep Research is designed for questions that cannot be answered by a single search. It is built for topics that require multiple perspectives, comparative analysis, and iterative depth. Think exam cheatsheets, investment reports, system design breakdowns, or full domain explorations.
+This is the core of WORT. Deep Research is designed for questions that cannot be answered by a single search. It handles topics that require multiple perspectives, comparative analysis, and iterative depth: exam cheatsheets, investment reports, system design breakdowns, full domain explorations.
 
 <div align="center" style="background: linear-gradient(135deg, #FF8C69, #e07a5a); padding: 28px; border-radius: 14px;">
-  <img src="../FrontEnd/wort-ai-core/public/readme/Deepresearch.png" alt="Deep Research report with styled HTML output" width="92%" style="border-radius: 8px; box-shadow: 0 10px 35px rgba(0,0,0,0.3);" />
+  <img src="./assets/Deepresearch.png" alt="Deep Research report with styled HTML output" width="92%" style="border-radius: 8px; box-shadow: 0 10px 35px rgba(0,0,0,0.3);" />
 </div>
 
 <br/>
 
-**The pipeline, step by step:**
+**How it works:**
 
-Deep Research follows a multi stage orchestration flow managed by a LangGraph state machine. Here is exactly what happens when you submit a query:
+When you submit a query, Deep Research moves through five distinct phases. Each phase feeds into the next, and you stay in control at every checkpoint.
 
 <br/>
 
-#### Phase 1 — Clarification
+**Phase 1 — Clarification.** Before any research begins, WORT asks clarifying questions to understand your actual intent. It probes for scope, depth, and the specific angles you care about. This can loop up to three rounds, and the system only moves forward once it has a clear understanding of what you are looking for.
 
-Before any research begins, WORT asks clarifying questions to deeply understand your intent. It probes for scope, depth expectations, and specific angles you care about. This runs up to 3 clarification rounds using a human in the loop interrupt pattern:
-
-```
-User submits query
-       ↓
-Clarification Node → Generates probing questions via LLM
-       ↓
-Human Clarification Node → Interrupts execution, waits for user answers
-       ↓
-(loops up to 3 times if more clarity is needed)
-       ↓
-Proceeds to planning with full context
-```
-
-#### Phase 2 — Planning
-
-The Planner takes your query, the clarification context, long term memory (past conversations and user profile), and generates a **structured research plan** composed of independent sub queries. Each sub query becomes a task assigned to a dedicated research agent.
-
-```python
-# The planner generates N independent research queries from a single user question.
-# Each query maps to one parallel agent in Phase 3.
-
-planner_query: [
-    { "query_num": 1, "query": "Research the definition and fundamental concepts of..." },
-    { "query_num": 2, "query": "Research the core components and building blocks of..." },
-    { "query_num": 3, "query": "Research real world applications and case studies of..." },
-]
-```
-
-The user gets to **review and approve** (or revise) this plan before any research begins. This is a true Human In The Loop (HITL) checkpoint.
+**Phase 2 — Planning.** Your query gets decomposed into a structured research plan: a set of independent sub queries, each targeting a different dimension of the topic. WORT remembers your past conversations and preferences, so plans are personalized. You get to **review, revise, or approve** this plan before any research starts.
 
 <div align="center" style="background: linear-gradient(135deg, #9EFFBF, #7adfa0); padding: 24px; border-radius: 14px;">
-  <img src="../FrontEnd/wort-ai-core/public/readme/allocateDynamicNumberofAgents.jpg" alt="Dynamic allocation of parallel research agents" width="55%" style="border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);" />
+  <img src="./assets/allocateDynamicNumberofAgents.jpg" alt="Dynamic allocation of parallel research agents" width="55%" style="border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);" />
 </div>
 
 <br/>
 
-#### Phase 3 — Parallel BFS Research
-
-This is where the real magic happens. Each planner query spawns an independent **Researcher Reviewer subgraph** that runs in parallel using `asyncio.gather`. The research within each subgraph follows a **Breadth First Search (BFS) tree traversal**:
+**Phase 3 — Parallel BFS Research.** This is where the real depth comes from. Each sub query from the plan spawns its own dedicated research agent, and all agents run simultaneously. Inside each agent, research follows a **Breadth First Search tree**. The agent starts with the question, searches the web, produces an answer, and then identifies what is still missing. Each gap becomes a new branch in the tree, which gets researched at the next level down. Sibling branches at the same depth are all explored in parallel.
 
 ```
                         ┌─────────────────────────────┐
@@ -177,95 +146,25 @@ This is where the real magic happens. Each planner query spawns an independent *
            Sub-gap   Sub-gap  Sub-gap  Sub-gap  Sub-gap  Sub-gap
 ```
 
-The `Solver` class drives each node in the tree:
-
-1. **Generate search queries** from the research question using targeted, context aware query generation
-2. **Retrieve web content** through a multi layer retrieval pipeline that scrapes, extracts, and validates sources
-3. **Analyze gaps** to produce answers from what was found AND identify what is still missing
-4. **Branch into child nodes** for each identified gap, adding them to the BFS queue for the next depth level
-
-```python
-# BFS traversal using a deque — sibling nodes at the same depth
-# are processed in parallel with asyncio.gather
-
-root_node = Node(query=initial_query)
-queue = deque([root_node])
-
-while queue:
-    current_depth = queue[0].depth
-    same_depth_nodes = []
-    while queue and queue[0].depth == current_depth:
-        same_depth_nodes.append(queue.popleft())
-
-    # All siblings researched simultaneously
-    results = await asyncio.gather(*[
-        process_single_node(node, idx)
-        for idx, node in enumerate(same_depth_nodes)
-    ])
-```
-
-The depth of this tree is controlled by the **analysis level** the user selects:
+You control how deep this tree goes through the **analysis level** you select:
 
 | Level  | Tree Depth | Review Cycles | Best For |
 |--------|-----------|---------------|----------|
 | `LOW`  | 2         | 2             | Quick overviews, study guides |
-| `MID`  | 2         | 3             | Balanced depth with more review passes |
-| `HIGH` | 3         | 2             | Maximum depth research, technical papers |
+| `MID`  | 2         | 3             | Balanced depth with thorough review |
+| `HIGH` | 3         | 2             | Maximum depth, technical deep dives |
 
 <br/>
 
 <div align="center" style="background: linear-gradient(135deg, #1A3C2B, #163626); padding: 28px; border-radius: 14px;">
-  <img src="../FrontEnd/wort-ai-core/public/readme/parallel research.png" alt="Parallel research agents working simultaneously" width="92%" style="border-radius: 8px; box-shadow: 0 10px 35px rgba(0,0,0,0.4);" />
+  <img src="./assets/parallel research.png" alt="Parallel research agents working simultaneously" width="92%" style="border-radius: 8px; box-shadow: 0 10px 35px rgba(0,0,0,0.4);" />
 </div>
 
 <br/>
 
-#### Phase 4 — Reviewer Loop
+**Phase 4 — Reviewer Loop.** Once the initial research is done, a Reviewer agent steps in and reads through everything that was collected. It acts like a senior analyst: it flags what is genuinely missing, what was only half explained, and what needs more depth. The Reviewer generates follow up questions, those questions get resolved through additional research, and then the Reviewer checks again. This **research → review → resolve** loop continues until the Reviewer is satisfied that no real gaps remain.
 
-After the initial BFS research, a **Reviewer agent** examines all collected Q&A pairs pertianing to each sub agent. It acts as a Senior Research Analyst that identifies what is genuinely missing, what is half explained, and what needs deeper exploration. The Reviewer generates follow up queries that get resolved through additional web searches.
-
-This creates a **research → review → resolve → review** loop that continues until the Reviewer determines the topic is fully covered:
-
-```
-researcher_node → reviewer_node → [has gaps?]
-                                      │
-                              ┌───────┴───────┐
-                              ▼               ▼
-                        resolve_node         END
-                              │
-                              └──→ reviewer_node → ...
-```
-
-```python
-# The Reviewer evaluates whether the research is actually complete.
-# It returns an empty list when satisfied — the loop terminates naturally.
-
-reviewer = Reviewer(num_review_queries=3)
-reviews = reviewer.generate_reviews(query, research_results)
-# reviews = [] means "research is complete, no gaps remain"
-```
-
-#### Phase 5 — Report Writing
-
-The Writer takes all accumulated research and produces a **fully styled HTML report** in two phases:
-
-**Phase 1 (Outline):** Generates table of contents, chapter structure, abstract, introduction, and conclusion from the full research corpus. Each planner query maps to one numbered chapter, and the Writer builds outlines in parallel.
-
-**Phase 1.5 (Design):** A design routing system selects the best visual theme for your query. WORT maintains a library of design "skills" (color palettes, typography, spacing, chart conventions) and an LLM selects the most appropriate one. The design instructions are then injected into every chapter prompt so the entire report maintains visual consistency.
-
-**Phase 2 (Body):** Each chapter is generated as self contained HTML in parallel, guided by the design instructions. The Writer supports multiple LLM backends (Grok, OpenAI, Gemini, Anthropic) and users can bring their own API keys.
-
-```python
-# Design skill selection — the LLM picks the best visual theme
-# from a library of styles based on the query's content domain
-
-routing_model = self.lower_gemini_model.with_structured_output(DesignSkillSelection)
-route_response = await routing_model.ainvoke(routing_prompt)
-selected_filename = route_response.selected_skill_filename
-# e.g. "scientific_minimal.md", "bold_editorial.md", "dark_technical.md"
-```
-
-After the report is generated, you can **edit any section directly** using the built in editor. Select a section, provide feedback or a rewrite instruction, and the Editor node regenerates just that section using the original design context.
+**Phase 5 — Report Writing.** The Writer takes everything and produces a **fully styled HTML report**. First it builds an outline with chapters, an abstract, introduction, and conclusion. Then a design system selects a visual theme that matches the tone of your topic (scientific papers get clean minimalist layouts, business reports get corporate styling, creative topics get bold editorial formatting). Each chapter is generated in parallel using the selected design, so the entire report looks visually consistent. After the report is generated, you can **edit any section directly** using the built in editor. Select a section, give it a rewrite instruction, and only that section gets regenerated while the rest stays untouched.
 
 <br/>
 
@@ -278,7 +177,7 @@ After the report is generated, you can **edit any section directly** using the b
 Extreme Research represents the next frontier. It spins up a **secure live Virtual Machine** to execute real code, browse the web identically like a human, and analyze deeply technical research that requires computation. It creates dynamic simulations and visualizations directly in chat and can output any file format from PDFs to presentations.
 
 <div align="center" style="background: linear-gradient(135deg, #FF8C69, #d47758); padding: 28px; border-radius: 14px;">
-  <img src="../FrontEnd/wort-ai-core/public/readme/ExtermeResearchFeature.png" alt="Extreme Research with VM and code execution" width="92%" style="border-radius: 8px; box-shadow: 0 10px 35px rgba(0,0,0,0.3);" />
+  <img src="./assets/ExtermeResearchFeature.png" alt="Extreme Research with VM and code execution" width="92%" style="border-radius: 8px; box-shadow: 0 10px 35px rgba(0,0,0,0.3);" />
 </div>
 
 > **🚧 Coming Soon:** Extreme Research is actively in development. The architecture is designed and the VM integration is being built. This mode will be available in a future release.
@@ -294,7 +193,7 @@ Extreme Research represents the next frontier. It spins up a **secure live Virtu
 The entire system is orchestrated as a **LangGraph state machine** with conditional routing, interrupt/resume support for human in the loop checkpoints, and parallel subgraph invocation.
 
 <div align="center" style="background: #F7F7F5; padding: 20px; border: 1px solid rgba(58,58,56,0.12); border-radius: 2px;">
-  <img src="../FrontEnd/wort-ai-core/public/readme/architecture.svg" alt="WORT System Architecture" width="100%" />
+  <img src="./assets/architecture.svg" alt="WORT System Architecture" width="100%" />
 </div>
 
 <br/>
