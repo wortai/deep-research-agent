@@ -31,10 +31,10 @@ google-ai-generativelanguage==0.6.17
 qdrant-client==1.13.3
 faiss-cpu>=1.12.0
 
-# ML/AI
-torch==2.6.0
-transformers==4.51.3
-sentence-transformers==4.1.0
+# ML/AI (torch: use versions with wheels for Render’s Python — 2.6.x not published for py3.12+)
+torch>=2.9.0,<2.12
+transformers>=4.51.0,<5
+sentence-transformers>=4.1.0,<5
 tiktoken==0.9.0
 tokenizers==0.21.1
 scikit-learn==1.6.1
@@ -78,7 +78,6 @@ google-auth==2.39.0
 # Utilities
 rich==13.9.4
 tenacity==9.0.0
-python-dotenv==1.1.0
 requests-toolbelt==1.0.0
 regex==2024.11.6
 
