@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/lib/auth";
+import { getApiOrigin } from "@/apiConfig";
 import { ThreadLoader } from "./ThreadLoader";
 
 export interface Session {
@@ -24,13 +25,13 @@ const ThreadSidebar = ({ isOpen, onToggle }: ThreadSidebarProps) => {
   const { id: currentThreadId } = useParams<{ id: string }>();
   const { user } = useAuth();
 
-  const hostname = window.location.hostname;
+  const apiOrigin = getApiOrigin();
   const jwt = localStorage.getItem("wort_jwt") || "";
 
   const { data, isLoading } = useQuery({
-    queryKey: ['sessions'],
+    queryKey: ['sessions', apiOrigin],
     queryFn: async () => {
-      const res = await fetch(`http://${hostname}:8000/sessions`, {
+      const res = await fetch(`${apiOrigin}/sessions`, {
         headers: { Authorization: `Bearer ${jwt}` }
       });
       if (!res.ok) throw new Error('Failed to fetch sessions');

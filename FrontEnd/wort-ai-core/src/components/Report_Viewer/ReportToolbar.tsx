@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getApiOrigin } from '@/apiConfig';
 import { Printer, Copy, Check, Download, Loader2 } from "lucide-react";
 import { ReportToolbarProps } from './types';
 
@@ -36,8 +37,7 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({ content, onPrint, report 
 
         try {
             setIsDownloadingPdf(true);
-            const hostname = window.location.hostname;
-            const response = await fetch(`http://${hostname}:8000/publish/pdf`, {
+            const response = await fetch(`${getApiOrigin()}/publish/pdf`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

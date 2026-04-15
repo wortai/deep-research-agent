@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { getApiOrigin, getWebSocketOrigin } from '@/apiConfig';
 import { useWebSocket } from './useWebSocket';
 import { useQueryClient } from '@tanstack/react-query';
 import type { SectionEditProgressData } from '../components/Report_Viewer/types';
@@ -60,10 +61,10 @@ export const useChat = (threadId: string, userId: string) => {
 
     const lastSeenId = useRef<string>("0");
 
-    const hostname = window.location.hostname;
+    const apiOrigin = getApiOrigin();
     const jwt = localStorage.getItem(JWT_KEY) || "";
     const authHeaders = jwt ? { Authorization: `Bearer ${jwt}` } : {};
-    const wsUrl = `ws://${hostname}:8000/ws/chat/${threadId}?token=${jwt}`;
+    const wsUrl = `${getWebSocketOrigin()}/ws/chat/${threadId}?token=${jwt}`;
 
     const historyLoaded = useRef(false);
 
@@ -87,7 +88,7 @@ export const useChat = (threadId: string, userId: string) => {
 
         const fetchHistory = async () => {
             try {
-                const res = await fetch(`http://${hostname}:8000/sessions/${threadId}/events`, {
+                const res = await fetch(`${apiOrigin}/sessions/${threadId}/events`, {
                     headers: authHeaders
                 });
                 if (res.ok) {
@@ -189,7 +190,7 @@ export const useChat = (threadId: string, userId: string) => {
 
                         // Fetch reports separately since they're stored in checkpoints
                         try {
-                            const r = await fetch(`http://${hostname}:8000/sessions/${threadId}/report`, {
+                            const r = await fetch(`${apiOrigin}/sessions/${threadId}/report`, {
                                 headers: authHeaders
                             });
                             if (r.ok) {
@@ -239,7 +240,7 @@ export const useChat = (threadId: string, userId: string) => {
             // After history load, check if thread is actively processing
             // to recover isProcessing state after page refresh
             try {
-                const statusRes = await fetch(`http://${hostname}:8000/sessions/${threadId}/status`, {
+                const statusRes = await fetch(`${apiOrigin}/sessions/${threadId}/status`, {
                     headers: authHeaders
                 });
                 if (statusRes.ok) {
@@ -256,7 +257,7 @@ export const useChat = (threadId: string, userId: string) => {
             setIsRestoringSession(false);
         };
         fetchHistory();
-    }, [threadId, hostname]);
+    }, [threadId, apiOrigin]);
 
     /**
      * Appends streamed token to the last assistant text message.
