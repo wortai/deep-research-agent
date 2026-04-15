@@ -130,35 +130,6 @@ function assembleReportHtml(report: {
             transform: translateY(-2px);
             outline-color: rgba(26, 60, 43, 0.28);
         }
-        /* Double-click hint tooltip */
-        .report-body-section::after {
-            content: '⌥ double-click to edit chapter';
-            position: absolute;
-            top: 10px;
-            right: 14px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 9px;
-            letter-spacing: 0.06em;
-            padding: 3px 7px;
-            background: rgba(26, 60, 43, 0.82);
-            color: rgba(255,255,255,0.88);
-            border-radius: 3px;
-            pointer-events: none;
-            opacity: 0;
-            transform: translateY(-3px);
-            transition: opacity 180ms ease, transform 180ms ease;
-            white-space: nowrap;
-            z-index: 10;
-        }
-        .report-body-section:hover::after {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .report-body-section.is-selected::after,
-        .report-body-section.is-editing::after,
-        .report-body-section.is-streaming::after {
-            opacity: 0 !important;
-        }
         .report-body-section.is-selected {
             outline: 2px solid #FF8C69;
             outline-offset: 8px;
@@ -261,7 +232,55 @@ ${bodyHtml}
         var h = document.documentElement.scrollHeight;
         window.parent.postMessage({ type: 'report-iframe-resize', height: h }, '*');
     });
-    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
+        /* ── Floating hover hint (body-level, escapes overflow:hidden) ── */
+        var tip = document.createElement('div');
+        tip.textContent = '⌥  double-click to edit this chapter';
+        tip.style.cssText = [
+            'position:fixed',
+            'pointer-events:none',
+            'z-index:99999',
+            'font-family:JetBrains Mono,monospace',
+            'font-size:9px',
+            'letter-spacing:0.07em',
+            'padding:4px 9px',
+            'background:rgba(26,60,43,0.88)',
+            'color:rgba(255,255,255,0.92)',
+            'border-radius:3px',
+            'white-space:nowrap',
+            'opacity:0',
+            'transition:opacity 160ms ease',
+            'top:0',
+            'left:0',
+        ].join(';');
+        document.body.appendChild(tip);
+        var tipTarget = null;
+        document.addEventListener('mouseover', function(e) {
+            var el = e.target && e.target.closest ? e.target.closest('.report-body-section') : null;
+            if (!el || el.classList.contains('is-selected') || el.classList.contains('is-streaming')) {
+                tip.style.opacity = '0';
+                tipTarget = null;
+                return;
+            }
+            tipTarget = el;
+            tip.style.opacity = '1';
+        });
+        document.addEventListener('mouseout', function(e) {
+            var el = e.target && e.target.closest ? e.target.closest('.report-body-section') : null;
+            if (!el || el === tipTarget) {
+                tip.style.opacity = '0';
+                tipTarget = null;
+            }
+        });
+        document.addEventListener('mousemove', function(e) {
+            if (tip.style.opacity === '0') return;
+            tip.style.left = (e.clientX + 14) + 'px';
+            tip.style.top  = (e.clientY - 28) + 'px';
+        });
+        document.addEventListener('dblclick', function() {
+            tip.style.opacity = '0';
+            tipTarget = null;
+        });
         function clearSelected() {
             document.querySelectorAll('.report-body-section.is-selected').forEach(function(el) {
                 el.classList.remove('is-selected');

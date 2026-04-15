@@ -111,7 +111,7 @@ const ChatInput = ({
   const modes: { id: Mode; label: string }[] = [
     { id: "web", label: "Web_Search" },
     { id: "deep", label: "Deep_Research" },
-    { id: "extreme", label: "Extreme_Logic" },
+    { id: "extreme", label: "XtremeResearch" },
   ];
 
   const handleSend = () => {
@@ -154,7 +154,7 @@ const ChatInput = ({
     activeMode === "web"
       ? "Web_Search"
       : activeMode === "extreme"
-        ? "Extreme_Logic"
+        ? "XtremeResearch"
         : `Deep_Research[${deepLevel}]`;
 
   const handleModelSelect = (providerKey: string, modelValue: string) => {
@@ -347,9 +347,9 @@ const ChatInput = ({
                       onClick={(e) => e.preventDefault()}
                       className="w-full rounded-[4px] px-2 py-[0.35rem] text-left font-mono text-[8px] uppercase tracking-[0.12em] leading-snug opacity-40 cursor-not-allowed text-[#6B7280]"
                     >
-                      Extreme
+                      XtremeResearch
                     </button>
-                    <div className="absolute right-0 bottom-full mb-1 hidden group-hover:block w-[180px] p-2 bg-[#4B5563] text-white text-[9px] font-mono leading-relaxed rounded-[4px] shadow-md pointer-events-none z-[80] whitespace-normal normal-case tracking-normal">
+                    <div className="absolute right-0 bottom-full mb-1 hidden group-hover:block w-[190px] p-2 bg-[#F7F7F5] text-[#1A3C2B] border border-[#1A3C2B]/15 text-[9px] font-mono leading-relaxed rounded-[4px] shadow-sm pointer-events-none z-[80] whitespace-normal normal-case tracking-normal">
                       Feature still in progress, will be live soon
                     </div>
                   </div>
@@ -458,9 +458,9 @@ const ChatInput = ({
                     >
                       {mode.label}
                     </button>
-                    <div className="absolute bottom-full left-1/2 w-[220px] -translate-x-1/2 mb-1.5 hidden group-hover:block p-2 bg-[#4B5563] text-white text-[10px] font-mono leading-relaxed rounded-[4px] shadow-md pointer-events-none z-[80] text-center whitespace-normal normal-case tracking-normal">
+                    <div className="absolute bottom-full left-1/2 w-[240px] -translate-x-1/2 mb-1.5 hidden group-hover:block p-2.5 bg-[#F7F7F5] text-[#1A3C2B] border border-[#1A3C2B]/15 text-[10px] font-mono leading-relaxed rounded-[4px] shadow-sm pointer-events-none z-[80] text-center whitespace-normal normal-case tracking-normal">
                       Feature still in progress, will be live soon
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#4B5563]" />
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1A3C2B]/20" />
                     </div>
                   </div>
                 );

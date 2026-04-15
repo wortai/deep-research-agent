@@ -131,11 +131,11 @@ const preprocessContent = (raw: string, isStreaming: boolean = false): string =>
 
   // ── Step 2: Auto-close unclosed LaTeX-style delimiters (final only) ───
   if (!isStreaming) {
-    const openInline  = (result.match(/\\\(/g) || []).length;
+    const openInline = (result.match(/\\\(/g) || []).length;
     const closeInline = (result.match(/\\\)/g) || []).length;
     if (openInline > closeInline) result += '\\)';
 
-    const openDisplay  = (result.match(/\\\[/g) || []).length;
+    const openDisplay = (result.match(/\\\[/g) || []).length;
     const closeDisplay = (result.match(/\\\]/g) || []).length;
     if (openDisplay > closeDisplay) result += '\\]';
   }
@@ -835,13 +835,13 @@ const ChatWorkspace = ({ userId }: ChatWorkspaceProps) => {
 
           {/* Agent Error Recovery UI */}
           {agentError && (
-             <LLMCatchError 
-               errorData={agentError} 
-               onRetry={() => {
-                 // LangGraph checkpointer allows us to natively resume execution exactly from the last saved node.
-                 resumeFromError();
-               }} 
-             />
+            <LLMCatchError
+              errorData={agentError}
+              onRetry={() => {
+                // LangGraph checkpointer allows us to natively resume execution exactly from the last saved node.
+                resumeFromError();
+              }}
+            />
           )}
 
           {/* Input Bar is Always Visible Unless Hard Error Occurs */}
