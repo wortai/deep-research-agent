@@ -13,29 +13,36 @@ import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
+const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID ?? "").trim();
 
-const App = () => (
-  <GoogleOAuthProvider clientId={googleClientId}>
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/chat" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="/chat/:id" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </AuthProvider>
-  </GoogleOAuthProvider>
+const AppRoutes = () => (
+  <AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/chat" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/chat/:id" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </AuthProvider>
 );
+
+const App = () =>
+  googleClientId ? (
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <AppRoutes />
+    </GoogleOAuthProvider>
+  ) : (
+    <AppRoutes />
+  );
 
 export default App;
