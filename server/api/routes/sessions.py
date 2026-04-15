@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
@@ -67,3 +68,47 @@ async def archive_session(
 
     await session_store.archive(session_id)
     return {"session_id": session_id, "status": "archived"}
+
+
+@router.get("/sessions/{session_id}/status")
+async def get_session_status(
+    request: Request,
+    session_id: str,
+    user=Depends(get_current_user),
+):
+    """Get processing status for a session.
+
+    Checks the in-memory active_threads set to determine if a graph
+    task is currently running for this thread. Falls back to checkpoint
+    phase detection if active_threads is unavailable.
+    Requires a valid JWT in the Authorization header.
+    """
+    try:
+        uuid.UUID(session_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid session_id: must be a UUID, got '{session_id}'",
+        )
+
+    # Primary check: in-memory tracking of running graph tasks
+    active_threads = getattr(request.app.state, "active_threads", set())
+    is_processing = session_id in active_threads
+
+    checkpoint_reader = getattr(request.app.state, "checkpoint_reader", None)
+    has_reports = False
+    current_phase = None
+
+    if checkpoint_reader:
+        values = await checkpoint_reader._get_channel_values(session_id)
+        if values:
+            current_phase = values.get("current_phase", "") or None
+            reports = values.get("reports", [])
+            has_reports = len(reports) > 0
+
+    return {
+        "session_id": session_id,
+        "is_processing": is_processing,
+        "current_phase": current_phase,
+        "has_reports": has_reports,
+    }

@@ -80,7 +80,7 @@ class DeepResearchAgent:
         Flow:
             router_node → [search_mode routing]
                 ├── websearch → websearch_agent → response_node → END
-                └── deepsearch/extremesearch → clarification_node ⟲(max 3) → planner_node → human_review_node → parallel_research_node → writer_node → response_node → END
+                └── deepsearch/extremesearch → clarification_node ⟲(max 2) → planner_node → human_review_node → parallel_research_node → writer_node → response_node → END
 
         Returns:
             Compiled StateGraph with checkpointer for interrupt/resume.
@@ -114,7 +114,7 @@ class DeepResearchAgent:
 
         workflow.add_edge("websearch_agent", "response_node")
 
-        # Clarification loop: loops back up to 3 times, then proceeds to skill selection
+        # Clarification loop: loops back up to 2 times, then proceeds to skill selection
         workflow.add_conditional_edges(
             "clarification_node",
             self._route_after_clarification,
@@ -161,17 +161,22 @@ class DeepResearchAgent:
         """
         Routes after a clarification round.
 
-        Continues looping to human_clarification_node if under the 3-loop max
-        and the LLM indicated more clarification is needed (by providing questions).
-        Otherwise proceeds to planner_node.
+        If the user explicitly skipped clarification, proceeds directly
+        to planner_node. Otherwise continues looping to
+        human_clarification_node if under the 2-loop max and the LLM
+        indicated more clarification is needed (by providing questions).
 
         Returns:
             'human_clarification_node' to ask user, or 'planner_node' to proceed.
         """
+        # Explicit skip takes priority over everything
+        if state.get("skip_clarification", False):
+            return "planner_node"
+
         loop_count = state.get("clarification_loop_count", 0)
         questions = state.get("clarification_questions", [])
 
-        if loop_count < 3 and questions:
+        if loop_count < 2 and questions:
             return "human_clarification_node"
 
         return "planner_node"
@@ -325,6 +330,7 @@ class DeepResearchAgent:
             "clarification_questions": [],
             "clarification_answers": [],
             "clarification_loop_count": 0,
+            "skip_clarification": False,
             "plan_feedback": "",
             "plan_approved": False,
             "research_review": [],

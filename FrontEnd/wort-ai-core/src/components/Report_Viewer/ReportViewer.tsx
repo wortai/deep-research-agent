@@ -5,6 +5,70 @@ import { ReportViewerProps } from './types';
 import ReportToolbar from './ReportToolbar';
 import './report-styles.css';
 
+function normalizeSectionHtml(raw: string): string {
+    if (!raw || !raw.trim()) return raw;
+    let html = raw.trim();
+
+    if (html.startsWith('```')) {
+        html = html.replace(/^```(?:html)?\s*\n?/, '').replace(/\n?```\s*$/, '');
+    }
+
+    if (!/class=["'][^"']*report-page/.test(html)) {
+        return `<div class="report-chapter"><div class="report-page">${html}</div></div>`;
+    }
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const body = doc.body;
+    if (!body || !body.innerHTML.trim()) {
+        return `<div class="report-chapter"><div class="report-page">${html}</div></div>`;
+    }
+
+    const chapter = body.querySelector('.report-chapter');
+    const container = chapter || body;
+
+    const children = Array.from(container.childNodes).filter(
+        (n): n is Element => n.nodeType === Node.ELEMENT_NODE
+    );
+
+    if (children.length === 0) {
+        return `<div class="report-chapter"><div class="report-page">${html}</div></div>`;
+    }
+
+    const pages = children.filter(el => el.classList.contains('report-page'));
+    const orphans = children.filter(el => !el.classList.contains('report-page'));
+
+    if (orphans.length === 0 && pages.length > 0) {
+        return chapter
+            ? chapter.outerHTML
+            : `<div class="report-chapter">${pages.map(p => p.outerHTML).join('\n')}</div>`;
+    }
+
+    const result: string[] = [];
+    let buf: string[] = [];
+
+    const flush = () => {
+        if (buf.length) {
+            result.push(`<div class="report-page">${buf.join('\n')}</div>`);
+            buf = [];
+        }
+    };
+
+    for (const child of children) {
+        if (child.classList.contains('report-page')) {
+            flush();
+            result.push(child.outerHTML);
+        } else {
+            buf.push(child.outerHTML);
+        }
+    }
+    flush();
+
+    return result.length > 0
+        ? `<div class="report-chapter">${result.join('\n')}</div>`
+        : `<div class="report-chapter"><div class="report-page">${html}</div></div>`;
+}
+
 function assembleReportHtml(report: {
     table_of_contents?: string;
     body_sections?: { section_id: string; section_order: number; section_content: string }[];
@@ -18,7 +82,7 @@ function assembleReportHtml(report: {
         .map(s => {
             const safeId = String(s.section_id || "").replace(/"/g, "&quot;");
             const safeOrder = String(s.section_order ?? "");
-            return `<div class="report-body-section" data-section-id="${safeId}" data-section-order="${safeOrder}">${s.section_content}</div>`;
+            return `<div class="report-body-section" data-section-id="${safeId}" data-section-order="${safeOrder}">${normalizeSectionHtml(s.section_content)}</div>`;
         })
         .join('\n');
 
@@ -32,6 +96,7 @@ function assembleReportHtml(report: {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=General+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/charts.css/dist/charts.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.33/dist/katex.min.css">
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         html, body {
@@ -126,6 +191,9 @@ function assembleReportHtml(report: {
         td, th { word-wrap: break-word; overflow-wrap: break-word; }
         a { color: #2c5282; text-decoration: none; }
         a:hover { text-decoration: underline; }
+        .katex { font-size: 1em !important; }
+        .katex-display { margin: 0.8em 0; overflow-x: auto; overflow-y: hidden; }
+        .katex-display > .katex { white-space: normal; }
         @media print {
             html, body { background: white; }
             .report-page { box-shadow: none; margin: 0; border-radius: 0; page-break-after: always; }
@@ -236,6 +304,8 @@ ${bodyHtml}
         }
     });
 </script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.33/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.33/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\\\(',right:'\\\\)',display:false},{left:'\\\\[',right:'\\\\]',display:true}],throwOnError:false});"></script>
 </body>
 </html>`;
 }

@@ -14,7 +14,9 @@ class EditorService:
     def __init__(self) -> None:
         self._model = LlmsHouse().grok_model("grok-4-1-fast-reasoning", temperature=0.9)
 
-    async def regenerate_section(self, *, state: Dict[str, Any], emitter=None, edit_meta=None) -> Optional[ReportSectionUpdate]:
+    async def regenerate_section(
+        self, *, state: Dict[str, Any], emitter=None, edit_meta=None
+    ) -> Optional[ReportSectionUpdate]:
         section_id = str(state.get("edit_section_id") or "")
         if not section_id:
             return None
@@ -24,27 +26,43 @@ class EditorService:
         if not old_html or not feedback:
             return None
 
-        section_order = state.get("edit_section_order")
+        raw_order = state.get("edit_section_order")
+        if isinstance(raw_order, int):
+            section_order: Optional[int] = raw_order
+        elif isinstance(raw_order, float) and raw_order == int(raw_order):
+            section_order = int(raw_order)
+        else:
+            section_order = None
         chapter_heading = (state.get("edit_chapter_heading") or "").strip()
 
         if not chapter_heading:
             chapter_heading = extract_first_h2_text(old_html) or ""
 
-
         edit_mode = (state.get("edit_mode") or "visual").strip().lower()
         if edit_mode not in {"visual", "research"}:
             edit_mode = "visual"
 
-
         reports = state.get("reports") or []
         edit_run_id = (state.get("edit_run_id") or "").strip()
         if edit_run_id:
-            latest_report = next((r for r in reversed(reports) if str(r.get("run_id", "")) == edit_run_id), reports[-1] if reports else {})
+            latest_report = next(
+                (
+                    r
+                    for r in reversed(reports)
+                    if str(r.get("run_id", "")) == edit_run_id
+                ),
+                reports[-1] if reports else {},
+            )
         else:
             latest_report = reports[-1] if reports else {}
         run_id = latest_report.get("run_id") or state.get("current_run_id") or ""
         table_of_contents = latest_report.get("table_of_contents")
         design_instructions = latest_report.get("design_instructions", "")
+
+        logger.info(
+            f"[EditorService] edit section_id={section_id} section_order={section_order} "
+            f"run_id={run_id} edit_run_id={edit_run_id} heading={chapter_heading[:60]}"
+        )
 
         # For research edits, an upstream node can attach additional snippets.
         additional_research = state.get("edit_additional_research")
@@ -78,20 +96,28 @@ class EditorService:
                     )
             else:
                 response = await self._model.ainvoke(prompt)
-                raw = response.content if hasattr(response, "content") else str(response)
+                raw = (
+                    response.content if hasattr(response, "content") else str(response)
+                )
         except Exception as exc:
             logger.error(f"[EditorService] LLM edit failed: {exc}")
             return None
 
         new_html = strip_code_fences(raw)
         if not new_html:
+            logger.warning(
+                "[EditorService] LLM returned empty content after stripping fences"
+            )
             return None
+
+        logger.info(
+            f"[EditorService] Generated {len(new_html)} chars replacement for section_id={section_id}"
+        )
 
         return {
             "section_id": section_id,
-            "section_order": section_order if isinstance(section_order, int) else None,
+            "section_order": section_order,
             "chapter_heading": chapter_heading,
             "new_section_content": new_html,
             "run_id": run_id,
         }
-

@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Dict, List, Optional
+import copy
+from typing import Any, Dict, List, Optional, Tuple
 
 from langgraph.types import StreamWriter
 
@@ -16,39 +17,105 @@ def _patch_report_section(
     run_id: str,
     section_id: str,
     new_html: str,
-) -> List[Dict[str, Any]]:
+    section_order: Optional[int] = None,
+) -> Tuple[List[Dict[str, Any]], bool]:
     """
-    Finds the ReportData matching run_id, locates the ReportBodySection
-    by section_id, and replaces its section_content with new_html.
+    Finds the target ReportData and ReportBodySection, then replaces
+    section_content with new_html.
 
-    Returns a new list with the patched report. All other reports and
-    sections remain untouched.
+    Matching priority:
+      1) run_id + section_id  (primary — always correct)
+      2) run_id + section_order (fallback — for edge-case ID mismatches)
+      3) any report + section_id (last resort — single-report case)
 
-    Args:
-        reports: Full list of ReportData dicts from graph state.
-        run_id: Target report's run_id.
-        section_id: Target section's section_id within that report.
-        new_html: Replacement HTML for the matched section.
-
-    Returns:
-        Patched copy of the reports list.
+    Returns (patched_reports_list, was_section_found).
+    If was_section_found is False the reports are returned unchanged.
     """
+    if not new_html:
+        logger.error(
+            "[editor_node._patch] new_html is empty — refusing to patch, keeping current content"
+        )
+        return list(reports), False
+
     patched = []
+    found = False
+
+    # --- Pass 1: exact match on run_id + section_id ---
     for report in reports:
-        if str(report.get("run_id", "")) == str(run_id):
+        if str(report.get("run_id", "")) != str(run_id):
+            patched.append(report)
+            continue
+        new_sections = []
+        for section in report.get("body_sections", []):
+            if not found and str(section.get("section_id", "")) == str(section_id):
+                new_sections.append({**section, "section_content": new_html})
+                found = True
+            else:
+                new_sections.append(section)
+        patched.append({**report, "body_sections": new_sections})
+
+    if found:
+        logger.info(
+            f"[editor_node._patch] Matched by run_id+section_id: run={run_id} sec={section_id}"
+        )
+        return patched, True
+
+    # --- Pass 2: run_id + section_order fallback ---
+    if section_order is not None:
+        patched = []
+        for report in reports:
+            if str(report.get("run_id", "")) != str(run_id):
+                patched.append(report)
+                continue
             new_sections = []
             for section in report.get("body_sections", []):
-                if str(section.get("section_id", "")) == str(section_id):
+                if (
+                    not found
+                    and isinstance(section.get("section_order"), int)
+                    and section["section_order"] == section_order
+                ):
                     new_sections.append({**section, "section_content": new_html})
+                    found = True
                 else:
                     new_sections.append(section)
             patched.append({**report, "body_sections": new_sections})
-        else:
-            patched.append(report)
-    return patched
+        if found:
+            logger.warning(
+                f"[editor_node._patch] section_id mismatch — fell back to run_id+section_order: "
+                f"run={run_id} order={section_order} (original section_id={section_id})"
+            )
+            return patched, True
+
+    # --- Pass 3: any report + section_id (single-report safety net) ---
+    if len(reports) <= 1:
+        patched = []
+        for report in reports:
+            new_sections = []
+            for section in report.get("body_sections", []):
+                if not found and str(section.get("section_id", "")) == str(section_id):
+                    new_sections.append({**section, "section_content": new_html})
+                    found = True
+                else:
+                    new_sections.append(section)
+            patched.append({**report, "body_sections": new_sections})
+        if found:
+            logger.warning(
+                f"[editor_node._patch] run_id mismatch — fell back to section_id across all reports: "
+                f"sec={section_id} (original run_id={run_id})"
+            )
+            return patched, True
+
+    logger.error(
+        f"[editor_node._patch] Could not find section in any report: "
+        f"run_id={run_id} section_id={section_id} section_order={section_order} "
+        f"reports_count={len(reports)}"
+    )
+    return list(reports), False
 
 
-async def editor_node(state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:
+async def editor_node(
+    state: AgentGraphState, writer: StreamWriter = None
+) -> Dict[str, Any]:
     """
     Targeted report section editing node.
 
@@ -82,9 +149,7 @@ async def editor_node(state: AgentGraphState, writer: StreamWriter = None) -> Di
 
     service = EditorService()
     update = await service.regenerate_section(
-        state=dict(state),
-        emitter=emitter,
-        edit_meta=_edit_meta()
+        state=dict(state), emitter=emitter, edit_meta=_edit_meta()
     )
 
     if not update:
@@ -101,20 +166,41 @@ async def editor_node(state: AgentGraphState, writer: StreamWriter = None) -> Di
             "final_response": "I couldn't apply that edit (missing section content or feedback). Please try again with more detail.",
         }
 
-    if emitter:
-        emitter.emit_writer_progress(
-            percentage=100,
-            current_step="Section updated.",
-            metadata=_edit_meta({"status": "ok"}),
-        )
-
     existing_reports = list(state.get("reports") or [])
-    patched_reports = _patch_report_section(
+
+    logger.info(
+        f"[editor_node] Patching reports={len(existing_reports)} "
+        f"run_id={update.get('run_id')} section_id={update.get('section_id')} "
+        f"section_order={update.get('section_order')} new_html_len={len(update.get('new_section_content', ''))}"
+    )
+
+    patched_reports, patched_ok = _patch_report_section(
         reports=existing_reports,
         run_id=update.get("run_id", ""),
         section_id=update.get("section_id", ""),
         new_html=update.get("new_section_content", ""),
+        section_order=update.get("section_order"),
     )
+
+    if not patched_ok:
+        logger.error(
+            f"[editor_node] Section patch FAILED — returning update without checkpoint patch. "
+            f"Frontend report_section_update handler will attempt in-memory patch. "
+            f"section_id={update.get('section_id')} run_id={update.get('run_id')}"
+        )
+        if emitter:
+            emitter.emit_writer_progress(
+                percentage=100,
+                current_step="Edit completed but checkpoint update may be delayed — refreshing report.",
+                metadata=_edit_meta({"status": "partial"}),
+            )
+
+    if emitter:
+        emitter.emit_writer_progress(
+            percentage=100,
+            current_step="Section updated.",
+            metadata=_edit_meta({"status": "ok" if patched_ok else "partial"}),
+        )
 
     return {
         "report_section_update": update,

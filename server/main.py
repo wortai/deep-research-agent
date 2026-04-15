@@ -66,6 +66,7 @@ async def lifespan(app: FastAPI):
     app.state.event_store = event_store
     app.state.auth_service = auth_service
     app.state.checkpoint_reader = checkpoint_reader
+    app.state.active_threads: set[str] = set()  # Tracks threads with running graph tasks
 
     logger.info("Memory and storage systems initialized")
 

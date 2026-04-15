@@ -67,6 +67,7 @@ class StreamService:
 
         self._websearch_limiter = websearch_limiter
         self._deepsearch_limiter = deepsearch_limiter
+        self._active_threads: set = getattr(websocket.app.state, "active_threads", set())
 
         self._reader_task: Optional[asyncio.Task] = None
         self._graph_task: Optional[asyncio.Task] = None
@@ -154,6 +155,9 @@ class StreamService:
         if msg_type == "start":
             input_data = await self._handle_start(data)
         elif msg_type == "resume":
+            await RedisClient.get_instance().delete_stream(
+                f"wort:stream:{self._thread_id}"
+            )
             input_data = await self._handle_resume(data)
         elif msg_type == "resume_error":
             can_resume = await self._handle_resume_error(data)
@@ -223,6 +227,23 @@ class StreamService:
 
         config = {"configurable": {"thread_id": self._thread_id}}
         existing_state = await self._agent._graph.aget_state(config)
+
+        # Guard: reject new queries while a previous run is still active
+        if self._thread_id in self._active_threads:
+            await self._manager.send_json(
+                {
+                    "type": "error",
+                    "message": "A report is currently being generated. Please wait for it to complete before starting a new query.",
+                    "thread_id": self._thread_id,
+                },
+                self._websocket,
+            )
+            # Reset frontend processing state so the UI doesn't get stuck
+            await self._manager.send_json(
+                {"type": "done", "thread_id": self._thread_id},
+                self._websocket,
+            )
+            return None
 
         logger.info(
             f"[_handle_start] thread={self._thread_id}, "
@@ -423,6 +444,9 @@ class StreamService:
         if is_new_turn:
             await redis.delete_stream(stream_name)
 
+        # Mark this thread as actively running
+        self._active_threads.add(self._thread_id)
+
         cost_tracker = CostTracker()
         if "callbacks" not in config:
             config["callbacks"] = []
@@ -459,30 +483,31 @@ class StreamService:
                     except Exception as e:
                         logger.error(f"Failed to update session usage metrics: {e}")
 
-                await redis.xadd(
-                    stream_name,
-                    {"type": "cost_summary", "data": summary},
-                )
-
                 await redis.xadd(stream_name, {"__stream_end__": True})
                 asyncio.create_task(self._delayed_delete_stream(stream_name, delay=10))
 
         except Exception as e:
             error_trace = traceback.format_exc()
             logger.error(f"Streaming error: {e}\n{error_trace}")
-            
+
             error_payload = {}
             if e.__class__.__name__ == "LLMCatchError":
                 try:
-                    error_payload = {"llm_catch_error": json.dumps(e.to_dict()), "traceback": error_trace}
+                    error_payload = {
+                        "llm_catch_error": json.dumps(e.to_dict()),
+                        "traceback": error_trace,
+                    }
                 except AttributeError:
                     error_payload = {"error": f"{str(e)}\n\nTraceback:\n{error_trace}"}
             else:
                 error_payload = {"error": f"{str(e)}\n\nTraceback:\n{error_trace}"}
-                
+
             await redis.xadd(stream_name, error_payload)
             await redis.xadd(stream_name, {"__stream_end__": True})
             asyncio.create_task(self._delayed_delete_stream(stream_name, delay=10))
+        finally:
+            # Always clear the active flag so new queries can proceed
+            self._active_threads.discard(self._thread_id)
 
     async def _delayed_delete_stream(self, stream_name: str, delay: int):
         """Allows enough time for trailing connected clients to receive the end signal."""

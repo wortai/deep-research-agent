@@ -415,7 +415,7 @@ const ChatWorkspace = ({ userId }: ChatWorkspaceProps) => {
   const navigate = useNavigate();
   const threadId = id || '';
 
-  const { messages, logs, agentProgress, writerProgress, sectionEditProgress, sendMessage, isProcessing, isConnected, error, isInterrupted, interruptData, isClarifying, clarificationData, skillSelection, resume, resumeClarification, allReports, resumeFromError, agentError, editSection } = useChat(threadId, userId);
+  const { messages, logs, agentProgress, writerProgress, sectionEditProgress, sendMessage, isProcessing, isRestoringSession, isConnected, error, isInterrupted, interruptData, isClarifying, clarificationData, skillSelection, resume, resumeClarification, allReports, resumeFromError, agentError, editSection } = useChat(threadId, userId);
 
   const hasReports = allReports && allReports.length > 0;
 
@@ -681,7 +681,7 @@ const ChatWorkspace = ({ userId }: ChatWorkspaceProps) => {
                   <div className="flex items-center gap-2.5 mb-5">
                     <MessageCircleQuestion size={16} className="text-[#1A3C2B]" />
                     <span className="font-mono text-xs uppercase tracking-[0.2em] font-semibold text-[#1A3C2B]">
-                      Clarification // Round {clarificationData.loop_number}/3
+                      Clarification // Round {clarificationData.loop_number}/2
                     </span>
                   </div>
 
@@ -746,7 +746,7 @@ const ChatWorkspace = ({ userId }: ChatWorkspaceProps) => {
                   <div className="flex items-center gap-3 mb-8">
                     <div className="h-3 w-3 bg-[#4ade80] rounded-[2px]" />
                     <span className="font-mono text-[11px] md:text-xs uppercase tracking-[0.2em] font-bold text-[#1A3C2B]">
-                      QUERY_PLAN_REVIEW // STAGE_02
+                      Agent Tasks
                     </span>
                   </div>
 
@@ -770,11 +770,11 @@ const ChatWorkspace = ({ userId }: ChatWorkspaceProps) => {
                           } catch (e) { /* ignore parse error */ }
 
                           return (
-                            <div key={index} className="flex flex-col md:flex-row gap-2 md:gap-4 font-inter text-sm md:text-[15px] text-[#1A3C2B]/80 hover:text-[#1A3C2B] transition-colors leading-relaxed">
+                            <div key={index} className="flex flex-col md:flex-row gap-2 md:gap-4 text-sm md:text-[15px] text-[#1A3C2B]/80 hover:text-[#1A3C2B] transition-colors leading-relaxed">
                               <div className="font-mono text-xs md:text-sm font-bold text-[#1A3C2B] whitespace-nowrap shrink-0 pt-[2px]">
-                                _{String(index + 1).padStart(2, '0')}:
+                                Agent_{String(index + 1).padStart(2, '0')} :
                               </div>
-                              <div className="flex-1">{cleanStep}</div>
+                              <div className="flex-1 font-light italic" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{cleanStep}</div>
                             </div>
                           );
                         });
@@ -848,7 +848,7 @@ const ChatWorkspace = ({ userId }: ChatWorkspaceProps) => {
           {!agentError && (
             <ChatInput
               onSendMessage={sendMessage}
-              disabled={isProcessing || isInterrupted || isClarifying}
+              disabled={isProcessing || isInterrupted || isClarifying || isRestoringSession}
               onResumeError={resumeFromError}
               hasError={!!error}
             />

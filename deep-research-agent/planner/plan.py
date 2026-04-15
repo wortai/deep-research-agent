@@ -215,9 +215,11 @@ class Planner:
         """
         Generates clarification questions using LLM without interruption.
 
-        Invokes get_clarification_prompt, gets 2-3 questions and returns them.
+        Invokes get_clarification_prompt, gets questions and returns them.
         Emits CLARIFICATION_STARTED event via StreamWriter.
         """
+        if state.get("skip_clarification") or state.get("clarification_loop_count", 0) >= 2:
+            return []
         user_query = state.get("user_query", "")
         previous_answers = state.get("clarification_answers", [])
         loop_count = state.get("clarification_loop_count", 0)
@@ -435,6 +437,23 @@ def human_clarification_node(state: AgentGraphState) -> Dict[str, Any]:
     )
 
     answers_raw = user_response.get("answers", {})
+
+    # Detect skip: user submitted empty or no answers
+    is_skip = not answers_raw or (
+        isinstance(answers_raw, dict) and not any(v.strip() for v in answers_raw.values() if isinstance(v, str))
+    )
+
+    if is_skip:
+        logger.info(
+            f"[Planner] Clarification round {loop_count + 1}: user skipped — "
+            "setting skip_clarification=True"
+        )
+        return {
+            "clarification_answers": [],
+            "clarification_loop_count": loop_count + 1,
+            "clarification_questions": [],
+            "skip_clarification": True,
+        }
 
     new_qa_pairs: list = []
     if isinstance(answers_raw, dict):

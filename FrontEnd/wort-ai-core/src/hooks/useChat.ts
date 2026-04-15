@@ -49,6 +49,7 @@ export const useChat = (threadId: string, userId: string) => {
     const [writerProgress, setWriterProgress] = useState<WriterProgressData | null>(null);
     const [sectionEditProgress, setSectionEditProgress] = useState<SectionEditProgressData | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [isRestoringSession, setIsRestoringSession] = useState(true);
     const [currentResponseId, setCurrentResponseId] = useState<string | null>(null);
     const [isInterrupted, setIsInterrupted] = useState(false);
     const [interruptData, setInterruptData] = useState<any>(null);
@@ -73,6 +74,7 @@ export const useChat = (threadId: string, userId: string) => {
         setWriterProgress(null);
         setSectionEditProgress(null);
         setIsProcessing(false);
+        setIsRestoringSession(true);
         setCurrentResponseId(null);
         setIsInterrupted(false);
         setInterruptData(null);
@@ -162,6 +164,16 @@ export const useChat = (threadId: string, userId: string) => {
                                     } catch { /* malformed stored interrupt, skip */ }
                                     break;
 
+                                case "clarification_answer":
+                                    restoredClarification = null;
+                                    pendingInterrupt = false;
+                                    break;
+
+                                case "plan_feedback":
+                                    restoredInterrupt = null;
+                                    pendingInterrupt = false;
+                                    break;
+
                                 case "plan_review":
                                     try {
                                         const parsed = typeof ev.content === "string" ? JSON.parse(ev.content) : ev.content;
@@ -223,6 +235,25 @@ export const useChat = (threadId: string, userId: string) => {
                 console.error("Failed to load history", e);
             }
             historyLoaded.current = true;
+
+            // After history load, check if thread is actively processing
+            // to recover isProcessing state after page refresh
+            try {
+                const statusRes = await fetch(`http://${hostname}:8000/sessions/${threadId}/status`, {
+                    headers: authHeaders
+                });
+                if (statusRes.ok) {
+                    const statusData = await statusRes.json();
+                    if (statusData.is_processing) {
+                        setIsProcessing(true);
+                    } else {
+                        setIsProcessing(false);
+                    }
+                }
+            } catch { /* status check is optional */ }
+
+            // Session restore complete — unlock input
+            setIsRestoringSession(false);
         };
         fetchHistory();
     }, [threadId, hostname]);
@@ -433,7 +464,10 @@ export const useChat = (threadId: string, userId: string) => {
                 case "report_section_update": {
                     const upd = data.data || {};
                     const sectionId = String(upd.section_id || "");
-                    const sectionOrder = (typeof upd.section_order === "number") ? upd.section_order : null;
+                    const rawOrder = upd.section_order;
+                    const sectionOrder = (typeof rawOrder === "number") ? rawOrder
+                        : (typeof rawOrder === "string" && rawOrder !== "" && Number.isFinite(Number(rawOrder))) ? parseInt(rawOrder, 10)
+                        : null;
                     const newHtml = String(upd.new_section_content || "");
                     const runId = String(upd.run_id || "");
                     if (!sectionId || !newHtml) {
@@ -441,26 +475,45 @@ export const useChat = (threadId: string, userId: string) => {
                         break;
                     }
 
-                    setMessages(prev => prev.map(m => {
-                        if (m.type !== "report" || !m.metadata) return m;
-                        const report = m.metadata as any;
-                        if (runId && report.run_id && String(report.run_id) !== runId) return m;
-                        const sections = report.body_sections;
-                        if (!Array.isArray(sections)) return m;
+                    setMessages(prev => {
+                        let patched = false;
 
-                        let touched = false;
-                        const nextSections = sections.map((s: any) => {
-                            const matches = (s.section_id && String(s.section_id) === sectionId) ||
-                                (sectionOrder !== null && typeof s.section_order === "number" && s.section_order === sectionOrder);
-                            if (!matches) return s;
-                            touched = true;
-                            return { ...s, section_content: newHtml };
+                        const result = prev.map(m => {
+                            if (m.type !== "report" || !m.metadata) return m;
+                            const report = m.metadata as any;
+                            const sections = report.body_sections;
+                            if (!Array.isArray(sections)) return m;
+
+                            let touched = false;
+                            const nextSections = sections.map((s: any) => {
+                                const idMatch = s.section_id && String(s.section_id) === sectionId;
+                                const orderMatch = sectionOrder !== null && typeof s.section_order === "number" && s.section_order === sectionOrder;
+
+                                if (runId && report.run_id && String(report.run_id) === runId) {
+                                    if (idMatch || orderMatch) {
+                                        touched = true;
+                                        return { ...s, section_content: newHtml };
+                                    }
+                                } else if (idMatch) {
+                                    touched = true;
+                                    return { ...s, section_content: newHtml };
+                                }
+                                return s;
+                            });
+
+                            if (!touched) return m;
+                            patched = true;
+                            return { ...m, metadata: { ...report, body_sections: nextSections } };
                         });
 
-                        if (!touched) return m;
-                        console.info("[report_section_update] Patched section", sectionId, "in report", report.run_id);
-                        return { ...m, metadata: { ...report, body_sections: nextSections } };
-                    }));
+                        if (!patched) {
+                            console.error(
+                                "[report_section_update] No section matched! section_id=%s section_order=%s run_id=%s",
+                                sectionId, sectionOrder, runId
+                            );
+                        }
+                        return result;
+                    });
                     setSectionEditProgress(null);
                     break;
                 }
@@ -532,26 +585,6 @@ export const useChat = (threadId: string, userId: string) => {
                     setMessages(prev => [...prev, skillMsg]);
                     break;
                 }
-                case "cost_summary": {
-                    const cost = data.data || {};
-                    const byModel = cost.by_model || {};
-                    let costText = `💰 LLM Cost Summary\n\n`;
-                    costText += `Model                    │ Calls │    Input │   Output │   Cost\n`;
-                    costText += `─────────────────────────┼───────┼──────────┼──────────┼────────\n`;
-                    for (const [model, stats] of Object.entries(byModel)) {
-                        const s = stats as any;
-                        costText += `${model.padEnd(25)} │ ${String(s.calls).padStart(5)} │ ${String(s.input_tokens).padStart(8)} │ ${String(s.output_tokens).padStart(8)} │ $${(s.cost || 0).toFixed(3).padStart(6)}\n`;
-                    }
-                    costText += `─────────────────────────┼───────┼──────────┼──────────┼────────\n`;
-                    costText += `TOTAL                    │ ${String(cost.total_calls || 0).padStart(5)} │ ${String(cost.input_tokens || 0).padStart(8)} │ ${String(cost.output_tokens || 0).padStart(8)} │ $${(cost.total_cost || 0).toFixed(3).padStart(6)}\n`;
-                    setMessages(prev => [...prev, {
-                        id: uuidv4(),
-                        role: "assistant",
-                        content: costText,
-                        type: "thinking",
-                    }]);
-                    break;
-                }
                 default:
                     console.log("Unknown event type:", data.type);
             }
@@ -577,6 +610,7 @@ export const useChat = (threadId: string, userId: string) => {
 
     /** Sends user message via WebSocket and resets per-turn state. */
     const sendMessage = (content: string, mode: string = "websearch", apiKeys?: Record<string, string>, modelSelections?: Record<string, string>) => {
+        if (isProcessing || isRestoringSession) return;
         const userMsg: Message = {
             id: uuidv4(),
             role: "user",
@@ -683,6 +717,7 @@ export const useChat = (threadId: string, userId: string) => {
         sendMessage,
         isConnected,
         isProcessing,
+        isRestoringSession,
         isInterrupted,
         interruptData,
         isClarifying,

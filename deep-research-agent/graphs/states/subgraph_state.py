@@ -296,6 +296,7 @@ class AgentGraphState(TypedDict):
     clarification_questions: List[str]
     clarification_answers: Annotated[List[Dict], operator.add]
     clarification_loop_count: int
+    skip_clarification: bool
 
     # --- Human-in-the-Loop (plan approval) ---
     plan_feedback: str

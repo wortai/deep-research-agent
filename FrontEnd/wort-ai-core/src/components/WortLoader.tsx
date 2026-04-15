@@ -94,21 +94,19 @@ const FADE_DURATION_MS = 1000;    // final fade back to idle
 // ── Surfaces (radial gradients = highlight → body → edge for depth; no blur) ──
 type DotSurface = 'idle' | 'research' | 'writer';
 
-function dotBackground(surface: DotSurface): string {
-  switch (surface) {
-    case 'idle':
-      return (
-        'radial-gradient(circle at 35% 30%, #2d5045 0%, #1A3C2B 52%, #122920 100%)'
-      );
-    case 'research':
-      return (
-        'radial-gradient(circle at 32% 28%, #d4ffe8 0%, #7aecb0 40%, #45d695 72%, #1a7a52 100%)'
-      );
-    case 'writer':
-      return (
-        'radial-gradient(circle at 32% 28%, #fff8d4 0%, #f4d35e 38%, #e0b020 75%, #9a7010 100%)'
-      );
+const COLOR_IDLE = [170, 175, 185]; // Darker cool-grey for better base contrast
+const COLOR_RESEARCH = [255, 110, 34]; // Brighter, more intense punchy green
+const COLOR_WRITER = [224, 176, 32];
+
+function getDotColor(surface: DotSurface, intensity: number): string {
+  if (surface === 'idle' || intensity <= 0) {
+    return `rgb(${COLOR_IDLE.join(',')})`;
   }
+  const target = surface === 'writer' ? COLOR_WRITER : COLOR_RESEARCH;
+  const rgb = COLOR_IDLE.map((base, i) =>
+    Math.round(base + (target[i] - base) * intensity)
+  );
+  return `rgb(${rgb.join(',')})`;
 }
 
 // ── Organic multi-frequency wave ──
@@ -228,11 +226,11 @@ const WortLoader: React.FC<WortLoaderProps> = ({
   const [tick, setTick] = useState(0);
 
   const prevProcessingRef = useRef(false);
-  const prevHasAgentsRef  = useRef(false);
-  const phaseStartRef     = useRef(Date.now());
-  const phaseRef          = useRef<Phase>('idle');
-  const rafRef            = useRef(0);
-  const patternTimerRef   = useRef<ReturnType<typeof setTimeout>>();
+  const prevHasAgentsRef = useRef(false);
+  const phaseStartRef = useRef(Date.now());
+  const phaseRef = useRef<Phase>('idle');
+  const rafRef = useRef(0);
+  const patternTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   // Pattern blend state in refs — read each frame, no re-render needed
   const patternTransitionRef = useRef({ fromIndex: 0, toIndex: 0, startTime: Date.now() });
@@ -257,9 +255,9 @@ const WortLoader: React.FC<WortLoaderProps> = ({
   // ── Phase transitions ──
   useEffect(() => {
     const wasProcessing = prevProcessingRef.current;
-    const hadAgents     = prevHasAgentsRef.current;
+    const hadAgents = prevHasAgentsRef.current;
     prevProcessingRef.current = isProcessing;
-    prevHasAgentsRef.current  = hasAgents;
+    prevHasAgentsRef.current = hasAgents;
 
     if (isProcessing && !wasProcessing) {
       phaseRef.current = 'session_start';
@@ -338,38 +336,42 @@ const WortLoader: React.FC<WortLoaderProps> = ({
 
   // ── Compute each dot's position, opacity, and surface every frame ──
   const dotData = useMemo(() => {
-    const now     = Date.now();
+    const now = Date.now();
     const elapsed = now - phaseStartRef.current;
-    const time    = tick * 0.016; // approximate seconds
+    const time = tick * 0.016; // approximate seconds
 
     // Cross-blend between two adjacent patterns
     const { fromIndex, toIndex, startTime } = patternTransitionRef.current;
-    const blendRaw      = Math.min(1, (now - startTime) / BLEND_DURATION_MS);
+    const blendRaw = Math.min(1, (now - startTime) / BLEND_DURATION_MS);
     const blendFraction = easeInOutCubic(blendRaw);
 
     const blendedOffset = (patternOffsets: number[][], i: number): number => {
       const from = patternOffsets[fromIndex][i];
-      const to   = patternOffsets[toIndex][i];
+      const to = patternOffsets[toIndex][i];
       return from + (to - from) * blendFraction;
     };
 
     return dotPairs.map((pair, i) => {
       const [wortRow, wortCol] = pair.wort;
-      const [sqRow,   sqCol  ] = pair.square;
+      const [sqRow, sqCol] = pair.square;
 
       let targetRow: number;
       let targetCol: number;
       let opacity: number;
-      let surface: DotSurface;
+      let background: string;
+      let glow: number;
 
       switch (phase) {
         case 'idle': {
           targetRow = wortRow;
           targetCol = wortCol;
-          const breath  = Math.sin(time * 0.8 + (wortRow + wortCol) * 0.4) * 0.06;
-          const sparkle = Math.abs(Math.sin(time * 4.0 + wortCol * 0.9 + wortRow * 1.3)) * 0.025;
-          opacity = 0.14 + breath + sparkle;
-          surface = 'idle';
+          opacity = 1;
+          const breath = Math.sin(time * 0.8 + (wortRow + wortCol) * 0.4) * 0.08;
+          const sparkle = Math.abs(Math.sin(time * 4.0 + wortCol * 0.9 + wortRow * 1.3)) * 0.05;
+          const brightness = 1 + breath + sparkle;
+          const [r, g, b] = COLOR_IDLE.map(c => Math.round(Math.min(255, c * brightness)));
+          background = `rgb(${r},${g},${b})`;
+          glow = 0;
           break;
         }
 
@@ -377,8 +379,10 @@ const WortLoader: React.FC<WortLoaderProps> = ({
           targetRow = wortRow;
           targetCol = wortCol;
           const offset = blendedOffset(wortPatternOffsets, i);
-          opacity = 0.22 + 0.78 * organicWave(time, offset);
-          surface = activeSurface;
+          const waveIntensity = organicWave(time, offset);
+          opacity = 1;
+          background = getDotColor(activeSurface, waveIntensity);
+          glow = waveIntensity;
           break;
         }
 
@@ -386,16 +390,20 @@ const WortLoader: React.FC<WortLoaderProps> = ({
           targetRow = sqRow;
           targetCol = sqCol;
           const offset = blendedOffset(squarePatternOffsets, i);
-          opacity = 0.22 + 0.78 * organicWave(time, offset);
-          surface = activeSurface;
+          const waveIntensity = organicWave(time, offset);
+          opacity = 1;
+          background = getDotColor(activeSurface, waveIntensity);
+          glow = waveIntensity;
           break;
         }
 
         case 'completing': {
           targetRow = wortRow;
           targetCol = wortCol;
-          opacity = 0.65 + 0.35 * organicWave(time, (wortRow + wortCol) * 0.4, 0.6);
-          surface = activeSurface;
+          const waveIntensity = organicWave(time, (wortRow + wortCol) * 0.4, 0.6);
+          opacity = 1;
+          background = getDotColor(activeSurface, waveIntensity);
+          glow = waveIntensity * 0.6;
           break;
         }
 
@@ -403,17 +411,19 @@ const WortLoader: React.FC<WortLoaderProps> = ({
           targetRow = wortRow;
           targetCol = wortCol;
           const progress = Math.min(1, elapsed / FADE_DURATION_MS);
-          const eased    = easeInOutCubic(progress);
-          opacity = 1 - eased * 0.86;
-          surface = activeSurface;
+          const eased = easeInOutCubic(progress);
+          opacity = 1 - eased;
+          background = getDotColor(activeSurface, 0);
+          glow = 0;
           break;
         }
 
         default:
           targetRow = wortRow;
           targetCol = wortCol;
-          opacity = 0.14;
-          surface = 'idle';
+          opacity = 1;
+          background = getDotColor('idle', 0);
+          glow = 0;
       }
 
       return {
@@ -421,11 +431,12 @@ const WortLoader: React.FC<WortLoaderProps> = ({
         left: targetCol * CELL,
         top: targetRow * CELL,
         opacity,
-        background: dotBackground(surface),
+        background,
+        glow,
       };
     });
-  // patternTransitionRef is a ref — tick drives re-computation each frame
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // patternTransitionRef is a ref — tick drives re-computation each frame
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dotPairs, phase, tick, activeSurface, wortPatternOffsets, squarePatternOffsets]);
 
   return (
@@ -433,7 +444,7 @@ const WortLoader: React.FC<WortLoaderProps> = ({
       <div
         className="relative"
         style={{
-          width:  `${GRID_COLS * CELL}px`,
+          width: `${GRID_COLS * CELL}px`,
           height: `${GRID_ROWS * CELL}px`,
         }}
       >
@@ -441,14 +452,17 @@ const WortLoader: React.FC<WortLoaderProps> = ({
           <div
             key={dot.key}
             style={{
-              position:        'absolute',
-              left:            `${dot.left}px`,
-              top:             `${dot.top}px`,
-              width:        `${DOT_SIZE}px`,
-              height:       `${DOT_SIZE}px`,
-              background:   dot.background,
-              opacity:      dot.opacity,
+              position: 'absolute',
+              left: `${dot.left}px`,
+              top: `${dot.top}px`,
+              width: `${DOT_SIZE}px`,
+              height: `${DOT_SIZE}px`,
+              background: dot.background,
+              opacity: dot.opacity,
               borderRadius: '50%',
+              boxShadow: dot.glow > 0
+                ? `0 0 ${2 + dot.glow * 4}px ${dot.background}`
+                : 'none',
               transition:
                 'left 0.8s cubic-bezier(0.4, 0, 0.2, 1), ' +
                 'top 0.8s cubic-bezier(0.4, 0, 0.2, 1), ' +
