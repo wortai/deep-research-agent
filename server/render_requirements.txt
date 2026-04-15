@@ -1,3 +1,11 @@
+# Render / Linux production install (Python 3.11.x recommended).
+#
+# Before changing this file, verify the resolver (needs network):
+#   ./server/scripts/verify_render_requirements.sh
+#
+# Runtime: Render free tier (~512MB RAM) may OOM with torch + sentence-transformers;
+# upgrade instance or trim ML packages if the process is killed after boot.
+#
 # Core web framework
 fastapi
 uvicorn[standard]
@@ -47,8 +55,7 @@ google_search_results==2.4.2
 httpx==0.28.1
 aiohttp==3.11.13
 
-# Async
-asyncio==3.4.3
+# Async (do not install PyPI "asyncio" — stdlib asyncio is used on Python 3.11+)
 aiofiles==23.2.1
 anyio==4.8.0
 
@@ -100,7 +107,7 @@ neo4j==5.28.1
 
 # Misc
 networkx==3.4.2
-sympy==1.13.1
+sympy>=1.13.3,<2
 joblib==1.4.2
 filelock==3.18.0
 huggingface-hub==0.30.2
