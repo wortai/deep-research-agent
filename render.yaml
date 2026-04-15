@@ -1,3 +1,6 @@
+# Blueprint-only: env vars here apply if you deploy via "Blueprint" from this file.
+# If you created the Web Service manually, set PYTHON_VERSION=3.11.10 in the dashboard
+# (Environment) — otherwise Render defaults to Python 3.14 and pydantic-core will fail to build.
 services:
   - type: web
     name: wort-backend
