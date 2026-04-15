@@ -14,6 +14,7 @@ from datetime import datetime
 from langgraph.types import StreamWriter
 from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import ToolMessage
+from langchain_core.tools import StructuredTool
 
 from graphs.states.subgraph_state import AgentGraphState
 from graphs.events.stream_emitter import get_emitter, StreamEmitter
@@ -54,37 +55,39 @@ STEP 5. Stop after generating the skill.
 Do NOT generate a final text answer summarizing the information — just execute tools to gather results. The response node handles synthesis."""
 
 
-def _wrap_tool_with_events(tool_func, emitter: StreamEmitter):
+def _wrap_tool_with_events(base_tool, emitter: StreamEmitter) -> StructuredTool:
     """
-    Wraps a @tool function so it emits TOOL_EXECUTION events before/after execution.
+    Wraps a @tool BaseTool in a StructuredTool that emits TOOL_EXECUTION
+    events before/after each call.
 
-    This replicates the exact same behaviour as the old wrap_tool_call middleware:
+    This replicates the old wrap_tool_call middleware:
     - Emits "running" before the tool runs
     - Emits "completed" after the tool finishes
     - Passes through args/return value unchanged
     """
-    tool_name = tool_func.name
+    tool_name = base_tool.name
     label = TOOL_LABELS.get(tool_name, tool_name)
 
-    async def wrapped_tool(**kwargs):
+    async def _coroutine(**kwargs):
         query_snippet = kwargs.get("query", kwargs.get("user_query", ""))[:50]
         description = f"{label}: {query_snippet}" if query_snippet else label
 
         emitter.emit_tool_execution(tool_name, description, status="running")
         try:
-            result = await tool_func.ainvoke(kwargs)
-        except Exception as e:
+            result = await base_tool.ainvoke(kwargs)
+        except Exception:
             emitter.emit_tool_execution(tool_name, description, status="error")
             raise
         emitter.emit_tool_execution(tool_name, description, status="completed")
         return result
 
-    wrapped_tool.__doc__ = tool_func.description
-    wrapped_tool.name = tool_name
-    wrapped_tool.description = tool_func.description
-    wrapped_tool.args_schema = getattr(tool_func, "args_schema", None)
-    wrapped_tool.__name__ = tool_name
-    return wrapped_tool
+    return StructuredTool.from_function(
+        func=None,
+        coroutine=_coroutine,
+        name=tool_name,
+        description=base_tool.description,
+        args_schema=getattr(base_tool, "args_schema", None),
+    )
 
 
 class WebSearchAgent:
