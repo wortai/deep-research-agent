@@ -113,6 +113,9 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.ci-venv/
+.pip-dry-run-full.log
+
 env/
 venv/
 ENV/

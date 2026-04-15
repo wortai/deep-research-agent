@@ -1,0 +1,38 @@
+# Installs server/render_requirements.txt on Ubuntu + Python 3.11 (same family as Render).
+# Fails the PR/push if pip cannot resolve or install — catches sympy/torch, pydantic-core, etc.
+name: Verify Render Python deps
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  pip-install-linux-py311:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: System libs (WeasyPrint / Cairo / Pango)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 \
+            libffi-dev shared-mime-info libcairo2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: server/render_requirements.txt
+
+      - name: Upgrade pip & install requirements
+        run: |
+          python -m pip install -U pip setuptools wheel
+          pip install -r server/render_requirements.txt
+
+      - name: Smoke import (wheels present, no broken install)
+        run: |
+          python -c "import pydantic; import pydantic_core; import torch; import fastapi; print('imports OK')"
