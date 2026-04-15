@@ -69,17 +69,47 @@ class WebSearchAgent:
         Args:
             emitter: StreamEmitter for sending tool execution events to frontend.
         """
-        from langgraph.prebuilt import create_react_agent
+        from langchain.agents import create_agent
+        from langchain.agents.middleware import wrap_tool_call
 
         self._emitter = emitter
-        self._agent = create_react_agent(
+        self._agent = create_agent(
             model=LlmsHouse.grok_model(
                 model_name="grok-4-1-fast-reasoning",
                 temperature=0.5,
             ),
             tools=ALL_SEARCH_TOOLS,
-            prompt=SYSTEM_PROMPT,
+            system_prompt=SYSTEM_PROMPT,
+            middleware=[self._build_tool_middleware(wrap_tool_call)],
         )
+
+    def _build_tool_middleware(self, wrap_tool_call):
+        """
+        Creates async wrap_tool_call middleware emitting TOOL_EXECUTION events.
+
+        Emits "running" before tool execution and "completed" after,
+        routed through StreamWriter -> chunk_router -> frontend WebSocket.
+
+        Returns:
+            AgentMiddleware wrapping each tool call with event emission.
+        """
+        emitter = self._emitter
+
+        @wrap_tool_call
+        async def emit_tool_status(request, handler):
+            tool_name = request.tool_call.get("name", "unknown")
+            query_snippet = request.tool_call.get("args", {}).get(
+                "query", request.tool_call.get("args", {}).get("user_query", "")
+            )[:50]
+            label = TOOL_LABELS.get(tool_name, tool_name)
+            description = f"{label}: {query_snippet}" if query_snippet else label
+
+            emitter.emit_tool_execution(tool_name, description, status="running")
+            result = await handler(request)
+            emitter.emit_tool_execution(tool_name, description, status="completed")
+            return result
+
+        return emit_tool_status
 
     async def search(self, state: AgentGraphState) -> Dict[str, Any]:
         """
