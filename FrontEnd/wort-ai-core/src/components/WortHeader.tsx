@@ -40,51 +40,23 @@ const WortHeader = () => {
         </div>
 
         {/* Right Section - Credits */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          {/* Credits icon - smaller on mobile */}
-          <div className="w-4 h-4 sm:w-6 sm:h-6 flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-              <g stroke="#1A3C2B" strokeWidth="0.5" opacity="0.6">
-                <line x1="4" y1="12" x2="9" y2="6" />
-                <line x1="4" y1="12" x2="9" y2="12" />
-                <line x1="4" y1="12" x2="9" y2="18" />
-
-                <line x1="9" y1="6" x2="15" y2="6" />
-                <line x1="9" y1="6" x2="15" y2="12" />
-                <line x1="9" y1="6" x2="15" y2="18" />
-                <line x1="9" y1="12" x2="15" y2="6" />
-                <line x1="9" y1="12" x2="15" y2="12" />
-                <line x1="9" y1="12" x2="15" y2="18" />
-                <line x1="9" y1="18" x2="15" y2="6" />
-                <line x1="9" y1="18" x2="15" y2="12" />
-                <line x1="9" y1="18" x2="15" y2="18" />
-
-                <line x1="15" y1="6" x2="20" y2="12" />
-                <line x1="15" y1="12" x2="20" y2="12" />
-                <line x1="15" y1="18" x2="20" y2="12" />
-              </g>
-              <g fill="#1A3C2B">
-                <circle cx="4" cy="12" r="1.5" />
-                <circle cx="9" cy="6" r="1.5" />
-                <circle cx="9" cy="12" r="1.5" />
-                <circle cx="9" cy="18" r="1.5" />
-                <circle cx="15" cy="6" r="1.5" />
-                <circle cx="15" cy="12" r="1.5" />
-                <circle cx="15" cy="18" r="1.5" />
-                <circle cx="20" cy="12" r="1.5" />
-              </g>
-            </svg>
-          </div>
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <style>
             {`
               @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
             `}
           </style>
+          {/* Minimal credit icon */}
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-50">
+            <circle cx="10" cy="10" r="8.5" stroke="#1A3C2B" strokeWidth="1" />
+            <circle cx="10" cy="10" r="6" stroke="#1A3C2B" strokeWidth="0.5" strokeDasharray="1.5 1.5" />
+            <circle cx="10" cy="10" r="1.2" fill="#1A3C2B" />
+          </svg>
           <span
-            className="text-[10px] sm:text-[13px] tracking-wider select-none uppercase tracking-[0.1em] flex items-center gap-[2px] sm:gap-[4px] mt-[1px]"
-            style={{ fontFamily: "'Bitcount Mono Double Book Circle', 'DotGothic16', monospace", color: "#1A3C2B" }}
+            className="text-[10px] sm:text-[13px] select-none uppercase flex items-center gap-[4px] sm:gap-[6px] mt-[1px]"
+            style={{ fontFamily: "'Bitcount Mono Double Book Circle', 'DotGothic16', monospace", color: "#1A3C2B", letterSpacing: "0.1em" }}
           >
-            <span className="hidden xs:inline">CREDITS</span>
+            Credits
             <span className="text-[#FF8C69]" style={{ letterSpacing: "normal" }}>{credits !== null ? Number(credits).toFixed(2) : "--"}</span>
           </span>
         </div>

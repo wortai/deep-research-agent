@@ -109,9 +109,17 @@ class SessionStore:
         output_tokens: int,
         total_cost: float,
     ) -> None:
-        """Updates token and cost usage for the session, deducts cost from user credits."""
+        """Updates token and cost usage for the session, deducts cost from user credits.
+
+        Credit conversion: 100 credits = $1.00 (1 credit = $0.01).
+        The total_cost arrives in raw USD from CostTracker, so we multiply
+        by 100 to convert to the credit unit before deducting.
+        """
         if total_cost == 0 and input_tokens == 0 and output_tokens == 0:
             return
+
+        # Convert raw USD cost to credits: 100 credits = $1.00
+        credits_to_deduct = total_cost * 100
 
         async with self._pool.connection() as conn:
             await conn.execute(
@@ -131,7 +139,7 @@ class SessionStore:
                 SET credits = COALESCE(credits, 0) - %s
                 WHERE user_id = %s
                 """,
-                (total_cost, user_id),
+                (credits_to_deduct, user_id),
             )
             await conn.commit()
 

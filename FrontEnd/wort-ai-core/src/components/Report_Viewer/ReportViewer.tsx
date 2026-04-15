@@ -130,6 +130,35 @@ function assembleReportHtml(report: {
             transform: translateY(-2px);
             outline-color: rgba(26, 60, 43, 0.28);
         }
+        /* Double-click hint tooltip */
+        .report-body-section::after {
+            content: '⌥ double-click to edit chapter';
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.06em;
+            padding: 3px 7px;
+            background: rgba(26, 60, 43, 0.82);
+            color: rgba(255,255,255,0.88);
+            border-radius: 3px;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-3px);
+            transition: opacity 180ms ease, transform 180ms ease;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        .report-body-section:hover::after {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .report-body-section.is-selected::after,
+        .report-body-section.is-editing::after,
+        .report-body-section.is-streaming::after {
+            opacity: 0 !important;
+        }
         .report-body-section.is-selected {
             outline: 2px solid #FF8C69;
             outline-offset: 8px;

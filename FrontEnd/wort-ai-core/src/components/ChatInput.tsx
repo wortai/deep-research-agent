@@ -345,12 +345,12 @@ const ChatInput = ({
                       role="option"
                       aria-selected={false}
                       onClick={(e) => e.preventDefault()}
-                      className="w-full rounded-[4px] px-2 py-[0.35rem] text-left font-mono text-[8px] uppercase tracking-[0.12em] leading-snug opacity-40 cursor-not-allowed text-[#1A3C2B]"
+                      className="w-full rounded-[4px] px-2 py-[0.35rem] text-left font-mono text-[8px] uppercase tracking-[0.12em] leading-snug opacity-40 cursor-not-allowed text-[#6B7280]"
                     >
                       Extreme
                     </button>
-                    <div className="absolute right-0 bottom-full mb-1 hidden group-hover:block w-[180px] p-2 bg-[#1A3C2B] text-white text-[9px] font-mono leading-relaxed rounded-[4px] shadow-md pointer-events-none z-[80] whitespace-normal normal-case tracking-normal">
-                      this mode is in progress, and you can also contribute to the repo
+                    <div className="absolute right-0 bottom-full mb-1 hidden group-hover:block w-[180px] p-2 bg-[#4B5563] text-white text-[9px] font-mono leading-relaxed rounded-[4px] shadow-md pointer-events-none z-[80] whitespace-normal normal-case tracking-normal">
+                      Feature still in progress, will be live soon
                     </div>
                   </div>
                 </div>
@@ -454,13 +454,13 @@ const ChatInput = ({
                     <button
                       type="button"
                       onClick={(e) => e.preventDefault()}
-                      className={baseClasses + " opacity-40 cursor-not-allowed border-[#1A3C2B]/10 text-[#1A3C2B] bg-white/50"}
+                      className={baseClasses + " opacity-40 cursor-not-allowed border-[#9CA3AF]/30 text-[#6B7280] bg-[#F3F4F6]/50"}
                     >
                       {mode.label}
                     </button>
-                    <div className="absolute bottom-full left-1/2 w-[220px] -translate-x-1/2 mb-1.5 hidden group-hover:block p-2 bg-[#1A3C2B] text-white text-[10px] font-mono leading-relaxed rounded-[4px] shadow-md pointer-events-none z-[80] text-center whitespace-normal normal-case tracking-normal">
-                      this mode is in progress, and you can also contribute to the repo
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1A3C2B]" />
+                    <div className="absolute bottom-full left-1/2 w-[220px] -translate-x-1/2 mb-1.5 hidden group-hover:block p-2 bg-[#4B5563] text-white text-[10px] font-mono leading-relaxed rounded-[4px] shadow-md pointer-events-none z-[80] text-center whitespace-normal normal-case tracking-normal">
+                      Feature still in progress, will be live soon
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#4B5563]" />
                     </div>
                   </div>
                 );

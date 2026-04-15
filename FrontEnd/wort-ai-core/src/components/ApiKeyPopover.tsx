@@ -192,6 +192,13 @@ const ApiKeyPanel = ({ apiKeys, onApiKeysChange, disabled }: ApiKeyPanelProps) =
           </button>
         </div>
 
+        {/* ── Info note ─────────────────────────────────────── */}
+        <div className="px-3 pt-2 pb-0">
+          <p className="font-mono text-[7.5px] leading-relaxed text-[#1A3C2B]/38 select-none">
+            Your API key is used <span className="text-[#1A3C2B]/55 font-semibold">only</span> by the synthesis engine to boost report quality. Research agents run on WORT's own infrastructure and are not affected.
+          </p>
+        </div>
+
         {/* ── Provider Inputs ───────────────────────────────── */}
         <div className="px-3 pt-2.5 pb-2 space-y-2.5 bg-background">
           {PROVIDERS.map((provider) => {
