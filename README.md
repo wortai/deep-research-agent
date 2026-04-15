@@ -1,16 +1,16 @@
 <div align="center">
 
 <picture>
-  <img src="./assets/wortlogo.png" alt="WORT" width="140" />
+  <img src="./assets/wortlogo.png" alt="WORT" width="140" style="border-radius: 10px;" />
 </picture>
 
 # WORT Research Agent
 
 **Parallel research engine with editable, citation backed reports.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-1A3C2B?style=flat-square&labelColor=1A3C2B&color=9EFFBF)](#license)
-[![Built with LangGraph](https://img.shields.io/badge/Built_with-LangGraph-1A3C2B?style=flat-square&labelColor=1A3C2B&color=FF8C69)](#architecture)
-[![Open Source](https://img.shields.io/badge/Open-Source-1A3C2B?style=flat-square&labelColor=1A3C2B&color=9EFFBF)](#contributing)
+<a href="#license"><img src="https://img.shields.io/badge/License-MIT-1A3C2B?style=flat-square&labelColor=1A3C2B&color=9EFFBF" alt="License: MIT" style="border-radius: 10px;" /></a>
+<a href="#architecture"><img src="https://img.shields.io/badge/Built_with-LangGraph-1A3C2B?style=flat-square&labelColor=1A3C2B&color=FF8C69" alt="Built with LangGraph" style="border-radius: 10px;" /></a>
+<a href="#contributing"><img src="https://img.shields.io/badge/Open-Source-1A3C2B?style=flat-square&labelColor=1A3C2B&color=9EFFBF" alt="Open Source" style="border-radius: 10px;" /></a>
 
 <br/>
 
@@ -54,7 +54,7 @@ WORT ships with three distinct modes, each designed for a different depth of res
 The fastest path to accurate, cited answers. Web Search is built for questions where you need real time data, not a pre trained knowledge cutoff. Every single line in the response is backed by a source, nothing is hallucinated, and relevant images and illustrations are pulled directly from search results.
 
 <div align="center" style="background: linear-gradient(135deg, #1A3C2B, #244E38); padding: 28px; border-radius: 14px;">
-  <img src="./assets/websearchchat.png" alt="Web Search in action showing cited responses" width="92%" style="border-radius: 8px; box-shadow: 0 10px 35px rgba(0,0,0,0.35);" />
+  <img src="./assets/websearchchat.png" alt="Web Search in action showing cited responses" width="92%" style="border-radius: 10px; box-shadow: 0 10px 35px rgba(0,0,0,0.35);" />
 </div>
 
 <br/>
@@ -96,7 +96,7 @@ Every response includes a **citation map** linking each source label to the exac
 This is the core of WORT. Deep Research is designed for questions that cannot be answered by a single search. It handles topics that require multiple perspectives, comparative analysis, and iterative depth: exam cheatsheets, investment reports, system design breakdowns, full domain explorations.
 
 <div align="center" style="background: linear-gradient(135deg, #FF8C69, #e07a5a); padding: 28px; border-radius: 14px;">
-  <img src="./assets/Deepresearch.png" alt="Deep Research report with styled HTML output" width="92%" style="border-radius: 8px; box-shadow: 0 10px 35px rgba(0,0,0,0.3);" />
+  <img src="./assets/Deepresearch.png" alt="Deep Research report with styled HTML output" width="92%" style="border-radius: 10px; box-shadow: 0 10px 35px rgba(0,0,0,0.3);" />
 </div>
 
 <br/>
@@ -112,7 +112,7 @@ When you submit a query, Deep Research moves through five distinct phases. Each 
 **Phase 2 — Planning.** Your query gets decomposed into a structured research plan: a set of independent sub queries, each targeting a different dimension of the topic. WORT remembers your past conversations and preferences, so plans are personalized. You get to **review, revise, or approve** this plan before any research starts.
 
 <div align="center" style="background: linear-gradient(135deg, #9EFFBF, #7adfa0); padding: 24px; border-radius: 14px;">
-  <img src="./assets/allocateDynamicNumberofAgents.png" alt="Dynamic allocation of parallel research agents" width="55%" style="border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);" />
+  <img src="./assets/allocateDynamicNumberofAgents.png" alt="Dynamic allocation of parallel research agents" width="55%" style="border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);" />
 </div>
 
 <br/>
@@ -150,7 +150,7 @@ You control how deep this tree goes through the **analysis level** you select:
 <br/>
 
 <div align="center" style="background: linear-gradient(135deg, #1A3C2B, #163626); padding: 28px; border-radius: 14px;">
-  <img src="./assets/parallel research.png" alt="Parallel research agents working simultaneously" width="92%" style="border-radius: 8px; box-shadow: 0 10px 35px rgba(0,0,0,0.4);" />
+  <img src="./assets/parallel research.png" alt="Parallel research agents working simultaneously" width="92%" style="border-radius: 10px; box-shadow: 0 10px 35px rgba(0,0,0,0.4);" />
 </div>
 
 <br/>
@@ -170,7 +170,7 @@ You control how deep this tree goes through the **analysis level** you select:
 Extreme Research represents the next frontier. It spins up a **secure live Virtual Machine** to execute real code, browse the web identically like a human, and analyze deeply technical research that requires computation. It creates dynamic simulations and visualizations directly in chat and can output any file format from PDFs to presentations.
 
 <div align="center" style="background: linear-gradient(135deg, #FF8C69, #d47758); padding: 28px; border-radius: 14px;">
-  <img src="./assets/ExtermeResearchFeature.png" alt="Extreme Research with VM and code execution" width="92%" style="border-radius: 8px; box-shadow: 0 10px 35px rgba(0,0,0,0.3);" />
+  <img src="./assets/ExtermeResearchFeature.png" alt="Extreme Research with VM and code execution" width="92%" style="border-radius: 10px; box-shadow: 0 10px 35px rgba(0,0,0,0.3);" />
 </div>
 
 > **🚧 Coming Soon:** Extreme Research is actively in development. The architecture is designed and the VM integration is being built. This mode will be available in a future release.
@@ -186,7 +186,7 @@ Extreme Research represents the next frontier. It spins up a **secure live Virtu
 The entire system is orchestrated as a **LangGraph state machine** with conditional routing, interrupt/resume support for human in the loop checkpoints, and parallel subgraph invocation.
 
 <div align="center" style="background: #F7F7F5; padding: 20px; border: 1px solid rgba(58,58,56,0.12); border-radius: 2px;">
-  <img src="./assets/architecture.svg" alt="WORT System Architecture" width="100%" />
+  <img src="./assets/architecture.svg" alt="WORT System Architecture" width="100%" style="border-radius: 10px;" />
 </div>
 
 <br/>
