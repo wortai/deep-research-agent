@@ -16,7 +16,8 @@ python-dotenv
 psycopg2-binary
 psycopg[pool]
 SQLAlchemy==2.0.39
-langgraph-checkpoint-postgres==2.0.0
+# >=2.0.20 required: `langgraph.checkpoint.postgres.shallow` (AsyncShallowPostgresSaver) not in 2.0.0
+langgraph-checkpoint-postgres>=2.0.20,<3
 
 # LangChain ecosystem
 langchain==0.3.22

@@ -36,3 +36,4 @@ jobs:
       - name: Smoke import (wheels present, no broken install)
         run: |
           python -c "import pydantic; import pydantic_core; import torch; import fastapi; print('imports OK')"
+          python -c "from langgraph.checkpoint.postgres.shallow import AsyncShallowPostgresSaver; print('langgraph postgres shallow OK')"
