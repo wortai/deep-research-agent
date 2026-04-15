@@ -1,17 +1,18 @@
 """
 WebSearch Agent node for the DeepResearchAgent graph.
 
-Uses `create_agent` from LangChain with `wrap_tool_call` middleware
-that emits TOOL_EXECUTION events via StreamWriter for real-time frontend display.
+Uses `create_react_agent` from LangGraph with wrapped tools that emit
+TOOL_EXECUTION events via StreamEmitter for real-time frontend display.
 The agent autonomously chains tools based on user query and chat history.
 """
 
+import json
 import logging
-import uuid
 from typing import Dict, Any, List
 from datetime import datetime
 
 from langgraph.types import StreamWriter
+from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import ToolMessage
 
 from graphs.states.subgraph_state import AgentGraphState
@@ -53,63 +54,65 @@ STEP 5. Stop after generating the skill.
 Do NOT generate a final text answer summarizing the information — just execute tools to gather results. The response node handles synthesis."""
 
 
+def _wrap_tool_with_events(tool_func, emitter: StreamEmitter):
+    """
+    Wraps a @tool function so it emits TOOL_EXECUTION events before/after execution.
+
+    This replicates the exact same behaviour as the old wrap_tool_call middleware:
+    - Emits "running" before the tool runs
+    - Emits "completed" after the tool finishes
+    - Passes through args/return value unchanged
+    """
+    tool_name = tool_func.name
+    label = TOOL_LABELS.get(tool_name, tool_name)
+
+    async def wrapped_tool(**kwargs):
+        query_snippet = kwargs.get("query", kwargs.get("user_query", ""))[:50]
+        description = f"{label}: {query_snippet}" if query_snippet else label
+
+        emitter.emit_tool_execution(tool_name, description, status="running")
+        try:
+            result = await tool_func.ainvoke(kwargs)
+        except Exception as e:
+            emitter.emit_tool_execution(tool_name, description, status="error")
+            raise
+        emitter.emit_tool_execution(tool_name, description, status="completed")
+        return result
+
+    wrapped_tool.name = tool_name
+    wrapped_tool.description = tool_func.description
+    wrapped_tool.args_schema = getattr(tool_func, "args_schema", None)
+    wrapped_tool.__name__ = tool_name
+    return wrapped_tool
+
+
 class WebSearchAgent:
     """
     Autonomous web search agent with skill generation.
 
-    Uses create_agent with wrap_tool_call middleware for clean tool execution
-    and real-time streaming. Extracts search results, images (from Tavily),
-    and response skill from the agent's final message history.
+    Uses create_react_agent with event-emitting tool wrappers for clean
+    tool execution and real-time streaming. Extracts search results,
+    images (from Tavily), and response skill from the agent's final
+    message history.
     """
 
     def __init__(self, emitter: StreamEmitter):
         """
-        Build the agent with TOOL_EXECUTION middleware bound to the emitter.
+        Build the agent with TOOL_EXECUTION events bound to the emitter.
 
         Args:
             emitter: StreamEmitter for sending tool execution events to frontend.
         """
-        from langchain.agents import create_agent
-        from langchain.agents.middleware import wrap_tool_call
-
         self._emitter = emitter
-        self._agent = create_agent(
+        wrapped_tools = [_wrap_tool_with_events(t, emitter) for t in ALL_SEARCH_TOOLS]
+        self._agent = create_react_agent(
             model=LlmsHouse.grok_model(
                 model_name="grok-4-1-fast-reasoning",
                 temperature=0.5,
             ),
-            tools=ALL_SEARCH_TOOLS,
-            system_prompt=SYSTEM_PROMPT,
-            middleware=[self._build_tool_middleware(wrap_tool_call)],
+            tools=wrapped_tools,
+            prompt=SYSTEM_PROMPT,
         )
-
-    def _build_tool_middleware(self, wrap_tool_call):
-        """
-        Creates async wrap_tool_call middleware emitting TOOL_EXECUTION events.
-
-        Emits "running" before tool execution and "completed" after,
-        routed through StreamWriter -> chunk_router -> frontend WebSocket.
-
-        Returns:
-            AgentMiddleware wrapping each tool call with event emission.
-        """
-        emitter = self._emitter
-
-        @wrap_tool_call
-        async def emit_tool_status(request, handler):
-            tool_name = request.tool_call.get("name", "unknown")
-            query_snippet = request.tool_call.get("args", {}).get(
-                "query", request.tool_call.get("args", {}).get("user_query", "")
-            )[:50]
-            label = TOOL_LABELS.get(tool_name, tool_name)
-            description = f"{label}: {query_snippet}" if query_snippet else label
-
-            emitter.emit_tool_execution(tool_name, description, status="running")
-            result = await handler(request)
-            emitter.emit_tool_execution(tool_name, description, status="completed")
-            return result
-
-        return emit_tool_status
 
     async def search(self, state: AgentGraphState) -> Dict[str, Any]:
         """
