@@ -11,6 +11,9 @@ from urllib.parse import urlparse
 from llms import LlmsHouse
 from graphs.states.subgraph_state import AgentGraphState
 from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.runnables import RunnableConfig
+from langgraph.types import StreamWriter
+from graphs.events.stream_emitter import get_emitter
 from response.utils import _extract_citation_label, _build_citation_map
 from prompt_datetime import now_utc_for_prompt
 from datetime import datetime
@@ -52,20 +55,26 @@ class ResponseComposer:
             "role": role,
             "content": content,
             "timestamp": datetime.utcnow().isoformat(),
-            "message_type": "text"
+            "message_type": "text",
         }
 
-
-    async def compose(self, state: AgentGraphState) -> Dict[str, Any]:
+    async def compose(
+        self, state: AgentGraphState, config: RunnableConfig = None, emitter=None
+    ) -> Dict[str, Any]:
         """
         Build the prompt for the current intent and invoke the LLM.
 
-        The LLM is called via ``ainvoke`` directly — LangGraph's
-        ``messages`` stream mode hooks into chat-model callbacks,
-        so each token is emitted to the WebSocket automatically.
+        Tokens are streamed via the StreamWriter (``custom`` stream-mode)
+        through ``emitter.emit_token()``. This is the same proven path used
+        by websearch_agent_node — it bypasses the passive ``messages``
+        callback mechanism and pushes tokens directly to Redis/WebSocket.
 
         Args:
             state: Current graph state with search_mode, user_query, etc.
+            config: LangGraph RunnableConfig — propagated to LLM calls so
+                    the ``messages`` stream-mode callback handler can
+                    intercept AIMessageChunk tokens in real time.
+            emitter: StreamEmitter for pushing tokens via ``custom`` stream mode.
 
         Returns:
             State update with final_response, chat_messages, current_phase.
@@ -110,7 +119,9 @@ class ResponseComposer:
                     if latest_images:
                         formatted_results += "\n=== IMAGES FOR REFERENCE ===\n"
                         for idx, img in enumerate(latest_images, 1):
-                            img_title = img.get("title") or img.get("description") or "Image"
+                            img_title = (
+                                img.get("title") or img.get("description") or "Image"
+                            )
                             img_url = img.get("url", "")
                             img_desc = img.get("description", "")
                             formatted_results += (
@@ -122,12 +133,19 @@ class ResponseComposer:
                     citation_map = _build_citation_map(citation_entries)
 
                     chat_messages = state.get("chat_messages", [])
-                    chat_history = "\n".join(
-                        f"{m.get('role', 'unknown')}: {m.get('content', '')}"
-                        for m in chat_messages[-5:]
-                    ) if chat_messages else "No prior conversation."
+                    chat_history = (
+                        "\n".join(
+                            f"{m.get('role', 'unknown')}: {m.get('content', '')}"
+                            for m in chat_messages[-5:]
+                        )
+                        if chat_messages
+                        else "No prior conversation."
+                    )
 
-                    skill = state.get("response_skill", "") or "Use clear prose with bold key facts. Lead with the direct answer."
+                    skill = (
+                        state.get("response_skill", "")
+                        or "Use clear prose with bold key facts. Lead with the direct answer."
+                    )
 
                     system_prompt = WEBSEARCH_SYSTEM_PROMPT
                     human_prompt = WEBSEARCH_HUMAN_TEMPLATE.format(
@@ -135,25 +153,37 @@ class ResponseComposer:
                         user_query=user_query,
                         chat_history=chat_history,
                         citation_map=citation_map,
-                        research_results=formatted_results or "No websearch results found.",
+                        research_results=formatted_results
+                        or "No websearch results found.",
                         response_skill=skill,
                     )
 
                     prompt = None
-                    async for chunk in self.llm.astream([
-                        SystemMessage(content=system_prompt),
-                        HumanMessage(content=human_prompt),
-                    ]):
+                    async for chunk in self.llm.astream(
+                        [
+                            SystemMessage(content=system_prompt),
+                            HumanMessage(content=human_prompt),
+                        ],
+                        config=config,
+                    ):
+                        token = chunk.content if isinstance(chunk.content, str) else ""
+                        if token and emitter:
+                            emitter.emit_token(token)
                         response += chunk.content
 
-                    print(f"\n{'='*80}")
+                    print(f"\n{'=' * 80}")
                     print(f"[DEBUG] RAW WEBSEARCH LLM OUTPUT:")
-                    print(f"{'='*80}")
+                    print(f"{'=' * 80}")
                     print(response)
-                    print(f"{'='*80}\n")
+                    print(f"{'=' * 80}\n")
 
-                    final_text = response.strip() or "I could not generate a response. Please try again."
-                    assistant_message = self._create_chat_message("assistant", final_text)
+                    final_text = (
+                        response.strip()
+                        or "I could not generate a response. Please try again."
+                    )
+                    assistant_message = self._create_chat_message(
+                        "assistant", final_text
+                    )
                     return {
                         "chat_messages": [assistant_message],
                         "final_response": final_text,
@@ -170,7 +200,9 @@ class ResponseComposer:
                         abstract = latest_report.get("abstract", "")[:500]
                         introduction = latest_report.get("introduction", "")[:500]
 
-                    pdf_path = state.get("pdf_s3_path") or state.get("final_report_path", "")
+                    pdf_path = state.get("pdf_s3_path") or state.get(
+                        "final_report_path", ""
+                    )
                     prompt = REPORT_SUMMARY_PROMPT.format(
                         user_query=user_query,
                         abstract=abstract,
@@ -193,10 +225,18 @@ class ResponseComposer:
                     )
 
             if prompt:
-                async for chunk in self.llm.astream([HumanMessage(content=prompt)]):
+                async for chunk in self.llm.astream(
+                    [HumanMessage(content=prompt)], config=config
+                ):
+                    token = chunk.content if isinstance(chunk.content, str) else ""
+                    if token and emitter:
+                        emitter.emit_token(token)
                     response += chunk.content
 
-                final_text = response.strip() or "I could not generate a response. Please try again."
+                final_text = (
+                    response.strip()
+                    or "I could not generate a response. Please try again."
+                )
                 assistant_message = self._create_chat_message("assistant", final_text)
                 return {
                     "chat_messages": [assistant_message],
@@ -228,7 +268,17 @@ class ResponseComposer:
             }
 
 
-async def response_node(state: AgentGraphState) -> Dict[str, Any]:
+async def response_node(
+    state: AgentGraphState,
+    config: RunnableConfig = None,
+    *,
+    writer: StreamWriter = None,
+) -> Dict[str, Any]:
     """Graph node entry point — delegates to ResponseComposer."""
     composer = ResponseComposer()
-    return await composer.compose(state)
+    emitter = get_emitter(writer)
+    if writer is None:
+        logger.warning(
+            "[response_node] StreamWriter is None — tokens will NOT stream to frontend"
+        )
+    return await composer.compose(state, config=config, emitter=emitter)

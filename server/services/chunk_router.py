@@ -514,6 +514,7 @@ class ChunkRouter:
             "report_style_node",
             "websearch_agent",
             "editor_node",
+            "response_node",
             "model",
         }
         if node_name in silenced_nodes:
