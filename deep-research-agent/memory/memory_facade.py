@@ -53,6 +53,7 @@ class MemoryFacade:
         self._long_term = LongTermMemory(
             qdrant_url=qdrant_url,
             qdrant_api_key=qdrant_api_key,
+            reranker_enabled=not bool(os.getenv("RENDER")),
         )
         self._initialized = False
 
@@ -94,7 +95,7 @@ class MemoryFacade:
         user_id: str,
         current_query: str,
         search_mode: str = "deepsearch",
-        max_history_tokens: int = 2000
+        max_history_tokens: int = 2000,
     ) -> MemoryContext:
         """
         Retrieves comprehensive memory context for the Planner.
@@ -123,8 +124,7 @@ class MemoryFacade:
         user_profile = await self._long_term.get_user_profile(user_id)
 
         conversation_history = await self._short_term.get_conversation_history(
-            thread_id,
-            limit=50
+            thread_id, limit=50
         )
 
         conversation_summary = None
@@ -135,8 +135,7 @@ class MemoryFacade:
 
         return MemoryContext(
             semantic_memories=[
-                {"content": m.content, "type": m.memory_type}
-                for m in semantic_memories
+                {"content": m.content, "type": m.memory_type} for m in semantic_memories
             ],
             user_profile=user_profile,
             conversation_summary=conversation_summary,
@@ -149,7 +148,7 @@ class MemoryFacade:
         content: str,
         tool_calls: Optional[List[Dict]] = None,
         tool_results: Optional[List[Dict]] = None,
-        metadata: Optional[Dict] = None
+        metadata: Optional[Dict] = None,
     ) -> Dict:
         """
         Creates and returns a properly formatted chat message.
@@ -170,7 +169,7 @@ class MemoryFacade:
             content=content,
             tool_calls=tool_calls,
             tool_results=tool_results,
-            metadata=metadata
+            metadata=metadata,
         )
 
     async def get_conversation_state(self, thread_id: str) -> Optional[Dict]:
@@ -238,11 +237,7 @@ class MemoryFacade:
             metadata=metadata,
         )
 
-    async def update_user_profile(
-        self,
-        user_id: str,
-        updates: Dict
-    ) -> None:
+    async def update_user_profile(self, user_id: str, updates: Dict) -> None:
         """
         Updates user profile with new fields.
 
@@ -295,7 +290,9 @@ class MemoryFacade:
                 sections.append("Relevant User Facts:\n" + "\n".join(memory_lines))
 
         if memory_context.get("conversation_summary"):
-            sections.append(f"Previous Context: {memory_context['conversation_summary']}")
+            sections.append(
+                f"Previous Context: {memory_context['conversation_summary']}"
+            )
 
         if not sections:
             return ""
