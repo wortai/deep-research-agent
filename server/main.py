@@ -1,20 +1,19 @@
 import os
 import sys
 import logging
+import asyncio
 from contextlib import asynccontextmanager
 from typing import Optional
 from dotenv import load_dotenv
 
-# Add project root and deep-research-agent to python path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, ".."))
 deep_research_agent_dir = os.path.join(parent_dir, "deep-research-agent")
 
-sys.path.append(parent_dir)  # Resolve 'server' package
-sys.path.append(current_dir)  # Resolve 'redis_streams', 'server' subpackages
-sys.path.append(deep_research_agent_dir)  # Resolve 'graphs', 'memory', etc.
+sys.path.append(parent_dir)
+sys.path.append(current_dir)
+sys.path.append(deep_research_agent_dir)
 
-# Explicitly load .env from deep-research-agent directory
 env_path = os.path.join(deep_research_agent_dir, ".env")
 load_dotenv(env_path, override=False)
 
@@ -31,19 +30,15 @@ from server.storage.event_store import EventStore
 from server.storage.checkpoint_reader import CheckpointReader
 from server.services.auth_service import AuthService
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# --- Global State ---
-# Attached to app.state in lifespan
 memory_facade: Optional[MemoryFacade] = None
 db_pool: Optional[DatabasePool] = None
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Initialize memory and storage systems on startup."""
+async def _init_services(app: FastAPI):
+    """Background task: initializes DB, memory, and storage."""
     global memory_facade, db_pool
     db_uri = os.getenv("DATABASE_URL")
     cloud_sql_instance = os.getenv("CLOUD_SQL_INSTANCE_CONNECTION_NAME")
@@ -67,27 +62,22 @@ async def lifespan(app: FastAPI):
         db_pool = None
 
     if db_pool:
-        session_store = SessionStore(db_pool.pool)
-        event_store = EventStore(db_pool.pool)
-        auth_service = AuthService(db_pool.pool)
+        app.state.session_store = SessionStore(db_pool.pool)
+        app.state.event_store = EventStore(db_pool.pool)
+        app.state.auth_service = AuthService(db_pool.pool)
     else:
-        session_store = None
-        event_store = None
-        auth_service = None
+        app.state.session_store = None
+        app.state.event_store = None
+        app.state.auth_service = None
         logger.warning("Running without database — session/auth features disabled")
 
     if memory_facade:
-        checkpoint_reader = CheckpointReader(memory_facade.checkpointer)
+        app.state.checkpoint_reader = CheckpointReader(memory_facade.checkpointer)
     else:
-        checkpoint_reader = None
+        app.state.checkpoint_reader = None
         logger.warning("Running without memory facade — research features disabled")
 
     app.state.memory_facade = memory_facade
-    app.state.session_store = session_store
-    app.state.event_store = event_store
-    app.state.auth_service = auth_service
-    app.state.checkpoint_reader = checkpoint_reader
-    app.state.active_threads: set[str] = set()
 
     logger.info(
         "Startup complete (memory_facade=%s, db_pool=%s)",
@@ -109,8 +99,22 @@ async def lifespan(app: FastAPI):
         )
     else:
         logger.warning("GOOGLE_API_KEY is NOT set — no fallback model available!")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.memory_facade = None
+    app.state.session_store = None
+    app.state.event_store = None
+    app.state.auth_service = None
+    app.state.checkpoint_reader = None
+    app.state.active_threads: set[str] = set()
+
+    task = asyncio.create_task(_init_services(app))
+
     yield
 
+    task.cancel()
     if db_pool:
         await db_pool.close()
     if memory_facade:
@@ -120,21 +124,17 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for dev
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include Routers
 app.include_router(websocket.router)
 app.include_router(routes.router)
 
-# Serve Frontend
-# Make client path absolute relative to this file
 client_path = os.path.join(os.path.dirname(__file__), "client")
 if os.path.exists(client_path):
     app.mount("/static", StaticFiles(directory=client_path), name="static")
