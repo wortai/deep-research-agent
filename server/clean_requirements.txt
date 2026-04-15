@@ -180,4 +180,5 @@ wheel==0.44.0
 yarl==1.18.3
 zopfli==0.2.3.post1
 langgraph-checkpoint-postgres==2.0.0
+langgraph==0.3.9
 psycopg[pool]
