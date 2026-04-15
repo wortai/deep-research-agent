@@ -11,6 +11,8 @@ fastapi
 uvicorn[standard]
 starlette
 python-dotenv
+redis>=5.0.0
+python-multipart
 
 # Database
 psycopg2-binary

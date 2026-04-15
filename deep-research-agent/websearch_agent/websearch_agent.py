@@ -12,8 +12,6 @@ from typing import Dict, Any, List
 from datetime import datetime
 
 from langgraph.types import StreamWriter
-from langchain.agents import create_agent
-from langchain.agents.middleware import wrap_tool_call
 from langchain_core.messages import ToolMessage
 
 from graphs.states.subgraph_state import AgentGraphState
@@ -71,44 +69,17 @@ class WebSearchAgent:
         Args:
             emitter: StreamEmitter for sending tool execution events to frontend.
         """
+        from langgraph.prebuilt import create_react_agent
+
         self._emitter = emitter
-        self._agent = create_agent(
+        self._agent = create_react_agent(
             model=LlmsHouse.grok_model(
-                model_name= "grok-4-1-fast-reasoning",
+                model_name="grok-4-1-fast-reasoning",
                 temperature=0.5,
             ),
             tools=ALL_SEARCH_TOOLS,
-            system_prompt=SYSTEM_PROMPT,
-            middleware=[self._build_tool_middleware()],
+            prompt=SYSTEM_PROMPT,
         )
-
-    def _build_tool_middleware(self):
-        """
-        Creates async wrap_tool_call middleware emitting TOOL_EXECUTION events.
-
-        Emits "running" before tool execution and "completed" after,
-        routed through StreamWriter → chunk_router → frontend WebSocket.
-
-        Returns:
-            AgentMiddleware wrapping each tool call with event emission.
-        """
-        emitter = self._emitter
-
-        @wrap_tool_call
-        async def emit_tool_status(request, handler):
-            tool_name = request.tool_call.get("name", "unknown")
-            query_snippet = request.tool_call.get("args", {}).get(
-                "query", request.tool_call.get("args", {}).get("user_query", "")
-            )[:50]
-            label = TOOL_LABELS.get(tool_name, tool_name)
-            description = f"{label}: {query_snippet}" if query_snippet else label
-
-            emitter.emit_tool_execution(tool_name, description, status="running")
-            result = await handler(request)
-            emitter.emit_tool_execution(tool_name, description, status="completed")
-            return result
-
-        return emit_tool_status
 
     async def search(self, state: AgentGraphState) -> Dict[str, Any]:
         """
@@ -130,18 +101,22 @@ class WebSearchAgent:
             state.get("improve_in_response", "")
         )
 
-        result = await self._agent.ainvoke({
-            "messages": [{
-                "role": "user",
-                "content": (
-                    f"Current date and time (UTC): {now_utc_for_prompt()}\n\n"
-                    f"Long-Term Memory Context:\n{memory_context}\n\n"
-                    f"Chat History:\n{chat_context}\n\n"
-                    f"Current User Question: {user_query}\n\n"
-                    f"Improve_in_response instruction:\n{improve_instruction}"
-                ),
-            }]
-        })
+        result = await self._agent.ainvoke(
+            {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": (
+                            f"Current date and time (UTC): {now_utc_for_prompt()}\n\n"
+                            f"Long-Term Memory Context:\n{memory_context}\n\n"
+                            f"Chat History:\n{chat_context}\n\n"
+                            f"Current User Question: {user_query}\n\n"
+                            f"Improve_in_response instruction:\n{improve_instruction}"
+                        ),
+                    }
+                ]
+            }
+        )
 
         messages = result.get("messages", [])
         structured_results, all_images = self._parse_search_results(messages)
@@ -255,11 +230,13 @@ class WebSearchAgent:
                     if not url or url in seen_urls:
                         continue
                     seen_urls.add(url)
-                    unique_results.append({
-                        "title": item.get("title", "No Title"),
-                        "url": url,
-                        "content": item.get("content", ""),
-                    })
+                    unique_results.append(
+                        {
+                            "title": item.get("title", "No Title"),
+                            "url": url,
+                            "content": item.get("content", ""),
+                        }
+                    )
 
                 for img in data.get("images", []):
                     img_url = img.get("url", "")
@@ -273,7 +250,9 @@ class WebSearchAgent:
         return unique_results, all_images
 
 
-async def websearch_agent_node(state: AgentGraphState, writer: StreamWriter = None) -> Dict[str, Any]:
+async def websearch_agent_node(
+    state: AgentGraphState, writer: StreamWriter = None
+) -> Dict[str, Any]:
     """LangGraph node entry point — creates WebSearchAgent and runs search."""
     emitter = get_emitter(writer)
     agent = WebSearchAgent(emitter)
