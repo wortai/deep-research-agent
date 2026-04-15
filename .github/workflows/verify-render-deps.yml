@@ -37,3 +37,6 @@ jobs:
         run: |
           python -c "import pydantic; import pydantic_core; import torch; import fastapi; print('imports OK')"
           python -c "from langgraph.checkpoint.postgres.shallow import AsyncShallowPostgresSaver; print('langgraph postgres shallow OK')"
+          # Same import chain as Render: memory package pulls memory_compactor -> llms.llms (needs langchain-* integrations).
+          export PYTHONPATH="${GITHUB_WORKSPACE}/deep-research-agent:${GITHUB_WORKSPACE}/server:${PYTHONPATH:-}"
+          python -c "from llms.llms import LlmsHouse; print('llms OK')"
