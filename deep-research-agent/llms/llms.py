@@ -38,7 +38,6 @@ from langchain_mistralai import ChatMistralAI
 from langchain_community.chat_models import ChatPerplexity
 from langchain_anthropic import ChatAnthropic
 from langchain_xai import ChatXAI
-from langchain_openrouter import ChatOpenRouter
 
 # To install these libraries, run the following commands:
 
@@ -58,9 +57,10 @@ class LlmsHouse:
     @staticmethod
     def openrouter_model(
         model_name: str, temperature: float = 0.7, **kwargs
-    ) -> ChatOpenRouter:
+    ) -> ChatOpenAI:
         """
         OpenRouter models — Unified API to access models from multiple providers.
+        Uses ChatOpenAI with OpenRouter's OpenAI-compatible base URL.
         Supports any model listed on https://openrouter.ai/models
         Examples: qwen/qwen3-235b-a22b, anthropic/claude-sonnet-4.5, openai/gpt-4o
         """
@@ -68,12 +68,14 @@ class LlmsHouse:
         if not key:
             LlmsHouse._ensure_api_key("OPENROUTER_API_KEY")
             key = os.getenv("OPENROUTER_API_KEY")
-        os.environ["OPENROUTER_API_KEY"] = key
-        return ChatOpenRouter(
+        return ChatOpenAI(
             model=model_name,
+            base_url="https://openrouter.ai/api/v1",
+            api_key=key,
             temperature=temperature,
             max_tokens=kwargs.get("max_tokens", None),
             max_retries=kwargs.get("max_retries", 2),
+            default_headers={"HTTP-Referer": "https://wort.app", "X-Title": "WORT"},
         )
 
     @staticmethod
@@ -229,9 +231,10 @@ class LlmsHouse:
     @staticmethod
     def openrouter_model(
         model_name: str, temperature: float = 0.7, **kwargs
-    ) -> ChatOpenRouter:
+    ) -> ChatOpenAI:
         """
         OpenRouter models — Unified API to access models from multiple providers.
+        Uses ChatOpenAI with OpenRouter's OpenAI-compatible base URL.
         Supports any model listed on https://openrouter.ai/models
         Examples: qwen/qwen3-235b-a22b, anthropic/claude-sonnet-4.5, openai/gpt-4o
         """
@@ -239,12 +242,14 @@ class LlmsHouse:
         if not key:
             LlmsHouse._ensure_api_key("OPENROUTER_API_KEY")
             key = os.getenv("OPENROUTER_API_KEY")
-        os.environ["OPENROUTER_API_KEY"] = key
-        return ChatOpenRouter(
+        return ChatOpenAI(
             model=model_name,
+            base_url="https://openrouter.ai/api/v1",
+            api_key=key,
             temperature=temperature,
             max_tokens=kwargs.get("max_tokens", None),
             max_retries=kwargs.get("max_retries", 2),
+            default_headers={"HTTP-Referer": "https://wort.app", "X-Title": "WORT"},
         )
 
     @staticmethod

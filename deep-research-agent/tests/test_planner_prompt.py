@@ -369,7 +369,7 @@ def run_live_tests():
     # Try OpenAI via OpenRouter
     if llm is None:
         try:
-            from langchain_openrouter import ChatOpenRouter
+            from langchain_openai import ChatOpenAI
             import os
             from dotenv import load_dotenv
 
@@ -377,7 +377,12 @@ def run_live_tests():
 
             if os.getenv("OPENROUTER_API_KEY"):
                 print("🔄 Trying OpenAI via OpenRouter...")
-                llm = ChatOpenRouter(model="openai/gpt-4o", temperature=1.25)
+                llm = ChatOpenAI(
+                    model="openai/gpt-4o",
+                    temperature=1.25,
+                    base_url="https://openrouter.ai/api/v1",
+                    api_key=os.getenv("OPENROUTER_API_KEY"),
+                )
                 structured_llm = llm.with_structured_output(PlanResult)
                 print("✅ OpenAI model initialized successfully\n")
             else:

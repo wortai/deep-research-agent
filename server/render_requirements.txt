@@ -21,7 +21,7 @@ langgraph-checkpoint-postgres>=2.0.20,<3
 
 # LangChain ecosystem
 langchain==0.3.22
-langchain-core==0.3.49
+langchain-core==0.3.68
 langchain-community==0.3.19
 langchain-openai==0.3.11
 langchain-anthropic==0.3.3
@@ -30,8 +30,8 @@ langchain-deepseek==0.1.3
 # Required by deep-research-agent/llms/llms.py (imported via memory.memory_compactor)
 langchain-mistralai==0.2.11
 langchain-qwq==0.2.0
-langchain-xai==1.2.2
-langchain-openrouter==0.2.1
+langchain-xai==0.2.2
+# langchain-openrouter==0.2.1  # Removed: requires langchain-core>=1.2.23 (incompatible). Code uses ChatOpenAI + OpenRouter base_url instead.
 langchain-text-splitters==0.3.7
 langsmith==0.3.45
 
