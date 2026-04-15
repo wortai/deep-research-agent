@@ -50,25 +50,50 @@ async def lifespan(app: FastAPI):
     if cloud_sql_instance:
         logger.info("Using Cloud SQL instance: %s", cloud_sql_instance)
 
-    memory_facade = MemoryFacade(db_uri)
-    await memory_facade.initialize()
+    try:
+        memory_facade = MemoryFacade(db_uri)
+        await memory_facade.initialize()
+        logger.info("MemoryFacade initialized successfully")
+    except Exception as e:
+        logger.error("MemoryFacade initialization failed: %s", e)
+        memory_facade = None
 
-    db_pool = DatabasePool(db_uri)
-    await db_pool.open()
+    try:
+        db_pool = DatabasePool(db_uri)
+        await db_pool.open()
+        logger.info("DatabasePool opened successfully")
+    except Exception as e:
+        logger.error("DatabasePool initialization failed: %s", e)
+        db_pool = None
 
-    session_store = SessionStore(db_pool.pool)
-    event_store = EventStore(db_pool.pool)
-    auth_service = AuthService(db_pool.pool)
-    checkpoint_reader = CheckpointReader(memory_facade.checkpointer)
+    if db_pool:
+        session_store = SessionStore(db_pool.pool)
+        event_store = EventStore(db_pool.pool)
+        auth_service = AuthService(db_pool.pool)
+    else:
+        session_store = None
+        event_store = None
+        auth_service = None
+        logger.warning("Running without database — session/auth features disabled")
+
+    if memory_facade:
+        checkpoint_reader = CheckpointReader(memory_facade.checkpointer)
+    else:
+        checkpoint_reader = None
+        logger.warning("Running without memory facade — research features disabled")
 
     app.state.memory_facade = memory_facade
     app.state.session_store = session_store
     app.state.event_store = event_store
     app.state.auth_service = auth_service
     app.state.checkpoint_reader = checkpoint_reader
-    app.state.active_threads: set[str] = set()  # Tracks threads with running graph tasks
+    app.state.active_threads: set[str] = set()
 
-    logger.info("Memory and storage systems initialized")
+    logger.info(
+        "Startup complete (memory_facade=%s, db_pool=%s)",
+        "OK" if memory_facade else "FAILED",
+        "OK" if db_pool else "FAILED",
+    )
 
     grok_key = os.getenv("GROK_API_KEY", "")
     google_key = os.getenv("GOOGLE_API_KEY", "")
