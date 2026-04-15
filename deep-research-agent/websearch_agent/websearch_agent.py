@@ -79,6 +79,7 @@ def _wrap_tool_with_events(tool_func, emitter: StreamEmitter):
         emitter.emit_tool_execution(tool_name, description, status="completed")
         return result
 
+    wrapped_tool.__doc__ = tool_func.description
     wrapped_tool.name = tool_name
     wrapped_tool.description = tool_func.description
     wrapped_tool.args_schema = getattr(tool_func, "args_schema", None)
