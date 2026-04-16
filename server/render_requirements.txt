@@ -62,7 +62,6 @@ numpy==2.2.3
 beautifulsoup4==4.13.3
 tavily-python==0.7.3
 google_search_results==2.4.2
-ddgs>=9.9.0
 httpx==0.28.1
 aiohttp==3.11.13
 
