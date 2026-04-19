@@ -216,6 +216,27 @@ When using Charts.css for data visualization:
 - Example: For a CSR vs RSC comparison table, the first column should label each row: "CSR (Next.js Pages)" and "RSC (Next.js App)".
 - Charts.css classes (charts-css, show-labels, show-data, show-headings) require the Charts.css stylesheet to be loaded globally by the document viewer. Your HTML should include these classes on <table> elements — the viewer handles the CSS. If a Charts.css chart does not render as a visual chart, the table will still display as a styled HTML table with the data visible — this is the fallback behavior.
 
+BAR / COLUMN CHART CHECKLIST (follow every time you add one)
+1. Wrap with <div style="width:100%; max-width:100%; overflow-x:auto; margin:1.25rem 0; box-sizing:border-box;">.
+2. <table class="charts-css bar|column show-labels show-data show-heading data-spacing-10" style="width:100%; max-width:100%; height:320px; font-family:[body font];">.
+3. <caption caption-side: top> using the design instructions' heading font + heading hex for a short descriptive title.
+4. Every <th> carries explicit font-family, font-size, font-weight, color, background, padding — no defaults.
+5. <td> uses `--size:<decimal 0.0–1.0>` (NOT raw numbers, NOT percentages, NOT calc()) + `background:<hex from palette>`. Pre-normalize the decimal against the dataset max.
+6. Single series = one color. Don't rainbow single-series bars. Multi-series = one color per series, in palette order (primary → secondary → tertiary).
+7. At least one intro sentence before the chart, and 1–3 interpretation sentences after.
+
+PIE / DONUT CHART — ALWAYS INLINE SVG
+Charts.css pie is unreliable. Build every pie or donut as inline SVG using the stroke-dasharray-on-circle pattern:
+1. Wrap with <div style="width:100%; max-width:100%; overflow-x:auto; margin:1.25rem 0; display:flex; justify-content:center; box-sizing:border-box;">.
+2. <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:520px; font-family:[body font];"> with <title> and <desc>.
+3. For radius r=70 the circumference C ≈ 440. Each slice: stroke-dasharray="(p*C) C", stroke-dashoffset = -(cumulative previous slice lengths). First slice offset = 0.
+4. transform="rotate(-90 cx cy)" on every slice circle so the first slice starts at 12 o'clock.
+5. Use stroke-width 28–38; add a white inner <circle r="50" fill="#FFFFFF"/> for a donut (omit for a full pie).
+6. Order colors largest → smallest using the palette (primary accent = dominant slice). No two adjacent slices share the same hue.
+7. Slice percentages MUST sum to 1.00 (± 0.01). Aggregate anything < 3% into an "Other" slice.
+8. Always include a legend (<rect> swatches + <text> labels) in the body font. Readers cannot decode slice colors without it.
+9. Max 6 slices. Beyond that, switch to charts-css percentage-column or a stacked bar so labels stay readable.
+
 WHEN DATA IS QUALITATIVE (NO NUMBERS)
 Do NOT force Charts.css, data tables, or numeric charts when the content has no numbers. Instead:
 - Use prose with strong paragraph structure and blockquotes for expert opinions.
@@ -291,9 +312,24 @@ LAYOUT — NEVER MESS UP
 - Inside each page: single column (block stack). No multi-column or grid unless design instructions explicitly ask for it. Everything stacks vertically.
 - Every inner block (paragraph, heading, table wrapper, chart wrapper, list, callout): use width 100% or max-width 100%, box-sizing border-box. No fixed pixel width. No position absolute/fixed.
 - Tables: wrap in <div style="width:100%; overflow-x:auto;"> so wide tables scroll instead of bursting out.
-- Charts (Charts.css or SVG): same — wrapper width 100%, overflow-x auto.
+- Charts (Charts.css or SVG): same — wrapper width 100%, overflow-x auto, margin 1.25rem 0, box-sizing border-box. The chart itself (table or svg) MUST declare font-family inline using the design instructions' body font. SVG pies/donuts should additionally cap at max-width:520px and be centered via display:flex; justify-content:center; on the wrapper. Bar/column charts should have explicit height between 280–400px (never > 420px). Never place a chart immediately after a heading — always write at least one introductory sentence first. Always follow a chart with a 1–3 sentence interpretation. Max one chart per prose-heavy page, two per data-heavy page. Never place a chart in the last 200px of a page — move it to the top of the next report-page instead.
 - Spacing: use margins/padding from design instructions consistently. Gaps between elements so nothing overlaps or feels cramped.
 - Fonts and colors: only from design instructions. Consistent across every heading, paragraph, table, and chart.
+
+TYPOGRAPHY & UI POLISH — MAKE THE PAGE FEEL LIKE A REAL DOCUMENT
+The document viewer renders pages as A4 sheets on a soft gray background. The reader should feel they are looking at a clean, professionally typeset document. Apply these rules consistently:
+- Body paragraphs: font-size from design instructions (usually ~1rem = 16px), line-height 1.7–1.8, margin: 0 0 1rem 0, text-align: left (NEVER justify — uneven word spacing looks broken at this column width), color from design instructions' body text hex. Do not let paragraphs run wider than the page padding allows; the report-page already caps the column, so no extra max-width on paragraphs.
+- Headings h2: the chapter title, placed once at the top of the first page. Use design instructions' heading font and heading hex, font-size ~1.75–2rem, font-weight 700, letter-spacing -0.01em, margin: 0 0 1.25rem 0, padding-bottom 0.5rem, border-bottom 2px solid [design instructions' accent hex] for a subtle separator. Never wrap h2 in its own styled container box.
+- Headings h3: subchapter titles. font-weight 600, font-size ~1.25–1.4rem, margin: 2rem 0 0.75rem 0 (more breathing room above, tight below so it reads as anchored to the following paragraph), heading-color hex, letter-spacing -0.005em.
+- Headings h4: inner sub-section labels. font-weight 600, font-size ~1.05rem, margin: 1.25rem 0 0.5rem 0. Use sparingly — too many h4s fragment the page.
+- Lists: margin: 0.75rem 0 1rem 1.25rem, line-height 1.7, padding-left 0.25rem. Use <ul> for unordered and <ol> for ordered. Each <li> gets padding-left 0.25rem and margin-bottom 0.35rem so items don't cram together.
+- Blockquotes: margin: 1.25rem 0, padding: 0.75rem 1.25rem, border-left 3px solid [accent hex], background [insight box bg hex from design instructions], color [body hex], font-style italic only if the design instructions call for it.
+- Tables: width 100%, border-collapse collapse, font-size 0.9375rem, line-height 1.55. <th> uses the design instructions' table header bg and heading font, 600 weight, padding 0.6rem 0.75rem. <td> uses body font, padding 0.55rem 0.75rem, border-bottom 1px solid [border hex from design instructions]. Alternating row backgrounds if the design instructions specify them.
+- Anchors: color [accent hex], text-decoration: underline, text-underline-offset: 2px, text-decoration-thickness: 1px. On hover (implicitly via the global stylesheet) they darken — do not set hover styles inline since inline CSS can't express :hover.
+- Avoid font-family drift: every heading uses the design instructions' heading font; every paragraph, list, table cell, and chart label uses the body font. Never mix in Times New Roman or Arial — declare the font-family explicitly on every styled block so inheritance doesn't break.
+- Avoid visual noise: no drop shadows on prose blocks, no gradients on text, no letter-spacing > 0.02em on body text, no decorative dividers every few paragraphs. A clean document is one where the reader never notices the design — they only notice the content.
+- Vertical rhythm: leave ~1rem between paragraphs, ~1.5–2rem between a paragraph and a following heading, ~1.25rem around every chart/table/callout wrapper. Pages should breathe — never let two visuals stack with less than 1rem gap.
+- Callout / insight boxes: padding 1rem 1.25rem, border-radius 4–6px, background [insight bg hex], border-left 3px solid [accent hex]. Max one callout per page, two per chapter.
 
 UNDERSTANDING THE CORRECT CHAPTER
 - You are writing one specific place in the report: the CHAPTER marked "YOU ARE HERE" in the table of contents. That is the only part you produce.
@@ -322,6 +358,15 @@ CITATIONS — REQUIRED
 - EVERY chapter must have at least 3 inline citation links.
 - Citations are part of the prose — weave them in naturally, do not group them at the end.
 - If the research sections contain URLs, you MUST use them as <a href> links.
+
+CITATION STYLING & POLISH — HOW CITATIONS SHOULD LOOK
+- Style every inline <a> consistently: color = design instructions' accent hex, text-decoration: underline, text-underline-offset: 2px, text-decoration-thickness: 1px, font-weight: 500 (slightly heavier than body text so the reader's eye catches it without it shouting). Example: <a href="URL" style="color:[accent hex]; text-decoration:underline; text-underline-offset:2px; text-decoration-thickness:1px; font-weight:500;">Source Name</a>.
+- For superscript numbered citations (<sup>), use font-size: 0.75em, line-height: 1, margin-left: 1px so they sit tightly against the word they follow without inflating the line height.
+- For parenthetical "(Source: …)" citations placed at the end of a sentence, keep the parentheses and the word "Source:" in body color (not accent color) — only the linked source name gets the accent color. This keeps the prose calm.
+- Never bold an entire citation phrase; only the linked word(s) carry emphasis via the link style.
+- Citations must NEVER break line spacing — keep line-height at the paragraph's 1.7–1.8 value. Do not wrap citations in <span> blocks with their own line-height.
+- If a single sentence needs multiple citations, place them after distinct claims, not stacked at the sentence end. "X reported Y (<a>Source A</a>), while Z found the opposite (<a>Source B</a>)." is correct; "X reported Y and Z found the opposite (<a>Source A</a>)(<a>Source B</a>)." is wrong.
+- Prefer inline source names over raw URLs. Never output a bare URL as the visible link text (e.g. "https://…"). Always display a human-readable label.
 
 STRUCTURE RULES
 - Hierarchy: h2 (chapter title once at the top of the first page), h3 (subchapters that align with the table of contents for this chapter), h4 (sub-sections inside a subchapter). Short labels only. Inline CSS only; no <style>, <link>, <html>, <head>, <body>, <!DOCTYPE>. Valid HTML; same element type → same styling.
@@ -587,6 +632,8 @@ For each chart/diagram type identified in Phase 2, specify:
 - Which SVG diagrams are needed, what they depict, and their rough dimensions.
 - When NOT to use Charts.css (e.g. single data point → KPI card, qualitative comparison → prose, 2-item comparison → inline text).
 - Color sequence for multi-series charts (ordered list of hex values from the palette).
+- Target bar/column chart height (280–400px, never over 420px) and target pie/donut max-width (~520px, centered) — so every chart fits inside the ~688px usable column of a `.report-page` without overflow.
+- Which semantic colors (positive/negative/neutral) apply when the data carries polarity, and which single "primary accent" to use for single-series charts so the chapter writer doesn't rainbow-color a single series.
 
 PHASE 4 — TYPOGRAPHY & COLOR (EXACT VALUES ONLY)
 Use the skill's Typography & Color section as foundation. Output exact values:
@@ -631,6 +678,21 @@ Charts.css Construction:
 - When to add data-after class, when to add show-primary.
 - When NOT to use Charts.css (single values, qualitative data, fewer than 3 data points).
 
+PHASE 7B — CHART ENCAPSULATION & CONCRETE CODE EXAMPLES (MANDATORY)
+The chapter writer must be able to drop bar/column charts and pie/donut charts into a page without them overflowing the ~688px usable column of a `.report-page` (the viewer caps `.report-page` at 800px with 3.5rem padding). Your design brief MUST include small, concrete, copy-pasteable code examples for (a) a Charts.css bar or column chart and (b) an inline-SVG donut/pie chart, both using the exact palette hex values, fonts, and heading color you defined above. The examples are the chapter writer's reference — they will adapt the examples to real data.
+
+Requirements for the code examples you embed in the brief:
+- Every chart must be wrapped in `<div style="width:100%; max-width:100%; overflow-x:auto; margin:1.25rem 0; box-sizing:border-box;">` so nothing escapes the page column.
+- The `<table>` (Charts.css) or `<svg>` (pie/donut) must declare `width:100%` with `max-width:100%` (SVG may additionally cap at `max-width: 520px` and center via flex).
+- The chart must declare `font-family` inline using the body font you specified, and captions must use the heading font you specified — never rely on browser defaults.
+- For Charts.css: `--size` MUST be a decimal fraction (0.0–1.0), normalized from real data; NEVER a raw number, percentage, or calc() expression. Multi-series charts must include a first-column `<th scope="row">` label for each row.
+- For SVG donut/pie: use the `stroke-dasharray` on `<circle>` pattern (radius around 60–70, stroke-width 28–38), rotated -90° so the first slice starts at 12 o'clock, with an explicit legend and `<title>`+`<desc>` for accessibility. Slices must sum to 100%.
+- Include explicit hex values from the palette (series 1 = primary accent, series 2 = secondary, series 3 = tertiary) — NO placeholders like "[color]" — so the chapter writer sees real colors.
+- Cap bar/column chart heights at 280–400px. Never taller than 420px. Leave ≥ 1rem vertical margin above and below every chart.
+- Add rules about how to pick colors for data: one color for a single-series chart; primary accent for the dominant/highlighted value and a muted neutral for the rest when highlighting one item; the skill's semantic green/red (if defined) for positive/negative comparisons; largest-to-smallest color order for pie slices; no two adjacent pie slices sharing the same hue.
+- Add rules about where to place charts inside a page: never immediately after an h2/h3 heading (put an introductory sentence first); never in the final 200px of a page (move to the top of the next `.report-page`); always followed by a 1–3 sentence interpretation; max one chart per prose-heavy page, two per data-heavy page, never three.
+- Add anti-patterns that often break the layout: fixed pixel widths > 688px, `--size` outside [0,1], `calc()` inside `--size`, rainbow single-series bars, donuts without a legend, slices that don't sum to 100%, fonts not declared on the chart, charts with `position:absolute` / `float` / negative margins.
+
 PHASE 8 — WHAT TO AVOID
 List domain-specific failure modes and anti-patterns for this report:
 - What visual formats to never use (e.g. "never use pie charts for this report", "never use dense tables for narrative content").
@@ -665,6 +727,18 @@ ENFORCEMENT RULES FOR ALL VALUES:
 7. SVG & CHARTS.CSS CONSTRUCTION —
    a) SVG: standard viewBox dimensions for this report type, font family and sizes for SVG text, stroke widths (thin/medium/thick with px values and when to use each), color application rules (palette only, no arbitrary colors), accessibility requirements (<title> and <desc> mandatory), domain-specific SVG patterns from the skill.
    b) Charts.css: which chart types to use (bar, column, line, stacked, percentage, grouped), required modifier classes (show-labels, show-data, show-headings — specify which apply), color sequence for multi-series charts (ordered hex list), when to use data-after and show-primary, when NOT to use Charts.css.
+   c) CONCRETE CHART CODE EXAMPLES — REQUIRED. You MUST include two small, copy-pasteable code snippets inside this section of your output (keep them compact, ~15-30 lines each, inside plain text — do NOT wrap them in markdown code fences; just show them as raw HTML the chapter writer can read). Use the EXACT hex values, body font, heading font, and heading color you defined in sections 1–2 of this brief (no placeholders like "[primary hex]"):
+      • Example A — a Charts.css bar or column chart (whichever is primary for this report type) for a 3–5 category single-series dataset. It MUST include: the `<div>` wrapper with `width:100%; max-width:100%; overflow-x:auto; margin:1.25rem 0;`, the `<table class="charts-css ...">` with explicit `width:100%; max-width:100%; height:320px; font-family:[body font];`, a `<caption>` using the heading font + heading color, `<th>` cells with explicit inline font-family/size/weight/color/padding styles, and `<td>` cells with `--size` as a decimal fraction (0.0–1.0, NOT raw numbers or percentages or calc()) and `background` set to the primary accent hex.
+      • Example B — an inline-SVG donut chart for 3 slices summing to 100%. It MUST include: the `<div>` wrapper with `width:100%; max-width:100%; overflow-x:auto; margin:1.25rem 0; display:flex; justify-content:center;`, the `<svg>` with `viewBox="0 0 400 300" width="100%" style="max-width:520px; font-family:[body font];"`, `<title>` and `<desc>` for accessibility, three `<circle>` elements using `stroke-dasharray` and `stroke-dashoffset` with the correct circumference math (r=70 → C≈440), rotated `-90deg` around the center, a white inner `<circle>` for the donut hole, an optional `<text>` centre label in the heading font, and a legend with color swatches + labels in the body font.
+   d) ENCAPSULATION & PLACEMENT RULES (include these as explicit bullets in your brief so the chapter writer follows them verbatim):
+      • Chart wrappers MUST use `width:100%; max-width:100%; overflow-x:auto; margin:1.25rem 0; box-sizing:border-box;`. Never fixed pixel widths > 688px. Never `position:absolute`, `float`, or negative margins.
+      • Chart must declare `font-family` inline — never rely on browser defaults.
+      • Chart must live inside a `<div class="report-page">`, never as a direct child of `<div class="report-chapter">`.
+      • Always introduce a chart with at least one sentence of prose BEFORE it, and follow it with a 1–3 sentence interpretation AFTER it.
+      • Never place a chart directly after an `<h2>`/`<h3>` heading. Never in the final 200px of a page — move to the top of the next `.report-page`.
+      • Max one chart per prose-heavy page; max two per data-heavy page; never three.
+      • Bar/column chart heights capped at 280–400px (never > 420px).
+      • Color-for-data rules: single-series = one color; positive/negative = semantic green/red (if palette defines them); highlight-one = primary accent + muted neutral for the rest; pie slices ordered largest→smallest with palette colors, no two adjacent slices sharing a hue.
 
 8. WHAT TO AVOID — Domain-specific failure modes: visual formats to never use, content presentation mistakes, aesthetic mistakes, structural mistakes. Be specific to this report type.
 """
@@ -808,8 +882,28 @@ For each of the three sections below, write a detailed TEXT description of what 
 ABSTRACT GUIDANCE:
   Describe what the abstract should summarize: the report's purpose, scope, what the chapters collectively cover, significance of the topic, and the key takeaway. Be specific — reference the actual chapter themes from the TOC. (Target: guidance for 150–250 words of final content.)
 
+  TONE & PRECISION RULES FOR ABSTRACT (the chapter writer must follow these when turning your guidance into prose):
+  - Hard cap: 150–220 words in the final rendered abstract. Shorter is better than padded.
+  - Open with ONE sentence that names the exact topic and the exact question the report answers. No warm-up, no "In recent years…" filler, no rhetorical questions.
+  - Every sentence must carry new information — no restating what the previous sentence already said in different words.
+  - Anchor every claim in a concrete noun (the actual technology, entity, metric, event, mechanism) — never abstract filler like "various factors", "a number of considerations", "important implications".
+  - Precision over flourish: name specific chapters, specific findings, specific metrics that appear later in the report. If the topic has numbers, include the 1–2 most important ones. If it has a verdict, state it.
+  - One single paragraph, no lists, no sub-headings inside the abstract. Plain prose only.
+  - End with ONE sentence that names the single most important takeaway a reader will get from finishing the report — not a generic "this is important" line.
+  - Do NOT use meta-language like "This report will show…" / "We will discuss…" — write declaratively about the findings themselves.
+
 INTRODUCTION GUIDANCE:
   Describe what the introduction should establish: why this topic matters now, what question/problem the report addresses, how the report is structured (reference each chapter by name and what it covers), and what the reader will gain. Be detailed about the narrative arc. (Target: guidance for 300–500 words of final content.)
+
+  TONE & PRECISION RULES FOR INTRODUCTION (the chapter writer must follow these when turning your guidance into prose):
+  - Target: 280–450 words in the final rendered introduction. Tight and purposeful. If the report is short, stay closer to 280.
+  - Open with context in 1–2 sentences MAX. Do NOT spend a whole paragraph on background the reader already has — get to the actual question the report answers by the third sentence.
+  - Then state the exact question or problem the report addresses, in one declarative sentence. No hedging ("this report will attempt to explore…") — write "This report explains X" or "This report analyses Y".
+  - Then give a short structural roadmap: name each chapter (by its TOC title or a close paraphrase) and, in ONE short sentence per chapter, state what that chapter delivers. Use a clean bulleted list ONLY if there are 4+ chapters; otherwise keep it as prose. Do NOT repeat the full chapter content — just the angle.
+  - End with 1–2 sentences on what the reader will be able to do/understand after finishing — concrete, not generic.
+  - No jargon without a one-clause definition on first use. No acronyms without expansion on first use.
+  - Prefer active voice. Prefer short sentences (avg 15–22 words). No dangling qualifiers, no nested parentheticals longer than 6 words.
+  - Do NOT preview conclusions — the introduction sets up the question, the conclusion answers it.
 
 CONCLUSION GUIDANCE:
   Describe what the conclusion should synthesize: the key insight from each chapter, how they connect into a bigger picture, forward-looking implications, and the definitive takeaway. Reference specific chapter themes. (Target: guidance for 300–500 words of final content.)
