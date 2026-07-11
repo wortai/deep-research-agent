@@ -33,7 +33,9 @@ logger = logging.getLogger(__name__)
 
 MIGRATIONS_DIR = Path(__file__).resolve().parent
 
-CREATE_MIGRATIONS_TABLE = """
+BOOTSTRAP_MIGRATION_STATE = """
+CREATE SCHEMA IF NOT EXISTS wort;
+
 CREATE TABLE IF NOT EXISTS wort._migrations (
     id         SERIAL PRIMARY KEY,
     filename   VARCHAR(255) NOT NULL UNIQUE,
@@ -93,11 +95,11 @@ def run_migrations(db_url: str) -> list[str]:
     applied_names: list[str] = []
 
     with psycopg.connect(db_url) as conn:
-        # Ensure the tracking table exists
+        # Ensure the application schema and migration tracking table exist.
         with conn.cursor() as cur:
-            cur.execute(CREATE_MIGRATIONS_TABLE)
+            cur.execute(BOOTSTRAP_MIGRATION_STATE)
             conn.commit()
-            logger.info("Migration tracking table ensured")
+            logger.info("Migration schema and tracking table ensured")
 
         # Check which migrations are already applied
         with conn.cursor() as cur:
